@@ -9,9 +9,10 @@ public class Service2 {
 
         final Muon muon = new TransportedMuon();
 
-//        muon.emit("sendMail", "WIBBLE MONKEY");
-        Muon.MuonResult result = muon.get("/muon/router");
+        muon.emit("something", "Be Happy");
 
-        System.out.println("Result == " + result.getEvent());
+        String myData = muon.get("/mydata").getEvent().toString();
+
+        System.out.println("The data is " + myData);
     }
 }

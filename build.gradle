@@ -14,7 +14,7 @@ dependencies {
   //http transport
   compile 'org.eclipse.jetty:jetty-server:8.1.16.v20140903'
   compile 'org.eclipse.jetty:jetty-client:8.1.16.v20140903'
-
+  compile 'com.google.guava:guava:18.0'
 
   testCompile group: 'junit', name: 'junit', version: '4.11'
 }

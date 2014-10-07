@@ -3,6 +3,7 @@ package org.muoncore;
 import org.muoncore.filter.EventFilterChain;
 import org.muoncore.transport.AMQPEventTransport;
 import org.muoncore.transport.HttpEventTransport;
+import org.muoncore.transport.LocalEventTransport;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -18,7 +19,10 @@ public class TransportedMuon implements Muon {
 
     List<MuonExtension> extensions = new ArrayList<MuonExtension>();
 
+    Dispatcher dispatcher = new Dispatcher();
+
     public TransportedMuon() {
+//        setupLocalTransport();
         setupAMQPTransport();
 //        setupHttpTransport();
     }
@@ -26,12 +30,23 @@ public class TransportedMuon implements Muon {
     @Override
     public void registerExtension(MuonExtension extension) {
         extensions.add(extension);
-        extension.init(new MuonExtensionApi(this, filterChains, transports));
+        extension.init(new MuonExtensionApi(this, filterChains, transports, dispatcher));
     }
 
     private void setupHttpTransport() {
         try {
             MuonEventTransport trans = new HttpEventTransport();
+            transports.add(trans);
+            EventFilterChain chain = new EventFilterChain(trans);
+            filterChains.add(chain);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setupLocalTransport() {
+        try {
+            MuonEventTransport trans = new LocalEventTransport();
             transports.add(trans);
             EventFilterChain chain = new EventFilterChain(trans);
             filterChains.add(chain);
@@ -60,11 +75,7 @@ public class TransportedMuon implements Muon {
     @Override
     public void emit(String eventName, Object payload) {
         MuonEvent ev = new MuonEvent(eventName, payload);
-
-        //TODO, could be the dispatcher.
-        for (MuonEventTransport transport: transports(ev)) {
-            transport.emit(eventName, ev);
-        }
+        dispatcher.dispatchToTransports(ev, transports(ev));
     }
 
     @Override
@@ -155,7 +166,7 @@ public class TransportedMuon implements Muon {
         List<MuonEventTransport> matching = transports(event);
 
         if (matching.size() != 1) {
-            throw new IllegalStateException("Expected 1 transport to match event, found " + matching.size());
+            throw new IllegalStateException("Expected 1 transport to match presend, found " + matching.size());
         }
         return matching.get(0);
     }

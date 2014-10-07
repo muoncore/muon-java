@@ -68,7 +68,7 @@ public class AMQPEventTransport implements MuonEventTransport {
 
             String callbackQueueName = channel.queueDeclare().getQueue();
 
-            //TODO, this generates a new queue for every single event of this type. likely to break and is highly inefficient
+            //TODO, this generates a new queue for every single presend of this type. likely to break and is highly inefficient
             AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
                     .replyTo(callbackQueueName)
                     .build();

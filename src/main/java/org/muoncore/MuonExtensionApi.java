@@ -9,11 +9,21 @@ public class MuonExtensionApi {
     private List<EventFilterChain> filters;
     private List<MuonEventTransport> transports;
     private Muon muon;
+    private Dispatcher dispatcher;
 
-    public MuonExtensionApi(Muon muon, List<EventFilterChain> filters, List<MuonEventTransport> transports) {
+    public MuonExtensionApi(
+            Muon muon,
+            List<EventFilterChain> filters,
+            List<MuonEventTransport> transports,
+            Dispatcher dispatcher) {
         this.muon = muon;
         this.filters = filters;
         this.transports = transports;
+        this.dispatcher = dispatcher;
+    }
+
+    public Dispatcher getDispatcher() {
+        return dispatcher;
     }
 
     public Muon getMuon() {

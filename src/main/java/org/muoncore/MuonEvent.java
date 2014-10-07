@@ -17,4 +17,15 @@ public class MuonEvent {
         headers.put(header, value);
     }
 
+    public String getResource() {
+        return resource;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public Object getPayload() {
+        return payload;
+    }
 }

@@ -2,6 +2,7 @@ package com.simplicity.services;
 
 import org.muoncore.Muon;
 import org.muoncore.TransportedMuon;
+import org.muoncore.extension.eventlogger.EventLoggerExtension;
 import org.muoncore.extension.router.RouterExtension;
 
 import java.util.Collections;
@@ -11,40 +12,20 @@ public class Service {
 
     public static void main(String[] args) {
 
-        final StockManager stockRepository = new StockManager() {
-            @Override
-            public List top10ByQuantity() {
-                return Collections.emptyList();
-            }
-        };
+        Muon muon = new TransportedMuon();
 
-
-        final Muon muon = new TransportedMuon();
-        muon.registerExtension(new RouterExtension());
-
-        muon.receive("sendMail", new Muon.MuonListener() {
+        muon.receive("something", new Muon.MuonListener() {
             @Override
             public void onEvent(Object event) {
-                System.out.println("Hello World, got " + event);
+                System.out.println("Hello World " + event);
             }
         });
 
-        muon.resource("/stocks/top10/quantity", "The Top 10 Stocks, by traded quantity", new Muon.MuonGet() {
+        muon.resource("/mydata", "Get Some Data", new Muon.MuonGet() {
             @Override
             public Object onQuery(Object queryEvent) {
-                return stockRepository.top10ByQuantity();
+                return "<h1> This is awesome!!</h1>";
             }
         });
-    }
-
-
-
-
-
-
-
-
-    interface StockManager {
-        List top10ByQuantity();
     }
 }
