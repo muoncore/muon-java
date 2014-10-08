@@ -4,8 +4,8 @@ import java.util.List;
 
 public interface MuonEventTransport {
 
-    public Muon.MuonResult emit(String eventName, MuonEvent event);
-    public Muon.MuonResult emitForReturn(
+    public MuonService.MuonResult emit(String eventName, MuonEvent event);
+    public MuonService.MuonResult emitForReturn(
             String eventName, MuonEvent event);
 
     public void listenOnEvent(String resource,
@@ -15,5 +15,5 @@ public interface MuonEventTransport {
                                String verb,
                          TransportedMuon.EventTransportListener listener);
 
-//    public List<String> discoverServices();
+    public List<ServiceDescriptor> discoverServices();
 }

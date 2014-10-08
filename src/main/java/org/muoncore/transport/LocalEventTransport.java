@@ -2,11 +2,9 @@ package org.muoncore.transport;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import org.muoncore.Muon;
-import org.muoncore.MuonEvent;
-import org.muoncore.MuonEventTransport;
-import org.muoncore.TransportedMuon;
+import org.muoncore.*;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class LocalEventTransport implements MuonEventTransport {
@@ -19,20 +17,20 @@ public class LocalEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public Muon.MuonResult emit(String eventName, MuonEvent event) {
+    public MuonService.MuonResult emit(String eventName, MuonEvent event) {
 
         System.out.println("LEB: event " + eventName);
 
         bus.post(event);
-        return new Muon.MuonResult();
+        return new MuonService.MuonResult();
     }
 
     @Override
-    public Muon.MuonResult emitForReturn(String eventName, MuonEvent event) {
+    public MuonService.MuonResult emitForReturn(String eventName, MuonEvent event) {
 
         final CountDownLatch latch = new CountDownLatch(1);
 
-        final Muon.MuonResult result = new Muon.MuonResult();
+        final MuonService.MuonResult result = new MuonService.MuonResult();
 
         System.out.println("LEB: Sending resource query " + eventName);
 
@@ -89,6 +87,11 @@ public class LocalEventTransport implements MuonEventTransport {
                 }
             }
         });
+    }
+
+    @Override
+    public List<ServiceDescriptor> discoverServices() {
+        throw new IllegalStateException("Not Implemented");
     }
 
     static interface EBListener {

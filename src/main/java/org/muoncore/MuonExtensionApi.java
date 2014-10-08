@@ -4,29 +4,39 @@ import org.muoncore.filter.EventFilterChain;
 
 import java.util.List;
 
+/**
+ * Passed into library extensions to allow interfering with and inspection of the runtime
+ */
 public class MuonExtensionApi {
 
     private List<EventFilterChain> filters;
     private List<MuonEventTransport> transports;
-    private Muon muon;
+    private MuonService muon;
     private Dispatcher dispatcher;
+    private List<MuonExtension> extensions;
 
     public MuonExtensionApi(
-            Muon muon,
+            MuonService muon,
             List<EventFilterChain> filters,
             List<MuonEventTransport> transports,
-            Dispatcher dispatcher) {
+            Dispatcher dispatcher,
+            List<MuonExtension> extensions) {
         this.muon = muon;
         this.filters = filters;
         this.transports = transports;
         this.dispatcher = dispatcher;
+        this.extensions = extensions;
+    }
+
+    public List<MuonExtension> getExtensions() {
+        return extensions;
     }
 
     public Dispatcher getDispatcher() {
         return dispatcher;
     }
 
-    public Muon getMuon() {
+    public MuonService getMuon() {
         return muon;
     }
 

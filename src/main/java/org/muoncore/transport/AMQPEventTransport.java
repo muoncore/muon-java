@@ -1,16 +1,13 @@
 package org.muoncore.transport;
 
 import com.rabbitmq.client.*;
-import org.muoncore.MuonEvent;
-import org.muoncore.TransportedMuon;
-import org.muoncore.Muon;
-import org.muoncore.MuonEventTransport;
+import org.muoncore.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.Executor;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -40,11 +37,11 @@ public class AMQPEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public Muon.MuonResult emit(String eventName, MuonEvent event) {
+    public MuonService.MuonResult emit(String eventName, MuonEvent event) {
         String payload = event.toString();
         byte[] messageBytes = payload.getBytes();
 
-        Muon.MuonResult ret = new Muon.MuonResult();
+        MuonService.MuonResult ret = new MuonService.MuonResult();
 
         try {
             channel.basicPublish(EXCHANGE_NAME, eventName, null, messageBytes);
@@ -58,11 +55,11 @@ public class AMQPEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public Muon.MuonResult emitForReturn(String eventName, MuonEvent event) {
+    public MuonService.MuonResult emitForReturn(String eventName, MuonEvent event) {
         String payload = event.toString();
         byte[] messageBytes = payload.getBytes();
 
-        Muon.MuonResult ret = new Muon.MuonResult();
+        MuonService.MuonResult ret = new MuonService.MuonResult();
 
         try {
 
@@ -172,5 +169,10 @@ public class AMQPEventTransport implements MuonEventTransport {
                 }
             }
         });
+    }
+
+    @Override
+    public List<ServiceDescriptor> discoverServices() {
+        throw new IllegalStateException("Not Implemented");
     }
 }

@@ -1,13 +1,13 @@
 package com.simplicity.services;
 
-import org.muoncore.Muon;
+import org.muoncore.MuonService;
 import org.muoncore.TransportedMuon;
 
 public class Service2 {
 
     public static void main(String[] args) {
 
-        final Muon muon = new TransportedMuon();
+        final MuonService muon = new TransportedMuon();
 
         muon.emit("something", "Be Happy");
 

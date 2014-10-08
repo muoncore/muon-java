@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransportedMuon implements Muon {
+public class TransportedMuon implements MuonService {
 
     List<EventFilterChain> filterChains = new ArrayList<EventFilterChain>();
     List<MuonEventTransport> transports = new ArrayList<MuonEventTransport>();
@@ -24,13 +24,19 @@ public class TransportedMuon implements Muon {
     public TransportedMuon() {
 //        setupLocalTransport();
         setupAMQPTransport();
-//        setupHttpTransport();
+        setupHttpTransport();
     }
 
     @Override
     public void registerExtension(MuonExtension extension) {
         extensions.add(extension);
-        extension.init(new MuonExtensionApi(this, filterChains, transports, dispatcher));
+        extension.init(
+                new MuonExtensionApi(
+                        this,
+                        filterChains,
+                        transports,
+                        dispatcher,
+                        extensions));
     }
 
     private void setupHttpTransport() {

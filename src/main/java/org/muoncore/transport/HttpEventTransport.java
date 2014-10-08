@@ -6,16 +6,14 @@ import org.eclipse.jetty.client.HttpExchange;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.muoncore.MuonEvent;
-import org.muoncore.TransportedMuon;
-import org.muoncore.Muon;
-import org.muoncore.MuonEventTransport;
+import org.muoncore.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HttpEventTransport implements MuonEventTransport {
@@ -37,12 +35,12 @@ public class HttpEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public Muon.MuonResult emit(String eventName, MuonEvent event) {
+    public MuonService.MuonResult emit(String eventName, MuonEvent event) {
         throw new IllegalStateException("HTTP Transport cannot broadcast/ emit");
     }
 
     @Override
-    public Muon.MuonResult emitForReturn(String eventName, MuonEvent event) {
+    public MuonService.MuonResult emitForReturn(String eventName, MuonEvent event) {
         try {
             //TODO, lookup/ derive the target server from the resource/ presend
             String remoteHost = "localhost";
@@ -65,7 +63,7 @@ public class HttpEventTransport implements MuonEventTransport {
             int exchangeState = exchange.waitForDone();
 
             if (exchangeState == HttpExchange.STATUS_COMPLETED) {
-                Muon.MuonResult result = new Muon.MuonResult();
+                MuonService.MuonResult result = new MuonService.MuonResult();
 
                 result.setEvent(exchange.getResponseContent());
 
@@ -84,7 +82,7 @@ public class HttpEventTransport implements MuonEventTransport {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new Muon.MuonResult();
+        return new MuonService.MuonResult();
     }
 
     @Override
@@ -102,6 +100,11 @@ public class HttpEventTransport implements MuonEventTransport {
     @Override
     public void listenOnEvent(String event, TransportedMuon.EventTransportListener listener) {
         System.out.println("HTTP Transport cannot listen for broadcast");
+    }
+
+    @Override
+    public List<ServiceDescriptor> discoverServices() {
+        throw new IllegalStateException("Not Implemented");
     }
 
     public static class MuonHttpHandler extends AbstractHandler {
