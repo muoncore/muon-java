@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import org.muoncore.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -17,7 +18,7 @@ public class LocalEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public MuonService.MuonResult emit(String eventName, MuonEvent event) {
+    public MuonService.MuonResult emit(String eventName, MuonBroadcastEvent event) {
 
         System.out.println("LEB: event " + eventName);
 
@@ -26,7 +27,7 @@ public class LocalEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public MuonService.MuonResult emitForReturn(String eventName, MuonEvent event) {
+    public MuonService.MuonResult emitForReturn(String eventName, final MuonResourceEvent event) {
 
         final CountDownLatch latch = new CountDownLatch(1);
 
@@ -47,7 +48,7 @@ public class LocalEventTransport implements MuonEventTransport {
         bus.register(response);
         bus.post(event);
         try {
-            //todo, timeout?
+            //todo, timeout? allow shutting down?
             latch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -57,34 +58,39 @@ public class LocalEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public void listenOnEvent(final String resource, final Muon.EventTransportListener listener) {
+    public void listenOnEvent(final String resource, final Muon.EventBroadcastTransportListener listener) {
         System.out.println("LEB: Listening for event " + resource);
         bus.register(new EBListener() {
             @Override
             @Subscribe
-            public void onEvent(MuonEvent ev) {
+            public void onEvent(MuonBroadcastEvent ev) {
                 System.out.println("LEB: Received for event " + resource);
-                if (resource.equals(ev.getResource())) {
-                    listener.onEvent(resource, ev.getPayload());
-                    //TODO, send the response
+                if (resource.equals(ev.getEventName())) {
+                    listener.onEvent(resource, ev);
                 }
             }
         });
     }
 
     @Override
-    public void listenOnResource(final String resource, final String verb, final Muon.EventTransportListener listener) {
+    public void listenOnResource(final String resource, final String verb, final Muon.EventResourceTransportListener listener) {
         System.out.println("LEB: Listening for resource " + resource);
-        bus.register(new EBListener() {
+        bus.register(new EBResourceListener() {
             @Override
             @Subscribe
-            public void onEvent(MuonEvent ev) {
+            public void onEvent(MuonResourceEvent ev) {
                 String verb = ev.getHeaders().get("verb");
-                if (resource.equals(ev.getResource()) && verb != null && verb.equals(verb)) {
-                    System.out.println("LEB: " + verb + " " + resource + " == ");
-                    Object ret = listener.onEvent(resource, ev.getPayload());
 
-                    bus.post(new EBResponseEvent(MuonEventBuilder.textMessage((String) ret).build()));
+                if (resource.equals(ev.getServiceId()) && verb != null && verb.equals(verb)) {
+                    System.out.println("LEB: " + verb + " " + resource + " == ");
+
+                    Object ret = listener.onEvent(resource, ev);
+
+                    bus.post(new EBResponseEvent(
+                            MuonResourceEventBuilder
+                                    .textMessage((String) ret)
+                                    .withUri(ev.getUri().toASCIIString())
+                                    .build()));
                 }
             }
         });
@@ -92,21 +98,27 @@ public class LocalEventTransport implements MuonEventTransport {
 
     @Override
     public List<ServiceDescriptor> discoverServices() {
-        throw new IllegalStateException("Not Implemented");
+        return Collections.singletonList(new ServiceDescriptor("localhost", this));
     }
 
+    @Override
+    public void shutdown() { }
+
     static interface EBListener {
-        void onEvent(MuonEvent ev);
+        void onEvent(MuonBroadcastEvent ev);
+    }
+    static interface EBResourceListener {
+        void onEvent(MuonResourceEvent ev);
     }
 
     static class EBResponseEvent {
-        private MuonEvent event;
+        private MuonResourceEvent event;
 
-        public EBResponseEvent(MuonEvent event) {
+        public EBResponseEvent(MuonResourceEvent event) {
             this.event = event;
         }
 
-        public MuonEvent getEvent() {
+        public MuonResourceEvent getEvent() {
             return event;
         }
     }

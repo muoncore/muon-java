@@ -32,7 +32,7 @@ public class MuonIntrospectionClient {
         List<String> ret = new ArrayList<String>();
 
         String identifiers =
-                (String) muon.getMuon().get("/muon/inspect/extensions").getEvent();
+                (String) muon.getMuon().get("/muon/inspect/extensions").getEvent().getPayload();
 
         Object[] data = (Object[]) JSON.parse(identifiers);
         for(Object obj: data) {

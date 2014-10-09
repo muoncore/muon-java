@@ -13,14 +13,14 @@ public class EventLoggerExtension implements MuonExtension {
     public void init(MuonExtensionApi muonApi) {
         muonApi.getDispatcher().addListener(new Dispatcher.Listener() {
             @Override
-            public void presend(MuonEvent event) {
-                resources.add(event.getResource());
+            public void presend(MuonBroadcastEvent event) {
+                resources.add(event.getEventName());
             }
         });
 
         muonApi.getMuon().resource("/muon/logger/history", "Get the history of logs", new MuonService.MuonGet() {
             @Override
-            public Object onQuery(Object queryEvent) {
+            public Object onQuery(MuonResourceEvent queryEvent) {
                 String ret = "<ul>";
                 for(String res: resources) {
                     ret += "<li>" + res + "</li>\n" ;

@@ -8,12 +8,12 @@ public class Dispatcher {
     private List<Listener> listeners = new ArrayList<Listener>();
 
 
-    void dispatchToTransports(MuonEvent event, List<MuonEventTransport> transports) {
+    void dispatchToTransports(MuonBroadcastEvent event, List<MuonEventTransport> transports) {
         for(Listener listener: listeners) {
             listener.presend(event);
         }
         for (MuonEventTransport transport: transports) {
-            transport.emit(event.getResource(), event);
+            transport.emit(event.getEventName(), event);
         }
     }
 
@@ -22,6 +22,6 @@ public class Dispatcher {
     }
 
     public static interface Listener {
-        void presend(MuonEvent event);
+        void presend(MuonBroadcastEvent event);
     }
 }

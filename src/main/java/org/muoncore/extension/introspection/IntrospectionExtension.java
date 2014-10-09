@@ -1,6 +1,7 @@
 package org.muoncore.extension.introspection;
 
 import org.eclipse.jetty.util.ajax.JSON;
+import org.muoncore.MuonResourceEvent;
 import org.muoncore.MuonService;
 import org.muoncore.MuonExtension;
 import org.muoncore.MuonExtensionApi;
@@ -17,7 +18,7 @@ public class IntrospectionExtension implements MuonExtension {
                 "A list of the installed and active library extension on this service",
                 new MuonService.MuonGet() {
             @Override
-            public Object onQuery(Object queryEvent) {
+            public Object onQuery(MuonResourceEvent queryEvent) {
                 List<String> extensions = new ArrayList<String>();
 
                 for(MuonExtension extension: muonApi.getExtensions()) {

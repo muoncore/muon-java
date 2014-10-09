@@ -42,12 +42,12 @@ public class HttpEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public MuonService.MuonResult emit(String eventName, MuonEvent event) {
+    public MuonService.MuonResult emit(String eventName, MuonBroadcastEvent event) {
         throw new IllegalStateException("HTTP Transport cannot broadcast/ emit");
     }
 
     @Override
-    public MuonService.MuonResult emitForReturn(String eventName, MuonEvent event) {
+    public MuonService.MuonResult emitForReturn(String eventName, MuonResourceEvent event) {
         try {
             //TODO, lookup/ derive the target server from the resource/ presend
             String remoteHost = "localhost";
@@ -70,7 +70,7 @@ public class HttpEventTransport implements MuonEventTransport {
             int exchangeState = exchange.waitForDone();
 
             if (exchangeState == HttpExchange.STATUS_COMPLETED) {
-                MuonEventBuilder builder = MuonEventBuilder.textMessage(exchange.getResponseContent());
+                MuonResourceEventBuilder builder = MuonResourceEventBuilder.textMessage(exchange.getResponseContent());
 
                 for(String headerName: Collections.list(exchange.getResponseFields().getFieldNames())) {
                     builder.withHeader(headerName, exchange.getResponseFields().getStringField(headerName));
@@ -98,7 +98,7 @@ public class HttpEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public void listenOnResource(String resource, String verb, Muon.EventTransportListener listener) {
+    public void listenOnResource(String resource, String verb, Muon.EventResourceTransportListener listener) {
         try {
             //TODO, need a global 'events' listener and enable chaining.
             System.out.println("HTTPTransport: Waiting for " + verb + " requests / " + resource);
@@ -110,7 +110,7 @@ public class HttpEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public void listenOnEvent(String event, Muon.EventTransportListener listener) {
+    public void listenOnEvent(String event, Muon.EventBroadcastTransportListener listener) {
         System.out.println("HTTP Transport cannot listen for broadcast");
     }
 
@@ -119,10 +119,19 @@ public class HttpEventTransport implements MuonEventTransport {
         throw new IllegalStateException("Not Implemented");
     }
 
-    public static class MuonHttpHandler extends AbstractHandler {
-        Map<String, Muon.EventTransportListener> listeners = new HashMap<String, Muon.EventTransportListener>();
+    @Override
+    public void shutdown() {
+        try {
+            handler.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-        public void addListener(String path, String verb, Muon.EventTransportListener listener) {
+    public static class MuonHttpHandler extends AbstractHandler {
+        Map<String, Muon.EventResourceTransportListener> listeners = new HashMap<String, Muon.EventResourceTransportListener>();
+
+        public void addListener(String path, String verb, Muon.EventResourceTransportListener listener) {
             //todo, blend in the verb too
             listeners.put(path, listener);
         }
@@ -132,7 +141,7 @@ public class HttpEventTransport implements MuonEventTransport {
             System.out.println("Getting target " + target);
 
             //TODO, need something that can give a response.
-            Muon.EventTransportListener listener = listeners.get(target);
+            Muon.EventResourceTransportListener listener = listeners.get(target);
 
             if (listener != null) {
                 response.setContentType("text/html;charset=utf-8");
@@ -140,11 +149,11 @@ public class HttpEventTransport implements MuonEventTransport {
                 baseRequest.setHandled(true);
 
                 //TODO, read the content from the request.
+                MuonResourceEvent ev = MuonResourceEventBuilder.textMessage("Fake Request")
+                        .withMimeType(request.getContentType())
+                        .build();
 
-                Object ret = listener.onEvent(target, "FAKE REQUEST");
-
-//                String responseData = listener.onEvent(target, "WIBBLE").toString();
-//                response.getWriter().println(responseData);
+                Object ret = listener.onEvent(target, ev);
 
                 response.getWriter().println(ret.toString());
             } else {
@@ -153,7 +162,6 @@ public class HttpEventTransport implements MuonEventTransport {
                 baseRequest.setHandled(true);
                 response.getWriter().println("<h1>Hello World</h1>");
             }
-
         }
     }
 }

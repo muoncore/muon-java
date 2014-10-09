@@ -1,6 +1,6 @@
 package org.muoncore.filter;
 
-import org.muoncore.MuonEvent;
+import org.muoncore.MuonBroadcastEvent;
 import org.muoncore.MuonEventTransport;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ public class EventFilterChain {
         this.transport = transport;
     }
 
-    public boolean canHandle(MuonEvent event) {
+    public boolean canHandle(MuonBroadcastEvent event) {
         boolean canHandle = true;
 
         for(EventFilter filter: chain) {

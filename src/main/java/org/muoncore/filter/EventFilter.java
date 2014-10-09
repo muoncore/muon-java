@@ -1,7 +1,7 @@
 package org.muoncore.filter;
 
-import org.muoncore.MuonEvent;
+import org.muoncore.MuonBroadcastEvent;
 
 public interface EventFilter {
-    public boolean canHandle(MuonEvent event);
+    public boolean canHandle(MuonBroadcastEvent event);
 }

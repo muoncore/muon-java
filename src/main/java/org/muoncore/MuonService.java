@@ -16,18 +16,18 @@ public interface MuonService extends MuonClient {
     public void setServiceIdentifer(String serviceIdentifer);
 
     public static interface MuonListener {
-        public void onEvent(Object event);
+        public void onEvent(MuonBroadcastEvent event);
     }
     public static interface MuonGet {
-        public Object onQuery(Object queryEvent);
+        public Object onQuery(MuonResourceEvent queryEvent);
     }
     public static interface MuonPost {
-        public Object onCommand(Object queryEvent);
+        public Object onCommand(MuonResourceEvent queryEvent);
     }
     public static interface MuonPut {
-        public Object onCommand(Object queryEvent);
+        public Object onCommand(MuonResourceEvent queryEvent);
     }
     public static interface MuonDelete {
-        public Object onCommand(Object queryEvent);
+        public Object onCommand(MuonResourceEvent queryEvent);
     }
 }

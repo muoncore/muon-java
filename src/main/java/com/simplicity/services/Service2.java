@@ -2,7 +2,7 @@ package com.simplicity.services;
 
 import org.muoncore.Muon;
 import org.muoncore.MuonClient;
-import org.muoncore.MuonService;
+import static org.muoncore.MuonBroadcastEventBuilder.*;
 
 public class Service2 {
 
@@ -10,10 +10,16 @@ public class Service2 {
 
         final MuonClient muon = new Muon();
 
-//        muon.emit("something", "Be Happy");
-
         String myData = muon.get("muon://users/mydata/happy").getEvent().getPayload().toString();
 
         System.out.println("The data is " + myData);
+
+        muon.emit(broadcast("email")
+                    .withContent("Hello Everyone, this is my awesome email")
+                    .withHeader("to", "david.dawson@simplicityitself.com")
+                    .withHeader("from", "muon@simplicityitself.com")
+                    .build());
+
+        muon.shutdown();
     }
 }

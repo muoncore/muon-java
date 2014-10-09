@@ -5,34 +5,41 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MuonEventBuilder {
+public class MuonResourceEventBuilder {
 
     String url;
     Object content;
     String mimeType;
     List<String[]> headers = new ArrayList<String[]>();
 
-    public static MuonEventBuilder textMessage(String text) {
-        MuonEventBuilder builder = new MuonEventBuilder();
+    public static MuonResourceEventBuilder textMessage(String text) {
+        MuonResourceEventBuilder builder = new MuonResourceEventBuilder();
         builder.content = text;
         return builder;
     }
 
-    public MuonEventBuilder withMimeType(String type) {
+    public MuonResourceEventBuilder withMimeType(String type) {
         mimeType = type;
         return this;
     }
 
-    public MuonEventBuilder withHeader(String key, String value) {
+    public MuonResourceEventBuilder withHeader(String key, String value) {
 
         headers.add(new String[] { key, value });
 
         return this;
     }
 
-    public MuonEvent build() {
+    public MuonResourceEventBuilder withUri(String uri) {
+        this.url = uri;
+        return this;
+    }
+
+    public MuonResourceEvent build() {
         try {
-            MuonEvent ev = new MuonEvent(new URI(url), mimeType, content);
+            URI uri = null;
+            if (url != null) uri = new URI(url);
+            MuonResourceEvent ev = new MuonResourceEvent(uri, mimeType, content);
             for(String[] header: headers) {
                 ev.addHeader(header[0], header[1]);
             }

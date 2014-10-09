@@ -38,14 +38,17 @@ public class AMQPEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public MuonService.MuonResult emit(String eventName, MuonEvent event) {
-        String payload = event.toString();
+    public MuonService.MuonResult emit(String eventName, MuonBroadcastEvent event) {
+        //TODO, marshalling.
+        String payload = event.getPayload().toString();
         byte[] messageBytes = payload.getBytes();
 
         MuonService.MuonResult ret = new MuonService.MuonResult();
 
+        //TODO, send the headers... ?
+        AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers((Map) event.getHeaders()).build();
         try {
-            channel.basicPublish(EXCHANGE_NAME, eventName, null, messageBytes);
+            channel.basicPublish(EXCHANGE_NAME, eventName, props, messageBytes);
 
             ret.setSuccess(true);
 
@@ -56,7 +59,7 @@ public class AMQPEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public MuonService.MuonResult emitForReturn(String eventName, MuonEvent event) {
+    public MuonService.MuonResult emitForReturn(String eventName, MuonResourceEvent event) {
         String payload = event.toString();
         byte[] messageBytes = payload.getBytes();
 
@@ -84,11 +87,13 @@ public class AMQPEventTransport implements MuonEventTransport {
             String mimeType = delivery.getProperties().getContentType();
             Map<String, Object> head = delivery.getProperties().getHeaders();
 
-            MuonEventBuilder builder = MuonEventBuilder.textMessage(message)
+            MuonResourceEventBuilder builder = MuonResourceEventBuilder.textMessage(message)
                     .withMimeType(mimeType);
 
-            for(Map.Entry<String, Object> entry: head.entrySet()) {
-                builder.withHeader(entry.getKey(), (String) entry.getValue());
+            if (head != null){
+                for (Map.Entry<String, Object> entry : head.entrySet()) {
+                    builder.withHeader(entry.getKey(), (String) entry.getValue());
+                }
             }
 
             ret.setEvent(builder.build());
@@ -102,7 +107,7 @@ public class AMQPEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public void listenOnResource(final String resource, final String verb, final Muon.EventTransportListener listener) {
+    public void listenOnResource(final String resource, final String verb, final Muon.EventResourceTransportListener listener) {
         spinner.execute(new Runnable() {
             @Override
             public void run() {
@@ -131,7 +136,11 @@ public class AMQPEventTransport implements MuonEventTransport {
                         System.out.println("AMQPChannel : Received " + message);
 
                         //todo, transport marshalling
-                        String response = listener.onEvent(resource, message).toString();
+                        MuonResourceEvent ev = MuonResourceEventBuilder.textMessage(message)
+                                .withMimeType(delivery.getProperties().getContentType())
+                                .build();
+
+                        String response = listener.onEvent(resource, ev).toString();
                         System.out.println("AMQPChannel : Sending" + response);
 
                         channel.basicPublish("", props.getReplyTo(), replyProps, response.getBytes());
@@ -149,7 +158,7 @@ public class AMQPEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public void listenOnEvent(final String resource, final Muon.EventTransportListener listener) {
+    public void listenOnEvent(final String resource, final Muon.EventBroadcastTransportListener listener) {
         spinner.execute(new Runnable() {
             @Override
             public void run() {
@@ -170,8 +179,19 @@ public class AMQPEventTransport implements MuonEventTransport {
 
                         System.out.println("AMQP: Received '" + message + "'");
 
-                        listener.onEvent(resource,
-                                message);
+                        MuonBroadcastEventBuilder builder = MuonBroadcastEventBuilder.broadcast(resource)
+                                .withMimeType(delivery.getProperties().getContentType())
+                                .withContent(message);
+
+                        Map<Object, Object> headers = (Map) delivery.getProperties().getHeaders();
+
+                        for(Map.Entry<Object, Object> entry: headers.entrySet()) {
+                            builder.withHeader(entry.getKey().toString(), entry.getValue().toString());
+                        }
+
+                        MuonBroadcastEvent ev = builder.build();
+
+                        listener.onEvent(resource, ev);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -185,5 +205,16 @@ public class AMQPEventTransport implements MuonEventTransport {
     @Override
     public List<ServiceDescriptor> discoverServices() {
         throw new IllegalStateException("Not Implemented");
+    }
+
+    @Override
+    public void shutdown() {
+        spinner.shutdown();
+        try {
+            channel.close();
+            connection.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
