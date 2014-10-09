@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -80,7 +81,17 @@ public class AMQPEventTransport implements MuonEventTransport {
 
             System.out.println("AMQP: Received Resource Reply '" + message + "'");
 
-            ret.setEvent(message);
+            String mimeType = delivery.getProperties().getContentType();
+            Map<String, Object> head = delivery.getProperties().getHeaders();
+
+            MuonEventBuilder builder = MuonEventBuilder.textMessage(message)
+                    .withMimeType(mimeType);
+
+            for(Map.Entry<String, Object> entry: head.entrySet()) {
+                builder.withHeader(entry.getKey(), (String) entry.getValue());
+            }
+
+            ret.setEvent(builder.build());
 
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -91,11 +102,11 @@ public class AMQPEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public void listenOnResource(final String resource, final String verb, final TransportedMuon.EventTransportListener listener) {
+    public void listenOnResource(final String resource, final String verb, final Muon.EventTransportListener listener) {
         spinner.execute(new Runnable() {
             @Override
             public void run() {
-                //TODO, add ability to filter on the verb (probably add it to the routing key)
+                //TODO, add ability to filter on the verb, service name, resource ... (probably add it to the routing key)
                 try {
                     channel.queueDeclare(EXCHANGE_RES, false, false, false, null);
                     channel.basicQos(1);
@@ -138,7 +149,7 @@ public class AMQPEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public void listenOnEvent(final String resource, final TransportedMuon.EventTransportListener listener) {
+    public void listenOnEvent(final String resource, final Muon.EventTransportListener listener) {
         spinner.execute(new Runnable() {
             @Override
             public void run() {

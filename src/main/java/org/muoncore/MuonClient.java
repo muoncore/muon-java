@@ -2,21 +2,21 @@ package org.muoncore;
 
 public interface MuonClient {
 
-    public void emit(String eventName, Object event);
+    public void emit(String eventName, MuonEvent event);
     public MuonResult get(String resourceQuery);
-    public MuonResult post(String resource, Object payload);
-    public MuonResult put(String resource, Object payload);
+    public MuonResult post(String resource, MuonEvent payload);
+    public MuonResult put(String resource, MuonEvent payload);
 
     public static class MuonResult {
         private boolean success;
 
-        private Object event;
+        private MuonEvent event;
 
-        public Object getEvent() {
+        public MuonEvent getEvent() {
             return event;
         }
 
-        public void setEvent(Object event) {
+        public void setEvent(MuonEvent event) {
             this.event = event;
         }
 

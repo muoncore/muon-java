@@ -6,13 +6,14 @@ import org.muoncore.transport.HttpEventTransport;
 import org.muoncore.transport.LocalEventTransport;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransportedMuon implements MuonService {
+public class Muon implements MuonService {
 
     List<EventFilterChain> filterChains = new ArrayList<EventFilterChain>();
     List<MuonEventTransport> transports = new ArrayList<MuonEventTransport>();
@@ -21,7 +22,9 @@ public class TransportedMuon implements MuonService {
 
     Dispatcher dispatcher = new Dispatcher();
 
-    public TransportedMuon() {
+    String serviceIdentifer;
+
+    public Muon() {
 //        setupLocalTransport();
         setupAMQPTransport();
         setupHttpTransport();
@@ -78,27 +81,39 @@ public class TransportedMuon implements MuonService {
         }
     }
 
+    public String getServiceIdentifer() {
+        return serviceIdentifer;
+    }
+
+    public void setServiceIdentifer(String serviceIdentifer) {
+        this.serviceIdentifer = serviceIdentifer;
+    }
+
     @Override
-    public void emit(String eventName, Object payload) {
-        MuonEvent ev = new MuonEvent(eventName, payload);
+    public void emit(String eventName, MuonEvent ev) {
         dispatcher.dispatchToTransports(ev, transports(ev));
     }
 
     @Override
     public MuonResult get(String resourceQuery) {
-        MuonEvent ev = resourceEvent(resourceQuery, "get", "");
+        MuonEvent ev = null;
+        try {
+            ev = resourceEvent("get", new MuonEvent(new URI(resourceQuery), null, null));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         return transport(ev).emitForReturn(resourceQuery, ev);
     }
 
     @Override
-    public MuonResult post(String resource, Object payload) {
-        MuonEvent ev = resourceEvent(resource, "post", payload);
+    public MuonResult post(String resource, MuonEvent payload) {
+        MuonEvent ev = resourceEvent("post", payload);
         return transport(ev).emitForReturn(resource, ev);
     }
 
     @Override
-    public MuonResult put(String resource, Object payload) {
-        MuonEvent ev = resourceEvent(resource, "put", payload);
+    public MuonResult put(String resource, MuonEvent payload) {
+        MuonEvent ev = resourceEvent("put", payload);
 
         return transport(ev).emitForReturn(resource, ev);
     }
@@ -188,10 +203,8 @@ public class TransportedMuon implements MuonService {
         return matching;
     }
 
-    static MuonEvent resourceEvent(String resource, String verb, Object payload) {
-        MuonEvent ev = new MuonEvent(resource, payload);
-        ev.addHeader("resource", resource);
-        ev.addHeader("verb", verb);
-        return ev;
+    static MuonEvent resourceEvent(String verb, MuonEvent payload) {
+        payload.addHeader("verb", verb);
+        return payload;
     }
 }

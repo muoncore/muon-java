@@ -38,7 +38,7 @@ public class LocalEventTransport implements MuonEventTransport {
             @Subscribe
             @Override
             public void onEvent(EBResponseEvent ev) {
-                result.setEvent(ev.getEvent().getPayload());
+                result.setEvent(ev.getEvent());
                 System.out.println("LEB: Got " + ev.getEvent().getPayload());
                 latch.countDown();
             }
@@ -57,7 +57,7 @@ public class LocalEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public void listenOnEvent(final String resource, final TransportedMuon.EventTransportListener listener) {
+    public void listenOnEvent(final String resource, final Muon.EventTransportListener listener) {
         System.out.println("LEB: Listening for event " + resource);
         bus.register(new EBListener() {
             @Override
@@ -73,7 +73,7 @@ public class LocalEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public void listenOnResource(final String resource, final String verb, final TransportedMuon.EventTransportListener listener) {
+    public void listenOnResource(final String resource, final String verb, final Muon.EventTransportListener listener) {
         System.out.println("LEB: Listening for resource " + resource);
         bus.register(new EBListener() {
             @Override
@@ -83,7 +83,8 @@ public class LocalEventTransport implements MuonEventTransport {
                 if (resource.equals(ev.getResource()) && verb != null && verb.equals(verb)) {
                     System.out.println("LEB: " + verb + " " + resource + " == ");
                     Object ret = listener.onEvent(resource, ev.getPayload());
-                    bus.post(new EBResponseEvent(new MuonEvent(resource, ret)));
+
+                    bus.post(new EBResponseEvent(MuonEventBuilder.textMessage((String) ret).build()));
                 }
             }
         });

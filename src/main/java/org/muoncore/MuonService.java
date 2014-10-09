@@ -10,6 +10,11 @@ public interface MuonService extends MuonClient {
 
     public void registerExtension(MuonExtension extension);
 
+    public String getServiceIdentifer();
+
+    //todo, should this be in the interface?
+    public void setServiceIdentifer(String serviceIdentifer);
+
     public static interface MuonListener {
         public void onEvent(Object event);
     }

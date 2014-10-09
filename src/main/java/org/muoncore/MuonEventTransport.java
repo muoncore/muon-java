@@ -9,11 +9,11 @@ public interface MuonEventTransport {
             String eventName, MuonEvent event);
 
     public void listenOnEvent(String resource,
-                         TransportedMuon.EventTransportListener listener);
+                         Muon.EventTransportListener listener);
 
     public void listenOnResource(String resource,
                                String verb,
-                         TransportedMuon.EventTransportListener listener);
+                         Muon.EventTransportListener listener);
 
     public List<ServiceDescriptor> discoverServices();
 }

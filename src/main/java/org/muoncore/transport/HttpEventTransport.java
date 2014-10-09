@@ -12,6 +12,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,17 +23,22 @@ public class HttpEventTransport implements MuonEventTransport {
     private Server server;
     private MuonHttpHandler handler;
 
-    public HttpEventTransport() throws Exception {
-        try {
-            server = new Server(8080);
-            handler = new MuonHttpHandler();
+    private synchronized MuonHttpHandler getHandler() {
+        if (handler == null) {
+            try {
+                int port = new SecureRandom().nextInt(9000) + 2500;
+                System.out.println("HTTP Transport: Booting local HTTP server on port " + port);
+                server = new Server(port);
+                handler = new MuonHttpHandler();
 
-            server.setHandler(handler);
+                server.setHandler(handler);
 
-            server.start();
-        } catch(Exception ex) {
-            ex.printStackTrace();
+                server.start();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
+        return handler;
     }
 
     @Override
@@ -63,9 +70,14 @@ public class HttpEventTransport implements MuonEventTransport {
             int exchangeState = exchange.waitForDone();
 
             if (exchangeState == HttpExchange.STATUS_COMPLETED) {
-                MuonService.MuonResult result = new MuonService.MuonResult();
+                MuonEventBuilder builder = MuonEventBuilder.textMessage(exchange.getResponseContent());
 
-                result.setEvent(exchange.getResponseContent());
+                for(String headerName: Collections.list(exchange.getResponseFields().getFieldNames())) {
+                    builder.withHeader(headerName, exchange.getResponseFields().getStringField(headerName));
+                }
+
+                MuonService.MuonResult result = new MuonService.MuonResult();
+                result.setEvent(builder.build());
 
                 return result;
             } else if (exchangeState == HttpExchange.STATUS_EXCEPTED) {
@@ -86,19 +98,19 @@ public class HttpEventTransport implements MuonEventTransport {
     }
 
     @Override
-    public void listenOnResource(String resource, String verb, TransportedMuon.EventTransportListener listener) {
+    public void listenOnResource(String resource, String verb, Muon.EventTransportListener listener) {
         try {
             //TODO, need a global 'events' listener and enable chaining.
             System.out.println("HTTPTransport: Waiting for " + verb + " requests / " + resource);
 
-            handler.addListener(resource, verb, listener);
+            getHandler().addListener(resource, verb, listener);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void listenOnEvent(String event, TransportedMuon.EventTransportListener listener) {
+    public void listenOnEvent(String event, Muon.EventTransportListener listener) {
         System.out.println("HTTP Transport cannot listen for broadcast");
     }
 
@@ -108,9 +120,9 @@ public class HttpEventTransport implements MuonEventTransport {
     }
 
     public static class MuonHttpHandler extends AbstractHandler {
-        Map<String, TransportedMuon.EventTransportListener> listeners = new HashMap<String, TransportedMuon.EventTransportListener>();
+        Map<String, Muon.EventTransportListener> listeners = new HashMap<String, Muon.EventTransportListener>();
 
-        public void addListener(String path, String verb, TransportedMuon.EventTransportListener listener) {
+        public void addListener(String path, String verb, Muon.EventTransportListener listener) {
             //todo, blend in the verb too
             listeners.put(path, listener);
         }
@@ -120,7 +132,7 @@ public class HttpEventTransport implements MuonEventTransport {
             System.out.println("Getting target " + target);
 
             //TODO, need something that can give a response.
-            TransportedMuon.EventTransportListener listener = listeners.get(target);
+            Muon.EventTransportListener listener = listeners.get(target);
 
             if (listener != null) {
                 response.setContentType("text/html;charset=utf-8");

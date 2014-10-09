@@ -1,17 +1,18 @@
 package com.simplicity.services;
 
+import org.muoncore.Muon;
+import org.muoncore.MuonClient;
 import org.muoncore.MuonService;
-import org.muoncore.TransportedMuon;
 
 public class Service2 {
 
     public static void main(String[] args) {
 
-        final MuonService muon = new TransportedMuon();
+        final MuonClient muon = new Muon();
 
-        muon.emit("something", "Be Happy");
+//        muon.emit("something", "Be Happy");
 
-        String myData = muon.get("/mydata").getEvent().toString();
+        String myData = muon.get("muon://users/mydata/happy").getEvent().getPayload().toString();
 
         System.out.println("The data is " + myData);
     }
