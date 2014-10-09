@@ -4,6 +4,7 @@ import java.util.List;
 
 public interface MuonEventTransport {
 
+    //TODO, replace with MuonBroadcast and MuonResource events.
     public MuonService.MuonResult emit(String eventName, MuonEvent event);
     public MuonService.MuonResult emitForReturn(
             String eventName, MuonEvent event);
