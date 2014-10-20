@@ -1,4 +1,4 @@
-package org.muoncore.transport;
+package org.muoncore.extension.amqp;
 
 import com.rabbitmq.client.*;
 import org.muoncore.*;
@@ -33,7 +33,8 @@ public class AMQPEventTransport implements MuonEventTransport {
 
         channel = connection.createChannel();
         channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
-        channel.exchangeDeclare(EXCHANGE_RES, "fanout");
+        channel.exchangeDeclare(EXCHANGE_RES, "direct");
+
 //        transport.queueDeclare(EXCHANGE_NAME, false, false, false, null);
     }
 
@@ -113,7 +114,7 @@ public class AMQPEventTransport implements MuonEventTransport {
             public void run() {
                 //TODO, add ability to filter on the verb, service name, resource ... (probably add it to the routing key)
                 try {
-                    channel.queueDeclare(EXCHANGE_RES, false, false, false, null);
+                    channel.queueBind(EXCHANGE_RES, EXCHANGE_NAME, "");
                     channel.basicQos(1);
 
                     QueueingConsumer consumer = new QueueingConsumer(channel);
@@ -216,5 +217,9 @@ public class AMQPEventTransport implements MuonEventTransport {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void start() {
+        //TODO ....
     }
 }

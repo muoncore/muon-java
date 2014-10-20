@@ -1,4 +1,4 @@
-package org.muoncore.transport;
+package org.muoncore.extension.local;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -53,7 +53,7 @@ public class LocalEventTransport implements MuonEventTransport {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("LEB: Returing resource data " + result.getEvent());
+        System.out.println("LEB: Returing resource data " + result.getResponseEvent());
         return result;
     }
 
@@ -99,6 +99,10 @@ public class LocalEventTransport implements MuonEventTransport {
     @Override
     public List<ServiceDescriptor> discoverServices() {
         return Collections.singletonList(new ServiceDescriptor("localhost", this));
+    }
+
+    public void start() {
+        //TODO ....
     }
 
     @Override

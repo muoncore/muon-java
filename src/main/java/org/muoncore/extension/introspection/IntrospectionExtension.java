@@ -1,10 +1,7 @@
 package org.muoncore.extension.introspection;
 
 import org.eclipse.jetty.util.ajax.JSON;
-import org.muoncore.MuonResourceEvent;
-import org.muoncore.MuonService;
-import org.muoncore.MuonExtension;
-import org.muoncore.MuonExtensionApi;
+import org.muoncore.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,27 +14,44 @@ public class IntrospectionExtension implements MuonExtension {
         muonApi.getMuon().resource("/muon/inspect/extensions",
                 "A list of the installed and active library extension on this service",
                 new MuonService.MuonGet() {
-            @Override
-            public Object onQuery(MuonResourceEvent queryEvent) {
-                List<String> extensions = new ArrayList<String>();
+                    @Override
+                    public Object onQuery(MuonResourceEvent queryEvent) {
+                        List<String> extensions = new ArrayList<String>();
 
-                for(MuonExtension extension: muonApi.getExtensions()) {
-                    extensions.add(extension.getName());
-                }
+                        for (MuonExtension extension : muonApi.getExtensions()) {
+                            extensions.add(extension.getName());
+                        }
 
-                return JSON.toString(extensions);
-            }
-        });
+                        return JSON.toString(extensions);
+                    }
+                });
 
-
-        //get events listened for on this service
+        //get events listened for on this instance
+        muonApi.getMuon().resource("/muon/inspect/events",
+                "A list of the events being listened for by this service",
+                new MuonService.MuonGet() {
+                    @Override
+                    public Object onQuery(MuonResourceEvent queryEvent) {
+                        return JSON.toString(muonApi.getEvents());
+                    }
+                });
 
         //get resources (including docs, verb etc) available on this service
+        muonApi.getMuon().resource("/muon/inspect/resources",
+                "A list of the resources available on this service",
+                new MuonService.MuonGet() {
+                    @Override
+                    public Object onQuery(MuonResourceEvent queryEvent) {
+                        //todo, better format
+                        return JSON.toString(muonApi.getResources());
+                    }
+                });
+
 
     }
 
     @Override
     public String getName() {
-        return "introspection/1.0";
+        return "introspection/0.1";
     }
 }

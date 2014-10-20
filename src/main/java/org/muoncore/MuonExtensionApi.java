@@ -2,6 +2,7 @@ package org.muoncore;
 
 import org.muoncore.filter.EventFilterChain;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -11,21 +12,35 @@ public class MuonExtensionApi {
 
     private List<EventFilterChain> filters;
     private List<MuonEventTransport> transports;
-    private MuonService muon;
+    private Muon muon;
     private Dispatcher dispatcher;
     private List<MuonExtension> extensions;
+    private List<MuonResourceRegister> resources;
+    private List<MuonEventRegister> events;
 
     public MuonExtensionApi(
-            MuonService muon,
+            Muon muon,
             List<EventFilterChain> filters,
             List<MuonEventTransport> transports,
             Dispatcher dispatcher,
-            List<MuonExtension> extensions) {
+            List<MuonExtension> extensions,
+            List<MuonEventRegister> events,
+            List<MuonResourceRegister> resource) {
         this.muon = muon;
         this.filters = filters;
         this.transports = transports;
         this.dispatcher = dispatcher;
         this.extensions = extensions;
+        this.resources = resource;
+        this.events = events;
+    }
+
+    public List<MuonEventRegister> getEvents() {
+        return events;
+    }
+
+    public List<MuonResourceRegister> getResources() {
+        return resources;
     }
 
     public List<MuonExtension> getExtensions() {
@@ -49,10 +64,17 @@ public class MuonExtensionApi {
     }
 
     public List<MuonEventTransport> getTransports() {
-        return transports;
+        return Collections.unmodifiableList(transports);
     }
 
-    public void setTransports(List<MuonEventTransport> transports) {
+    public void addTransport(MuonEventTransport transport) {
+        muon.registerTransport(transport);
+    }
+
+    void setTransports(List<MuonEventTransport> transports) {
         this.transports = transports;
     }
 }
+
+
+

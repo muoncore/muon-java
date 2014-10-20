@@ -14,7 +14,7 @@ public interface MuonClient {
 
         private MuonResourceEvent event;
 
-        public MuonResourceEvent getEvent() {
+        public MuonResourceEvent getResponseEvent() {
             return event;
         }
 

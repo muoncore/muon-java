@@ -9,6 +9,7 @@ public interface MuonService extends MuonClient {
     public void resource(String resource, String descriptor, MuonDelete listener);
 
     public void registerExtension(MuonExtension extension);
+    public void start();
 
     public String getServiceIdentifer();
 

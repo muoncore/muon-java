@@ -1,9 +1,10 @@
 package org.muoncore;
 
+import org.muoncore.extension.local.LocalTransportExtension;
 import org.muoncore.filter.EventFilterChain;
-import org.muoncore.transport.AMQPEventTransport;
-import org.muoncore.transport.HttpEventTransport;
-import org.muoncore.transport.LocalEventTransport;
+import org.muoncore.extension.amqp.AMQPEventTransport;
+import org.muoncore.extension.http.HttpEventTransport;
+import org.muoncore.extension.local.LocalEventTransport;
 
 import java.io.IOException;
 import java.net.URI;
@@ -13,72 +14,86 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+
+ TODO, have a muon protocol checked that introspects a remote muon and asserts it
+ reports the correct resources and events for a particular protocol
+
+ * TODO
+ * Need to consider correct lifecycle for the library.
+ *
+ *Startup/ shutdown, when to initialise extensions and the like.
+ *How/ When to add transports and start them.
+ *
+ *Create an abstraction layer for the resource/ event registrations.
+ * so events are regsitered here, then sent into the transports at the appropriate time
+ * / when they are started, not immediately.
+ * That allows transports to be added and removed. Possibly as extensions?
+ */
 public class Muon implements MuonService {
 
-    List<EventFilterChain> filterChains = new ArrayList<EventFilterChain>();
-    List<MuonEventTransport> transports = new ArrayList<MuonEventTransport>();
+    private List<EventFilterChain> filterChains = new ArrayList<EventFilterChain>();
+    private List<MuonEventTransport> transports = new ArrayList<MuonEventTransport>();
+    private List<MuonEventTransport> nonInitTransports = new ArrayList<MuonEventTransport>();
 
-    List<MuonExtension> extensions = new ArrayList<MuonExtension>();
+    private List<MuonExtension> extensions = new ArrayList<MuonExtension>();
 
-    Dispatcher dispatcher = new Dispatcher();
+    private List<MuonResourceRegister> resources = new ArrayList<MuonResourceRegister>();
+    private List<MuonEventRegister> events = new ArrayList<MuonEventRegister>();
 
-    String serviceIdentifer;
+    private Dispatcher dispatcher = new Dispatcher();
 
-    public Muon() {
-//        setupLocalTransport();
-        setupAMQPTransport();
-//        setupHttpTransport();
-    }
+    private String serviceIdentifer;
+
+    private boolean started = false;
 
     @Override
     public void registerExtension(MuonExtension extension) {
         extensions.add(extension);
-        extension.init(
-                new MuonExtensionApi(
-                        this,
-                        filterChains,
-                        transports,
-                        dispatcher,
-                        extensions));
     }
 
-    private void setupHttpTransport() {
-        try {
-            MuonEventTransport trans = new HttpEventTransport();
-            transports.add(trans);
-            EventFilterChain chain = new EventFilterChain(trans);
-            filterChains.add(chain);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public Muon() {
+        registerExtension(new LocalTransportExtension());
+    }
+
+    public void start() {
+        for (MuonExtension extension: extensions) {
+            extension.init(
+                    new MuonExtensionApi(
+                            this,
+                            filterChains,
+                            transports,
+                            dispatcher,
+                            extensions,
+                            events,
+                            resources));
+        }
+        for(MuonEventTransport transport: nonInitTransports) {
+            initialiseTransport(transport);
+        }
+        started = true;
+    }
+
+    void registerTransport(MuonEventTransport transport) {
+        transports.add(transport);
+
+        if (!started) {
+            nonInitTransports.add(transport);
+        } else {
+            //post start addition of a transport, maybe not ideal, but certainly not prevented either.
+            //permits the addition of new transports dynamically, which may be useful.
+            initialiseTransport(transport);
         }
     }
 
-    private void setupLocalTransport() {
-        try {
-            MuonEventTransport trans = new LocalEventTransport();
-            transports.add(trans);
-            EventFilterChain chain = new EventFilterChain(trans);
-            filterChains.add(chain);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    private void initialiseTransport(MuonEventTransport transport) {
+        transport.start();
 
-    private void setupAMQPTransport() {
-        try {
-            MuonEventTransport trans = new AMQPEventTransport();
-            transports.add(trans);
-            EventFilterChain chain = new EventFilterChain(trans);
-            filterChains.add(chain);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        System.out.println("Muon: Starting transport " + transport.getClass().getSimpleName());
+        //TODO, add resources
+
+        //TODO, add events
+
     }
 
     public String getServiceIdentifer() {
@@ -120,6 +135,8 @@ public class Muon implements MuonService {
 
     @Override
     public void receive(String event, final MuonListener listener) {
+        //TODO, extract this into some lifecycle init during start.
+        //instead just store this.
         for(MuonEventTransport transport: transports) {
             transport.listenOnEvent(event, new EventBroadcastTransportListener() {
                 @Override
@@ -133,6 +150,8 @@ public class Muon implements MuonService {
 
     @Override
     public void resource(String resource, String descriptor, final MuonGet listener) {
+        //TODO, extract this into some lifecycle init during start.
+        //instead just store this.
         for(MuonEventTransport transport: transports) {
             transport.listenOnResource(resource, "get", new EventResourceTransportListener() {
                 @Override
@@ -145,6 +164,8 @@ public class Muon implements MuonService {
 
     @Override
     public void resource(String resource, String descriptor, final MuonPost listener) {
+        //TODO, extract this into some lifecycle init during start.
+        //instead just store this.
         for(MuonEventTransport transport: transports) {
             transport.listenOnResource(resource, "post", new EventResourceTransportListener() {
                 @Override
@@ -157,6 +178,8 @@ public class Muon implements MuonService {
 
     @Override
     public void resource(String resource, String descriptor, final MuonPut listener) {
+        //TODO, extract this into some lifecycle init during start.
+        //instead just store this.
         for(MuonEventTransport transport: transports) {
             transport.listenOnResource(resource, "put", new EventResourceTransportListener() {
                 @Override
@@ -169,6 +192,8 @@ public class Muon implements MuonService {
 
     @Override
     public void resource(String resource, String descriptor, final MuonDelete listener) {
+        //TODO, extract this into some lifecycle init during start.
+        //instead just store this.
         for(MuonEventTransport transport: transports) {
             transport.listenOnResource(resource, "delete", new EventResourceTransportListener() {
                 @Override

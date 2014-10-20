@@ -1,4 +1,4 @@
-package org.muoncore.transport;
+package org.muoncore.extension.http;
 
 import org.eclipse.jetty.client.ContentExchange;
 import org.eclipse.jetty.client.HttpClient;
@@ -22,11 +22,15 @@ public class HttpEventTransport implements MuonEventTransport {
 
     private Server server;
     private MuonHttpHandler handler;
+    private int port;
+
+    public HttpEventTransport(int port) {
+        this.port = port;
+    }
 
     private synchronized MuonHttpHandler getHandler() {
         if (handler == null) {
             try {
-                int port = new SecureRandom().nextInt(9000) + 2500;
                 System.out.println("HTTP Transport: Booting local HTTP server on port " + port);
                 server = new Server(port);
                 handler = new MuonHttpHandler();
@@ -103,7 +107,7 @@ public class HttpEventTransport implements MuonEventTransport {
             //TODO, need a global 'events' listener and enable chaining.
             System.out.println("HTTPTransport: Waiting for " + verb + " requests / " + resource);
 
-            getHandler().addListener(resource, verb, listener);
+            getHandler().addListener(resource, verb.toUpperCase(), listener);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -128,28 +132,36 @@ public class HttpEventTransport implements MuonEventTransport {
         }
     }
 
+    public void start() {
+        //TODO ...
+    }
+
     public static class MuonHttpHandler extends AbstractHandler {
         Map<String, Muon.EventResourceTransportListener> listeners = new HashMap<String, Muon.EventResourceTransportListener>();
 
         public void addListener(String path, String verb, Muon.EventResourceTransportListener listener) {
-            //todo, blend in the verb too
-            listeners.put(path, listener);
+            listeners.put(verb + " " + path, listener);
         }
 
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
                 throws IOException, ServletException {
             System.out.println("Getting target " + target);
 
-            //TODO, need something that can give a response.
-            Muon.EventResourceTransportListener listener = listeners.get(target);
+            String lookup = baseRequest.getMethod().toUpperCase() + " " + target;
+
+            Muon.EventResourceTransportListener listener = listeners.get(lookup);
 
             if (listener != null) {
                 response.setContentType("text/html;charset=utf-8");
                 response.setStatus(HttpServletResponse.SC_OK);
                 baseRequest.setHandled(true);
 
+                //this is a bit rubbish, pull in a proper lib to do this.
+                byte[] content = new byte[request.getContentLength()];
+                request.getInputStream().read(content);
+
                 //TODO, read the content from the request.
-                MuonResourceEvent ev = MuonResourceEventBuilder.textMessage("Fake Request")
+                MuonResourceEvent ev = MuonResourceEventBuilder.textMessage(new String(content))
                         .withMimeType(request.getContentType())
                         .build();
 
