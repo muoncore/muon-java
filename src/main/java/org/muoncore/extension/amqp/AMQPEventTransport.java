@@ -114,7 +114,7 @@ public class AMQPEventTransport implements MuonEventTransport {
         spinner.execute(new Runnable() {
             @Override
             public void run() {
-                //TODO, add ability to filter on the verb, service name, resource ... (probably add it to the routing key)
+                //TODO, add ability to filter on the verb, service name, onGet ... (probably add it to the routing key)
                 try {
 
                     Map<String, Object> args = new HashMap<String, Object>();

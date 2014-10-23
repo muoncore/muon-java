@@ -33,7 +33,7 @@ public class LocalEventTransport implements MuonEventTransport {
 
         final MuonService.MuonResult result = new MuonService.MuonResult();
 
-        System.out.println("LEB: Sending resource query " + eventName);
+        System.out.println("LEB: Sending onGet query " + eventName);
 
         EBResponseListener response = new EBResponseListener() {
             @Subscribe
@@ -53,7 +53,7 @@ public class LocalEventTransport implements MuonEventTransport {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("LEB: Returing resource data " + result.getResponseEvent());
+        System.out.println("LEB: Returing onGet data " + result.getResponseEvent());
         return result;
     }
 
@@ -74,7 +74,7 @@ public class LocalEventTransport implements MuonEventTransport {
 
     @Override
     public void listenOnResource(final String resource, final String verb, final Muon.EventResourceTransportListener listener) {
-        System.out.println("LEB: Listening for resource " + resource);
+        System.out.println("LEB: Listening for onGet " + resource);
         bus.register(new EBResourceListener() {
             @Override
             @Subscribe

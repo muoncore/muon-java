@@ -53,7 +53,7 @@ public class HttpEventTransport implements MuonEventTransport {
     @Override
     public MuonService.MuonResult emitForReturn(String eventName, MuonResourceEvent event) {
         try {
-            //TODO, lookup/ derive the target server from the resource/ presend
+            //TODO, lookup/ derive the target server from the onGet/ presend
             String remoteHost = "localhost";
             int remotePort = 8080;
 

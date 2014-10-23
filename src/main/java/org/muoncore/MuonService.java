@@ -3,10 +3,10 @@ package org.muoncore;
 public interface MuonService extends MuonClient {
 
     public void receive(String event, MuonListener listener);
-    public void resource(String resource, String descriptor, MuonGet listener);
-    public void resource(String resource, String descriptor, MuonPost listener);
-    public void resource(String resource, String descriptor, MuonPut listener);
-    public void resource(String resource, String descriptor, MuonDelete listener);
+    public void onGet(String resource, String descriptor, MuonGet listener);
+    public void onPost(String resource, String descriptor, MuonPost listener);
+    public void onPut(String resource, String descriptor, MuonPut listener);
+    public void onDelete(String resource, String descriptor, MuonDelete listener);
 
     public void registerExtension(MuonExtension extension);
     public void start();

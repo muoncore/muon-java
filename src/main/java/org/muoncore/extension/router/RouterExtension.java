@@ -10,14 +10,14 @@ public class RouterExtension implements MuonExtension {
     @Override
     public void init(final MuonExtensionApi muonApi) {
 
-        muonApi.getMuon().resource("/muon/router", "Manage the Muon routing table", new MuonService.MuonGet() {
+        muonApi.getMuon().onGet("/muon/router", "Manage the Muon routing table", new MuonService.MuonGet() {
             @Override
             public Object onQuery(MuonResourceEvent queryEvent) {
                 return "";
             }
         });
 
-        muonApi.getMuon().resource("/muon/router", "Manage the muon routing table", new MuonService.MuonPost() {
+        muonApi.getMuon().onPost("/muon/router", "Manage the muon routing table", new MuonService.MuonPost() {
             @Override
             public Object onCommand(MuonResourceEvent postData) {
                 //todo, manipulate the filter chains.

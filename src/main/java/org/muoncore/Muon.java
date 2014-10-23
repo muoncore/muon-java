@@ -25,7 +25,7 @@ import java.util.List;
  *Startup/ shutdown, when to initialise extensions and the like.
  *How/ When to add transports and start them.
  *
- *Create an abstraction layer for the resource/ event registrations.
+ *Create an abstraction layer for the onGet/ event registrations.
  * so events are regsitered here, then sent into the transports at the appropriate time
  * / when they are started, not immediately.
  * That allows transports to be added and removed. Possibly as extensions?
@@ -149,7 +149,7 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public void resource(String resource, String descriptor, final MuonGet listener) {
+    public void onGet(String resource, String descriptor, final MuonGet listener) {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(MuonEventTransport transport: transports) {
@@ -163,7 +163,7 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public void resource(String resource, String descriptor, final MuonPost listener) {
+    public void onPost(String resource, String descriptor, final MuonPost listener) {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(MuonEventTransport transport: transports) {
@@ -177,7 +177,7 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public void resource(String resource, String descriptor, final MuonPut listener) {
+    public void onPut(String resource, String descriptor, final MuonPut listener) {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(MuonEventTransport transport: transports) {
@@ -191,7 +191,7 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public void resource(String resource, String descriptor, final MuonDelete listener) {
+    public void onDelete(String resource, String descriptor, final MuonDelete listener) {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(MuonEventTransport transport: transports) {
@@ -220,7 +220,7 @@ public class Muon implements MuonService {
     }
 
     MuonEventTransport transport(MuonResourceEvent event) {
-        //TODO, replace with something that understands resource/ broadcast/ message split
+        //TODO, replace with something that understands onGet/ broadcast/ message split
 
 //        List<MuonEventTransport> matching = transports(event);
 //

@@ -65,7 +65,7 @@ class MuonLifecycleSpec extends Specification {
   }
 
   private simpleGet(Muon muon) {
-    muon.resource("/simples", "Simple Documentation", new MuonService.MuonGet() {
+    muon.onGet("/simples", "Simple Documentation", new MuonService.MuonGet() {
       @Override
       Object onQuery(MuonResourceEvent queryEvent) {
         return null

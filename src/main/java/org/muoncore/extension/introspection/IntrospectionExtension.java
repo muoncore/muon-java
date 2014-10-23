@@ -11,7 +11,7 @@ public class IntrospectionExtension implements MuonExtension {
     @Override
     public void init(final MuonExtensionApi muonApi) {
 
-        muonApi.getMuon().resource("/muon/inspect/extensions",
+        muonApi.getMuon().onGet("/muon/inspect/extensions",
                 "A list of the installed and active library extension on this service",
                 new MuonService.MuonGet() {
                     @Override
@@ -27,7 +27,7 @@ public class IntrospectionExtension implements MuonExtension {
                 });
 
         //get events listened for on this instance
-        muonApi.getMuon().resource("/muon/inspect/events",
+        muonApi.getMuon().onGet("/muon/inspect/events",
                 "A list of the events being listened for by this service",
                 new MuonService.MuonGet() {
                     @Override
@@ -37,7 +37,7 @@ public class IntrospectionExtension implements MuonExtension {
                 });
 
         //get resources (including docs, verb etc) available on this service
-        muonApi.getMuon().resource("/muon/inspect/resources",
+        muonApi.getMuon().onGet("/muon/inspect/resources",
                 "A list of the resources available on this service",
                 new MuonService.MuonGet() {
                     @Override
