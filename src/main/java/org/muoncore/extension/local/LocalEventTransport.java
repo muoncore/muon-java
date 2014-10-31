@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-public class LocalEventTransport implements MuonEventTransport {
+public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastTransport {
 
     private EventBus bus;
 

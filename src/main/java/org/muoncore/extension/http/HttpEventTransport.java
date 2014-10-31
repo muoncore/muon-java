@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HttpEventTransport implements MuonEventTransport {
+public class HttpEventTransport implements MuonResourceTransport {
 
     private Server server;
     private MuonHttpHandler handler;
@@ -43,11 +43,6 @@ public class HttpEventTransport implements MuonEventTransport {
             }
         }
         return handler;
-    }
-
-    @Override
-    public MuonService.MuonResult emit(String eventName, MuonBroadcastEvent event) {
-        throw new IllegalStateException("HTTP Transport cannot broadcast/ emit");
     }
 
     @Override
@@ -111,11 +106,6 @@ public class HttpEventTransport implements MuonEventTransport {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void listenOnEvent(String event, Muon.EventBroadcastTransportListener listener) {
-        System.out.println("HTTP Transport cannot listen for broadcast");
     }
 
     @Override

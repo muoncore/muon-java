@@ -138,13 +138,15 @@ public class Muon implements MuonService {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(MuonEventTransport transport: transports) {
-            transport.listenOnEvent(event, new EventBroadcastTransportListener() {
-                @Override
-                public Object onEvent(String name, MuonBroadcastEvent obj) {
-                    listener.onEvent(obj);
-                    return null;
-                }
-            });
+            if (transport instanceof MuonBroadcastTransport) {
+                ((MuonBroadcastTransport) transport).listenOnEvent(event, new EventBroadcastTransportListener() {
+                    @Override
+                    public Object onEvent(String name, MuonBroadcastEvent obj) {
+                        listener.onEvent(obj);
+                        return null;
+                    }
+                });
+            }
         }
     }
 
@@ -153,12 +155,14 @@ public class Muon implements MuonService {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(MuonEventTransport transport: transports) {
-            transport.listenOnResource(resource, "get", new EventResourceTransportListener() {
-                @Override
-                public Object onEvent(String name, MuonResourceEvent obj) {
-                    return listener.onQuery(obj);
-                }
-            });
+            if (transport instanceof MuonResourceTransport) {
+                ((MuonResourceTransport) transport).listenOnResource(resource, "get", new EventResourceTransportListener() {
+                    @Override
+                    public Object onEvent(String name, MuonResourceEvent obj) {
+                        return listener.onQuery(obj);
+                    }
+                });
+            }
         }
     }
 
@@ -167,12 +171,14 @@ public class Muon implements MuonService {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(MuonEventTransport transport: transports) {
-            transport.listenOnResource(resource, "post", new EventResourceTransportListener() {
-                @Override
-                public Object onEvent(String name, MuonResourceEvent obj) {
-                    return listener.onCommand(obj);
-                }
-            });
+            if (transport instanceof MuonResourceTransport) {
+                ((MuonResourceTransport) transport).listenOnResource(resource, "post", new EventResourceTransportListener() {
+                    @Override
+                    public Object onEvent(String name, MuonResourceEvent obj) {
+                        return listener.onCommand(obj);
+                    }
+                });
+            }
         }
     }
 
@@ -181,12 +187,14 @@ public class Muon implements MuonService {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(MuonEventTransport transport: transports) {
-            transport.listenOnResource(resource, "put", new EventResourceTransportListener() {
-                @Override
-                public Object onEvent(String name, MuonResourceEvent obj) {
-                    return listener.onCommand(obj);
-                }
-            });
+            if (transport instanceof MuonResourceTransport) {
+                ((MuonResourceTransport) transport).listenOnResource(resource, "put", new EventResourceTransportListener() {
+                    @Override
+                    public Object onEvent(String name, MuonResourceEvent obj) {
+                        return listener.onCommand(obj);
+                    }
+                });
+            }
         }
     }
 
@@ -195,12 +203,14 @@ public class Muon implements MuonService {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(MuonEventTransport transport: transports) {
-            transport.listenOnResource(resource, "delete", new EventResourceTransportListener() {
-                @Override
-                public Object onEvent(String name, MuonResourceEvent obj) {
-                    return listener.onCommand(obj);
-                }
-            });
+            if (transport instanceof MuonResourceTransport) {
+                ((MuonResourceTransport) transport).listenOnResource(resource, "delete", new EventResourceTransportListener() {
+                    @Override
+                    public Object onEvent(String name, MuonResourceEvent obj) {
+                        return listener.onCommand(obj);
+                    }
+                });
+            }
         }
     }
 
@@ -219,20 +229,20 @@ public class Muon implements MuonService {
         Object onEvent(String name, MuonResourceEvent obj);
     }
 
-    MuonEventTransport transport(MuonResourceEvent event) {
+    MuonResourceTransport transport(MuonResourceEvent event) {
         //TODO, replace with something that understands onGet/ broadcast/ message split
 
-//        List<MuonEventTransport> matching = transports(event);
+        List<MuonResourceTransport> matching = transports(event);
 //
 //        if (matching.size() != 1) {
 //            throw new IllegalStateException("Expected 1 transport to match presend, found " + matching.size());
 //        }
 //        return matching.get(0);
-        return transports.get(0);
+        return matching.get(0);
     }
 
-    List<MuonEventTransport> transports(MuonResourceEvent event) {
-        List<MuonEventTransport> matching = new ArrayList<MuonEventTransport>();
+    List<MuonResourceTransport> transports(MuonResourceEvent event) {
+        List<MuonResourceTransport> matching = new ArrayList<MuonResourceTransport>();
 
 //        for(EventFilterChain chain: filterChains) {
 //            if (chain.canHandle(event)) {
@@ -240,10 +250,10 @@ public class Muon implements MuonService {
 //            }
 //        }
 //        return matching;
-        return transports;
+        return matching;
     }
-    List<MuonEventTransport> transports(MuonBroadcastEvent event) {
-        List<MuonEventTransport> matching = new ArrayList<MuonEventTransport>();
+    List<MuonBroadcastTransport> transports(MuonBroadcastEvent event) {
+        List<MuonBroadcastTransport> matching = new ArrayList<MuonBroadcastTransport>();
 
 //        for(EventFilterChain chain: filterChains) {
 //            if (chain.canHandle(event)) {
@@ -251,7 +261,7 @@ public class Muon implements MuonService {
 //            }
 //        }
 //        return matching;
-        return transports;
+        return matching;
     }
     static MuonResourceEvent resourceEvent(String verb, MuonResourceEvent payload) {
         payload.addHeader("verb", verb);

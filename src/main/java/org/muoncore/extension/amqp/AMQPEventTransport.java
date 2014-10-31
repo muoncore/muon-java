@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AMQPEventTransport implements MuonEventTransport {
+public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTransport {
 
     private Connection connection;
     private Channel channel;

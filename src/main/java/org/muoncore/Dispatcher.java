@@ -8,11 +8,11 @@ public class Dispatcher {
     private List<Listener> listeners = new ArrayList<Listener>();
 
 
-    void dispatchToTransports(MuonBroadcastEvent event, List<MuonEventTransport> transports) {
+    void dispatchToTransports(MuonBroadcastEvent event, List<MuonBroadcastTransport> transports) {
         for(Listener listener: listeners) {
             listener.presend(event);
         }
-        for (MuonEventTransport transport: transports) {
+        for (MuonBroadcastTransport transport: transports) {
             transport.emit(event.getEventName(), event);
         }
     }
