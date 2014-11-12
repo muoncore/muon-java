@@ -8,15 +8,17 @@ repositories {
 }
 
 dependencies {
-  //amqp transport
-  compile "com.rabbitmq:amqp-client:3.3.2"
+    //amqp transport
+    compile "com.rabbitmq:amqp-client:3.3.2"
 
-  //http transport
-  compile 'org.eclipse.jetty:jetty-server:8.1.16.v20140903'
-  compile 'org.eclipse.jetty:jetty-client:8.1.16.v20140903'
-  compile 'com.google.guava:guava:18.0'
+    //http transport
+    compile 'org.eclipse.jetty:jetty-server:8.1.16.v20140903'
+    compile 'org.eclipse.jetty:jetty-client:8.1.16.v20140903'
+    compile 'com.google.guava:guava:18.0'
 
-
-  groovy "org.codehaus.groovy:groovy-all:2.2.1"
-  testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
+    compile('org.codehaus.groovy:groovy-all:2.3.6')
+    testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
+}
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2'
 }

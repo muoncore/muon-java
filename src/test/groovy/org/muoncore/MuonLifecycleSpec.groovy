@@ -1,16 +1,19 @@
 package org.muoncore
 
+import spock.lang.Ignore
 import spock.lang.Specification
 import java.lang.Void as Story
 
 class MuonLifecycleSpec extends Specification {
 
 
+  @Ignore
   Story "start() initialises all extensions"() {
     expect:
     "Happy" == 1
   }
 
+  @Ignore
   Story "registering a resource adds it to the resource map"() {
     expect:
     "Happy" == 1
@@ -42,7 +45,6 @@ class MuonLifecycleSpec extends Specification {
     given:
     MuonEventTransport transport = Mock()
     Muon muon = new Muon()
-    simpleGet(muon)
 
     muon.registerExtension(new MuonExtension() {
       @Override
@@ -58,6 +60,7 @@ class MuonLifecycleSpec extends Specification {
 
     when:
     muon.start()
+    simpleGet(muon)
 
 
     then:
