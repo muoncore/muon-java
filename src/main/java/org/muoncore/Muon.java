@@ -36,6 +36,9 @@ public class Muon implements MuonService {
     private List<MuonEventTransport> transports = new ArrayList<MuonEventTransport>();
     private List<MuonEventTransport> nonInitTransports = new ArrayList<MuonEventTransport>();
 
+    private List<MuonResourceTransport> resourceTransports = new ArrayList<MuonResourceTransport>();
+    private List<MuonBroadcastTransport> broadcastTransports = new ArrayList<MuonBroadcastTransport>();
+
     private List<MuonExtension> extensions = new ArrayList<MuonExtension>();
 
     private List<MuonResourceRegister> resources = new ArrayList<MuonResourceRegister>();
@@ -53,7 +56,8 @@ public class Muon implements MuonService {
     }
 
     public Muon() {
-        registerExtension(new LocalTransportExtension());
+
+//        registerExtension(new LocalTransportExtension());
     }
 
     public void start() {
@@ -76,6 +80,12 @@ public class Muon implements MuonService {
 
     void registerTransport(MuonEventTransport transport) {
         transports.add(transport);
+
+        if(transport instanceof MuonResourceTransport) {
+            resourceTransports.add((MuonResourceTransport) transport);
+        } else {
+            broadcastTransports.add((MuonBroadcastTransport) transport);
+        }
 
         if (!started) {
             nonInitTransports.add(transport);
@@ -113,11 +123,17 @@ public class Muon implements MuonService {
     public MuonResult get(String resourceQuery) {
         MuonResourceEvent ev = null;
         try {
-            ev = resourceEvent("get", new MuonResourceEvent(new URI(resourceQuery), null, null));
+            ev = resourceEvent("get", new MuonResourceEvent(new URI(resourceQuery), "application/json", "{}"));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
         return transport(ev).emitForReturn(resourceQuery, ev);
+    }
+
+    //@Override
+    public MuonResult get(MuonResourceEvent payload) {
+        MuonResourceEvent ev = resourceEvent("get", payload);
+        return transport(ev).emitForReturn(payload.getResource(), ev);
     }
 
     @Override
@@ -233,35 +249,19 @@ public class Muon implements MuonService {
         //TODO, replace with something that understands onGet/ broadcast/ message split
 
         List<MuonResourceTransport> matching = transports(event);
-//
-//        if (matching.size() != 1) {
-//            throw new IllegalStateException("Expected 1 transport to match presend, found " + matching.size());
-//        }
-//        return matching.get(0);
+
+        if (matching.size() == 0) {
+            throw new IllegalStateException("Expected a transport to match send, found 0");
+        }
         return matching.get(0);
     }
 
     List<MuonResourceTransport> transports(MuonResourceEvent event) {
-        List<MuonResourceTransport> matching = new ArrayList<MuonResourceTransport>();
-
-//        for(EventFilterChain chain: filterChains) {
-//            if (chain.canHandle(event)) {
-//                matching.add(chain.getTransport());
-//            }
-//        }
-//        return matching;
-        return matching;
+        return resourceTransports;
     }
-    List<MuonBroadcastTransport> transports(MuonBroadcastEvent event) {
-        List<MuonBroadcastTransport> matching = new ArrayList<MuonBroadcastTransport>();
 
-//        for(EventFilterChain chain: filterChains) {
-//            if (chain.canHandle(event)) {
-//                matching.add(chain.getTransport());
-//            }
-//        }
-//        return matching;
-        return matching;
+    List<MuonBroadcastTransport> transports(MuonBroadcastEvent event) {
+        return broadcastTransports;
     }
     static MuonResourceEvent resourceEvent(String verb, MuonResourceEvent payload) {
         payload.addHeader("verb", verb);

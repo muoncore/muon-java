@@ -2,13 +2,16 @@ package com.simplicity.services;
 
 import org.muoncore.Muon;
 import org.muoncore.MuonClient;
+import org.muoncore.extension.amqp.AmqpTransportExtension;
 
 public class Service2 {
 
     public static void main(String[] args) {
 
-        final MuonClient muon = new Muon();
+        final Muon muon = new Muon();
 
+        muon.registerExtension(new AmqpTransportExtension());
+        muon.start();
 
         String myData = muon.get("muon://tck/echo").getResponseEvent().getPayload().toString();
 

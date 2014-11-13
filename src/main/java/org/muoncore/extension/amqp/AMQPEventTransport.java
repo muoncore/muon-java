@@ -1,10 +1,13 @@
 package org.muoncore.extension.amqp;
 
 import com.rabbitmq.client.*;
+import org.eclipse.jetty.util.ajax.JSON;
 import org.muoncore.*;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -63,7 +66,14 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
 
     @Override
     public MuonService.MuonResult emitForReturn(String eventName, MuonResourceEvent event) {
-        String payload = event.toString();
+        //TODO, customise serialisation strategy ... ?
+        String payload = null;
+
+        if (event.getPayload() instanceof String) {
+            payload = (String) event.getPayload();
+        } else {
+            payload = JSON.toString(event.getPayload());
+        }
         byte[] messageBytes = payload.getBytes();
 
         MuonService.MuonResult ret = new MuonService.MuonResult();
@@ -77,7 +87,9 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
                     .replyTo(callbackQueueName)
                     .build();
 
-            channel.basicPublish("", EXCHANGE_RES, props, messageBytes);
+            String key = event.getUri().getHost() + "." + event.getUri().getPath() + "." + event.getHeaders().get("verb");
+
+            channel.basicPublish(EXCHANGE_RES, key, props, messageBytes);
 
             QueueingConsumer consumer = new QueueingConsumer(channel);
             channel.basicConsume(callbackQueueName, true, consumer);

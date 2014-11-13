@@ -1,4 +1,4 @@
-package com.simplicityitself
+package org.muoncore
 
 import groovy.json.JsonBuilder
 import org.eclipse.jetty.util.ajax.JSON
@@ -43,7 +43,6 @@ class MuonTCK {
         obj.put("method", "GET")
 
         return JSON.toString(obj)
-
     }
 
     muon.onPost("/echo", "Allow posting of some data") {
@@ -73,6 +72,7 @@ class MuonTCK {
         Map obj = (Map) JSON.parse((String) it.getPayload())
 
         obj.put("method", "DELETE")
+
 
         return JSON.toString(obj)
     }
