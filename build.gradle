@@ -1,7 +1,8 @@
 apply plugin: 'groovy'
 
 sourceCompatibility = 1.6
-version = '1.0'
+group = theGroup
+version = theVersion
 
 repositories {
     mavenCentral()
