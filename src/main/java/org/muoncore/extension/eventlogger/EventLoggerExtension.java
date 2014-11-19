@@ -21,11 +21,11 @@ public class EventLoggerExtension implements MuonExtension {
         muonApi.getMuon().onGet("/muon/logger/history", "Get the history of logs", new MuonService.MuonGet() {
             @Override
             public Object onQuery(MuonResourceEvent queryEvent) {
-                String ret = "<ul>";
+                String ret = "<html><body>Yo<ul>";
                 for (String res : resources) {
                     ret += "<li>" + res + "</li>\n";
                 }
-                ret += "</ul>";
+                ret += "</ul></body></html>";
                 return ret;
             }
         });

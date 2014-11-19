@@ -17,12 +17,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class HttpEventTransport implements MuonResourceTransport {
 
+    private Logger log = Logger.getLogger(HttpEventTransport.class.getName());
     private Server server;
     private MuonHttpHandler handler;
     private int port;
+    private HttpTransportServiceDiscovery transportServiceDiscovery;
 
     public HttpEventTransport(int port) {
         this.port = port;
@@ -31,13 +34,11 @@ public class HttpEventTransport implements MuonResourceTransport {
     private synchronized MuonHttpHandler getHandler() {
         if (handler == null) {
             try {
-                System.out.println("HTTP Transport: Booting local HTTP server on port " + port);
+                log.fine("HTTP Transport: Booting local HTTP server on port " + port);
                 server = new Server(port);
                 handler = new MuonHttpHandler();
 
                 server.setHandler(handler);
-
-                server.start();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -80,10 +81,10 @@ public class HttpEventTransport implements MuonResourceTransport {
 
                 return result;
             } else if (exchangeState == HttpExchange.STATUS_EXCEPTED) {
-                System.out.println("STATUS_EXCEPTED");
+                log.info("STATUS_EXCEPTED");
 //                handleError();
             } else if (exchangeState == HttpExchange.STATUS_EXPIRED) {
-                System.out.println("STATUS_EXPIRED");
+                log.info("STATUS_EXPIRED");
 //                handleSlowServer();
             }
         } catch (IOException e) {
@@ -99,9 +100,7 @@ public class HttpEventTransport implements MuonResourceTransport {
     @Override
     public void listenOnResource(String resource, String verb, Muon.EventResourceTransportListener listener) {
         try {
-            //TODO, need a global 'events' listener and enable chaining.
-            System.out.println("HTTPTransport: Waiting for " + verb + " requests / " + resource);
-
+            log.info("HTTPTransport: Waiting for " + verb + " requests / " + resource);
             getHandler().addListener(resource, verb.toUpperCase(), listener);
         } catch (Exception e) {
             e.printStackTrace();
@@ -110,7 +109,7 @@ public class HttpEventTransport implements MuonResourceTransport {
 
     @Override
     public List<ServiceDescriptor> discoverServices() {
-        throw new IllegalStateException("Not Implemented");
+        return transportServiceDiscovery.discover();
     }
 
     @Override
@@ -119,15 +118,20 @@ public class HttpEventTransport implements MuonResourceTransport {
             handler.stop();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            transportServiceDiscovery.unregister();
         }
     }
 
-    public void start() {
-        //TODO ...
+    public void start() throws Exception {
+        server.start();
+        //transportServiceDiscovery.register();
     }
 
     public static class MuonHttpHandler extends AbstractHandler {
         Map<String, Muon.EventResourceTransportListener> listeners = new HashMap<String, Muon.EventResourceTransportListener>();
+
+        private Logger log = Logger.getLogger(HttpEventTransport.class.getName());
 
         public void addListener(String path, String verb, Muon.EventResourceTransportListener listener) {
             listeners.put(verb + " " + path, listener);
@@ -135,7 +139,7 @@ public class HttpEventTransport implements MuonResourceTransport {
 
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
                 throws IOException, ServletException {
-            System.out.println("Getting target " + target);
+            log.fine("Getting target " + target);
 
             String lookup = baseRequest.getMethod().toUpperCase() + " " + target;
 
@@ -146,14 +150,20 @@ public class HttpEventTransport implements MuonResourceTransport {
                 response.setStatus(HttpServletResponse.SC_OK);
                 baseRequest.setHandled(true);
 
-                //this is a bit rubbish, pull in a proper lib to do this.
-                byte[] content = new byte[request.getContentLength()];
-                request.getInputStream().read(content);
+                MuonResourceEvent ev;
+                if (request.getContentLength() > 0) {
+                    //this is a bit rubbish, pull in a proper lib to do this.
+                    byte[] content = new byte[request.getContentLength()];
+                    request.getInputStream().read(content);
 
-                //TODO, read the content from the request.
-                MuonResourceEvent ev = MuonResourceEventBuilder.textMessage(new String(content))
-                        .withMimeType(request.getContentType())
-                        .build();
+                    ev = MuonResourceEventBuilder.textMessage(new String(content))
+                            .withMimeType(request.getContentType())
+                            .build();
+                } else {
+                    ev = MuonResourceEventBuilder.textMessage("")
+                            .withMimeType(request.getContentType())
+                            .build();
+                }
 
                 Object ret = listener.onEvent(target, ev);
 

@@ -56,8 +56,7 @@ public class Muon implements MuonService {
     }
 
     public Muon() {
-
-//        registerExtension(new LocalTransportExtension());
+        registerExtension(new LocalTransportExtension());
     }
 
     public void start() {
@@ -83,7 +82,8 @@ public class Muon implements MuonService {
 
         if(transport instanceof MuonResourceTransport) {
             resourceTransports.add((MuonResourceTransport) transport);
-        } else {
+        }
+        if(transport instanceof MuonBroadcastTransport) {
             broadcastTransports.add((MuonBroadcastTransport) transport);
         }
 
@@ -97,7 +97,11 @@ public class Muon implements MuonService {
     }
 
     private void initialiseTransport(MuonEventTransport transport) {
-        transport.start();
+        try {
+            transport.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         System.out.println("Muon: Starting transport " + transport.getClass().getSimpleName());
         //TODO, add resources

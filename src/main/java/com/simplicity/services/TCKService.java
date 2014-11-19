@@ -6,6 +6,7 @@ import org.muoncore.MuonBroadcastEvent;
 import org.muoncore.MuonResourceEvent;
 import org.muoncore.MuonService;
 import org.muoncore.extension.amqp.AmqpTransportExtension;
+import org.muoncore.extension.eventlogger.EventLoggerExtension;
 import org.muoncore.extension.http.HttpTransportExtension;
 
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ public class TCKService {
         muon.setServiceIdentifer("tck");
         muon.registerExtension(new HttpTransportExtension(7171));
         muon.registerExtension(new AmqpTransportExtension());
+        muon.registerExtension(new EventLoggerExtension());
         muon.start();
 
         final List events = Collections.synchronizedList(new ArrayList());

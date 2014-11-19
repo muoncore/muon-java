@@ -1,9 +1,11 @@
 package org.muoncore.extension.http;
 
+import org.muoncore.ServiceDescriptor;
+
 import java.util.List;
 
 public interface HttpTransportServiceDiscovery {
     void register();
-    //TODO, richer object needed here
-    List<String> discover();
+    void unregister();
+    List<ServiceDescriptor> discover();
 }

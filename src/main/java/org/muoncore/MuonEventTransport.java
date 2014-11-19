@@ -16,5 +16,5 @@ public interface MuonEventTransport {
 
     public void shutdown();
 
-    public void start();
+    public void start() throws Exception;
 }
