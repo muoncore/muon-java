@@ -10,16 +10,14 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTransport {
 
+    public static final String SERVICE_ANNOUNCE = "serviceAnnounce";
     private Logger log = Logger.getLogger(AMQPEventTransport.class.getName());
 
     private Connection connection;
@@ -29,6 +27,8 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
 
     private String serviceName;
 
+    private ServiceCache serviceCache;
+
     static String EXCHANGE_NAME ="muon-broadcast";
     static String EXCHANGE_RES ="muon-resource";
     static String RABBIT_HOST = "localhost";
@@ -37,16 +37,7 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
 
     public AMQPEventTransport(String serviceName) throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException, IOException {
         this.serviceName = serviceName;
-        spinner = Executors.newCachedThreadPool();
-
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setUri("amqp://localhost:5672");
-        //factory.setUri("amqp://userName:password@$RABBIT_HOST/");
-        connection = factory.newConnection();
-
-        channel = connection.createChannel();
-        channel.exchangeDeclare(EXCHANGE_NAME, "topic");
-        channel.exchangeDeclare(EXCHANGE_RES, "topic");
+        serviceCache = new ServiceCache();
     }
 
     @Override
@@ -236,7 +227,13 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
 
     @Override
     public List<ServiceDescriptor> discoverServices() {
-        return null;
+        List<ServiceDescriptor> services = new ArrayList<ServiceDescriptor>();
+
+        for(String id: serviceCache.getServiceIds()) {
+            services.add(new ServiceDescriptor(id, this));
+        }
+
+        return services;
     }
 
     @Override
@@ -251,7 +248,57 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
     }
 
     public void start() {
-        //TODO ....
+        spinner = Executors.newCachedThreadPool();
+
+        ConnectionFactory factory = new ConnectionFactory();
+
+        try {
+            factory.setUri("amqp://localhost:5672");
+
+            //factory.setUri("amqp://userName:password@$RABBIT_HOST/");
+            connection = factory.newConnection();
+
+            channel = connection.createChannel();
+            channel.exchangeDeclare(EXCHANGE_NAME, "topic");
+            channel.exchangeDeclare(EXCHANGE_RES, "topic");
+
+            listenOnEvent(SERVICE_ANNOUNCE, new Muon.EventBroadcastTransportListener() {
+                @Override
+                public void onEvent(String name, MuonBroadcastEvent obj) {
+                    log.fine("Service announced " + obj.getPayload());
+                    Map announce = (Map) JSON.parse((String) obj.getPayload());
+                    serviceCache.addService((String) announce.get("identifier"));
+                }
+            });
+
+            startDiscoverPing();
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
+    public void startDiscoverPing() {
+        spinner.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while(true) {
+                        emit(SERVICE_ANNOUNCE, MuonBroadcastEventBuilder.broadcast(SERVICE_ANNOUNCE)
+                                .withContent("{\"identifier\":\"" + serviceName + "\"}").build());
+                        Thread.sleep(3000);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+    }
 }

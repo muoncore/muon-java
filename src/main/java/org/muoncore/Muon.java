@@ -43,7 +43,7 @@ public class Muon implements MuonService {
     }
 
     public Muon() {
-        registerExtension(new LocalTransportExtension());
+//        registerExtension(new LocalTransportExtension());
     }
 
     public void start() {
@@ -148,9 +148,8 @@ public class Muon implements MuonService {
             if (transport instanceof MuonBroadcastTransport) {
                 ((MuonBroadcastTransport) transport).listenOnEvent(event, new EventBroadcastTransportListener() {
                     @Override
-                    public Object onEvent(String name, MuonBroadcastEvent obj) {
+                    public void onEvent(String name, MuonBroadcastEvent obj) {
                         listener.onEvent(obj);
-                        return null;
                     }
                 });
             }
@@ -228,8 +227,18 @@ public class Muon implements MuonService {
         }
     }
 
+    public List<ServiceDescriptor> discoverServices() {
+        List<ServiceDescriptor> services = new ArrayList<ServiceDescriptor>();
+
+        for(MuonEventTransport transport: transports) {
+            services.addAll(transport.discoverServices());
+        }
+
+        return services;
+    }
+
     public static interface EventBroadcastTransportListener {
-        Object onEvent(String name, MuonBroadcastEvent obj);
+        void onEvent(String name, MuonBroadcastEvent obj);
     }
 
     public static interface EventResourceTransportListener {

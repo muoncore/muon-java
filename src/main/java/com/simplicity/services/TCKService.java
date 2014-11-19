@@ -1,10 +1,7 @@
 package com.simplicity.services;
 
 import org.eclipse.jetty.util.ajax.JSON;
-import org.muoncore.Muon;
-import org.muoncore.MuonBroadcastEvent;
-import org.muoncore.MuonResourceEvent;
-import org.muoncore.MuonService;
+import org.muoncore.*;
 import org.muoncore.extension.amqp.AmqpTransportExtension;
 import org.muoncore.extension.eventlogger.EventLoggerExtension;
 import org.muoncore.extension.http.HttpTransportExtension;
@@ -21,12 +18,11 @@ public class TCKService {
 
     public static void main(String[] args) {
 
-        MuonService muon = new Muon();
+        final Muon muon = new Muon();
 
         muon.setServiceIdentifer("tck");
         muon.registerExtension(new HttpTransportExtension(7171));
         muon.registerExtension(new AmqpTransportExtension());
-        muon.registerExtension(new EventLoggerExtension());
         muon.start();
 
         final List events = Collections.synchronizedList(new ArrayList());
@@ -96,6 +92,19 @@ public class TCKService {
                 obj.put("method", "DELETE");
 
                 return JSON.toString(obj);
+            }
+        });
+
+        muon.onGet("/discover", "Show the currently discovered service identifiers.", new MuonService.MuonGet() {
+            @Override
+            public Object onQuery(MuonResourceEvent queryEvent) {
+                List<String> ids = new ArrayList<String>();
+
+                for (ServiceDescriptor desc: muon.discoverServices()) {
+                    ids.add(desc.getIdentifier());
+                }
+
+                return JSON.toString(ids);
             }
         });
     }

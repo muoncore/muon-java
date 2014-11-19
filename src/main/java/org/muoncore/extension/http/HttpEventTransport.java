@@ -109,7 +109,8 @@ public class HttpEventTransport implements MuonResourceTransport {
 
     @Override
     public List<ServiceDescriptor> discoverServices() {
-        return transportServiceDiscovery.discover();
+        //return transportServiceDiscovery.discover();
+        return Collections.emptyList();
     }
 
     @Override

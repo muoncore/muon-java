@@ -18,10 +18,7 @@ class ServiceCache {
     private synchronized void expire() {
         Map<String, Long> entries = new HashMap<String, Long>();
         for (Map.Entry<String, Long> entry: serviceCache.entrySet()) {
-            System.out.println("Current time is " + System.currentTimeMillis());
-            System.out.println("Expiry time is " + (entry.getValue() + EXPIRY));
             long val = entry.getValue() + EXPIRY - System.currentTimeMillis();
-            System.out.println("Expiry is " + val);
             if (val > 0) {
                 entries.put(entry.getKey(), entry.getValue());
             }
