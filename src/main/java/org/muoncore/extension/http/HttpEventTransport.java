@@ -124,6 +124,7 @@ public class HttpEventTransport implements MuonResourceTransport {
     }
 
     public void start() throws Exception {
+        getHandler();
         server.start();
         //transportServiceDiscovery.register();
     }

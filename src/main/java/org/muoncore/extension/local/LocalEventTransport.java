@@ -7,20 +7,22 @@ import org.muoncore.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.logging.Logger;
 
 public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastTransport {
 
+    private Logger log = Logger.getLogger(LocalEventTransport.class.getName());
     private EventBus bus;
 
     public LocalEventTransport() {
         bus = new EventBus();
-        System.out.println("LEB: Started");
+        log.info("Local Event Bus Started");
     }
 
     @Override
     public MuonService.MuonResult emit(String eventName, MuonBroadcastEvent event) {
 
-        System.out.println("LEB: event " + eventName);
+        log.fine("Listening for event " + eventName);
 
         bus.post(event);
         return new MuonService.MuonResult();
@@ -33,14 +35,14 @@ public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastT
 
         final MuonService.MuonResult result = new MuonService.MuonResult();
 
-        System.out.println("LEB: Sending onGet query " + eventName);
+        log.finer("Sending onGet query " + eventName);
 
         EBResponseListener response = new EBResponseListener() {
             @Subscribe
             @Override
             public void onEvent(EBResponseEvent ev) {
                 result.setEvent(ev.getEvent());
-                System.out.println("LEB: Got " + ev.getEvent().getPayload());
+                log.finer("LEB: Got " + ev.getEvent().getPayload());
                 latch.countDown();
             }
         };
@@ -53,18 +55,18 @@ public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastT
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("LEB: Returing onGet data " + result.getResponseEvent());
+        log.finer("LEB: Returing onGet data " + result.getResponseEvent());
         return result;
     }
 
     @Override
     public void listenOnEvent(final String resource, final Muon.EventBroadcastTransportListener listener) {
-        System.out.println("LEB: Listening for event " + resource);
+        log.fine("Listening for event " + resource);
         bus.register(new EBListener() {
             @Override
             @Subscribe
             public void onEvent(MuonBroadcastEvent ev) {
-                System.out.println("LEB: Received for event " + resource);
+                log.finer("Received for event " + resource);
                 if (resource.equals(ev.getEventName())) {
                     listener.onEvent(resource, ev);
                 }
@@ -74,7 +76,7 @@ public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastT
 
     @Override
     public void listenOnResource(final String resource, final String verb, final Muon.EventResourceTransportListener listener) {
-        System.out.println("LEB: Listening for onGet " + resource);
+        log.fine("Listening for onGet " + resource);
         bus.register(new EBResourceListener() {
             @Override
             @Subscribe
@@ -82,7 +84,7 @@ public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastT
                 String verb = ev.getHeaders().get("verb");
 
                 if (resource.equals(ev.getServiceId()) && verb != null && verb.equals(verb)) {
-                    System.out.println("LEB: " + verb + " " + resource + " == ");
+                    log.finer(verb + " " + resource + " == ");
 
                     Object ret = listener.onEvent(resource, ev);
 

@@ -13,24 +13,11 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
-/**
-
- TODO, have a muon protocol checked that introspects a remote muon and asserts it
- reports the correct resources and events for a particular protocol
-
- * TODO
- * Need to consider correct lifecycle for the library.
- *
- *Startup/ shutdown, when to initialise extensions and the like.
- *How/ When to add transports and start them.
- *
- *Create an abstraction layer for the onGet/ event registrations.
- * so events are regsitered here, then sent into the transports at the appropriate time
- * / when they are started, not immediately.
- * That allows transports to be added and removed. Possibly as extensions?
- */
 public class Muon implements MuonService {
+
+    private Logger log = Logger.getLogger(Muon.class.getName());
 
     private List<EventFilterChain> filterChains = new ArrayList<EventFilterChain>();
     private List<MuonEventTransport> transports = new ArrayList<MuonEventTransport>();
@@ -103,7 +90,7 @@ public class Muon implements MuonService {
             e.printStackTrace();
         }
 
-        System.out.println("Muon: Starting transport " + transport.getClass().getSimpleName());
+        log.info("Muon: Starting transport " + transport.getClass().getSimpleName());
         //TODO, add resources
 
         //TODO, add events

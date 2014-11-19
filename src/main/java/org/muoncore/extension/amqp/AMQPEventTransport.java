@@ -10,13 +10,17 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTransport {
+
+    private Logger log = Logger.getLogger(AMQPEventTransport.class.getName());
 
     private Connection connection;
     private Channel channel;
@@ -28,6 +32,8 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
     static String EXCHANGE_NAME ="muon-broadcast";
     static String EXCHANGE_RES ="muon-resource";
     static String RABBIT_HOST = "localhost";
+
+    Map<String, String> maps = new HashMap<String, String>();
 
     public AMQPEventTransport(String serviceName) throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException, IOException {
         this.serviceName = serviceName;
@@ -97,7 +103,7 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
             QueueingConsumer.Delivery delivery = consumer.nextDelivery();
             String message = new String(delivery.getBody());
 
-            System.out.println("AMQP: Received Resource Reply '" + message + "'");
+            log.finer("AMQP: Received Resource Reply '" + message + "'");
 
             String mimeType = delivery.getProperties().getContentType();
             Map<String, Object> head = delivery.getProperties().getHeaders();
@@ -137,13 +143,13 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
                     QueueingConsumer consumer = new QueueingConsumer(channel);
                     channel.basicConsume(ok.getQueue(), false, consumer);
 
-                    System.out.println("AMQPChannel : Waiting for " + verb +" requests " + resource);
+                    log.fine("Waiting for " + verb + " requests " + resource);
 
                     while (true) {
                         try {
                             QueueingConsumer.Delivery delivery = consumer.nextDelivery();
 
-                            System.out.println("AMQPChannel : Got Request " + resource + " " + verb);
+                            log.finer("Got Request " + resource + " " + verb);
 
                             BasicProperties props = delivery.getProperties();
                             AMQP.BasicProperties replyProps = new AMQP.BasicProperties.Builder()
@@ -153,7 +159,7 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
 
                             String message = new String(delivery.getBody());
 
-                            System.out.println("AMQPChannel : Received " + message);
+                            log.finer("AMQPChannel : Received " + message);
 
                             //todo, transport marshalling
                             MuonResourceEvent ev = MuonResourceEventBuilder.textMessage(message)
@@ -161,12 +167,12 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
                                     .build();
 
                             String response = listener.onEvent(resource, ev).toString();
-                            System.out.println("AMQPChannel : Sending" + response);
+                            log.finer("Sending" + response);
 
                             if (props.getReplyTo() != null) {
                                 channel.basicPublish("", props.getReplyTo(), replyProps, response.getBytes());
                             } else {
-                                System.out.println("Discard message, no routing key in properties " + props.getMessageId());
+                                log.fine("Discard message, no routing key in properties " + props.getMessageId());
                             }
                             channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                         } catch (Exception ex) {
@@ -192,7 +198,7 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
 
                     channel.queueBind(queueName, EXCHANGE_NAME, resource);
 
-                    System.out.println("AMQPChannel : Waiting for messages " + resource);
+                    log.fine("AMQPChannel : Waiting for messages " + resource);
 
                     QueueingConsumer consumer = new QueueingConsumer(channel);
                     channel.basicConsume(queueName, true, consumer);
@@ -201,7 +207,7 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
                         QueueingConsumer.Delivery delivery = consumer.nextDelivery();
                         String message = new String(delivery.getBody());
 
-                        System.out.println("AMQP: Received '" + message + "'");
+                        log.finer("AMQP: Received '" + message + "'");
 
                         MuonBroadcastEventBuilder builder = MuonBroadcastEventBuilder.broadcast(resource)
                                 .withMimeType(delivery.getProperties().getContentType())
@@ -230,7 +236,7 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
 
     @Override
     public List<ServiceDescriptor> discoverServices() {
-        throw new IllegalStateException("Not Implemented");
+        return null;
     }
 
     @Override
@@ -247,4 +253,5 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
     public void start() {
         //TODO ....
     }
+
 }
