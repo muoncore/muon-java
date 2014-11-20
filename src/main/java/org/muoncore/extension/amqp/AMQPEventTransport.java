@@ -5,9 +5,7 @@ import org.eclipse.jetty.util.ajax.JSON;
 import org.muoncore.*;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -271,7 +269,7 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
                 }
             });
 
-            startDiscoverPing();
+            startAnnouncePing();
 
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -284,7 +282,7 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
         }
     }
 
-    public void startDiscoverPing() {
+    public void startAnnouncePing() {
         spinner.execute(new Runnable() {
             @Override
             public void run() {
