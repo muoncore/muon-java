@@ -3,12 +3,14 @@ package com.simplicity.services;
 import org.muoncore.Muon;
 import org.muoncore.MuonResourceEvent;
 import org.muoncore.MuonService;
+import org.muoncore.extension.amqp.AmqpTransportExtension;
 
 public class UserService {
 
     public static void main(String[] args) {
 
         MuonService muon = new Muon();
+        muon.registerExtension(new AmqpTransportExtension());
 
         muon.setServiceIdentifer("users");
 
@@ -18,5 +20,6 @@ public class UserService {
                 return "<h1>Got some user data!</h1>";
             }
         });
+        muon.start();
     }
 }

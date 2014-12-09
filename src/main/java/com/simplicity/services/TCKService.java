@@ -28,7 +28,6 @@ public class TCKService {
         final List events = Collections.synchronizedList(new ArrayList());
 
         muon.receive("tckBroadcast", new MuonService.MuonListener() {
-            @Override
             public void onEvent(MuonBroadcastEvent event) {
                 events.add(JSON.parse(event.getPayload().toString()));
             }

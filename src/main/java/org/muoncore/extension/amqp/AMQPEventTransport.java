@@ -29,13 +29,24 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
 
     static String EXCHANGE_NAME ="muon-broadcast";
     static String EXCHANGE_RES ="muon-resource";
-    static String RABBIT_HOST = "localhost";
+    private String rabbitHost = "localhost";
+    private String rabbitPort = "5672";
 
-    Map<String, String> maps = new HashMap<String, String>();
+    private Map<String, String> maps = new HashMap<String, String>();
 
     public AMQPEventTransport(String serviceName) throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException, IOException {
         this.serviceName = serviceName;
         serviceCache = new ServiceCache();
+
+        String envRabbit = System.getenv("MUON_RABBIT_HOST");
+        if (envRabbit != null && envRabbit.length() > 0) {
+            rabbitHost = envRabbit;
+        }
+        String envRabbitPort = System.getenv("MUON_RABBIT_PORT");
+        if (envRabbitPort != null && envRabbitPort.length() > 0) {
+            rabbitPort = envRabbitPort;
+        }
+        log.info("Connecting to AMQP host at " + rabbitHost + ":" + rabbitPort);
     }
 
     @Override
@@ -251,9 +262,9 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
         ConnectionFactory factory = new ConnectionFactory();
 
         try {
-            factory.setUri("amqp://localhost:5672");
+            factory.setUri("amqp://" + rabbitHost + ":" + rabbitPort);
 
-            //factory.setUri("amqp://userName:password@$RABBIT_HOST/");
+            //factory.setUri("amqp://userName:password@$rabbitHost/");
             connection = factory.newConnection();
 
             channel = connection.createChannel();
