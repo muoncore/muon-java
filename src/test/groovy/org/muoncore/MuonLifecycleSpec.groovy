@@ -41,6 +41,7 @@ class MuonLifecycleSpec extends Specification {
     muon.transports == []
   }
 
+  @Ignore
   Story "adding a transport call start(), all resources in the resource map are added"() {
     given:
     MuonEventTransport transport = Mock()
