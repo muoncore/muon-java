@@ -29,8 +29,7 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
 
     static String EXCHANGE_NAME ="muon-broadcast";
     static String EXCHANGE_RES ="muon-resource";
-    private String rabbitHost = "localhost";
-    private String rabbitPort = "5672";
+    private String rabbitUrl = "amqp://localhost:5672";
 
     private Map<String, String> maps = new HashMap<String, String>();
 
@@ -38,15 +37,12 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
         this.serviceName = serviceName;
         serviceCache = new ServiceCache();
 
-        String envRabbit = System.getenv("MUON_RABBIT_HOST");
+        String envRabbit = System.getenv("MUON_AMQP_URL");
         if (envRabbit != null && envRabbit.length() > 0) {
-            rabbitHost = envRabbit;
+            rabbitUrl = envRabbit;
         }
-        String envRabbitPort = System.getenv("MUON_RABBIT_PORT");
-        if (envRabbitPort != null && envRabbitPort.length() > 0) {
-            rabbitPort = envRabbitPort;
-        }
-        log.info("Connecting to AMQP host at " + rabbitHost + ":" + rabbitPort);
+
+        log.info("Connecting to AMQP host at " + rabbitUrl);
     }
 
     @Override
@@ -262,7 +258,7 @@ public class AMQPEventTransport implements MuonResourceTransport,MuonBroadcastTr
         ConnectionFactory factory = new ConnectionFactory();
 
         try {
-            factory.setUri("amqp://" + rabbitHost + ":" + rabbitPort);
+            factory.setUri(rabbitUrl);
 
             //factory.setUri("amqp://userName:password@$rabbitHost/");
             connection = factory.newConnection();
