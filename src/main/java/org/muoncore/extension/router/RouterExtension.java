@@ -1,6 +1,6 @@
 package org.muoncore.extension.router;
 
-import org.muoncore.MuonResourceEvent;
+import org.muoncore.transports.MuonResourceEvent;
 import org.muoncore.MuonService;
 import org.muoncore.MuonExtension;
 import org.muoncore.MuonExtensionApi;

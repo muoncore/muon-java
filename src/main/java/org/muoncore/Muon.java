@@ -1,16 +1,12 @@
 package org.muoncore;
 
-import org.muoncore.extension.local.LocalTransportExtension;
 import org.muoncore.filter.EventFilterChain;
-import org.muoncore.extension.amqp.AMQPEventTransport;
-import org.muoncore.extension.http.HttpEventTransport;
-import org.muoncore.extension.local.LocalEventTransport;
+import org.muoncore.transports.*;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -106,7 +102,7 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public void emit(MuonBroadcastEvent ev) {
+    public void emit(MuonMessageEvent ev) {
         dispatcher.dispatchToTransports(ev, transports(ev));
     }
 
@@ -146,9 +142,9 @@ public class Muon implements MuonService {
         //instead just store this.
         for(MuonEventTransport transport: transports) {
             if (transport instanceof MuonBroadcastTransport) {
-                ((MuonBroadcastTransport) transport).listenOnEvent(event, new EventBroadcastTransportListener() {
+                ((MuonBroadcastTransport) transport).listenOnBroadcastEvent(event, new EventMessageTransportListener() {
                     @Override
-                    public void onEvent(String name, MuonBroadcastEvent obj) {
+                    public void onEvent(String name, MuonMessageEvent obj) {
                         listener.onEvent(obj);
                     }
                 });
@@ -237,8 +233,8 @@ public class Muon implements MuonService {
         return services;
     }
 
-    public static interface EventBroadcastTransportListener {
-        void onEvent(String name, MuonBroadcastEvent obj);
+    public static interface EventMessageTransportListener {
+        void onEvent(String name, MuonMessageEvent obj);
     }
 
     public static interface EventResourceTransportListener {
@@ -260,11 +256,25 @@ public class Muon implements MuonService {
         return resourceTransports;
     }
 
-    List<MuonBroadcastTransport> transports(MuonBroadcastEvent event) {
+    List<MuonBroadcastTransport> transports(MuonMessageEvent event) {
         return broadcastTransports;
     }
     static MuonResourceEvent resourceEvent(String verb, MuonResourceEvent payload) {
         payload.addHeader("verb", verb);
         return payload;
+    }
+
+
+    /**
+     * experimental streaming support
+     */
+    public MuonStreamTransport streamer;
+
+    public void publishStream(String url, Publisher pub) {
+        streamer.publishStream(url, pub);
+    }
+
+    public void subscribe(String url, Subscriber subscriber) throws URISyntaxException {
+        streamer.subscribeToStream(url, subscriber);
     }
 }

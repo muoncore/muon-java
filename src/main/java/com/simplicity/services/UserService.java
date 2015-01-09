@@ -1,7 +1,7 @@
 package com.simplicity.services;
 
 import org.muoncore.Muon;
-import org.muoncore.MuonResourceEvent;
+import org.muoncore.transports.MuonResourceEvent;
 import org.muoncore.MuonService;
 import org.muoncore.extension.amqp.AmqpTransportExtension;
 

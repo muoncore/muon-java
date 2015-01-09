@@ -1,4 +1,4 @@
-package org.muoncore;
+package org.muoncore.transports;
 
 import java.net.URI;
 import java.util.HashMap;

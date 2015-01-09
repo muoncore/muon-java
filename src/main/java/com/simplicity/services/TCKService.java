@@ -3,8 +3,9 @@ package com.simplicity.services;
 import org.eclipse.jetty.util.ajax.JSON;
 import org.muoncore.*;
 import org.muoncore.extension.amqp.AmqpTransportExtension;
-import org.muoncore.extension.eventlogger.EventLoggerExtension;
 import org.muoncore.extension.http.HttpTransportExtension;
+import org.muoncore.transports.MuonMessageEvent;
+import org.muoncore.transports.MuonResourceEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +29,7 @@ public class TCKService {
         final List events = Collections.synchronizedList(new ArrayList());
 
         muon.receive("tckBroadcast", new MuonService.MuonListener() {
-            public void onEvent(MuonBroadcastEvent event) {
+            public void onEvent(MuonMessageEvent event) {
                 events.add(JSON.parse(event.getPayload().toString()));
             }
         });

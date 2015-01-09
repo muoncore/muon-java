@@ -1,22 +1,22 @@
-package org.muoncore;
+package org.muoncore.transports;
 
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class MuonBroadcastEvent {
+public class MuonMessageEvent {
     private String eventName;
     private String mimeType;
     private Map<String, String> headers = new HashMap<String, String>();
     private Object payload;
 
-    public MuonBroadcastEvent(String eventName, String mimeType, Object payload) {
+    public MuonMessageEvent(String eventName, String mimeType, Object payload) {
         this.eventName = eventName;
         this.mimeType = mimeType;
         this.payload = payload;
     }
 
-    public MuonBroadcastEvent(Object payload) {
+    public MuonMessageEvent(Object payload) {
         this.payload = payload;
     }
 

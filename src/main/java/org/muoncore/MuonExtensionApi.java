@@ -1,6 +1,7 @@
 package org.muoncore;
 
 import org.muoncore.filter.EventFilterChain;
+import org.muoncore.transports.MuonStreamTransport;
 
 import java.util.Collections;
 import java.util.List;
@@ -69,6 +70,8 @@ public class MuonExtensionApi {
 
     public void addTransport(MuonEventTransport transport) {
         muon.registerTransport(transport);
+        //TODO, bad juju
+        muon.streamer = (MuonStreamTransport) transport;
     }
 
     void setTransports(List<MuonEventTransport> transports) {

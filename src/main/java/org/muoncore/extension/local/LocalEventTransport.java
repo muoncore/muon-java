@@ -3,6 +3,7 @@ package org.muoncore.extension.local;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import org.muoncore.*;
+import org.muoncore.transports.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +21,7 @@ public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastT
     }
 
     @Override
-    public MuonService.MuonResult emit(String eventName, MuonBroadcastEvent event) {
+    public MuonService.MuonResult broadcast(String eventName, MuonMessageEvent event) {
 
         log.fine("Listening for event " + eventName);
 
@@ -60,12 +61,12 @@ public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastT
     }
 
     @Override
-    public void listenOnEvent(final String resource, final Muon.EventBroadcastTransportListener listener) {
+    public void listenOnBroadcastEvent(final String resource, final Muon.EventMessageTransportListener listener) {
         log.fine("Listening for event " + resource);
         bus.register(new EBListener() {
             @Override
             @Subscribe
-            public void onEvent(MuonBroadcastEvent ev) {
+            public void onEvent(MuonMessageEvent ev) {
                 log.finer("Received for event " + resource);
                 if (resource.equals(ev.getEventName())) {
                     listener.onEvent(resource, ev);
@@ -111,7 +112,7 @@ public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastT
     public void shutdown() { }
 
     static interface EBListener {
-        void onEvent(MuonBroadcastEvent ev);
+        void onEvent(MuonMessageEvent ev);
     }
     static interface EBResourceListener {
         void onEvent(MuonResourceEvent ev);

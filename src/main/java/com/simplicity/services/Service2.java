@@ -1,47 +1,41 @@
 package com.simplicity.services;
 
-import org.eclipse.jetty.util.ajax.JSON;
 import org.muoncore.*;
 import org.muoncore.extension.amqp.AmqpTransportExtension;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import reactor.function.Consumer;
+import reactor.rx.Stream;
+import reactor.rx.Streams;
+import reactor.rx.stream.HotStream;
+
+import java.net.URISyntaxException;
 
 public class Service2 {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws URISyntaxException {
 
         final Muon muon = new Muon();
 
+        muon.setServiceIdentifer("cl");
         muon.registerExtension(new AmqpTransportExtension());
         muon.start();
 
-        System.out.println("Saying hello there!");
+        Stream stream = Streams.range(1, 200);
 
-        muon.receive("tckBroadcast", new MuonService.MuonListener() {
+        muon.publishStream("/counter", stream);
+
+
+        HotStream sub = Streams.defer();
+
+        muon.subscribe("muon://cl/counter", sub);
+
+        sub.consume(new Consumer() {
             @Override
-            public void onEvent(MuonBroadcastEvent event) {
-                System.out.println("Got tckBroadcast " + event.getPayload().toString());
+            public void accept(Object o) {
+                System.out.println("I have a message " + o);
             }
         });
 
-        muon.emit(MuonBroadcastEventBuilder.broadcast("simples").withContent("{}").build());
-
-
-
-        String myData = muon.get("muon://tck/event").getResponseEvent().getPayload().toString();
-
-
-
-
-//        String userData = muon.get("muon://users/mydata/happy").getResponseEvent().getPayload().toString();
-
-//        System.out.println("The data is " + myData);
-//        System.out.println("The data is " + userData);
-//
-//        muon.emit(broadcast("email")
-//                    .withContent("Hello Everyone, this is my awesome email")
-//                    .withHeader("to", "david.dawson@simplicityitself.com")
-//                    .withHeader("from", "asap@simplicityitself.com")
-//                    .build());
-
-//        muon.shutdown();
     }
 }

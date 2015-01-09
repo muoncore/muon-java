@@ -1,8 +1,11 @@
 package org.muoncore;
 
+import org.muoncore.transports.MuonMessageEvent;
+import org.muoncore.transports.MuonResourceEvent;
+
 public interface MuonClient {
 
-    public void emit(MuonBroadcastEvent event);
+    public void emit(MuonMessageEvent event);
     public MuonResult get(String resourceQuery);
     public MuonResult post(String resource, MuonResourceEvent payload);
     public MuonResult put(String resource, MuonResourceEvent payload);

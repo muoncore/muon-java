@@ -1,5 +1,8 @@
 package org.muoncore;
 
+import org.muoncore.transports.MuonBroadcastTransport;
+import org.muoncore.transports.MuonMessageEvent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,12 +11,12 @@ public class Dispatcher {
     private List<Listener> listeners = new ArrayList<Listener>();
 
 
-    void dispatchToTransports(MuonBroadcastEvent event, List<MuonBroadcastTransport> transports) {
+    void dispatchToTransports(MuonMessageEvent event, List<MuonBroadcastTransport> transports) {
         for(Listener listener: listeners) {
             listener.presend(event);
         }
         for (MuonBroadcastTransport transport: transports) {
-            transport.emit(event.getEventName(), event);
+            transport.broadcast(event.getEventName(), event);
         }
     }
 
@@ -22,6 +25,6 @@ public class Dispatcher {
     }
 
     public static interface Listener {
-        void presend(MuonBroadcastEvent event);
+        void presend(MuonMessageEvent event);
     }
 }

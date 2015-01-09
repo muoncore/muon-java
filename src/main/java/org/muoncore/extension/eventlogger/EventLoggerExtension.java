@@ -1,6 +1,8 @@
 package org.muoncore.extension.eventlogger;
 
 import org.muoncore.*;
+import org.muoncore.transports.MuonMessageEvent;
+import org.muoncore.transports.MuonResourceEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +15,7 @@ public class EventLoggerExtension implements MuonExtension {
     public void init(MuonExtensionApi muonApi) {
         muonApi.getDispatcher().addListener(new Dispatcher.Listener() {
             @Override
-            public void presend(MuonBroadcastEvent event) {
+            public void presend(MuonMessageEvent event) {
                 resources.add(event.getEventName());
             }
         });

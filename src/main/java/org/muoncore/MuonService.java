@@ -1,5 +1,8 @@
 package org.muoncore;
 
+import org.muoncore.transports.MuonMessageEvent;
+import org.muoncore.transports.MuonResourceEvent;
+
 public interface MuonService extends MuonClient {
 
     public void receive(String event, MuonListener listener);
@@ -17,7 +20,7 @@ public interface MuonService extends MuonClient {
     public void setServiceIdentifer(String serviceIdentifer);
 
     public static interface MuonListener {
-        public void onEvent(MuonBroadcastEvent event);
+        public void onEvent(MuonMessageEvent event);
     }
     public static interface MuonGet {
         public Object onQuery(MuonResourceEvent queryEvent);

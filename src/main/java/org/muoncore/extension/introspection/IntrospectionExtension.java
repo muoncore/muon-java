@@ -2,6 +2,7 @@ package org.muoncore.extension.introspection;
 
 import org.eclipse.jetty.util.ajax.JSON;
 import org.muoncore.*;
+import org.muoncore.transports.MuonResourceEvent;
 
 import java.util.ArrayList;
 import java.util.List;

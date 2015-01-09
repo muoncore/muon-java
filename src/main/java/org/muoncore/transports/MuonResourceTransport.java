@@ -1,10 +1,12 @@
-package org.muoncore;
+package org.muoncore.transports;
 
-import java.util.List;
+import org.muoncore.Muon;
+import org.muoncore.MuonClient;
+import org.muoncore.MuonEventTransport;
 
 public interface MuonResourceTransport extends MuonEventTransport {
 
-    public MuonService.MuonResult emitForReturn(
+    public MuonClient.MuonResult emitForReturn(
             String eventName, MuonResourceEvent event);
 
     public void listenOnResource(String resource,
