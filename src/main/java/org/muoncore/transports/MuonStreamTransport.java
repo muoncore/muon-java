@@ -1,14 +1,31 @@
 package org.muoncore.transports;
 
+import org.muoncore.MuonEventTransport;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 import java.net.URISyntaxException;
 
-public interface MuonStreamTransport {
+public interface MuonStreamTransport extends MuonEventTransport {
 
-    //TODO, methods to discover the streams available
+    /**
+     * Remote publishers will push data into the given subscriber
+     */
+    public void provideStreamSink(String streamName, Subscriber targetOfData);
 
-    public void publishStream(String url, Publisher pub);
+    /**
+     * Takes data from the given publisher and streams it to the remote subscriber
+     */
+    public void publishToStream(String url, Publisher publisher);
+
+    /**
+     * Take data from the given publisher and will make it available for remote subscriptions
+     */
+    public void provideStreamSource(String streamName, Publisher sourceOfData);
+
+    /**
+     * Remotely subscribes to the remote stream and pushes data into the subscriber.
+     */
     public void subscribeToStream(String url, Subscriber subscriber) throws URISyntaxException;
+
 }

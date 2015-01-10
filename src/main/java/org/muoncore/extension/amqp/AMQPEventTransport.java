@@ -100,7 +100,7 @@ public class AMQPEventTransport
 
             broadcast = new AmqpBroadcast(channel);
             queues = new AmqpQueues(channel);
-            resources = new AmqpResources(channel, serviceName);
+            resources = new AmqpResources(queues, serviceName);
             discovery = new AmqpDiscovery(serviceName, broadcast, this);
             streams = new AmqpStream(serviceName, queues);
 
@@ -126,14 +126,24 @@ public class AMQPEventTransport
     }
 
     @Override
-    public void publishStream(String url, Publisher pub) {
-        streams.publishStream(url, pub);
-    }
-
-    @Override
     public void subscribeToStream(String url, Subscriber subscriber) throws URISyntaxException {
         URI uri = new URI(url);
 
         streams.subscribeToStream(uri.getHost(), uri.getPath(), subscriber);
+    }
+
+    @Override
+    public void provideStreamSink(String streamName, Subscriber targetOfData) {
+
+    }
+
+    @Override
+    public void provideStreamSource(String streamName, Publisher sourceOfData) {
+        streams.streamSource(streamName, sourceOfData);
+    }
+
+    @Override
+    public void publishToStream(String url, Publisher publisher) {
+
     }
 }

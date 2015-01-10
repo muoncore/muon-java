@@ -11,6 +11,8 @@ import org.muoncore.transports.MuonMessageEvent;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Logger;
 
 public class AmqpBroadcast {
@@ -24,6 +26,7 @@ public class AmqpBroadcast {
 
     public AmqpBroadcast(Channel channel) throws IOException {
         this.channel = channel;
+        spinner = Executors.newCachedThreadPool();
         channel.exchangeDeclare(EXCHANGE_NAME, "topic");
     }
 

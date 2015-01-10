@@ -70,8 +70,6 @@ public class MuonExtensionApi {
 
     public void addTransport(MuonEventTransport transport) {
         muon.registerTransport(transport);
-        //TODO, bad juju
-        muon.streamer = (MuonStreamTransport) transport;
     }
 
     void setTransports(List<MuonEventTransport> transports) {

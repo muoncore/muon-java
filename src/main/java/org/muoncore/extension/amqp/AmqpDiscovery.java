@@ -31,9 +31,10 @@ public class AmqpDiscovery {
         this.amqpBroadcast = amqpBroadcast;
         serviceCache = new ServiceCache();
         spinner = Executors.newCachedThreadPool();
+        start();
     }
 
-    public void start() {
+    private void start() {
         amqpBroadcast.listenOnBroadcastEvent(SERVICE_ANNOUNCE, new Muon.EventMessageTransportListener() {
             @Override
             public void onEvent(String name, MuonMessageEvent obj) {

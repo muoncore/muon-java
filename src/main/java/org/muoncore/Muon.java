@@ -21,6 +21,7 @@ public class Muon implements MuonService {
 
     private List<MuonResourceTransport> resourceTransports = new ArrayList<MuonResourceTransport>();
     private List<MuonBroadcastTransport> broadcastTransports = new ArrayList<MuonBroadcastTransport>();
+    private List<MuonStreamTransport> streamingTransports = new ArrayList<MuonStreamTransport>();
 
     private List<MuonExtension> extensions = new ArrayList<MuonExtension>();
 
@@ -68,6 +69,9 @@ public class Muon implements MuonService {
         }
         if(transport instanceof MuonBroadcastTransport) {
             broadcastTransports.add((MuonBroadcastTransport) transport);
+        }
+        if(transport instanceof  MuonStreamTransport) {
+            streamingTransports.add((MuonStreamTransport) transport);
         }
 
         if (!started) {
@@ -117,7 +121,6 @@ public class Muon implements MuonService {
         return transport(ev).emitForReturn(resourceQuery, ev);
     }
 
-    //@Override
     public MuonResult get(MuonResourceEvent payload) {
         MuonResourceEvent ev = resourceEvent("get", payload);
         return transport(ev).emitForReturn(payload.getResource(), ev);
@@ -264,17 +267,67 @@ public class Muon implements MuonService {
         return payload;
     }
 
-
     /**
      * experimental streaming support
      */
-    public MuonStreamTransport streamer;
 
-    public void publishStream(String url, Publisher pub) {
-        streamer.publishStream(url, pub);
+    public void streamSink(String url, Subscriber pub) {
+        throw new IllegalStateException("Not implemented yet");
+        //need to fully define the semantics of a push connection of Publisher to Subscriber
+        //is this a good idea?
+//        streamer.provideStreamSink(url, pub);
     }
 
+    /**
+     *
+     * @param streamName
+     * @param pub
+     */
+    public void streamSource(String streamName, Publisher pub) {
+        for(MuonStreamTransport transport: streamingTransports) {
+            transport.provideStreamSource(streamName, pub);
+        }
+    }
+
+    /**
+     * Find a remote stream to subscribe to and subscribe using the given subscriber.
+     *
+     * @param url the Muon url muon://serviceName/streamname
+     * @param subscriber
+     * @throws URISyntaxException
+     */
     public void subscribe(String url, Subscriber subscriber) throws URISyntaxException {
-        streamer.subscribeToStream(url, subscriber);
+        MuonStreamTransport t = null;
+        String host = new URI(url).getHost();
+
+        //TODO, implement some kind of priority, allowing selection of the transport.
+        //probably a changeable comparator to sort this list, since we are selecting the first match.
+        for (MuonStreamTransport transport: streamingTransports) {
+            List<ServiceDescriptor> services = transport.discoverServices();
+            boolean canConnectToRemote = false;
+            for(ServiceDescriptor descriptor: services) {
+                if (descriptor.getIdentifier().equals(host)) {
+                    canConnectToRemote=true;
+                }
+            }
+            if (canConnectToRemote) {
+                t = transport;
+                break;
+            }
+        }
+
+        if (t == null) {
+            subscriber.onError(new IllegalStateException("Cannot see the remote service " + host));
+            return;
+        }
+
+        t.subscribeToStream(url, subscriber);
+    }
+
+    public void publish(String url, Publisher publisher) {
+        //need to fully define the semantics of a push connection of Publisher to Subscriber
+        //is this a good idea?
+        throw new IllegalStateException("Not implemented yet");
+//        streamer.publishToStream(url, publisher);
     }
 }

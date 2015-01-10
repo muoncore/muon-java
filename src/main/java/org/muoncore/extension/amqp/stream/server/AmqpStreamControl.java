@@ -6,6 +6,7 @@ import org.muoncore.extension.amqp.stream.AmqpStream;
 import org.muoncore.transports.MuonMessageEvent;
 import org.muoncore.transports.MuonMessageEventBuilder;
 import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +21,8 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
     public static final String SUBSCRIPTION_STREAM_ID = "SUBSCRIPTION_STREAM_ID";
     public static final String REQUEST_COUNT = "N";
     public static final String SUBSCRIPTION_ACK = "SUBSCRIPTION_ACK";
-    private HashMap<String, Publisher> streams = new HashMap<String, Publisher>();
+    private HashMap<String, Publisher> publisherStreams = new HashMap<String, Publisher>();
+    private HashMap<String, Subscriber> subscriberStreams = new HashMap<String, Subscriber>();
     private HashMap<String, AmqpProxySubscriber> subscriptions = new HashMap<String, AmqpProxySubscriber>();
 
     private AmqpQueues queues;
@@ -40,8 +42,11 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
         }
     }
 
-    public Map<String, Publisher> getStreams() {
-        return streams;
+    public Map<String, Publisher> getPublisherStreams() {
+        return publisherStreams;
+    }
+    public Map<String, Subscriber> getSubscriberStreams() {
+        return subscriberStreams;
     }
 
     private void createNewSubscription(MuonMessageEvent ev) {
@@ -53,7 +58,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
 
         AmqpProxySubscriber subscriber = new AmqpProxySubscriber(replyStreamName, queues);
 
-        Publisher pub = streams.get(requestedStreamName);
+        Publisher pub = publisherStreams.get(requestedStreamName);
         pub.subscribe(subscriber);
 
         subscriptions.put(id, subscriber);

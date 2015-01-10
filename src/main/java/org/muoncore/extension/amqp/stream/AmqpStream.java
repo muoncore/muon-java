@@ -1,17 +1,13 @@
 package org.muoncore.extension.amqp.stream;
 
-import org.muoncore.Muon;
 import org.muoncore.extension.amqp.AmqpQueues;
 import org.muoncore.extension.amqp.stream.client.AmqpStreamClient;
 import org.muoncore.extension.amqp.stream.server.AmqpStreamControl;
-import org.muoncore.transports.MuonMessageEvent;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Every service has a stream control queue - servicename_stream_control
@@ -61,8 +57,8 @@ public class AmqpStream {
         queues.listenOnQueueEvent(commandQueue, streamControl);
     }
 
-    public void publishStream(String streamName, Publisher pub) {
-        streamControl.getStreams().put(streamName, pub);
+    public void streamSource(String streamName, Publisher pub) {
+        streamControl.getPublisherStreams().put(streamName, pub);
     }
 
     public void subscribeToStream(String remoteServiceName, String streamName, Subscriber subscriber) {
@@ -76,5 +72,13 @@ public class AmqpStream {
                 streamName,
                 subscriber,
                 queues));
+    }
+
+    public void streamSink(String streamName, Subscriber targetOfData) {
+        streamControl.getSubscriberStreams().put(streamName, targetOfData);
+    }
+
+    public void publishToStream(String url, Publisher publisher) {
+
     }
 }

@@ -14,12 +14,14 @@ public class UserService {
 
         muon.setServiceIdentifer("users");
 
-        muon.onGet("mydata/happy", "Get Some Data", new MuonService.MuonGet() {
+        muon.start();
+
+        muon.onGet("/mydata/happy", "Get Some Data", new MuonService.MuonGet() {
             @Override
             public Object onQuery(MuonResourceEvent queryEvent) {
+                System.out.println("Data has been asked for!");
                 return "<h1>Got some user data!</h1>";
             }
         });
-        muon.start();
     }
 }
