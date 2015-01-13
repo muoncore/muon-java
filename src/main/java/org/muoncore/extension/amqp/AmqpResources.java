@@ -58,7 +58,7 @@ public class AmqpResources {
                 Muon.EventResourceTransportListener listener = resourceListeners.get(key);
 
                 if (listener == null) {
-                    System.out.println("Couldn't find a matching listener for " + key);
+                    log.fine("Couldn't find a matching listener for " + key);
                     queues.send(responseQueue, MuonMessageEventBuilder.named("")
                             .withHeader("Status", "404")
                             .withContent("NOTHING HERE").build());
@@ -125,7 +125,7 @@ public class AmqpResources {
 
     public void listenOnResource(final String resource, final String verb, final Muon.EventResourceTransportListener listener) {
         String key = resource + "-" + verb;
-        System.out.println("Register listener for " + key);
+        log.info("Register listener for " + key);
         resourceListeners.put(key, listener);
     }
 

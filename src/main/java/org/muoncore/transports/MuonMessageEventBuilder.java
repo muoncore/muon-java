@@ -6,7 +6,7 @@ import java.util.List;
 public class MuonMessageEventBuilder {
 
     String eventName;
-    Object content;
+    Object content = "";
     String mimeType;
     List<String[]> headers = new ArrayList<String[]>();
 
@@ -18,6 +18,11 @@ public class MuonMessageEventBuilder {
 
     public MuonMessageEventBuilder withContent(String content) {
         this.content = content;
+        return this;
+    }
+
+    public MuonMessageEventBuilder withNoContent() {
+        this.content = "";
         return this;
     }
 

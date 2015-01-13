@@ -11,6 +11,7 @@ import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class AmqpStreamClient implements
         Muon.EventMessageTransportListener,
@@ -22,6 +23,8 @@ public class AmqpStreamClient implements
 
     private String remoteId;
 
+    private Logger log = Logger.getLogger(AmqpStreamClient.class.getName());
+
     public AmqpStreamClient(String commandQueue, String streamName, Subscriber subscriber, AmqpQueues queues) {
         this.queues = queues;
         this.subscriber = subscriber;
@@ -32,7 +35,7 @@ public class AmqpStreamClient implements
 
         queues.send(commandQueue,
                 MuonMessageEventBuilder.named("")
-                        .withContent("")
+                        .withNoContent()
                         .withHeader(AmqpStream.STREAM_COMMAND, AmqpStreamControl.COMMAND_SUBSCRIBE)
                         .withHeader(AmqpStreamControl.REQUESTED_STREAM_NAME, streamName)
                         .withHeader(AmqpStreamControl.REPLY_STREAM_NAME, privateStreamQueue).build());
@@ -44,7 +47,7 @@ public class AmqpStreamClient implements
         if (obj.getHeaders().get(AmqpStream.STREAM_COMMAND) != null &&
                 obj.getHeaders().get(AmqpStream.STREAM_COMMAND).equals(AmqpStreamControl.SUBSCRIPTION_ACK)) {
             remoteId = obj.getHeaders().get(AmqpStreamControl.SUBSCRIPTION_STREAM_ID);
-            System.out.println("Received SUBSCRIPTION_ACK " + remoteId + " activating local subscription");
+            log.fine("Received SUBSCRIPTION_ACK " + remoteId + " activating local subscription");
             subscriber.onSubscribe(this);
         } else if (obj.getHeaders().get("TYPE").equals("data")) {
             subscriber.onNext(obj.getPayload());
@@ -58,10 +61,10 @@ public class AmqpStreamClient implements
     @Override
     public void request(long n) {
         //request the remote publisher to send more data
-        System.out.println("Requesting " + n + " more data from server " + remoteId);
+        log.finer("Requesting " + n + " more data from server " + remoteId);
         queues.send(commandQueue,
                 MuonMessageEventBuilder.named("")
-                        .withContent("")
+                        .withNoContent()
                         .withHeader(AmqpStream.STREAM_COMMAND, AmqpStreamControl.COMMAND_REQUEST)
                         .withHeader(AmqpStreamControl.REQUEST_COUNT, String.valueOf(n))
                         .withHeader(AmqpStreamControl.SUBSCRIPTION_STREAM_ID, remoteId).build());
@@ -74,7 +77,7 @@ public class AmqpStreamClient implements
         //TODO then clean up everything
         queues.send(commandQueue,
                 MuonMessageEventBuilder.named("")
-                        .withContent("")
+                        .withNoContent()
                         .withHeader(AmqpStream.STREAM_COMMAND, AmqpStreamControl.COMMAND_CANCEL)
                         .withHeader(AmqpStreamControl.SUBSCRIPTION_STREAM_ID, remoteId).build());
     }

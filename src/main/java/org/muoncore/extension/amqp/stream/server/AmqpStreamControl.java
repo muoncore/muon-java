@@ -66,7 +66,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
         //send the sub id back to origin over replyTo queue.
         queues.send(replyStreamName,
                 MuonMessageEventBuilder.named("")
-                        .withContent("")
+                        .withNoContent()
                         .withHeader(AmqpStream.STREAM_COMMAND, SUBSCRIPTION_ACK)
                         .withHeader(AmqpStreamControl.SUBSCRIPTION_STREAM_ID, id).build());
     }

@@ -48,7 +48,7 @@ public class AmqpProxySubscriber implements Subscriber {
     public void onError(Throwable t) {
         queues.send(resourceQueue,
                 MuonMessageEventBuilder.named(resourceQueue)
-                        .withContent("")
+                        .withNoContent()
                         .withHeader("TYPE", "error")
                         .withHeader("ERROR", t.getMessage()).build());
     }
@@ -57,7 +57,7 @@ public class AmqpProxySubscriber implements Subscriber {
     public void onComplete() {
         queues.send(resourceQueue,
                 MuonMessageEventBuilder.named(resourceQueue)
-                        .withContent("")
+                        .withNoContent()
                         .withHeader("TYPE", "complete").build());
     }
 }

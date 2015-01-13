@@ -8,6 +8,7 @@ import org.reactivestreams.Subscriber;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Every service has a stream control queue - servicename_stream_control
@@ -38,6 +39,8 @@ import java.util.List;
  */
 public class AmqpStream {
 
+    private Logger log = Logger.getLogger(AmqpStream.class.getName());
+
     public static final String STREAM_COMMAND = "command";
     private AmqpQueues queues;
     private AmqpStreamControl streamControl;
@@ -65,7 +68,7 @@ public class AmqpStream {
 
         String remoteCommandQueue = remoteServiceName + "_stream_control";
 
-        System.out.println("Subscribing to remote stream " + remoteCommandQueue + ":" + streamName);
+        log.fine("Subscribing to remote stream " + remoteCommandQueue + ":" + streamName);
 
         streamClients.add(new AmqpStreamClient(
                 remoteCommandQueue,

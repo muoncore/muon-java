@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 public class AmqpQueues {
 
-    private Logger log = Logger.getLogger(AMQPEventTransport.class.getName());
+    private Logger log = Logger.getLogger(AmqpQueues.class.getName());
 
     private Channel channel;
     private ExecutorService spinner;
@@ -52,7 +52,7 @@ public class AmqpQueues {
                 try {
                     channel.queueDeclare(queueName, true, false, true, null);
 
-                    log.fine("AMQPChannel : Waiting for point to point messages " + queueName);
+                    log.fine("Waiting for point to point messages " + queueName);
 
                     QueueingConsumer consumer = new QueueingConsumer(channel);
                     channel.basicConsume(queueName, false, consumer);
@@ -61,7 +61,7 @@ public class AmqpQueues {
                         QueueingConsumer.Delivery delivery = consumer.nextDelivery();
                         String message = new String(delivery.getBody());
 
-                        log.finer("AMQP: Received '" + message + "'");
+                        log.finer("Received point to point: '" + message + "'");
 
                         MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(queueName)
                                 .withMimeType(delivery.getProperties().getContentType())

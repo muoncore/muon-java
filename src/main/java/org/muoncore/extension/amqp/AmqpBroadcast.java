@@ -19,7 +19,7 @@ public class AmqpBroadcast {
 
     static String EXCHANGE_NAME ="muon-broadcast";
 
-    private Logger log = Logger.getLogger(AMQPEventTransport.class.getName());
+    private Logger log = Logger.getLogger(AmqpBroadcast.class.getName());
 
     private Channel channel;
     private ExecutorService spinner;
@@ -59,7 +59,7 @@ public class AmqpBroadcast {
 
                     channel.queueBind(queueName, EXCHANGE_NAME, resource);
 
-                    log.fine("AMQPChannel : Waiting for messages " + resource);
+                    log.fine("Waiting for discovery broadcast messages " + resource);
 
                     QueueingConsumer consumer = new QueueingConsumer(channel);
                     channel.basicConsume(queueName, true, consumer);
@@ -68,7 +68,7 @@ public class AmqpBroadcast {
                         QueueingConsumer.Delivery delivery = consumer.nextDelivery();
                         String message = new String(delivery.getBody());
 
-                        log.finer("AMQP: Received '" + message + "'");
+                        log.finer("Received '" + message + "'");
 
                         MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(resource)
                                 .withMimeType(delivery.getProperties().getContentType())
