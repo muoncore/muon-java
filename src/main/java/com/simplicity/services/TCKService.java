@@ -33,7 +33,15 @@ public class TCKService {
         muon.onQueue("tckQueue", new MuonService.MuonListener() {
             @Override
             public void onEvent(MuonMessageEvent event) {
+                queueEvents.clear();
                 queueEvents.add(JSON.parse(event.getPayload().toString()));
+            }
+        });
+
+        muon.onGet("/tckQueueRes", "", new MuonService.MuonGet() {
+            @Override
+            public Object onQuery(MuonResourceEvent queryEvent) {
+                return JSON.toString(queueEvents);
             }
         });
 
