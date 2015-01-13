@@ -27,7 +27,7 @@ public class ServiceStreamConsumer {
 
         HotStream sub = Streams.defer();
 
-        muon.subscribe("muon://cl/counter", sub);
+        muon.subscribe("muon://resourcePublisher/livedata", sub);
 
         sub.consume(new Consumer() {
             @Override
