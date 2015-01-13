@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AmqpQueues {
@@ -85,10 +86,8 @@ public class AmqpQueues {
 
                         channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    log.log(Level.WARNING, e.getMessage(), e);
                 }
             }
         });

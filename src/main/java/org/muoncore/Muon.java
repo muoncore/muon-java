@@ -22,6 +22,7 @@ public class Muon implements MuonService {
     private List<MuonResourceTransport> resourceTransports = new ArrayList<MuonResourceTransport>();
     private List<MuonBroadcastTransport> broadcastTransports = new ArrayList<MuonBroadcastTransport>();
     private List<MuonStreamTransport> streamingTransports = new ArrayList<MuonStreamTransport>();
+    private List<MuonQueueTransport> queueingTransports = new ArrayList<MuonQueueTransport>();
 
     private List<MuonExtension> extensions = new ArrayList<MuonExtension>();
 
@@ -70,8 +71,11 @@ public class Muon implements MuonService {
         if(transport instanceof MuonBroadcastTransport) {
             broadcastTransports.add((MuonBroadcastTransport) transport);
         }
-        if(transport instanceof  MuonStreamTransport) {
+        if(transport instanceof MuonStreamTransport) {
             streamingTransports.add((MuonStreamTransport) transport);
+        }
+        if (transport instanceof MuonQueueTransport) {
+            queueingTransports.add((MuonQueueTransport) transport);
         }
 
         if (!started) {
@@ -91,10 +95,6 @@ public class Muon implements MuonService {
         }
 
         log.info("Muon: Starting transport " + transport.getClass().getSimpleName());
-        //TODO, add resources
-
-        //TODO, add events
-
     }
 
     public String getServiceIdentifer() {
@@ -329,5 +329,29 @@ public class Muon implements MuonService {
         //is this a good idea?
         throw new IllegalStateException("Not implemented yet");
 //        streamer.publishToStream(url, publisher);
+    }
+
+    @Override
+    public void onQueue(String queue, final MuonListener listener) {
+        for(MuonQueueTransport transport: queueingTransports) {
+            transport.listenOnQueueEvent(queue, new EventMessageTransportListener() {
+                @Override
+                public void onEvent(String name, MuonMessageEvent obj) {
+                    listener.onEvent(obj);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void sendMessage(MuonMessageEvent event) {
+        //this selects the transport to choose to send this message
+        //it will only be sent on one, and that will be the first one.
+
+        if (queueingTransports.size() == 0) {
+            throw new IllegalStateException("No transports that support queueing are configured");
+        }
+        MuonQueueTransport selectedTransport = queueingTransports.get(0);
+        selectedTransport.send(event.getEventName(), event);
     }
 }

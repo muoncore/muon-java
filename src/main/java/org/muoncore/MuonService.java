@@ -6,6 +6,7 @@ import org.muoncore.transports.MuonResourceEvent;
 public interface MuonService extends MuonClient {
 
     public void receive(String event, MuonListener listener);
+    public void onQueue(String queue, MuonListener listener);
     public void onGet(String resource, String descriptor, MuonGet listener);
     public void onPost(String resource, String descriptor, MuonPost listener);
     public void onPut(String resource, String descriptor, MuonPut listener);

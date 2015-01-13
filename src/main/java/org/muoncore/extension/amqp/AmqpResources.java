@@ -61,7 +61,7 @@ public class AmqpResources {
                     log.fine("Couldn't find a matching listener for " + key);
                     queues.send(responseQueue, MuonMessageEventBuilder.named("")
                             .withHeader("Status", "404")
-                            .withContent("NOTHING HERE").build());
+                            .withContent("{}").build());
 
                     return;
                 }

@@ -5,6 +5,7 @@ import org.muoncore.*;
 import org.muoncore.extension.amqp.AmqpTransportExtension;
 import org.muoncore.extension.http.HttpTransportExtension;
 import org.muoncore.transports.MuonMessageEvent;
+import org.muoncore.transports.MuonMessageEventBuilder;
 import org.muoncore.transports.MuonResourceEvent;
 
 import java.util.ArrayList;
@@ -27,10 +28,35 @@ public class TCKService {
         muon.start();
 
         final List events = Collections.synchronizedList(new ArrayList());
+        final List queueEvents = Collections.synchronizedList(new ArrayList());
+
+        muon.onQueue("tckQueue", new MuonService.MuonListener() {
+            @Override
+            public void onEvent(MuonMessageEvent event) {
+                queueEvents.add(JSON.parse(event.getPayload().toString()));
+            }
+        });
+
+        muon.receive("echoBroadcast", new MuonService.MuonListener() {
+            public void onEvent(MuonMessageEvent event) {
+                muon.emit(
+                        MuonMessageEventBuilder.named("echoBroadcastResponse")
+                                .withContent(event.getPayload().toString())
+                                .build()
+                );
+            }
+        });
 
         muon.receive("tckBroadcast", new MuonService.MuonListener() {
             public void onEvent(MuonMessageEvent event) {
                 events.add(JSON.parse(event.getPayload().toString()));
+            }
+        });
+
+        muon.onGet("/event", "Get The Events", new MuonService.MuonGet() {
+            @Override
+            public Object onQuery(MuonResourceEvent queryEvent) {
+                return JSON.toString(events);
             }
         });
 
