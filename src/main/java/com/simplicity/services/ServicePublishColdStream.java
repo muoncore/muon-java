@@ -23,7 +23,8 @@ public class ServicePublishColdStream {
         muon.streamSource("/counter", new MuonStreamGenerator() {
             @Override
             public Publisher generatePublisher(Map<String, String> parameters) {
-                Stream stream = Streams.range(100, 200);
+                int max = Integer.parseInt(parameters.get("max"));
+                Stream stream = Streams.range(0, max);
                 return stream;
             }
         });

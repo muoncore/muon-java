@@ -10,6 +10,8 @@ import reactor.rx.Streams;
 import reactor.rx.stream.HotStream;
 
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class ServiceStreamConsumer {
@@ -27,7 +29,11 @@ public class ServiceStreamConsumer {
 
         HotStream sub = Streams.defer();
 
-        muon.subscribe("muon://cl/counter", sub);
+        Map<String,String> params  = new HashMap<String, String>();
+
+        params.put("max", "500");
+
+        muon.subscribe("muon://cl/counter", params, sub);
 
         sub.consume(new Consumer() {
             @Override

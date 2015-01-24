@@ -9,6 +9,7 @@ import org.reactivestreams.Subscriber;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -65,7 +66,7 @@ public class AmqpStream {
         streamControl.getPublisherStreams().put(streamName, pub);
     }
 
-    public void subscribeToStream(String remoteServiceName, String streamName, Subscriber subscriber) {
+    public void subscribeToStream(String remoteServiceName, String streamName, Map<String, String> params, Subscriber subscriber) {
 
         String remoteCommandQueue = remoteServiceName + "_stream_control";
 
@@ -74,6 +75,7 @@ public class AmqpStream {
         streamClients.add(new AmqpStreamClient(
                 remoteCommandQueue,
                 streamName,
+                params,
                 subscriber,
                 queues));
     }

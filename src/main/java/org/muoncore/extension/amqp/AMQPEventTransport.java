@@ -126,10 +126,10 @@ public class AMQPEventTransport
     }
 
     @Override
-    public void subscribeToStream(String url, Subscriber subscriber) throws URISyntaxException {
+    public void subscribeToStream(String url,Map<String,String> params, Subscriber subscriber) throws URISyntaxException {
         URI uri = new URI(url);
 
-        streams.subscribeToStream(uri.getHost(), uri.getPath(), subscriber);
+        streams.subscribeToStream(uri.getHost(), uri.getPath(), params, subscriber);
     }
 
     @Override

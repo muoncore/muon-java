@@ -6,6 +6,7 @@ import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 import java.net.URISyntaxException;
+import java.util.Map;
 
 public interface MuonStreamTransport extends MuonEventTransport {
 
@@ -27,6 +28,6 @@ public interface MuonStreamTransport extends MuonEventTransport {
     /**
      * Remotely subscribes to the remote stream and pushes data into the subscriber.
      */
-    public void subscribeToStream(String url, Subscriber subscriber) throws URISyntaxException;
+    public void subscribeToStream(String url, Map<String, String> params, Subscriber subscriber) throws URISyntaxException;
 
 }

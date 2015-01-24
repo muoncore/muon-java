@@ -10,6 +10,7 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -25,7 +26,7 @@ public class AmqpStreamClient implements
 
     private Logger log = Logger.getLogger(AmqpStreamClient.class.getName());
 
-    public AmqpStreamClient(String commandQueue, String streamName, Subscriber subscriber, AmqpQueues queues) {
+    public AmqpStreamClient(String commandQueue, String streamName, Map<String, String> params,  Subscriber subscriber, AmqpQueues queues) {
         this.queues = queues;
         this.subscriber = subscriber;
         this.commandQueue = commandQueue;
@@ -33,12 +34,15 @@ public class AmqpStreamClient implements
         privateStreamQueue = UUID.randomUUID().toString();
         queues.listenOnQueueEvent(privateStreamQueue, this);
 
-        queues.send(commandQueue,
-                MuonMessageEventBuilder.named("")
-                        .withNoContent()
-                        .withHeader(AmqpStream.STREAM_COMMAND, AmqpStreamControl.COMMAND_SUBSCRIBE)
-                        .withHeader(AmqpStreamControl.REQUESTED_STREAM_NAME, streamName)
-                        .withHeader(AmqpStreamControl.REPLY_STREAM_NAME, privateStreamQueue).build());
+        MuonMessageEvent ev = MuonMessageEventBuilder.named("")
+                .withNoContent()
+                .withHeader(AmqpStream.STREAM_COMMAND, AmqpStreamControl.COMMAND_SUBSCRIBE)
+                .withHeader(AmqpStreamControl.REQUESTED_STREAM_NAME, streamName)
+                .withHeader(AmqpStreamControl.REPLY_STREAM_NAME, privateStreamQueue).build();
+
+        ev.getHeaders().putAll(params);
+
+        queues.send(commandQueue, ev);
 
     }
 

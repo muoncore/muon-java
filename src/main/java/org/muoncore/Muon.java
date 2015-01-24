@@ -8,7 +8,9 @@ import org.reactivestreams.Subscriber;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class Muon implements MuonService {
@@ -300,6 +302,10 @@ public class Muon implements MuonService {
      * @throws URISyntaxException
      */
     public void subscribe(String url, Subscriber subscriber) throws URISyntaxException {
+        subscribe(url, new HashMap<String, String>(), subscriber);
+    }
+
+    public void subscribe(String url, Map<String, String> params, Subscriber subscriber) throws URISyntaxException {
         MuonStreamTransport t = null;
         String host = new URI(url).getHost();
 
@@ -324,7 +330,7 @@ public class Muon implements MuonService {
             return;
         }
 
-        t.subscribeToStream(url, subscriber);
+        t.subscribeToStream(url,params, subscriber);
     }
 
     public void publish(String url, Publisher publisher) {
