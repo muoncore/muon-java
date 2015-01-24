@@ -1,10 +1,12 @@
 package org.muoncore.extension.amqp.stream.server;
 
 import org.muoncore.Muon;
+import org.muoncore.MuonStreamGenerator;
 import org.muoncore.extension.amqp.AmqpQueues;
 import org.muoncore.extension.amqp.stream.AmqpStream;
 import org.muoncore.transports.MuonMessageEvent;
 import org.muoncore.transports.MuonMessageEventBuilder;
+import org.muoncore.transports.MuonStreamTransport;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
@@ -21,7 +23,8 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
     public static final String SUBSCRIPTION_STREAM_ID = "SUBSCRIPTION_STREAM_ID";
     public static final String REQUEST_COUNT = "N";
     public static final String SUBSCRIPTION_ACK = "SUBSCRIPTION_ACK";
-    private HashMap<String, Publisher> publisherStreams = new HashMap<String, Publisher>();
+    public static final String SUBSCRIPTION_NACK = "SUBSCRIPTION_NACK";
+    private HashMap<String, MuonStreamGenerator> publisherStreams = new HashMap<String, MuonStreamGenerator>();
     private HashMap<String, Subscriber> subscriberStreams = new HashMap<String, Subscriber>();
     private HashMap<String, AmqpProxySubscriber> subscriptions = new HashMap<String, AmqpProxySubscriber>();
 
@@ -42,7 +45,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
         }
     }
 
-    public Map<String, Publisher> getPublisherStreams() {
+    public Map<String, MuonStreamGenerator> getPublisherStreams() {
         return publisherStreams;
     }
     public Map<String, Subscriber> getSubscriberStreams() {
@@ -58,7 +61,17 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
 
         AmqpProxySubscriber subscriber = new AmqpProxySubscriber(replyStreamName, queues);
 
-        Publisher pub = publisherStreams.get(requestedStreamName);
+        MuonStreamGenerator generator = publisherStreams.get(requestedStreamName);
+        if (generator == null) {
+            queues.send(replyStreamName,
+                    MuonMessageEventBuilder.named("")
+                            .withNoContent()
+                            .withHeader(AmqpStream.STREAM_COMMAND, SUBSCRIPTION_NACK).build());
+            return;
+        }
+
+        Publisher pub = generator.generatePublisher(ev.getHeaders());
+
         pub.subscribe(subscriber);
 
         subscriptions.put(id, subscriber);

@@ -1,18 +1,15 @@
 package com.simplicity.services;
 
-import org.muoncore.*;
+import org.muoncore.Muon;
 import org.muoncore.extension.amqp.AmqpTransportExtension;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
 import reactor.function.Consumer;
-import reactor.rx.Stream;
 import reactor.rx.Streams;
 import reactor.rx.stream.HotStream;
 
 import java.net.URISyntaxException;
 import java.util.UUID;
 
-public class ServiceStreamConsumer {
+public class ServiceAsapConsumer {
 
     public static void main(String[] args) throws URISyntaxException, InterruptedException {
 
@@ -27,7 +24,7 @@ public class ServiceStreamConsumer {
 
         HotStream sub = Streams.defer();
 
-        muon.subscribe("muon://cl/counter", sub);
+        muon.subscribe("muon://asapcore/pipe", sub);
 
         sub.consume(new Consumer() {
             @Override

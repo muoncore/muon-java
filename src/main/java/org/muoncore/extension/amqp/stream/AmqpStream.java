@@ -1,5 +1,6 @@
 package org.muoncore.extension.amqp.stream;
 
+import org.muoncore.MuonStreamGenerator;
 import org.muoncore.extension.amqp.AmqpQueues;
 import org.muoncore.extension.amqp.stream.client.AmqpStreamClient;
 import org.muoncore.extension.amqp.stream.server.AmqpStreamControl;
@@ -60,7 +61,7 @@ public class AmqpStream {
         queues.listenOnQueueEvent(commandQueue, streamControl);
     }
 
-    public void streamSource(String streamName, Publisher pub) {
+    public void streamSource(String streamName, MuonStreamGenerator pub) {
         streamControl.getPublisherStreams().put(streamName, pub);
     }
 

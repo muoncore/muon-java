@@ -1,11 +1,14 @@
 package com.simplicity.services;
 
 import org.muoncore.Muon;
+import org.muoncore.MuonStreamGenerator;
 import org.muoncore.extension.amqp.AmqpTransportExtension;
+import org.reactivestreams.Publisher;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 
 import java.net.URISyntaxException;
+import java.util.Map;
 
 public class ServicePublishColdStream {
 
@@ -17,9 +20,12 @@ public class ServicePublishColdStream {
         muon.registerExtension(new AmqpTransportExtension());
         muon.start();
 
-        Stream stream = Streams.range(100, 200);
-
-        muon.streamSource("/counter", stream);
-
+        muon.streamSource("/counter", new MuonStreamGenerator() {
+            @Override
+            public Publisher generatePublisher(Map<String, String> parameters) {
+                Stream stream = Streams.range(100, 200);
+                return stream;
+            }
+        });
     }
 }

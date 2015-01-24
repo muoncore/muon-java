@@ -138,7 +138,7 @@ public class AMQPEventTransport
     }
 
     @Override
-    public void provideStreamSource(String streamName, Publisher sourceOfData) {
+    public void provideStreamSource(String streamName, MuonStreamGenerator sourceOfData) {
         streams.streamSource(streamName, sourceOfData);
     }
 

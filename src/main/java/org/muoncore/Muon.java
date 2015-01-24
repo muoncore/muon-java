@@ -281,12 +281,15 @@ public class Muon implements MuonService {
     /**
      *
      * @param streamName
-     * @param pub
      */
-    public void streamSource(String streamName, Publisher pub) {
+    public void streamSource(String streamName, MuonStreamGenerator generator) {
         for(MuonStreamTransport transport: streamingTransports) {
-            transport.provideStreamSource(streamName, pub);
+            transport.provideStreamSource(streamName, generator);
         }
+    }
+
+    public void streamSource(String streamName, Publisher pub) {
+        streamSource(streamName, new MuonStreamExistingGenerator(pub));
     }
 
     /**
