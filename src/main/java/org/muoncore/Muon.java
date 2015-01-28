@@ -7,10 +7,7 @@ import org.reactivestreams.Subscriber;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class Muon implements MuonService {
@@ -34,6 +31,7 @@ public class Muon implements MuonService {
     private Dispatcher dispatcher = new Dispatcher();
 
     private String serviceIdentifer;
+    private List<String> tags = new ArrayList<String>();
 
     private boolean started = false;
 
@@ -51,6 +49,7 @@ public class Muon implements MuonService {
             extension.init(
                     new MuonExtensionApi(
                             this,
+                            tags,
                             filterChains,
                             transports,
                             dispatcher,
@@ -105,6 +104,14 @@ public class Muon implements MuonService {
 
     public void setServiceIdentifer(String serviceIdentifer) {
         this.serviceIdentifer = serviceIdentifer;
+    }
+
+    public void addTag(String tag) {
+        this.tags.add(tag);
+    }
+
+    public void addTags(String ... tag) {
+        this.tags.addAll(Arrays.asList(tag));
     }
 
     @Override

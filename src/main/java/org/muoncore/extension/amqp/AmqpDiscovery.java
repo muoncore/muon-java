@@ -7,6 +7,7 @@ import org.muoncore.transports.MuonMessageEventBuilder;
 import org.muoncore.transports.MuonMessageEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -22,11 +23,14 @@ public class AmqpDiscovery {
     private AmqpBroadcast amqpBroadcast;
     private String serviceName;
     private AMQPEventTransport parent;
+    private List<String> tags;
 
     public AmqpDiscovery(String serviceName,
+                         List<String> tags,
                           AmqpBroadcast amqpBroadcast,
                           AMQPEventTransport parent) {
         this.parent = parent;
+        this.tags = tags;
         this.serviceName = serviceName;
         this.amqpBroadcast = amqpBroadcast;
         serviceCache = new ServiceCache();
@@ -40,7 +44,7 @@ public class AmqpDiscovery {
             public void onEvent(String name, MuonMessageEvent obj) {
                 log.fine("Service announced " + obj.getPayload());
                 Map announce = (Map) JSON.parse((String) obj.getPayload());
-                serviceCache.addService((String) announce.get("identifier"));
+                serviceCache.addService(announce);
             }
         });
 
@@ -48,13 +52,20 @@ public class AmqpDiscovery {
     }
 
     public void startAnnouncePing() {
+
+        Map<String,Object> discovery = new HashMap<String, Object>();
+        discovery.put("identifier", serviceName);
+        discovery.put("tags", tags);
+
+        final String discoveryMessage = JSON.toString(discovery);
+
         spinner.execute(new Runnable() {
             @Override
             public void run() {
                 try {
                     while(true) {
                         amqpBroadcast.broadcast(SERVICE_ANNOUNCE, MuonMessageEventBuilder.named(SERVICE_ANNOUNCE)
-                                .withContent("{\"identifier\":\"" + serviceName + "\"}").build());
+                                .withContent(discoveryMessage).build());
                         Thread.sleep(3000);
                     }
                 } catch (InterruptedException e) {
@@ -68,8 +79,19 @@ public class AmqpDiscovery {
     public List<ServiceDescriptor> discoverServices() {
         List<ServiceDescriptor> services = new ArrayList<ServiceDescriptor>();
 
-        for(String id: serviceCache.getServiceIds()) {
-            services.add(new ServiceDescriptor(id, parent));
+
+        for(Map data: serviceCache.getServices()) {
+            List tagList = new ArrayList();
+            Object tags = data.get("tags");
+
+            if (tags != null && tags instanceof List) {
+                tagList = (List) tags;
+            }
+
+            services.add(new ServiceDescriptor(
+                    (String) data.get("identifier"),
+                    tagList,
+                    parent));
         }
 
         return services;

@@ -14,7 +14,9 @@ public class AmqpTransportExtension implements MuonExtension {
     @Override
     public void init(MuonExtensionApi muonApi) {
         try {
-            muonApi.addTransport(new AMQPEventTransport(muonApi.getMuon().getServiceIdentifer()));
+            muonApi.addTransport(new AMQPEventTransport(
+                    muonApi.getMuon().getServiceIdentifer(),
+                    muonApi.getTags()));
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("Unable to start AMQP Extension", e);
         } catch (KeyManagementException e) {

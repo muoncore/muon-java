@@ -29,6 +29,7 @@ public class AMQPEventTransport
     private Channel channel;
 
     private String serviceName;
+    private List<String> tags;
 
     private String rabbitUrl = "amqp://localhost:5672";
 
@@ -38,8 +39,9 @@ public class AMQPEventTransport
     private AmqpQueues queues;
     private AmqpStream streams;
 
-    public AMQPEventTransport(String serviceName) throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException, IOException {
+    public AMQPEventTransport(String serviceName, List<String> tags) throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException, IOException {
         this.serviceName = serviceName;
+        this.tags = tags;
 
         String envRabbit = System.getenv("MUON_AMQP_URL");
         if (envRabbit != null && envRabbit.length() > 0) {
@@ -101,7 +103,7 @@ public class AMQPEventTransport
             broadcast = new AmqpBroadcast(channel);
             queues = new AmqpQueues(channel);
             resources = new AmqpResources(queues, serviceName);
-            discovery = new AmqpDiscovery(serviceName, broadcast, this);
+            discovery = new AmqpDiscovery(serviceName, tags, broadcast, this);
             streams = new AmqpStream(serviceName, queues);
 
         } catch (URISyntaxException e) {

@@ -38,7 +38,7 @@ public class AmqpStreamClient implements
                 .withNoContent()
                 .withHeader(AmqpStream.STREAM_COMMAND, AmqpStreamControl.COMMAND_SUBSCRIBE)
                 .withHeader(AmqpStreamControl.REQUESTED_STREAM_NAME, streamName)
-                .withHeader(AmqpStreamControl.REPLY_STREAM_NAME, privateStreamQueue).build();
+                .withHeader(AmqpStreamControl.REPLY_QUEUE_NAME, privateStreamQueue).build();
 
         ev.getHeaders().putAll(params);
 

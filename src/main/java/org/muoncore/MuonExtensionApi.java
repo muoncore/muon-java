@@ -18,9 +18,11 @@ public class MuonExtensionApi {
     private List<MuonExtension> extensions;
     private List<MuonResourceRegister> resources;
     private List<MuonEventRegister> events;
+    private List<String> tags;
 
     public MuonExtensionApi(
             Muon muon,
+            List<String> tags,
             List<EventFilterChain> filters,
             List<MuonEventTransport> transports,
             Dispatcher dispatcher,
@@ -28,6 +30,7 @@ public class MuonExtensionApi {
             List<MuonEventRegister> events,
             List<MuonResourceRegister> resource) {
         this.muon = muon;
+        this.tags = tags;
         this.filters = filters;
         this.transports = transports;
         this.dispatcher = dispatcher;
@@ -62,6 +65,10 @@ public class MuonExtensionApi {
 
     public void setFilters(List<EventFilterChain> filters) {
         this.filters = filters;
+    }
+
+    public List<String> getTags() {
+        return tags;
     }
 
     public List<MuonEventTransport> getTransports() {

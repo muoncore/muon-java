@@ -6,7 +6,6 @@ import org.muoncore.extension.amqp.AmqpQueues;
 import org.muoncore.extension.amqp.stream.AmqpStream;
 import org.muoncore.transports.MuonMessageEvent;
 import org.muoncore.transports.MuonMessageEventBuilder;
-import org.muoncore.transports.MuonStreamTransport;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
@@ -18,7 +17,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
     public static final String COMMAND_REQUEST = "REQUEST";
     public static final String COMMAND_SUBSCRIBE = "SUBSCRIBE";
     public static final String COMMAND_CANCEL = "CANCEL";
-    public static final String REPLY_STREAM_NAME = "REPLY_STREAM_NAME";
+    public static final String REPLY_QUEUE_NAME = "REPLY_QUEUE_NAME";
     public static final String REQUESTED_STREAM_NAME = "REQUESTED_STREAM_NAME";
     public static final String SUBSCRIPTION_STREAM_ID = "SUBSCRIPTION_STREAM_ID";
     public static final String REQUEST_COUNT = "N";
@@ -56,7 +55,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
         //create a sub id
         String id = UUID.randomUUID().toString();
 
-        String replyStreamName = ev.getHeaders().get(REPLY_STREAM_NAME);
+        String replyStreamName = ev.getHeaders().get(REPLY_QUEUE_NAME);
         String requestedStreamName = ev.getHeaders().get(REQUESTED_STREAM_NAME);
 
         AmqpProxySubscriber subscriber = new AmqpProxySubscriber(replyStreamName, queues);

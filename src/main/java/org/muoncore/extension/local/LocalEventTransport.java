@@ -5,6 +5,7 @@ import com.google.common.eventbus.Subscribe;
 import org.muoncore.*;
 import org.muoncore.transports.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -101,7 +102,8 @@ public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastT
 
     @Override
     public List<ServiceDescriptor> discoverServices() {
-        return Collections.singletonList(new ServiceDescriptor("localhost", this));
+        return Collections.singletonList(new ServiceDescriptor("localhost",
+                new ArrayList<String>(), this));
     }
 
     public void start() {

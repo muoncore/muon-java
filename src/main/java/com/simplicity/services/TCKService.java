@@ -7,6 +7,8 @@ import org.muoncore.extension.http.HttpTransportExtension;
 import org.muoncore.transports.MuonMessageEvent;
 import org.muoncore.transports.MuonMessageEventBuilder;
 import org.muoncore.transports.MuonResourceEvent;
+import org.reactivestreams.Publisher;
+import reactor.rx.Streams;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,12 +25,17 @@ public class TCKService {
         final Muon muon = new Muon();
 
         muon.setServiceIdentifer("tck");
+        muon.addTags("my-tag", "tck-service");
         muon.registerExtension(new HttpTransportExtension(7171));
         muon.registerExtension(new AmqpTransportExtension());
         muon.start();
 
         final List events = Collections.synchronizedList(new ArrayList());
         final List queueEvents = Collections.synchronizedList(new ArrayList());
+
+        Publisher pub = Streams.range(1, 10);
+
+        muon.streamSource("myStream", pub);
 
         muon.onQueue("tckQueue", new MuonService.MuonListener() {
             @Override
@@ -37,8 +44,17 @@ public class TCKService {
                 queueEvents.add(JSON.parse(event.getPayload().toString()));
             }
         });
+        muon.onQueue("tckQueueSend", new MuonService.MuonListener() {
+            @Override
+            public void onEvent(MuonMessageEvent event) {
+                Map data = (Map) JSON.parse(event.getPayload().toString());
+                muon.sendMessage(
+                        MuonMessageEventBuilder.named(
+                                (String) data.get("data")).withNoContent().build());
+            }
+        });
 
-        muon.onGet("/tckQueueRes", "", new MuonService.MuonGet() {
+        muon.onGet("/tckQueueRes", "hello", new MuonService.MuonGet() {
             @Override
             public Object onQuery(MuonResourceEvent queryEvent) {
                 return JSON.toString(queueEvents);

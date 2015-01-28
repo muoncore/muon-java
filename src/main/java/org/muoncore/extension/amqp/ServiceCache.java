@@ -1,24 +1,23 @@
 package org.muoncore.extension.amqp;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 class ServiceCache {
 
     static final int EXPIRY = 5000;
 
-    private Map<String, Long> serviceCache = new HashMap<String, Long>();
+    private Map<String, Entry> serviceCache = new HashMap<String, Entry>();
 
-    public void addService(String id) {
-        serviceCache.put(id, System.currentTimeMillis());
+    public void addService(Map service) {
+        String id = (String) service.get("identifier");
+
+        serviceCache.put(id, new Entry(service, System.currentTimeMillis()));
     }
 
     private synchronized void expire() {
-        Map<String, Long> entries = new HashMap<String, Long>();
-        for (Map.Entry<String, Long> entry: serviceCache.entrySet()) {
-            long val = entry.getValue() + EXPIRY - System.currentTimeMillis();
+        Map<String, Entry> entries = new HashMap<String, Entry>();
+        for (Map.Entry<String, Entry> entry: serviceCache.entrySet()) {
+            long val = entry.getValue().createdAt + EXPIRY - System.currentTimeMillis();
             if (val > 0) {
                 entries.put(entry.getKey(), entry.getValue());
             }
@@ -26,8 +25,23 @@ class ServiceCache {
         serviceCache = entries;
     }
 
-    public Set<String> getServiceIds() {
+    public List<Map> getServices() {
         expire();
-        return serviceCache.keySet();
+        List<Map> services = new ArrayList<Map>();
+
+        for(Entry entry: serviceCache.values()) {
+            services.add(entry.data);
+        }
+        return services;
+    }
+
+    static class Entry {
+        Map data;
+        long createdAt;
+
+        public Entry(Map data, long createdAt) {
+            this.data = data;
+            this.createdAt = createdAt;
+        }
     }
 }
