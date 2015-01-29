@@ -5,9 +5,8 @@ import com.google.common.eventbus.Subscribe;
 import org.muoncore.*;
 import org.muoncore.transports.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
@@ -100,12 +99,6 @@ public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastT
         });
     }
 
-    @Override
-    public List<ServiceDescriptor> discoverServices() {
-        return Collections.singletonList(new ServiceDescriptor("localhost",
-                new ArrayList<String>(), this));
-    }
-
     public void start() {
         //TODO ....
     }
@@ -136,4 +129,13 @@ public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastT
         void onEvent(EBResponseEvent ev);
     }
 
+    @Override
+    public String getUrlScheme() {
+        return "local";
+    }
+
+    @Override
+    public URI getLocalConnectionURI() throws URISyntaxException {
+        return new URI("local://local");
+    }
 }

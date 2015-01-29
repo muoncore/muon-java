@@ -1,17 +1,23 @@
 package org.muoncore;
 
+import org.muoncore.transports.MuonEventTransport;
+
+import java.net.URI;
+import java.net.URL;
 import java.util.List;
 
 public class ServiceDescriptor {
 
     private String identifier;
     private List<String> tags;
-    private MuonEventTransport accessibleVia;
+    private List<URI> connectionUrls;
 
-    public ServiceDescriptor(String identifier, List<String> tags, MuonEventTransport accessibleVia) {
+    public ServiceDescriptor(String identifier,
+                             List<String> tags,
+                             List<URI> connectionUrls) {
         this.identifier = identifier;
         this.tags = tags;
-        this.accessibleVia = accessibleVia;
+        this.connectionUrls = connectionUrls;
     }
 
     public List<String> getTags() {
@@ -22,7 +28,7 @@ public class ServiceDescriptor {
         return identifier;
     }
 
-    public MuonEventTransport getAccessibleVia() {
-        return accessibleVia;
+    public List<URI> getConnectionUris() {
+        return connectionUrls;
     }
 }

@@ -2,6 +2,9 @@ package com.simplicity.services;
 
 import org.eclipse.jetty.util.ajax.JSON;
 import org.muoncore.*;
+import org.muoncore.extension.amqp.AmqpBroadcast;
+import org.muoncore.extension.amqp.AmqpConnection;
+import org.muoncore.extension.amqp.AmqpDiscovery;
 import org.muoncore.extension.amqp.AmqpTransportExtension;
 import org.muoncore.extension.http.HttpTransportExtension;
 import org.muoncore.transports.MuonMessageEvent;
@@ -10,6 +13,10 @@ import org.muoncore.transports.MuonResourceEvent;
 import org.reactivestreams.Publisher;
 import reactor.rx.Streams;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,12 +27,14 @@ import java.util.Map;
  */
 public class TCKService {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, IOException {
 
-        final Muon muon = new Muon();
+        final Muon muon = new Muon(
+                new AmqpDiscovery("amqp://localhost:5672"));
 
         muon.setServiceIdentifer("tck");
         muon.addTags("my-tag", "tck-service");
+
         muon.registerExtension(new HttpTransportExtension(7171));
         muon.registerExtension(new AmqpTransportExtension());
         muon.start();

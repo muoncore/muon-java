@@ -1,7 +1,7 @@
 package org.muoncore.filter;
 
 import org.muoncore.transports.MuonMessageEvent;
-import org.muoncore.MuonEventTransport;
+import org.muoncore.transports.MuonEventTransport;
 
 import java.util.ArrayList;
 import java.util.List;

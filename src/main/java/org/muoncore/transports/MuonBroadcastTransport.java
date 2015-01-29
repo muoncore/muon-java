@@ -2,7 +2,6 @@ package org.muoncore.transports;
 
 import org.muoncore.Muon;
 import org.muoncore.MuonClient;
-import org.muoncore.MuonEventTransport;
 
 public interface MuonBroadcastTransport extends MuonEventTransport {
 

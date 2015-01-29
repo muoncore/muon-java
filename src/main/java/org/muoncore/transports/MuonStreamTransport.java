@@ -1,6 +1,5 @@
 package org.muoncore.transports;
 
-import org.muoncore.MuonEventTransport;
 import org.muoncore.MuonStreamGenerator;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;

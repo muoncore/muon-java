@@ -1,4 +1,4 @@
-package org.muoncore;
+package org.muoncore.internal;
 
 import org.muoncore.transports.MuonBroadcastTransport;
 import org.muoncore.transports.MuonMessageEvent;
@@ -11,7 +11,7 @@ public class Dispatcher {
     private List<Listener> listeners = new ArrayList<Listener>();
 
 
-    void dispatchToTransports(MuonMessageEvent event, List<MuonBroadcastTransport> transports) {
+    public void dispatchToTransports(MuonMessageEvent event, List<MuonBroadcastTransport> transports) {
         for(Listener listener: listeners) {
             listener.presend(event);
         }

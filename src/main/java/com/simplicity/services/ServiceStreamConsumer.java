@@ -1,6 +1,7 @@
 package com.simplicity.services;
 
 import org.muoncore.*;
+import org.muoncore.extension.amqp.AmqpDiscovery;
 import org.muoncore.extension.amqp.AmqpTransportExtension;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -9,16 +10,20 @@ import reactor.rx.Stream;
 import reactor.rx.Streams;
 import reactor.rx.stream.HotStream;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class ServiceStreamConsumer {
 
-    public static void main(String[] args) throws URISyntaxException, InterruptedException {
+    public static void main(String[] args) throws URISyntaxException, InterruptedException, NoSuchAlgorithmException, KeyManagementException, IOException {
 
-        final Muon muon = new Muon();
+        final Muon muon = new Muon(
+                new AmqpDiscovery("amqp://localhost:5672"));
 
         muon.setServiceIdentifer("consumer-" + UUID.randomUUID().toString());
         muon.registerExtension(new AmqpTransportExtension());

@@ -1,6 +1,8 @@
 package org.muoncore;
 
 import org.muoncore.filter.EventFilterChain;
+import org.muoncore.internal.Dispatcher;
+import org.muoncore.internal.MuonStreamExistingGenerator;
 import org.muoncore.transports.*;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -14,14 +16,16 @@ public class Muon implements MuonService {
 
     private Logger log = Logger.getLogger(Muon.class.getName());
 
+    private Discovery discovery;
+
     private List<EventFilterChain> filterChains = new ArrayList<EventFilterChain>();
     private List<MuonEventTransport> transports = new ArrayList<MuonEventTransport>();
     private List<MuonEventTransport> nonInitTransports = new ArrayList<MuonEventTransport>();
 
-    private List<MuonResourceTransport> resourceTransports = new ArrayList<MuonResourceTransport>();
-    private List<MuonBroadcastTransport> broadcastTransports = new ArrayList<MuonBroadcastTransport>();
-    private List<MuonStreamTransport> streamingTransports = new ArrayList<MuonStreamTransport>();
-    private List<MuonQueueTransport> queueingTransports = new ArrayList<MuonQueueTransport>();
+    private TransportList<MuonResourceTransport> resourceTransports = new TransportList<MuonResourceTransport>();
+    private TransportList<MuonBroadcastTransport> broadcastTransports = new TransportList<MuonBroadcastTransport>();
+    private TransportList<MuonStreamTransport> streamingTransports = new TransportList<MuonStreamTransport>();
+    private TransportList<MuonQueueTransport> queueingTransports = new TransportList<MuonQueueTransport>();
 
     private List<MuonExtension> extensions = new ArrayList<MuonExtension>();
 
@@ -30,26 +34,27 @@ public class Muon implements MuonService {
 
     private Dispatcher dispatcher = new Dispatcher();
 
-    private String serviceIdentifer;
-    private List<String> tags = new ArrayList<String>();
+    private String serviceIdentifier;
 
     private boolean started = false;
+
+    private List<String> tags = new ArrayList<String>();
 
     @Override
     public void registerExtension(MuonExtension extension) {
         extensions.add(extension);
     }
 
-    public Muon() {
-//        registerExtension(new LocalTransportExtension());
+    public Muon(Discovery discovery) {
+        this.discovery = discovery;
     }
 
-    public void start() {
+    public void start() throws URISyntaxException {
         for (MuonExtension extension: extensions) {
             extension.init(
                     new MuonExtensionApi(
                             this,
-                            tags,
+                            null,
                             filterChains,
                             transports,
                             dispatcher,
@@ -60,23 +65,37 @@ public class Muon implements MuonService {
         for(MuonEventTransport transport: nonInitTransports) {
             initialiseTransport(transport);
         }
+        discovery.advertiseLocalService(getCurrentLocalDescriptor());
         started = true;
+    }
+
+    public ServiceDescriptor getCurrentLocalDescriptor() throws URISyntaxException {
+
+        Set<URI> connectionUris = new HashSet<URI>();
+
+        for(MuonEventTransport t: transports) {
+            connectionUris.add(t.getLocalConnectionURI());
+        }
+
+        return new ServiceDescriptor(serviceIdentifier,
+                tags,
+                new ArrayList<URI>(connectionUris));
     }
 
     void registerTransport(MuonEventTransport transport) {
         transports.add(transport);
 
         if(transport instanceof MuonResourceTransport) {
-            resourceTransports.add((MuonResourceTransport) transport);
+            resourceTransports.addTransport((MuonResourceTransport) transport);
         }
         if(transport instanceof MuonBroadcastTransport) {
-            broadcastTransports.add((MuonBroadcastTransport) transport);
+            broadcastTransports.addTransport((MuonBroadcastTransport) transport);
         }
         if(transport instanceof MuonStreamTransport) {
-            streamingTransports.add((MuonStreamTransport) transport);
+            streamingTransports.addTransport((MuonStreamTransport) transport);
         }
         if (transport instanceof MuonQueueTransport) {
-            queueingTransports.add((MuonQueueTransport) transport);
+            queueingTransports.addTransport((MuonQueueTransport) transport);
         }
 
         if (!started) {
@@ -99,11 +118,11 @@ public class Muon implements MuonService {
     }
 
     public String getServiceIdentifer() {
-        return serviceIdentifer;
+        return serviceIdentifier;
     }
 
     public void setServiceIdentifer(String serviceIdentifer) {
-        this.serviceIdentifer = serviceIdentifer;
+        this.serviceIdentifier = serviceIdentifer;
     }
 
     public void addTag(String tag) {
@@ -116,7 +135,7 @@ public class Muon implements MuonService {
 
     @Override
     public void emit(MuonMessageEvent ev) {
-        dispatcher.dispatchToTransports(ev, transports(ev));
+        dispatcher.dispatchToTransports(ev, broadcastTransports.all());
     }
 
     @Override
@@ -146,6 +165,11 @@ public class Muon implements MuonService {
         MuonResourceEvent ev = resourceEvent("put", payload);
 
         return transport(ev).emitForReturn(resource, ev);
+    }
+
+    static MuonResourceEvent resourceEvent(String verb, MuonResourceEvent payload) {
+        payload.addHeader("verb", verb);
+        return payload;
     }
 
     @Override
@@ -236,13 +260,7 @@ public class Muon implements MuonService {
     }
 
     public List<ServiceDescriptor> discoverServices() {
-        List<ServiceDescriptor> services = new ArrayList<ServiceDescriptor>();
-
-        for(MuonEventTransport transport: transports) {
-            services.addAll(transport.discoverServices());
-        }
-
-        return services;
+        return discovery.getKnownServices();
     }
 
     public static interface EventMessageTransportListener {
@@ -254,26 +272,8 @@ public class Muon implements MuonService {
     }
 
     MuonResourceTransport transport(MuonResourceEvent event) {
-        //TODO, replace with something that understands onGet/ broadcast/ message split
-
-        List<MuonResourceTransport> matching = transports(event);
-
-        if (matching.size() == 0) {
-            throw new IllegalStateException("Expected a transport to match send, found 0");
-        }
-        return matching.get(0);
-    }
-
-    List<MuonResourceTransport> transports(MuonResourceEvent event) {
-        return resourceTransports;
-    }
-
-    List<MuonBroadcastTransport> transports(MuonMessageEvent event) {
-        return broadcastTransports;
-    }
-    static MuonResourceEvent resourceEvent(String verb, MuonResourceEvent payload) {
-        payload.addHeader("verb", verb);
-        return payload;
+        ServiceDescriptor remoteDescriptor = discovery.getService(event.getUri());
+        return resourceTransports.findBestTransport(remoteDescriptor);
     }
 
     /**
@@ -292,7 +292,7 @@ public class Muon implements MuonService {
      * @param streamName
      */
     public void streamSource(String streamName, MuonStreamGenerator generator) {
-        for(MuonStreamTransport transport: streamingTransports) {
+        for(MuonStreamTransport transport: streamingTransports.all()) {
             transport.provideStreamSource(streamName, generator);
         }
     }
@@ -313,24 +313,11 @@ public class Muon implements MuonService {
     }
 
     public void subscribe(String url, Map<String, String> params, Subscriber subscriber) throws URISyntaxException {
-        MuonStreamTransport t = null;
-        String host = new URI(url).getHost();
 
-        //TODO, implement some kind of priority, allowing selection of the transport.
-        //probably a changeable comparator to sort this list, since we are selecting the first match.
-        for (MuonStreamTransport transport: streamingTransports) {
-            List<ServiceDescriptor> services = transport.discoverServices();
-            boolean canConnectToRemote = false;
-            for(ServiceDescriptor descriptor: services) {
-                if (descriptor.getIdentifier().equals(host)) {
-                    canConnectToRemote=true;
-                }
-            }
-            if (canConnectToRemote) {
-                t = transport;
-                break;
-            }
-        }
+        String host = new URI(url).getHost();
+        ServiceDescriptor descriptor = discovery.getService(new URI(url));
+
+        MuonStreamTransport t = streamingTransports.findBestTransport(descriptor);
 
         if (t == null) {
             subscriber.onError(new IllegalStateException("Cannot see the remote service " + host));
@@ -349,7 +336,7 @@ public class Muon implements MuonService {
 
     @Override
     public void onQueue(String queue, final MuonListener listener) {
-        for(MuonQueueTransport transport: queueingTransports) {
+        for(MuonQueueTransport transport: queueingTransports.all()) {
             transport.listenOnQueueEvent(queue, new EventMessageTransportListener() {
                 @Override
                 public void onEvent(String name, MuonMessageEvent obj) {
@@ -364,10 +351,10 @@ public class Muon implements MuonService {
         //this selects the transport to choose to send this message
         //it will only be sent on one, and that will be the first one.
 
-        if (queueingTransports.size() == 0) {
+        if (queueingTransports.all().size() == 0) {
             throw new IllegalStateException("No transports that support queueing are configured");
         }
-        MuonQueueTransport selectedTransport = queueingTransports.get(0);
+        MuonQueueTransport selectedTransport = queueingTransports.all().get(0);
         selectedTransport.send(event.getEventName(), event);
     }
 }

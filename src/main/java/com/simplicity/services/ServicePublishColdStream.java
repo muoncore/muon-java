@@ -2,19 +2,24 @@ package com.simplicity.services;
 
 import org.muoncore.Muon;
 import org.muoncore.MuonStreamGenerator;
+import org.muoncore.extension.amqp.AmqpDiscovery;
 import org.muoncore.extension.amqp.AmqpTransportExtension;
 import org.reactivestreams.Publisher;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 public class ServicePublishColdStream {
 
-    public static void main(String[] args) throws URISyntaxException {
+    public static void main(String[] args) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException {
 
-        final Muon muon = new Muon();
+        final Muon muon = new Muon(
+                new AmqpDiscovery("amqp://localhost:5672"));
 
         muon.setServiceIdentifer("cl");
         muon.registerExtension(new AmqpTransportExtension());

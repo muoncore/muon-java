@@ -11,12 +11,16 @@ import java.security.NoSuchAlgorithmException;
 
 public class AmqpTransportExtension implements MuonExtension {
 
+    private AmqpBroadcast broadcast;
+
     @Override
     public void init(MuonExtensionApi muonApi) {
         try {
-            muonApi.addTransport(new AMQPEventTransport(
+            AMQPEventTransport trans = new AMQPEventTransport(
                     muonApi.getMuon().getServiceIdentifer(),
-                    muonApi.getTags()));
+                    muonApi.getTags());
+
+            muonApi.addTransport(trans);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("Unable to start AMQP Extension", e);
         } catch (KeyManagementException e) {

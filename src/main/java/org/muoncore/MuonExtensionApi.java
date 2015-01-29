@@ -1,7 +1,10 @@
 package org.muoncore;
 
 import org.muoncore.filter.EventFilterChain;
-import org.muoncore.transports.MuonStreamTransport;
+import org.muoncore.internal.Dispatcher;
+import org.muoncore.transports.MuonEventRegister;
+import org.muoncore.transports.MuonEventTransport;
+import org.muoncore.transports.MuonResourceRegister;
 
 import java.util.Collections;
 import java.util.List;

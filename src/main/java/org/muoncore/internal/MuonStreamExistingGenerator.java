@@ -1,5 +1,6 @@
-package org.muoncore;
+package org.muoncore.internal;
 
+import org.muoncore.MuonStreamGenerator;
 import org.reactivestreams.Publisher;
 
 import java.util.Map;

@@ -8,29 +8,29 @@ class ServiceCacheSpec extends Specification {
 
     when:
     def cache = new ServiceCache()
-    cache.addService("simpleservice")
-    cache.addService("simpleservice2")
-    cache.addService("simpleservice3")
+    cache.addService([identifier:"simpleservice"])
+    cache.addService([identifier:"simpleservice2"])
+    cache.addService([identifier:"simpleservice3"])
 
     then:
-    cache.serviceIds.size() == 3
-    cache.serviceIds.contains("simpleservice")
-    cache.serviceIds.contains("simpleservice2")
-    cache.serviceIds.contains("simpleservice3")
+    cache.services.size() == 3
+    cache.services.find { it.identifier == "simpleservice"}
+    cache.services.find { it.identifier == "simpleservice2"}
+    cache.services.find { it.identifier == "simpleservice3"}
 
   }
 
   def "service cache expires"() {
     given:
     def cache = new ServiceCache()
-    cache.addService("simpleservice")
-    cache.addService("simpleservice2")
-    cache.addService("simpleservice3")
+    cache.addService([identifier:"simpleservice"])
+    cache.addService([identifier:"simpleservice2"])
+    cache.addService([identifier:"simpleservice3"])
 
     when:
     Thread.sleep(5100)
 
     then:
-    cache.serviceIds.size() == 0
+    cache.services.size() == 0
   }
 }
