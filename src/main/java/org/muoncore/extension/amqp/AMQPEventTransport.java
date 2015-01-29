@@ -112,18 +112,8 @@ public class AMQPEventTransport
     }
 
     @Override
-    public void provideStreamSink(String streamName, Subscriber targetOfData) {
-
-    }
-
-    @Override
     public void provideStreamSource(String streamName, MuonStreamGenerator sourceOfData) {
         streams.streamSource(streamName, sourceOfData);
-    }
-
-    @Override
-    public void publishToStream(String url, Publisher publisher) {
-
     }
 
     @Override

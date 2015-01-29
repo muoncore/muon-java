@@ -1,4 +1,4 @@
-package org.muoncore.extension.amqp;
+package org.muoncore.extension.amqp.discovery;
 
 import java.util.*;
 

@@ -4,7 +4,9 @@ import org.muoncore.ServiceDescriptor;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TransportList<T extends MuonEventTransport> {
 
@@ -18,10 +20,10 @@ public class TransportList<T extends MuonEventTransport> {
         return transports;
     }
 
-    public T findBestTransport(ServiceDescriptor descriptor) {
+    public T findBestResourceTransport(ServiceDescriptor descriptor) {
 
         //TODO, sorting of the uris to allow transport prioritisation
-        for(URI uri: descriptor.getConnectionUris()) {
+        for(URI uri: descriptor.getResourceConnectionUrls()) {
             for(T trans : transports) {
                 if (uri.getScheme().equals(trans.getUrlScheme())) {
                     return trans;
@@ -31,4 +33,28 @@ public class TransportList<T extends MuonEventTransport> {
 
         return null;
     };
+
+    public T findBestStreamTransport(ServiceDescriptor descriptor) {
+
+        //TODO, sorting of the uris to allow transport prioritisation
+        for(URI uri: descriptor.getStreamConnectionUrls()) {
+            for(T trans : transports) {
+                if (uri.getScheme().equals(trans.getUrlScheme())) {
+                    return trans;
+                }
+            }
+        }
+
+        return null;
+    };
+
+    static Map<Class, String> capabilityMapping;
+
+    static {
+        capabilityMapping = new HashMap<Class, String>();
+        capabilityMapping.put(MuonResourceTransport.class, "resource");
+        capabilityMapping.put(MuonBroadcastTransport.class, "broadcast");
+        capabilityMapping.put(MuonQueueTransport.class, "queue");
+        capabilityMapping.put(MuonStreamTransport.class, "stream");
+    }
 }

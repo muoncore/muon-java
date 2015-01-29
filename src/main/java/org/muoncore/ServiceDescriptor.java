@@ -5,19 +5,23 @@ import org.muoncore.transports.MuonEventTransport;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceDescriptor {
 
     private String identifier;
     private List<String> tags;
-    private List<URI> connectionUrls;
+    private List<URI> resourceConnectionUrls;
+    private List<URI> streamConnectionUrls;
 
     public ServiceDescriptor(String identifier,
                              List<String> tags,
-                             List<URI> connectionUrls) {
+                             List<URI> resourceConnectionUrls,
+                             List<URI> streamConnectionUrls) {
         this.identifier = identifier;
         this.tags = tags;
-        this.connectionUrls = connectionUrls;
+        this.resourceConnectionUrls = resourceConnectionUrls;
+        this.streamConnectionUrls = streamConnectionUrls;
     }
 
     public List<String> getTags() {
@@ -28,7 +32,11 @@ public class ServiceDescriptor {
         return identifier;
     }
 
-    public List<URI> getConnectionUris() {
-        return connectionUrls;
+    public List<URI> getResourceConnectionUrls() {
+        return resourceConnectionUrls;
+    }
+
+    public List<URI> getStreamConnectionUrls() {
+        return streamConnectionUrls;
     }
 }

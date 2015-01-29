@@ -1,17 +1,18 @@
-package org.muoncore.extension.amqp;
+package org.muoncore.extension.amqp.discovery;
 
 import org.eclipse.jetty.util.ajax.JSON;
 import org.muoncore.Discovery;
 import org.muoncore.Muon;
 import org.muoncore.ServiceDescriptor;
+import org.muoncore.extension.amqp.AMQPEventTransport;
+import org.muoncore.extension.amqp.AmqpBroadcast;
+import org.muoncore.extension.amqp.AmqpConnection;
 import org.muoncore.transports.MuonMessageEvent;
 import org.muoncore.transports.MuonMessageEventBuilder;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -66,7 +67,8 @@ public class AmqpDiscovery implements Discovery {
 
                             discoveryMessage.put("identifier", descriptor.getIdentifier());
                             discoveryMessage.put("tags", descriptor.getTags());
-                            discoveryMessage.put("connectionUrls", descriptor.getConnectionUris());
+                            discoveryMessage.put("resourceConnections", descriptor.getResourceConnectionUrls());
+                            discoveryMessage.put("streamConnections", descriptor.getStreamConnectionUrls());
 
                             amqpBroadcast.broadcast(SERVICE_ANNOUNCE, MuonMessageEventBuilder.named(SERVICE_ANNOUNCE)
                                     .withContent(JSON.toString(discoveryMessage)).build());
@@ -86,15 +88,16 @@ public class AmqpDiscovery implements Discovery {
 
         try {
             for (Map data : serviceCache.getServices()) {
-                List<URI> connectionList = null;
-
-                connectionList = readConnectionUrls(data);
+                List<URI> connectionList = readResourceConnectionUrls(data);
+                List<URI> streamConnectionList = readStreamConnectionUrls(data);
 
                 List tagList = readTags(data);
 
                 services.add(new ServiceDescriptor(
                         (String) data.get("identifier"),
-                        tagList, connectionList));
+                        tagList,
+                        connectionList,
+                        streamConnectionList));
             }
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(
@@ -104,8 +107,16 @@ public class AmqpDiscovery implements Discovery {
         return services;
     }
 
-    private List<URI> readConnectionUrls(Map data) throws URISyntaxException {
-        Object connectionUrls = data.get("connectionUrls");
+    private List<URI> readStreamConnectionUrls(Map data) throws URISyntaxException {
+        return readConnectionUrls("streamConnectionUrls", data);
+    }
+
+    private List<URI> readResourceConnectionUrls(Map data) throws URISyntaxException {
+        return readConnectionUrls("resourceConnectionUrls", data);
+    }
+
+    private List<URI> readConnectionUrls(String name, Map data) throws URISyntaxException {
+        Object connectionUrls = data.get(name);
         List<URI> ret = new ArrayList<URI>();
 
         if (connectionUrls != null && connectionUrls instanceof List) {
@@ -129,11 +140,16 @@ public class AmqpDiscovery implements Discovery {
 
     @Override
     public ServiceDescriptor getService(URI searchUri) {
+
+        if (!searchUri.getScheme().equals("muon")) {
+            throw new IllegalArgumentException("Discovery requires muon://XXX scheme urls for lookup");
+        }
+
+        String serviceName = searchUri.getHost();
+
         for(ServiceDescriptor desc: getKnownServices()) {
-            for (URI uri: desc.getConnectionUris()) {
-                if (uri.equals(searchUri)) {
-                    return desc;
-                }
+            if (desc.getIdentifier().equals(serviceName)) {
+                return desc;
             }
         }
         return null;

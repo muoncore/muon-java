@@ -1,5 +1,6 @@
-package org.muoncore.extension.amqp
+package org.muoncore.extension.amqp.discovery
 
+import org.muoncore.extension.amqp.discovery.ServiceCache
 import spock.lang.Specification
 
 class ServiceCacheSpec extends Specification {

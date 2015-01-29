@@ -1,12 +1,9 @@
 package com.simplicity.services;
 
 import org.muoncore.*;
-import org.muoncore.extension.amqp.AmqpDiscovery;
+import org.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import org.muoncore.extension.amqp.AmqpTransportExtension;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
 import reactor.function.Consumer;
-import reactor.rx.Stream;
 import reactor.rx.Streams;
 import reactor.rx.stream.HotStream;
 

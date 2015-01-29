@@ -9,15 +9,6 @@ import java.util.Map;
 
 public interface MuonStreamTransport extends MuonEventTransport {
 
-    /**
-     * Remote publishers will push data into the given subscriber
-     */
-    public void provideStreamSink(String streamName, Subscriber targetOfData);
-
-    /**
-     * Takes data from the given publisher and streams it to the remote subscriber
-     */
-    public void publishToStream(String url, Publisher publisher);
 
     /**
      * Take data from the given publisher and will make it available for remote subscriptions
