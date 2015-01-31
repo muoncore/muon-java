@@ -1,5 +1,6 @@
 package org.muoncore.extension.amqp.discovery;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.util.ajax.JSON;
 import org.muoncore.Discovery;
 import org.muoncore.Muon;
@@ -24,6 +25,10 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 public class AmqpDiscovery implements Discovery {
+    private static final String RESOURCE_CONNECTIONS = "resourceConnections";
+    private static final String STREAM_CONNECTIONS = "streamConnections";
+    private static final String IDENTIFIER = "identifier";
+    private static final String TAGS = "tags";
     private Logger log = Logger.getLogger(AMQPEventTransport.class.getName());
     private ExecutorService spinner;
     public static final String SERVICE_ANNOUNCE = "serviceAnnounce";
@@ -48,7 +53,8 @@ public class AmqpDiscovery implements Discovery {
         amqpBroadcast.listenOnBroadcastEvent(SERVICE_ANNOUNCE, new Muon.EventMessageTransportListener() {
             @Override
             public void onEvent(String name, MuonMessageEvent obj) {
-                Map announce = (Map) JSON.parse((String) obj.getPayload());
+                Gson gson = new Gson();
+                Map announce = gson.fromJson((String) obj.getPayload(), Map.class);
                 serviceCache.addService(announce);
             }
         });
@@ -65,10 +71,10 @@ public class AmqpDiscovery implements Discovery {
                         if (descriptor != null) {
                             Map<String,Object> discoveryMessage = new HashMap<String, Object>();
 
-                            discoveryMessage.put("identifier", descriptor.getIdentifier());
-                            discoveryMessage.put("tags", descriptor.getTags());
-                            discoveryMessage.put("resourceConnections", descriptor.getResourceConnectionUrls());
-                            discoveryMessage.put("streamConnections", descriptor.getStreamConnectionUrls());
+                            discoveryMessage.put(IDENTIFIER, descriptor.getIdentifier());
+                            discoveryMessage.put(TAGS, descriptor.getTags());
+                            discoveryMessage.put(RESOURCE_CONNECTIONS, descriptor.getResourceConnectionUrls());
+                            discoveryMessage.put(STREAM_CONNECTIONS, descriptor.getStreamConnectionUrls());
 
                             amqpBroadcast.broadcast(SERVICE_ANNOUNCE, MuonMessageEventBuilder.named(SERVICE_ANNOUNCE)
                                     .withContent(JSON.toString(discoveryMessage)).build());
@@ -94,7 +100,7 @@ public class AmqpDiscovery implements Discovery {
                 List tagList = readTags(data);
 
                 services.add(new ServiceDescriptor(
-                        (String) data.get("identifier"),
+                        (String) data.get(IDENTIFIER),
                         tagList,
                         connectionList,
                         streamConnectionList));
@@ -108,11 +114,11 @@ public class AmqpDiscovery implements Discovery {
     }
 
     private List<URI> readStreamConnectionUrls(Map data) throws URISyntaxException {
-        return readConnectionUrls("streamConnectionUrls", data);
+        return readConnectionUrls(STREAM_CONNECTIONS, data);
     }
 
     private List<URI> readResourceConnectionUrls(Map data) throws URISyntaxException {
-        return readConnectionUrls("resourceConnectionUrls", data);
+        return readConnectionUrls(RESOURCE_CONNECTIONS, data);
     }
 
     private List<URI> readConnectionUrls(String name, Map data) throws URISyntaxException {
@@ -129,7 +135,7 @@ public class AmqpDiscovery implements Discovery {
     }
 
     private List readTags(Map data) {
-        Object tags = data.get("tags");
+        Object tags = data.get(TAGS);
         List ret = new ArrayList();
 
         if (tags != null && tags instanceof List) {

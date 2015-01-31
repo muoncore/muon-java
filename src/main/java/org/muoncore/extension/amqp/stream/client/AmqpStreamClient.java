@@ -18,6 +18,7 @@ public class AmqpStreamClient implements
         Muon.EventMessageTransportListener,
         Subscription {
     private AmqpQueues queues;
+    private String streamName;
     private String privateStreamQueue;
     private String commandQueue;
     private Subscriber subscriber;
@@ -30,6 +31,7 @@ public class AmqpStreamClient implements
         this.queues = queues;
         this.subscriber = subscriber;
         this.commandQueue = commandQueue;
+        this.streamName = streamName;
 
         privateStreamQueue = UUID.randomUUID().toString();
         queues.listenOnQueueEvent(privateStreamQueue, this);
@@ -53,6 +55,10 @@ public class AmqpStreamClient implements
             remoteId = obj.getHeaders().get(AmqpStreamControl.SUBSCRIPTION_STREAM_ID);
             log.fine("Received SUBSCRIPTION_ACK " + remoteId + " activating local subscription");
             subscriber.onSubscribe(this);
+        } else if (obj.getHeaders().get(AmqpStream.STREAM_COMMAND) != null &&
+                    obj.getHeaders().get(AmqpStream.STREAM_COMMAND).equals(AmqpStreamControl.SUBSCRIPTION_NACK)) {
+            log.warning("SUBSCRIPTION_NACK for stream [" + streamName + "] stream is NOT established");
+            subscriber.onError(new IllegalArgumentException("SUBSCRIPTION_NACK for stream [" + streamName + "] stream is NOT established"));
         } else if (obj.getHeaders().get("TYPE").equals("data")) {
             subscriber.onNext(obj.getPayload());
         } else if (obj.getHeaders().get("TYPE").equals("error")) {

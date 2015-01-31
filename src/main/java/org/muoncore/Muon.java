@@ -153,25 +153,38 @@ public class Muon implements MuonService {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        return transport(ev).emitForReturn(resourceQuery, ev);
+        return dispatchEvent(ev, resourceQuery);
+    }
+
+    private MuonResult dispatchEvent(MuonResourceEvent ev, String resourceQuery) {
+        MuonResourceTransport trans = transport(ev);
+        if (trans == null) {
+            MuonResult ret = new MuonResult();
+            ret.setEvent(MuonResourceEventBuilder.textMessage("")
+                    .withUri(resourceQuery)
+                    .withHeader("status", "404")
+                    .build());
+            ret.setSuccess(false);
+            return ret;
+        }
+        return trans.emitForReturn(resourceQuery, ev);
     }
 
     public MuonResult get(MuonResourceEvent payload) {
         MuonResourceEvent ev = resourceEvent("get", payload);
-        return transport(ev).emitForReturn(payload.getResource(), ev);
+        return dispatchEvent(ev, payload.getResource());
     }
 
     @Override
     public MuonResult post(String resource, MuonResourceEvent payload) {
         MuonResourceEvent ev = resourceEvent("post", payload);
-        return transport(ev).emitForReturn(resource, ev);
+        return dispatchEvent(ev, resource);
     }
 
     @Override
     public MuonResult put(String resource, MuonResourceEvent payload) {
         MuonResourceEvent ev = resourceEvent("put", payload);
-
-        return transport(ev).emitForReturn(resource, ev);
+        return dispatchEvent(ev, resource);
     }
 
     static MuonResourceEvent resourceEvent(String verb, MuonResourceEvent payload) {
@@ -270,6 +283,9 @@ public class Muon implements MuonService {
 
     MuonResourceTransport transport(MuonResourceEvent event) {
         ServiceDescriptor remoteDescriptor = discovery.getService(event.getUri());
+        if (remoteDescriptor == null) {
+            return null;
+        }
         return resourceTransports.findBestResourceTransport(remoteDescriptor);
     }
 
@@ -310,6 +326,7 @@ public class Muon implements MuonService {
         MuonStreamTransport t = streamingTransports.findBestStreamTransport(descriptor);
 
         if (t == null) {
+            log.warning("Stream subscription to " + url + " cannot be made, no transport can connect using the connection details " + descriptor.getStreamConnectionUrls());
             subscriber.onError(new IllegalStateException("Cannot see the remote service " + host));
             return;
         }
