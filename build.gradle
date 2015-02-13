@@ -1,5 +1,10 @@
+plugins {
+  id "com.jfrog.bintray" version "1.0"
+}
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
+
 
 sourceCompatibility = 1.6
 group = theGroup
@@ -11,8 +16,8 @@ ext {
 
 
 repositories {
-    maven { url 'http://repo.spring.io/libs-milestone' }
-    mavenCentral()
+  jcenter()
+  maven { url 'http://repo.spring.io/libs-milestone' }
 }
 
 dependencies {
@@ -37,4 +42,47 @@ dependencies {
 }
 task wrapper(type: Wrapper) {
     gradleVersion = '2.2'
+}
+//
+//artifacts {
+//  archives sourcesJar, javadocJar
+//}
+
+bintray {
+  user = 'daviddawson'
+  key = '7ee147288c6e162e701cb832267b7100237804cd'
+
+  dryRun = false //Whether to run this as dry-run, without deploying
+  publish = true //If version should be auto published after an upload
+
+  publications = ['mavenJava']
+
+  pkg {
+    userOrg = 'muoncore'
+    repo = 'muon-java'
+    name = 'muon-core'
+    desc = 'Core Muon Java'
+    websiteUrl = 'https://muoncore.io'
+    issueTrackerUrl = 'https://github.com/simplicityitself/muon-core-java/issues'
+    vcsUrl = 'https://github.com/simplicityitself/muon-core-java.git'
+    licenses = ['Apache-2.0']
+    labels = ['muon', 'microservices']
+    publicDownloadNumbers = true
+    attributes= ['a': ['ay1', 'ay2'], 'b': ['bee'], c: 'cee'] //Optional package-level attributes
+    //Optional version descriptor
+    version {
+      name = project.version
+      //attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin'] //Optional version-level attributes
+//      gpg {
+//        sign = true //Determines whether to GPG sign the files. The default is false
+//        passphrase = 'passphrase' //Optional. The passphrase for GPG signing'
+//      }
+      mavenCentralSync {
+        sync = false //Optional (true by default). Determines whether to sync the version to Maven Central.
+        user = 'userToken' //OSS user token
+        password = 'paasword' //OSS user password
+        close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+      }
+    }
+  }
 }
