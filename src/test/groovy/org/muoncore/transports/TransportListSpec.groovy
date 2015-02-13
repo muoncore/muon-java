@@ -20,7 +20,7 @@ class TransportListSpec extends Specification {
     list.addTransport(amqp)
 
     expect:
-    list.findBestTransport(desc()) == amqp
+    list.findBestResourceTransport(desc()) == amqp
   }
 
   ServiceDescriptor desc() {
@@ -29,6 +29,9 @@ class TransportListSpec extends Specification {
         [],
         [
             new URI("http://simple"),
+            new URI("amqp://broker:8181"),
+        ],
+        [
             new URI("amqp://broker:8181"),
         ]
     )
