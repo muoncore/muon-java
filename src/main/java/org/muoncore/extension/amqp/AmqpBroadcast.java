@@ -24,8 +24,8 @@ public class AmqpBroadcast {
     private Channel channel;
     private ExecutorService spinner;
 
-    public AmqpBroadcast(Channel channel) throws IOException {
-        this.channel = channel;
+    public AmqpBroadcast(AmqpConnection connection) throws IOException {
+        this.channel = connection.getChannel();
         spinner = Executors.newCachedThreadPool();
         channel.exchangeDeclare(EXCHANGE_NAME, "topic");
     }

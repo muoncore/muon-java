@@ -25,16 +25,13 @@ public class AMQPEventTransport
 
     private Logger log = Logger.getLogger(AMQPEventTransport.class.getName());
 
-    private Connection connection;
-    private Channel channel;
-
     private String serviceName;
     private List<String> tags;
 
     private String rabbitUrl = "amqp://localhost:5672";
 
+    private AmqpConnection connection;
     private AmqpBroadcast broadcast;
-    private AmqpDiscovery discovery;
     private AmqpResources resources;
     private AmqpQueues queues;
     private AmqpStream streams;
@@ -72,40 +69,20 @@ public class AMQPEventTransport
     }
 
     @Override
-    public List<ServiceDescriptor> discoverServices() {
-        return discovery.discoverServices();
-    }
-
-    @Override
     public void shutdown() {
-        discovery.shutdown();
         queues.shutdown();
         resources.shutdown();
         broadcast.shutdown();
-
-        try {
-            channel.close();
-            connection.close();
-        } catch (Exception e) {
-            log.log(Level.SEVERE, e.getMessage(), e);
-        }
+        connection.close();
     }
 
     public void start() {
-        ConnectionFactory factory = new ConnectionFactory();
-
         try {
-            factory.setUri(rabbitUrl);
-            connection = factory.newConnection();
-
-            channel = connection.createChannel();
-
-            broadcast = new AmqpBroadcast(channel);
-            queues = new AmqpQueues(channel);
+            connection = new AmqpConnection(rabbitUrl);
+            broadcast = new AmqpBroadcast(connection);
+            queues = new AmqpQueues(connection.getChannel());
             resources = new AmqpResources(queues, serviceName);
-            discovery = new AmqpDiscovery(serviceName, tags, broadcast, this);
             streams = new AmqpStream(serviceName, queues);
-
         } catch (URISyntaxException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
@@ -135,17 +112,17 @@ public class AMQPEventTransport
     }
 
     @Override
-    public void provideStreamSink(String streamName, Subscriber targetOfData) {
-
-    }
-
-    @Override
     public void provideStreamSource(String streamName, MuonStreamGenerator sourceOfData) {
         streams.streamSource(streamName, sourceOfData);
     }
 
     @Override
-    public void publishToStream(String url, Publisher publisher) {
+    public String getUrlScheme() {
+        return "amqp";
+    }
 
+    @Override
+    public URI getLocalConnectionURI() throws URISyntaxException {
+        return new URI(rabbitUrl);
     }
 }

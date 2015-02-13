@@ -1,4 +1,4 @@
-package org.muoncore;
+package org.muoncore.transports;
 
 public class MuonResourceRegister {
 

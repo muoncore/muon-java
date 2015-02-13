@@ -15,6 +15,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -110,12 +112,6 @@ public class HttpEventTransport implements MuonResourceTransport {
     }
 
     @Override
-    public List<ServiceDescriptor> discoverServices() {
-        //return transportServiceDiscovery.discover();
-        return Collections.emptyList();
-    }
-
-    @Override
     public void shutdown() {
         try {
             handler.stop();
@@ -179,5 +175,15 @@ public class HttpEventTransport implements MuonResourceTransport {
                 response.getWriter().println("<h1>Hello World</h1>");
             }
         }
+    }
+
+    @Override
+    public String getUrlScheme() {
+        return "http";
+    }
+
+    @Override
+    public URI getLocalConnectionURI() throws URISyntaxException {
+        return new URI("http://localhost:" + port);
     }
 }

@@ -3,6 +3,8 @@ package org.muoncore;
 import org.muoncore.transports.MuonMessageEvent;
 import org.muoncore.transports.MuonResourceEvent;
 
+import java.net.URISyntaxException;
+
 public interface MuonService extends MuonClient {
 
     public void receive(String event, MuonListener listener);
@@ -13,7 +15,7 @@ public interface MuonService extends MuonClient {
     public void onDelete(String resource, String descriptor, MuonDelete listener);
 
     public void registerExtension(MuonExtension extension);
-    public void start();
+    public void start() throws URISyntaxException;
 
     public String getServiceIdentifer();
 

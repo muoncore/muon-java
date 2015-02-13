@@ -1,21 +1,25 @@
 package com.simplicity.services;
 
-import org.eclipse.jetty.util.ajax.JSON;
 import org.muoncore.Muon;
 import org.muoncore.MuonService;
+import org.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import org.muoncore.extension.amqp.AmqpTransportExtension;
 import org.muoncore.extension.http.HttpTransportExtension;
 import org.muoncore.transports.MuonResourceEvent;
 import reactor.rx.Streams;
 import reactor.rx.stream.HotStream;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 public class ServiceResourceToPublishHotStream {
 
-    public static void main(String[] args) throws URISyntaxException {
+    public static void main(String[] args) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException {
 
-        final Muon muon = new Muon();
+        final Muon muon = new Muon(
+                new AmqpDiscovery("amqp://localhost:5672"));
 
         muon.setServiceIdentifer("resourcePublisher");
         muon.registerExtension(new AmqpTransportExtension());

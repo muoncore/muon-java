@@ -102,6 +102,7 @@ public class AmqpResources {
                     resEv.getHeaders().putAll(obj.getHeaders());
 
                     ret.setEvent(builder.build());
+                    ret.setSuccess(true);
                     responseReceivedSignal.countDown();
                 }
             });
