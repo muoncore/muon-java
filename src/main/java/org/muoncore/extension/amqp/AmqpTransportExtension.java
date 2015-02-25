@@ -11,12 +11,17 @@ import java.security.NoSuchAlgorithmException;
 
 public class AmqpTransportExtension implements MuonExtension {
 
-    private AmqpBroadcast broadcast;
+    private String url;
+
+    public AmqpTransportExtension(String url) {
+        this.url = url;
+    }
 
     @Override
     public void init(MuonExtensionApi muonApi) {
         try {
             AMQPEventTransport trans = new AMQPEventTransport(
+                    url,
                     muonApi.getMuon().getServiceIdentifer(),
                     muonApi.getTags());
 

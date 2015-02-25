@@ -17,7 +17,7 @@ public class UserService {
 
         final Muon muon = new Muon(
                 new AmqpDiscovery("amqp://localhost:5672"));
-        muon.registerExtension(new AmqpTransportExtension());
+        muon.registerExtension(new AmqpTransportExtension("amqp://localhost:5672"));
 
         muon.setServiceIdentifer("users");
 

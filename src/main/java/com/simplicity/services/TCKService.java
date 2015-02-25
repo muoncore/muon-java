@@ -35,7 +35,7 @@ public class TCKService {
         muon.addTags("my-tag", "tck-service");
 
         muon.registerExtension(new HttpTransportExtension(7171));
-        muon.registerExtension(new AmqpTransportExtension());
+        muon.registerExtension(new AmqpTransportExtension("amqp://localhost:5672"));
         muon.registerExtension(new ZeroMqTransportExtension());
         muon.start();
 

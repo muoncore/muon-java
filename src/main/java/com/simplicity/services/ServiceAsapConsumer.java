@@ -21,7 +21,7 @@ public class ServiceAsapConsumer {
                 new AmqpDiscovery("amqp://localhost:5672"));
 
         muon.setServiceIdentifer("consumer-" + UUID.randomUUID().toString());
-        muon.registerExtension(new AmqpTransportExtension());
+        muon.registerExtension(new AmqpTransportExtension("amqp://localhost:5672"));
         muon.start();
 
         //allow discovery settle time.

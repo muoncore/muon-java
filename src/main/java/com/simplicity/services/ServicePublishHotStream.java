@@ -19,7 +19,7 @@ public class ServicePublishHotStream {
                 new AmqpDiscovery("amqp://localhost:5672"));
 
         muon.setServiceIdentifer("cl");
-        muon.registerExtension(new AmqpTransportExtension());
+        muon.registerExtension(new AmqpTransportExtension("amqp://localhost:5672"));
         muon.start();
 
         final HotStream stream = Streams.defer();

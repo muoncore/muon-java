@@ -47,6 +47,11 @@ task wrapper(type: Wrapper) {
 //artifacts {
 //  archives sourcesJar, javadocJar
 //}
+configurations {
+  published
+}
+
+ext.publish = true
 
 bintray {
   user = 'daviddawson'
@@ -55,7 +60,8 @@ bintray {
   dryRun = false //Whether to run this as dry-run, without deploying
   publish = true //If version should be auto published after an upload
 
-  publications = ['mavenJava']
+  configurations = ['published', 'archives']
+//  publications = ['mavenJava']
 
   pkg {
     userOrg = 'muoncore'

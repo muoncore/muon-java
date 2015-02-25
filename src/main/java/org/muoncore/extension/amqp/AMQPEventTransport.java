@@ -36,14 +36,10 @@ public class AMQPEventTransport
     private AmqpQueues queues;
     private AmqpStream streams;
 
-    public AMQPEventTransport(String serviceName, List<String> tags) throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException, IOException {
+    public AMQPEventTransport(String url, String serviceName, List<String> tags) throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException, IOException {
         this.serviceName = serviceName;
         this.tags = tags;
-
-        String envRabbit = System.getenv("MUON_AMQP_URL");
-        if (envRabbit != null && envRabbit.length() > 0) {
-            rabbitUrl = envRabbit;
-        }
+        this.rabbitUrl = url;
 
         log.info("Connecting to AMQP host at " + rabbitUrl);
     }
