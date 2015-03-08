@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -36,6 +37,10 @@ public class AmqpDiscovery implements Discovery {
     private ServiceCache serviceCache;
     private AmqpBroadcast amqpBroadcast;
     private ServiceDescriptor descriptor;
+    private final static int PING_TIME=3000;
+
+    private boolean isReady=false;
+    private List<Runnable> onReadyNotification = new ArrayList<Runnable>();
 
     public AmqpDiscovery(String amqpUrl) throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, IOException {
         this(new AmqpBroadcast(
@@ -60,6 +65,24 @@ public class AmqpDiscovery implements Discovery {
         });
 
         startAnnouncePing();
+        spinner.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(PING_TIME + 200);
+                    isReady=true;
+                    notifyListeners();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void notifyListeners() {
+        for (Runnable run: onReadyNotification) {
+            spinner.execute(run);
+        }
     }
 
     private void startAnnouncePing() {
@@ -164,5 +187,14 @@ public class AmqpDiscovery implements Discovery {
     @Override
     public void advertiseLocalService(ServiceDescriptor descriptor) {
         this.descriptor = descriptor;
+    }
+
+    @Override
+    public void onReady(Runnable onReady) {
+        if (isReady) {
+            spinner.execute(onReady);
+        } else {
+            onReadyNotification.add(onReady);
+        }
     }
 }

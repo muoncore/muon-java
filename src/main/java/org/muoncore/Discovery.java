@@ -3,6 +3,7 @@ package org.muoncore;
 import javax.xml.ws.Service;
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public interface Discovery {
     /**
@@ -22,4 +23,6 @@ public interface Discovery {
      * @param descriptor
      */
     void advertiseLocalService(ServiceDescriptor descriptor);
+
+    void onReady(Runnable onReady);
 }
