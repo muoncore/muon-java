@@ -54,8 +54,8 @@ configurations {
 ext.publish = true
 
 bintray {
-  user = 'daviddawson'
-  key = '7ee147288c6e162e701cb832267b7100237804cd'
+  user = binUserName
+  key = binPassword
 
   dryRun = false //Whether to run this as dry-run, without deploying
   publish = true //If version should be auto published after an upload
