@@ -51,6 +51,7 @@ public class AmqpStream {
     //TODO, cleanups abound!
     List<AmqpStreamClient> streamClients = new ArrayList<AmqpStreamClient>();
 
+
     public AmqpStream(String serviceName, AmqpQueues queues) {
         this.queues = queues;
         this.commandQueue = serviceName + "_stream_control";
@@ -78,6 +79,16 @@ public class AmqpStream {
                 params,
                 subscriber,
                 queues));
+    }
+
+    public List<String> getStreamNames() {
+        List<String> streams = new ArrayList<String>();
+
+        for(AmqpStreamClient cl: streamClients) {
+            streams.add(cl.getStreamName());
+        }
+
+        return streams;
     }
 
     public void streamSink(String streamName, Subscriber targetOfData) {

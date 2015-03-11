@@ -1,6 +1,5 @@
 package org.muoncore;
 
-import org.muoncore.filter.EventFilterChain;
 import org.muoncore.internal.Dispatcher;
 import org.muoncore.internal.MuonStreamExistingGenerator;
 import org.muoncore.transports.*;
@@ -18,7 +17,6 @@ public class Muon implements MuonService {
 
     private Discovery discovery;
 
-    private List<EventFilterChain> filterChains = new ArrayList<EventFilterChain>();
     private List<MuonEventTransport> transports = new ArrayList<MuonEventTransport>();
     private List<MuonEventTransport> nonInitTransports = new ArrayList<MuonEventTransport>();
 
@@ -31,6 +29,7 @@ public class Muon implements MuonService {
 
     private List<MuonResourceRegister> resources = new ArrayList<MuonResourceRegister>();
     private List<MuonEventRegister> events = new ArrayList<MuonEventRegister>();
+    private List<MuonStreamRegister> streams = new ArrayList<MuonStreamRegister>();
 
     private Dispatcher dispatcher = new Dispatcher();
 
@@ -55,11 +54,11 @@ public class Muon implements MuonService {
                     new MuonExtensionApi(
                             this,
                             null,
-                            filterChains,
                             transports,
                             dispatcher,
                             extensions,
                             events,
+                            streams,
                             resources));
         }
         for(MuonEventTransport transport: nonInitTransports) {

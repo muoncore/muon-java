@@ -11,6 +11,7 @@ import org.muoncore.transports.MuonMessageEventBuilder;
 import org.muoncore.transports.MuonResourceEvent;
 import org.reactivestreams.Publisher;
 import reactor.rx.Streams;
+import org.muoncore.extension.streamcontrol.StreamControlExtension;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -36,7 +37,7 @@ public class TCKService {
 
         muon.registerExtension(new HttpTransportExtension(7171));
         muon.registerExtension(new AmqpTransportExtension("amqp://localhost:5672"));
-        muon.registerExtension(new ZeroMqTransportExtension());
+        muon.registerExtension(new StreamControlExtension());
         muon.start();
 
         final List events = Collections.synchronizedList(new ArrayList());

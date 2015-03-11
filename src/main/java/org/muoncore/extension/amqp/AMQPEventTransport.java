@@ -1,6 +1,7 @@
 package org.muoncore.extension.amqp;
 
 import com.rabbitmq.client.*;
+import org.eclipse.jetty.util.ajax.JSON;
 import org.muoncore.*;
 import org.muoncore.extension.amqp.stream.AmqpStream;
 import org.muoncore.transports.*;

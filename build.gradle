@@ -35,10 +35,13 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
 
     //lets stream
-    compile 'org.reactivestreams:reactive-streams:1.0.0.RC1'
+    compile 'org.reactivestreams:reactive-streams:1.0.0.RC3'
 
-    compile('org.codehaus.groovy:groovy-all:2.3.6')
-    testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
+
+    compile('org.codehaus.groovy:groovy-all:2.3.10')
+    testCompile "org.spockframework:spock-core:1.0-groovy-2.3", {
+      exclude module:"groovy-all"
+    }
 }
 task wrapper(type: Wrapper) {
     gradleVersion = '2.2'

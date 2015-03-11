@@ -48,6 +48,10 @@ public class AmqpStreamClient implements
 
     }
 
+    public String getStreamName() {
+        return streamName;
+    }
+
     @Override
     public void onEvent(String name, MuonMessageEvent obj) {
         if (obj.getHeaders().get(AmqpStream.STREAM_COMMAND) != null &&
