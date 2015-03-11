@@ -1,11 +1,21 @@
 package org.muoncore.codec;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Base64;
 import java.util.Map;
 
-public class GsonBinaryCodec implements BinaryCodec {
+/**
+ * Given a TextCodec as a delegate, this will manage the conversion of a byte array
+ * into/ from text. This allows any text based codec to be used where the transport
+ * is naturally binary, such as AMQP.
+ */
+public class TextBinaryCodec implements BinaryCodec {
 
-    private GsonTextCodec delegate = new GsonTextCodec();
+    private TextCodec delegate;
+
+    public TextBinaryCodec(TextCodec delegate) {
+        this.delegate = delegate;
+    }
 
     @Override
     public <T> T decode(byte[] encodedData, Class<T> type) {

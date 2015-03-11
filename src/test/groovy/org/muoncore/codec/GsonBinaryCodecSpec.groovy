@@ -5,7 +5,7 @@ import spock.lang.Specification
 class GsonBinaryCodecSpec extends Specification {
 
   def "gson codec converts object to byte array"() {
-    def codec = new GsonBinaryCodec()
+    def codec = new TextBinaryCodec(new GsonTextCodec())
 
     when:
     byte[] val = codec.encode(new MyTestClass(someValue: "hello", someOtherValue: 43))
@@ -15,7 +15,7 @@ class GsonBinaryCodecSpec extends Specification {
   }
 
   def "gson codec converts json string to object"() {
-    def codec = new GsonBinaryCodec()
+    def codec = new TextBinaryCodec(new GsonTextCodec())
 
     when:
     def value = codec.decode("""{"someValue":"hello","someOtherValue":43}""".bytes
@@ -28,7 +28,7 @@ class GsonBinaryCodecSpec extends Specification {
   }
 
   def "gson codec converts json string to a map"() {
-    def codec = new GsonBinaryCodec()
+    def codec = new TextBinaryCodec(new GsonTextCodec())
 
     when:
     def value = codec.decode("""{"someValue":"hello","someOtherValue":43}""".bytes)
