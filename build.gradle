@@ -79,14 +79,14 @@ project('muon-tck') {
 	dependencies {
 		// ripc-core
 		compile project(":muon-core")
-		compile project(":muon-amqp")
-		compile project(":muon-http")
-		compile project(":muon-zeromq")
+		compile project(":muon-transport-amqp")
+		compile project(":muon-transport-http1")
+		compile project(":muon-transport-zeromq")
 		compile "org.projectreactor:reactor-core:$reactorVersion"
 	}
 }
 
-project('muon-http') {
+project('muon-transport-http1') {
 	description = 'HTTP integration for Muon'
 	dependencies {
 		compile project(":muon-core")
@@ -96,7 +96,7 @@ project('muon-http') {
 	}
 }
 
-project('muon-amqp') {
+project('muon-transport-amqp') {
 	description = 'Core Muon for Java'
 	dependencies {
 		compile project(":muon-core")
@@ -104,13 +104,19 @@ project('muon-amqp') {
 	}
 }
 
-project('muon-zeromq') {
+project('muon-transport-zeromq') {
 	description = 'ZeroMQ integration for Muon'
 	dependencies {
 		compile project(":muon-core")
 	}
 }
 
+project('muon-discovery-eureka') {
+  description = 'Eureka discovery integration for Muon'
+  dependencies {
+    compile project(":muon-core")
+  }
+}
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.2'
