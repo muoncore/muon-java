@@ -2,27 +2,14 @@ package org.muoncore.extension.zeromq;
 
 import org.muoncore.MuonStreamGenerator;
 import org.muoncore.codec.TransportCodecType;
-import org.muoncore.transports.*;
+import org.muoncore.transports.MuonStreamTransport;
 import org.reactivestreams.Subscriber;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
-public class ZeroMqEventTransport
-        implements
-        MuonStreamTransport {
-
-    private Logger log = Logger.getLogger(ZeroMqEventTransport.class.getName());
-
-    private String serviceName;
-
-    public ZeroMqEventTransport(String serviceName, List<String> tags){
-        this.serviceName = serviceName;
-
-    }
+public class ZeroMQTransport implements MuonStreamTransport {
 
     @Override
     public void provideStreamSource(String streamName, MuonStreamGenerator sourceOfData) {
@@ -50,12 +37,12 @@ public class ZeroMqEventTransport
     }
 
     @Override
-    public TransportCodecType getCodecType() {
-        return TransportCodecType.BINARY;
+    public URI getLocalConnectionURI() throws URISyntaxException {
+        return new URI("zeromq://localhost");
     }
 
     @Override
-    public URI getLocalConnectionURI() throws URISyntaxException {
-        return new URI("zeromq://localhost:2213");
+    public TransportCodecType getCodecType() {
+        return TransportCodecType.BINARY;
     }
 }

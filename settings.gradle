@@ -4,5 +4,7 @@ include 'muon-core',
 		'muon-transport-http1',
 		'muon-transport-amqp',
 		'muon-transport-zeromq',
+		'muon-discovery-amqp',
 		'muon-discovery-eureka',
+    'muon-codec-avro',
 		'muon-tck'

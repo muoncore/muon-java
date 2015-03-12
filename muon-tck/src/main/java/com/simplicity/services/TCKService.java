@@ -5,6 +5,7 @@ import org.muoncore.*;
 import org.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import org.muoncore.extension.amqp.AmqpTransportExtension;
 import org.muoncore.extension.http.HttpTransportExtension;
+import org.muoncore.extension.zeromq.ZeroMQExtension;
 import org.muoncore.transports.MuonMessageEvent;
 import org.muoncore.transports.MuonMessageEventBuilder;
 import org.muoncore.transports.MuonResourceEvent;

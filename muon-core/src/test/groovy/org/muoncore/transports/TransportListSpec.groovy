@@ -14,7 +14,7 @@ class TransportListSpec extends Specification {
       getUrlScheme() >> "amqp"
     }
     def zeromq = Mock(MuonEventTransport) {
-      getUrlScheme() >> "zeromq"
+      getUrlScheme() >> "org.muoncore.extension.zeromq"
     }
     list.addTransport(zeromq)
     list.addTransport(amqp)

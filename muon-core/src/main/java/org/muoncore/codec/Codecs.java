@@ -28,12 +28,16 @@ public class Codecs {
         return this;
     }
 
+    //TODO, pass in the Accepts header, use that to choose a codec and then
+    //somehow inform the caller that this has been chosen. Or something...
     public String encodeToString(Object object) {
         TextCodec codec = textCodecLookup.get(object.getClass());
         if (codec == null) { codec = defaultTextCodec; }
         return codec.encode(object);
     }
 
+    //TODO, pass in the Accepts header, use that to choose a codec and then
+    //somehow inform the caller that this has been chosen. Or something...
     public byte[] encodeToByte(Object object) {
         BinaryCodec codec = binaryCodecLookup.get(object.getClass());
         if (codec == null) { codec = defaultBinaryCodec; }
