@@ -1,7 +1,7 @@
 rootProject.name = theName
 
 include 'muon-core',
-		'muon-http',
-		'muon-amqp',
-		'muon-zeromq',
+		'muon-transport-http1',
+		'muon-transport-amqp',
+		'muon-transport-zeromq',
 		'muon-tck'
