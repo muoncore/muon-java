@@ -1,24 +1,12 @@
 package org.muoncore.extension.zeromq;
 
-import org.muoncore.Muon;
-import org.muoncore.MuonClient;
-import org.muoncore.MuonService;
 import org.muoncore.MuonStreamGenerator;
 import org.muoncore.codec.TransportCodecType;
-import org.muoncore.extension.amqp.AmqpBroadcast;
-import org.muoncore.extension.amqp.AmqpConnection;
-import org.muoncore.extension.amqp.AmqpQueues;
-import org.muoncore.extension.amqp.AmqpResources;
-import org.muoncore.extension.amqp.stream.AmqpStream;
 import org.muoncore.transports.*;
-import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;

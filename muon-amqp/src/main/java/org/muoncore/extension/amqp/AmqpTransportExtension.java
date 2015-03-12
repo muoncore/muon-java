@@ -2,7 +2,6 @@ package org.muoncore.extension.amqp;
 
 import org.muoncore.MuonExtension;
 import org.muoncore.MuonExtensionApi;
-import org.muoncore.extension.http.HttpEventTransport;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

@@ -2,7 +2,6 @@ package org.muoncore.extension.http;
 
 import org.muoncore.MuonExtension;
 import org.muoncore.MuonExtensionApi;
-import org.muoncore.extension.local.LocalEventTransport;
 
 public class HttpTransportExtension implements MuonExtension {
 

@@ -1,7 +1,6 @@
 package org.muoncore.codec;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Base64;
 import java.util.Map;
 
 /**

@@ -1,12 +1,9 @@
 plugins {
   id "com.jfrog.bintray" version "1.0"
 }
-apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-
-sourceCompatibility = 1.6
 group = theGroup
 version = theVersion
 
@@ -20,9 +17,9 @@ ext {
 }
 
 allprojects {
-	apply plugin: 'java'
+	apply plugin: 'groovy'
 
-	[compileJava, compileTestJava]*.options*.compilerArgs = [
+	/*[compileJava, compileTestJava]*.options*.compilerArgs = [
 			"-Xlint:varargs",
 			"-Xlint:cast",
 			"-Xlint:classfile",
@@ -37,7 +34,7 @@ allprojects {
 			"-Xlint:try",
 			"-Xlint:deprecation",
 			"-Xlint:unchecked"
-	]
+	]*/
 	
 	compileJava {
 		sourceCompatibility = 1.7
@@ -57,7 +54,8 @@ allprojects {
 
 subprojects { subproject ->
 	dependencies {
-		testCompile "org.spockframework:spock-core:1.0-groovy-2.3"
+    compile "org.codehaus.groovy:groovy-all:2.4.1"
+		testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
 	}
 }
 
@@ -69,17 +67,22 @@ project('muon-core') {
 		
 		//Gson codec (the default)
 		compile 'com.google.code.gson:gson:2.3.1'
+    testCompile "org.spockframework:spock-core:1.0-groovy-2.3"
 	}
 }
 
 project('muon-tck') {
 	description = 'Muon TCK Implementation for testing the validity of this Muon library'
+  repositories {
+    maven { url 'http://repo.spring.io/libs-milestone' }
+  }
 	dependencies {
 		// ripc-core
 		compile project(":muon-core")
+		compile project(":muon-amqp")
+		compile project(":muon-http")
+		compile project(":muon-zeromq")
 		compile "org.projectreactor:reactor-core:$reactorVersion"
-		
-		compile('org.codehaus.groovy:groovy-all:2.3.10')
 	}
 }
 

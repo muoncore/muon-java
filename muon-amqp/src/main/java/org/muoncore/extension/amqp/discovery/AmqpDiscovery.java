@@ -1,7 +1,6 @@
 package org.muoncore.extension.amqp.discovery;
 
 import com.google.gson.Gson;
-import org.eclipse.jetty.util.ajax.JSON;
 import org.muoncore.Discovery;
 import org.muoncore.Muon;
 import org.muoncore.ServiceDescriptor;
@@ -37,6 +36,7 @@ public class AmqpDiscovery implements Discovery {
     private AmqpBroadcast amqpBroadcast;
     private ServiceDescriptor descriptor;
     private final static int PING_TIME=3000;
+    private Gson gson;
 
     private boolean isReady=false;
     private List<Runnable> onReadyNotification = new ArrayList<Runnable>();
@@ -47,6 +47,7 @@ public class AmqpDiscovery implements Discovery {
     }
 
     public AmqpDiscovery(AmqpBroadcast amqpBroadcast) {
+        this.gson = new Gson();
         this.amqpBroadcast = amqpBroadcast;
         serviceCache = new ServiceCache();
         spinner = Executors.newCachedThreadPool();
@@ -99,7 +100,7 @@ public class AmqpDiscovery implements Discovery {
                             discoveryMessage.put(STREAM_CONNECTIONS, descriptor.getStreamConnectionUrls());
 
                             amqpBroadcast.broadcast(SERVICE_ANNOUNCE, MuonMessageEventBuilder.named(SERVICE_ANNOUNCE)
-                                    .withContent(JSON.toString(discoveryMessage)).build());
+                                    .withContent(gson.toJson(discoveryMessage)).build());
                         }
                         Thread.sleep(3000);
                     }

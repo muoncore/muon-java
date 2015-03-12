@@ -2,12 +2,6 @@ package org.muoncore.extension.zeromq;
 
 import org.muoncore.MuonExtension;
 import org.muoncore.MuonExtensionApi;
-import org.muoncore.extension.amqp.AmqpBroadcast;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 
 public class ZeroMqTransportExtension implements MuonExtension {
 
