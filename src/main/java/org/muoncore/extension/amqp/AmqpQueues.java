@@ -30,12 +30,9 @@ public class AmqpQueues {
 
     public MuonClient.MuonResult send(String queueName, MuonMessageEvent event) {
 
-        String payload = event.getPayload().toString();
-        byte[] messageBytes = payload.getBytes();
-
+        byte[] messageBytes = event.getEncodedBinaryContent();
         MuonService.MuonResult ret = new MuonService.MuonResult();
 
-        //TODO, send the headers... ?
         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers((Map) event.getHeaders()).build();
         try {
             channel.basicPublish("", queueName, props, messageBytes);
@@ -60,13 +57,9 @@ public class AmqpQueues {
 
                     while (true) {
                         QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-                        String message = new String(delivery.getBody());
+                        byte[] content = delivery.getBody();
 
-                        log.finer("Received point to point: '" + message + "'");
-
-                        MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(queueName)
-                                .withMimeType(delivery.getProperties().getContentType())
-                                .withContent(message);
+                        MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(queueName);
 
                         Map<Object, Object> headers = (Map) delivery.getProperties().getHeaders();
 
@@ -81,7 +74,7 @@ public class AmqpQueues {
                         }
 
                         MuonMessageEvent ev = builder.build();
-
+                        ev.setEncodedBinaryContent(content);
                         listener.onEvent(queueName, ev);
 
                         channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);

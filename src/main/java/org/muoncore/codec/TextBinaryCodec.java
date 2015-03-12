@@ -43,4 +43,9 @@ public class TextBinaryCodec implements BinaryCodec {
             throw new IllegalArgumentException("Unable to convert to byte array", e);
         }
     }
+
+    @Override
+    public String getContentType() {
+        return delegate.getContentType();
+    }
 }

@@ -64,7 +64,7 @@ public class AmqpStreamClient implements
             log.warning("SUBSCRIPTION_NACK for stream [" + streamName + "] stream is NOT established");
             subscriber.onError(new IllegalArgumentException("SUBSCRIPTION_NACK for stream [" + streamName + "] stream is NOT established"));
         } else if (obj.getHeaders().get("TYPE").equals("data")) {
-            subscriber.onNext(obj.getPayload());
+            subscriber.onNext(obj.getDecodedContent());
         } else if (obj.getHeaders().get("TYPE").equals("error")) {
             subscriber.onError(new IOException(obj.getHeaders().get("ERROR")));
         } else if (obj.getHeaders().get("TYPE").equals("complete")) {

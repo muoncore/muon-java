@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Logger;
 
 public class AmqpBroadcast {
@@ -32,7 +31,7 @@ public class AmqpBroadcast {
 
     public MuonService.MuonResult broadcast(String eventName, MuonMessageEvent event) {
         //TODO, marshalling.
-        String payload = event.getPayload().toString();
+        String payload = event.getDecodedContent().toString();
         byte[] messageBytes = payload.getBytes();
 
         MuonService.MuonResult ret = new MuonService.MuonResult();
@@ -71,7 +70,7 @@ public class AmqpBroadcast {
                         log.finer("Received '" + message + "'");
 
                         MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(resource)
-                                .withMimeType(delivery.getProperties().getContentType())
+//                                .withMimeType(delivery.getProperties().getContentType())
                                 .withContent(message);
 
                         Map<Object, Object> headers = (Map) delivery.getProperties().getHeaders();

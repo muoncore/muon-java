@@ -1,12 +1,8 @@
 package org.muoncore.extension.amqp;
 
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.BasicProperties;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.QueueingConsumer;
-import org.eclipse.jetty.util.ajax.JSON;
 import org.muoncore.Muon;
 import org.muoncore.MuonService;
+import org.muoncore.codec.Codecs;
 import org.muoncore.transports.MuonMessageEvent;
 import org.muoncore.transports.MuonMessageEventBuilder;
 import org.muoncore.transports.MuonResourceEvent;
@@ -32,12 +28,15 @@ public class AmqpResources {
 
     private ExecutorService spinner;
     private String serviceName;
+    private Codecs codecs;
 
     private Map<String, Muon.EventResourceTransportListener> resourceListeners = new HashMap<String, Muon.EventResourceTransportListener>();
 
-    public AmqpResources(final AmqpQueues queues, String serviceName) throws IOException {
+    public AmqpResources(final AmqpQueues queues,
+                         String serviceName, final Codecs codecs) throws IOException {
         this.queues = queues;
         this.serviceName = serviceName;
+        this.codecs = codecs;
 
         spinner = Executors.newCachedThreadPool();
 
@@ -61,23 +60,22 @@ public class AmqpResources {
                     log.fine("Couldn't find a matching listener for " + key);
                     queues.send(responseQueue, MuonMessageEventBuilder.named("")
                             .withHeader("Status", "404")
-                            .withContent("{}").build());
-
+                            .withContent("").build());
                     return;
                 }
 
-                MuonResourceEvent ev = MuonResourceEventBuilder.textMessage(request.getPayload().toString())
-                        .withMimeType(request.getMimeType())
-                        .build();
+                MuonResourceEvent ev = new MuonResourceEvent(null);
+                ev.setBinaryEncodedContent(request.getEncodedBinaryContent());
 
                 ev.getHeaders().putAll(request.getHeaders());
 
-                String response = listener.onEvent(resource, ev).toString();
+                Object response = listener.onEvent(resource, ev);
                 log.finer("Sending" + response);
 
-                queues.send(responseQueue, MuonMessageEventBuilder.named("")
-                        .withHeader("Status", "200")
-                        .withContent(response).build());
+                MuonMessageEvent responseEvent = new MuonMessageEvent("", codecs.encodeToByte(response));
+                responseEvent.addHeader("Status", "200");
+
+                queues.send(responseQueue, responseEvent);
             }
         });
     }
@@ -95,19 +93,17 @@ public class AmqpResources {
                 @Override
                 public void onEvent(String name, MuonMessageEvent obj) {
 
-                    MuonResourceEventBuilder builder = MuonResourceEventBuilder.textMessage(obj.getPayload().toString())
-                            .withMimeType("application/json");
-
-                    MuonResourceEvent resEv = new MuonResourceEvent(obj.getPayload());
+                    MuonResourceEvent resEv = new MuonResourceEvent(null);
                     resEv.getHeaders().putAll(obj.getHeaders());
+                    resEv.setBinaryEncodedContent(obj.getEncodedBinaryContent());
 
-                    ret.setEvent(builder.build());
+                    ret.setEvent(resEv);
                     ret.setSuccess(true);
                     responseReceivedSignal.countDown();
                 }
             });
 
-            MuonMessageEvent messageEvent = new MuonMessageEvent(event.getResource(), "application/json", event.getPayload());
+            MuonMessageEvent messageEvent = new MuonMessageEvent(event.getResource(), event.getDecodedContent());
             messageEvent.getHeaders().putAll(event.getHeaders());
             messageEvent.getHeaders().put("RESOURCE", event.getResource());
             messageEvent.getHeaders().put("RESPONSE_QUEUE",returnQueue);

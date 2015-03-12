@@ -7,6 +7,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.muoncore.*;
+import org.muoncore.codec.TransportCodecType;
 import org.muoncore.transports.MuonResourceEvent;
 import org.muoncore.transports.MuonResourceEventBuilder;
 import org.muoncore.transports.MuonResourceTransport;
@@ -19,7 +20,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -74,7 +74,7 @@ public class HttpEventTransport implements MuonResourceTransport {
             int exchangeState = exchange.waitForDone();
 
             if (exchangeState == HttpExchange.STATUS_COMPLETED) {
-                MuonResourceEventBuilder builder = MuonResourceEventBuilder.textMessage(exchange.getResponseContent());
+                MuonResourceEventBuilder builder = MuonResourceEventBuilder.event(exchange.getResponseContent());
 
                 for(String headerName: Collections.list(exchange.getResponseFields().getFieldNames())) {
                     builder.withHeader(headerName, exchange.getResponseFields().getStringField(headerName));
@@ -102,7 +102,7 @@ public class HttpEventTransport implements MuonResourceTransport {
     }
 
     @Override
-    public void listenOnResource(String resource, String verb, Muon.EventResourceTransportListener listener) {
+    public <T> void listenOnResource(String resource, String verb, Class<T> type, Muon.EventResourceTransportListener<T> listener) {
         try {
             log.info("HTTPTransport: Waiting for " + verb + " requests / " + resource);
             getHandler().addListener(resource, verb.toUpperCase(), listener);
@@ -156,12 +156,12 @@ public class HttpEventTransport implements MuonResourceTransport {
                     byte[] content = new byte[request.getContentLength()];
                     request.getInputStream().read(content);
 
-                    ev = MuonResourceEventBuilder.textMessage(new String(content))
-                            .withMimeType(request.getContentType())
+                    ev = MuonResourceEventBuilder.event(new String(content))
+//                            .withMimeType(request.getContentType())
                             .build();
                 } else {
-                    ev = MuonResourceEventBuilder.textMessage("")
-                            .withMimeType(request.getContentType())
+                    ev = MuonResourceEventBuilder.event("")
+//                            .withMimeType(request.getContentType())
                             .build();
                 }
 
@@ -185,5 +185,10 @@ public class HttpEventTransport implements MuonResourceTransport {
     @Override
     public URI getLocalConnectionURI() throws URISyntaxException {
         return new URI("http://localhost:" + port);
+    }
+
+    @Override
+    public TransportCodecType getCodecType() {
+        return TransportCodecType.TEXT;
     }
 }

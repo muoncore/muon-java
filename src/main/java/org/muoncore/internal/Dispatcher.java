@@ -16,6 +16,7 @@ public class Dispatcher {
             listener.presend(event);
         }
         for (MuonBroadcastTransport transport: transports) {
+            //TODO !!! encode(ev, trans.getCodecType());
             transport.broadcast(event.getEventName(), event);
         }
     }

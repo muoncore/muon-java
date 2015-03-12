@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 
 public class UserService {
 
@@ -23,9 +24,9 @@ public class UserService {
 
         muon.start();
 
-        muon.onGet("/mydata/happy", "Get Some Data", new MuonService.MuonGet() {
+        muon.onGet("/mydata/happy", Map.class, new MuonService.MuonGet<Map>() {
             @Override
-            public Object onQuery(MuonResourceEvent queryEvent) {
+            public Object onQuery(MuonResourceEvent<Map> queryEvent) {
                 System.out.println("Data has been asked for!");
                 return "<h1>Got some user data!</h1>";
             }

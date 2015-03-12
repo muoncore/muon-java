@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -59,7 +58,7 @@ public class AmqpDiscovery implements Discovery {
             @Override
             public void onEvent(String name, MuonMessageEvent obj) {
                 Gson gson = new Gson();
-                Map announce = gson.fromJson((String) obj.getPayload(), Map.class);
+                Map announce = gson.fromJson((String) obj.getDecodedContent(), Map.class);
                 serviceCache.addService(announce);
             }
         });

@@ -34,7 +34,7 @@ class MuonResourcesSpec extends Specification {
     def muon = new Muon(discovery)
 
     when:
-    def ret = muon.put("muon://borked/hello", MuonResourceEventBuilder.textMessage("").build())
+    def ret = muon.put("muon://borked/hello", MuonResourceEventBuilder.event("").build())
 
     then:
     ret.success == false
@@ -52,7 +52,7 @@ class MuonResourcesSpec extends Specification {
     def muon = new Muon(discovery)
 
     when:
-    def ret = muon.post("muon://borked/hello", MuonResourceEventBuilder.textMessage("").build())
+    def ret = muon.post("muon://borked/hello", MuonResourceEventBuilder.event("").build())
 
     then:
     ret.success == false
@@ -70,7 +70,7 @@ class MuonResourcesSpec extends Specification {
     def muon = new Muon(discovery)
 
     when:
-    def ret = muon.post("muon://borked/hello", MuonResourceEventBuilder.textMessage("").build())
+    def ret = muon.post("muon://borked/hello", MuonResourceEventBuilder.event("").build())
 
     then:
     ret.success == false

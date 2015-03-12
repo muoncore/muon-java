@@ -23,7 +23,8 @@ public class AmqpTransportExtension implements MuonExtension {
             AMQPEventTransport trans = new AMQPEventTransport(
                     url,
                     muonApi.getMuon().getServiceIdentifer(),
-                    muonApi.getTags());
+                    muonApi.getTags(),
+                    muonApi.getCodecs());
 
             muonApi.addTransport(trans);
         } catch (NoSuchAlgorithmException e) {

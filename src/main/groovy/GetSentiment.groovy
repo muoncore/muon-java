@@ -21,9 +21,9 @@ Thread.sleep(5000)
 def payload = new JsonBuilder([text:"I am a happy cloud"]).toPrettyString()
 
 def ret = muon.get(
-    MuonResourceEventBuilder.textMessage(payload)
+    MuonResourceEventBuilder.event(payload)
     .withUri("muon://sentinel/").build())
 
-def data = ret.event.payload.toString();
+def data = ret.event.getDecodedContent.toString();
 
 System.out.println ("We had data " + data);

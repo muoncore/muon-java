@@ -39,9 +39,8 @@ public class AmqpProxySubscriber implements Subscriber {
     public void onNext(Object o) {
         queues.send(resourceQueue,
                 MuonMessageEventBuilder.named(resourceQueue)
-                        .withContent("")
                         .withHeader("TYPE", "data")
-                        .withContent(o.toString()).build());
+                        .withContent(o).build());
     }
 
     @Override

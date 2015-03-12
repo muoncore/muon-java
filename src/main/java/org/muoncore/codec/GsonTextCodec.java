@@ -22,4 +22,9 @@ public class GsonTextCodec implements TextCodec {
     public <T> T decode(String encodedData, Class<T> type) {
         return gson.fromJson(encodedData, type);
     }
+
+    @Override
+    public String getContentType() {
+        return "application/json";
+    }
 }

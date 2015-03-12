@@ -5,9 +5,8 @@ import java.util.List;
 
 public class MuonMessageEventBuilder {
 
-    String eventName;
-    Object content = "";
-    String mimeType;
+    private String eventName;
+    private Object decodedContent = "";
     List<String[]> headers = new ArrayList<String[]>();
 
     public static MuonMessageEventBuilder named(String name) {
@@ -16,18 +15,13 @@ public class MuonMessageEventBuilder {
         return builder;
     }
 
-    public MuonMessageEventBuilder withContent(String content) {
-        this.content = content;
+    public MuonMessageEventBuilder withContent(Object content) {
+        this.decodedContent = content;
         return this;
     }
 
     public MuonMessageEventBuilder withNoContent() {
-        this.content = "";
-        return this;
-    }
-
-    public MuonMessageEventBuilder withMimeType(String type) {
-        mimeType = type;
+        this.decodedContent = null;
         return this;
     }
 
@@ -39,7 +33,7 @@ public class MuonMessageEventBuilder {
     }
 
     public MuonMessageEvent build() {
-        MuonMessageEvent ev = new MuonMessageEvent(eventName, mimeType, content);
+        MuonMessageEvent ev = new MuonMessageEvent(eventName, decodedContent);
         for(String[] header: headers) {
             ev.addHeader(header[0], header[1]);
         }

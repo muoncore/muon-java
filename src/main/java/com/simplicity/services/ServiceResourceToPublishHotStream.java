@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 
 public class ServiceResourceToPublishHotStream {
 
@@ -28,9 +29,10 @@ public class ServiceResourceToPublishHotStream {
 
         final HotStream stream = Streams.defer();
 
-        muon.onGet("/data", "", new MuonService.MuonGet() {
+        muon.onGet("/data", Map.class, new MuonService.MuonGet() {
             @Override
             public Object onQuery(MuonResourceEvent queryEvent) {
+
                 String msg = "{\"message\":\"message received\"}";
                 stream.accept(msg);
                 return msg;

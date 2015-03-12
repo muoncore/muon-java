@@ -4,6 +4,7 @@ import org.muoncore.Muon;
 import org.muoncore.MuonClient;
 import org.muoncore.MuonService;
 import org.muoncore.MuonStreamGenerator;
+import org.muoncore.codec.TransportCodecType;
 import org.muoncore.extension.amqp.AmqpBroadcast;
 import org.muoncore.extension.amqp.AmqpConnection;
 import org.muoncore.extension.amqp.AmqpQueues;
@@ -58,6 +59,11 @@ public class ZeroMqEventTransport
     @Override
     public String getUrlScheme() {
         return "zeromq";
+    }
+
+    @Override
+    public TransportCodecType getCodecType() {
+        return TransportCodecType.BINARY;
     }
 
     @Override

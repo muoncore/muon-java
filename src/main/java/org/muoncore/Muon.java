@@ -1,5 +1,7 @@
 package org.muoncore;
 
+import org.muoncore.codec.Codecs;
+import org.muoncore.codec.TransportCodecType;
 import org.muoncore.internal.Dispatcher;
 import org.muoncore.internal.MuonStreamExistingGenerator;
 import org.muoncore.transports.*;
@@ -32,6 +34,7 @@ public class Muon implements MuonService {
     private List<MuonStreamRegister> streams = new ArrayList<MuonStreamRegister>();
 
     private Dispatcher dispatcher = new Dispatcher();
+    private Codecs codecs = Codecs.defaults();
 
     private String serviceIdentifier;
 
@@ -53,6 +56,7 @@ public class Muon implements MuonService {
             extension.init(
                     new MuonExtensionApi(
                             this,
+                            codecs,
                             null,
                             transports,
                             dispatcher,
@@ -145,48 +149,71 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public MuonResult get(String resourceQuery) {
-        MuonResourceEvent ev = null;
+    public <T> MuonResult<T> get(String resourceQuery, Class<T> type) {
+        MuonResourceEvent<T> ev = null;
         try {
-            ev = resourceEvent("get", new MuonResourceEvent(new URI(resourceQuery), "application/json", "{}"));
+            ev = resourceEvent("get", new MuonResourceEvent<T>(new URI(resourceQuery)));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        return dispatchEvent(ev, resourceQuery);
+        return dispatchEvent(ev, resourceQuery, type);
     }
 
-    private MuonResult dispatchEvent(MuonResourceEvent ev, String resourceQuery) {
+    private <T> MuonResult<T> dispatchEvent(MuonResourceEvent<T> ev, String resourceQuery, Class<T> type) {
         MuonResourceTransport trans = transport(ev);
         if (trans == null) {
             MuonResult ret = new MuonResult();
-            ret.setEvent(MuonResourceEventBuilder.textMessage("")
+            ret.setEvent(MuonResourceEventBuilder.event("")
                     .withUri(resourceQuery)
                     .withHeader("status", "404")
                     .build());
             ret.setSuccess(false);
             return ret;
         }
+        encode(ev, trans.getCodecType());
         return trans.emitForReturn(resourceQuery, ev);
     }
 
-    public MuonResult get(MuonResourceEvent payload) {
-        MuonResourceEvent ev = resourceEvent("get", payload);
-        return dispatchEvent(ev, payload.getResource());
+    private <T> void encode(MuonResourceEvent<T> ev, TransportCodecType type) {
+        if (ev.getDecodedContent() != null) {
+            if (type == TransportCodecType.BINARY) {
+                byte[] content = codecs.encodeToByte(ev.getDecodedContent());
+                ev.setBinaryEncodedContent(content);
+            } else {
+                String content = codecs.encodeToString(ev.getDecodedContent());
+                ev.setTextEncodedContent(content);
+            }
+        }
+    }
+
+    private <T> void decode(MuonResourceEvent<T> ev, TransportCodecType codecType, Class<T> type) {
+        if (codecType== TransportCodecType.BINARY) {
+            T obj = codecs.decodeObject(ev.getBinaryEncodedContent(), type);
+            ev.setDecodedContent(obj);
+        } else {
+            T obj = codecs.decodeObject(ev.getTextEncodedContent(), type);
+            ev.setDecodedContent(obj);
+        }
+    }
+
+    public <T> MuonResult<T> get(MuonResourceEvent<T> payload, Class<T> type) {
+        MuonResourceEvent<T> ev = resourceEvent("get", payload);
+        return dispatchEvent(ev, payload.getResource(), type);
     }
 
     @Override
-    public MuonResult post(String resource, MuonResourceEvent payload) {
-        MuonResourceEvent ev = resourceEvent("post", payload);
-        return dispatchEvent(ev, resource);
+    public <T> MuonResult<T> post(String resource, MuonResourceEvent<T> payload, Class<T> type) {
+        MuonResourceEvent<T> ev = resourceEvent("post", payload);
+        return dispatchEvent(ev, resource, type);
     }
 
     @Override
-    public MuonResult put(String resource, MuonResourceEvent payload) {
-        MuonResourceEvent ev = resourceEvent("put", payload);
-        return dispatchEvent(ev, resource);
+    public <T> MuonResult<T> put(String resource, MuonResourceEvent<T> payload, Class<T> type) {
+        MuonResourceEvent<T> ev = resourceEvent("put", payload);
+        return dispatchEvent(ev, resource, type);
     }
 
-    static MuonResourceEvent resourceEvent(String verb, MuonResourceEvent payload) {
+    static <T> MuonResourceEvent<T> resourceEvent(String verb, MuonResourceEvent<T> payload) {
         payload.addHeader("verb", verb);
         return payload;
     }
@@ -199,6 +226,7 @@ public class Muon implements MuonService {
             transport.listenOnBroadcastEvent(event, new EventMessageTransportListener() {
                 @Override
                 public void onEvent(String name, MuonMessageEvent obj) {
+                    //TODO, decode the payload
                     listener.onEvent(obj);
                 }
             });
@@ -206,13 +234,14 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public void onGet(String resource, String descriptor, final MuonGet listener) {
+    public <T> void onGet(String resource, final Class<T> type, final MuonGet<T> listener) {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
-        for(MuonResourceTransport transport: resourceTransports.all()) {
-            transport.listenOnResource(resource, "get", new EventResourceTransportListener() {
+        for(final MuonResourceTransport transport: resourceTransports.all()) {
+            transport.listenOnResource(resource, "get", type, new EventResourceTransportListener<T>() {
                 @Override
-                public Object onEvent(String name, MuonResourceEvent obj) {
+                public Object onEvent(String name, MuonResourceEvent<T> obj) {
+                    decode(obj, transport.getCodecType(), type);
                     return listener.onQuery(obj);
                 }
             });
@@ -220,13 +249,14 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public void onPost(String resource, String descriptor, final MuonPost listener) {
+    public <T> void onPost(String resource, final Class<T> type, final MuonPost<T> listener) {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
-        for(MuonResourceTransport transport: resourceTransports.all()) {
-            transport.listenOnResource(resource, "post", new EventResourceTransportListener() {
+        for(final MuonResourceTransport transport: resourceTransports.all()) {
+            transport.listenOnResource(resource, "post", type, new EventResourceTransportListener<T>() {
                 @Override
-                public Object onEvent(String name, MuonResourceEvent obj) {
+                public Object onEvent(String name, MuonResourceEvent<T> obj) {
+                    decode(obj, transport.getCodecType(), type);
                     return listener.onCommand(obj);
                 }
             });
@@ -234,13 +264,14 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public void onPut(String resource, String descriptor, final MuonPut listener) {
+    public <T> void onPut(String resource, final Class<T> type, final MuonPut<T> listener) {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
-        for(MuonResourceTransport transport: resourceTransports.all()) {
-            transport.listenOnResource(resource, "put", new EventResourceTransportListener() {
+        for(final MuonResourceTransport transport: resourceTransports.all()) {
+            transport.listenOnResource(resource, "put", type, new EventResourceTransportListener<T>() {
                 @Override
-                public Object onEvent(String name, MuonResourceEvent obj) {
+                public Object onEvent(String name, MuonResourceEvent<T> obj) {
+                    decode(obj, transport.getCodecType(), type);
                     return listener.onCommand(obj);
                 }
             });
@@ -248,13 +279,14 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public void onDelete(String resource, String descriptor, final MuonDelete listener) {
+    public <T> void onDelete(String resource, final Class<T> type, final MuonDelete<T> listener) {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
-        for(MuonResourceTransport transport: resourceTransports.all()) {
-            transport.listenOnResource(resource, "delete", new EventResourceTransportListener() {
+        for(final MuonResourceTransport transport: resourceTransports.all()) {
+            transport.listenOnResource(resource, "delete", type, new EventResourceTransportListener<T>() {
                 @Override
-                public Object onEvent(String name, MuonResourceEvent obj) {
+                public Object onEvent(String name, MuonResourceEvent<T> obj) {
+                    decode(obj, transport.getCodecType(), type);
                     return listener.onCommand(obj);
                 }
             });
@@ -276,8 +308,8 @@ public class Muon implements MuonService {
         void onEvent(String name, MuonMessageEvent obj);
     }
 
-    public static interface EventResourceTransportListener {
-        Object onEvent(String name, MuonResourceEvent obj);
+    public static interface EventResourceTransportListener<T> {
+        Object onEvent(String name, MuonResourceEvent<T> obj);
     }
 
     MuonResourceTransport transport(MuonResourceEvent event) {

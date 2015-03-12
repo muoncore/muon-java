@@ -5,11 +5,14 @@ import org.muoncore.MuonClient;
 
 public interface MuonResourceTransport extends MuonEventTransport {
 
+
+
     public MuonClient.MuonResult emitForReturn(
             String eventName, MuonResourceEvent event);
 
-    public void listenOnResource(String resource,
+    public <T> void listenOnResource(String resource,
                                  String verb,
-                                 Muon.EventResourceTransportListener listener);
+                                 Class<T> type,
+                                 Muon.EventResourceTransportListener<T> listener);
 
 }

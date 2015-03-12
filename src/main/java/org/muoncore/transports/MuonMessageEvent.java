@@ -6,18 +6,26 @@ import java.util.Map;
 
 public class MuonMessageEvent {
     private String eventName;
-    private String mimeType;
     private Map<String, String> headers = new HashMap<String, String>();
-    private Object payload;
+    private Object decodedContent;
+    private byte[] encodedBinaryContent;
+    private String encodedStringContent;
 
-    public MuonMessageEvent(String eventName, String mimeType, Object payload) {
+    public MuonMessageEvent(String eventName, Object decodedContent) {
         this.eventName = eventName;
-        this.mimeType = mimeType;
-        this.payload = payload;
+        this.decodedContent = decodedContent;
+    }
+    public MuonMessageEvent(String eventName, byte[] encodedContent) {
+        this.eventName = eventName;
+        this.encodedBinaryContent = encodedContent;
+    }
+    public MuonMessageEvent(String eventName, String encodedContent) {
+        this.eventName = eventName;
+        this.encodedStringContent = encodedContent;
     }
 
-    public MuonMessageEvent(Object payload) {
-        this.payload = payload;
+    public MuonMessageEvent(Object decodedContent) {
+        this.decodedContent = decodedContent;
     }
 
     public void addHeader(String header, String value) {
@@ -28,16 +36,27 @@ public class MuonMessageEvent {
         return eventName;
     }
 
-    public String getMimeType() {
-        return mimeType;
-    }
-
     public Map<String, String> getHeaders() {
         return headers;
     }
 
-    public Object getPayload() {
-        return payload;
+    public Object getDecodedContent() {
+        return decodedContent;
     }
 
+    public byte[] getEncodedBinaryContent() {
+        return encodedBinaryContent;
+    }
+
+    public void setEncodedBinaryContent(byte[] encodedBinaryContent) {
+        this.encodedBinaryContent = encodedBinaryContent;
+    }
+
+    public String getEncodedStringContent() {
+        return encodedStringContent;
+    }
+
+    public void setEncodedStringContent(String encodedStringContent) {
+        this.encodedStringContent = encodedStringContent;
+    }
 }

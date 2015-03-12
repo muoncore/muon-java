@@ -3,6 +3,7 @@ package org.muoncore.extension.local;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import org.muoncore.*;
+import org.muoncore.codec.TransportCodecType;
 import org.muoncore.transports.*;
 
 import java.net.URI;
@@ -43,7 +44,6 @@ public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastT
             @Override
             public void onEvent(EBResponseEvent ev) {
                 result.setEvent(ev.getEvent());
-                log.finer("LEB: Got " + ev.getEvent().getPayload());
                 latch.countDown();
             }
         };
@@ -76,13 +76,13 @@ public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastT
     }
 
     @Override
-    public void listenOnResource(final String resource, final String verb, final Muon.EventResourceTransportListener listener) {
+    public <T> void listenOnResource(final String resource, String verb, Class<T> type, final Muon.EventResourceTransportListener<T> listener) {
         log.fine("Listening for onGet " + resource);
         bus.register(new EBResourceListener() {
             @Override
             @Subscribe
             public void onEvent(MuonResourceEvent ev) {
-                String verb = ev.getHeaders().get("verb");
+                String verb = (String) ev.getHeaders().get("verb");
 
                 if (resource.equals(ev.getServiceId()) && verb != null && verb.equals(verb)) {
                     log.finer(verb + " " + resource + " == ");
@@ -91,7 +91,7 @@ public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastT
 
                     bus.post(new EBResponseEvent(
                             MuonResourceEventBuilder
-                                    .textMessage((String) ret)
+                                    .event((String) ret)
                                     .withUri(ev.getUri().toASCIIString())
                                     .build()));
                 }
@@ -137,5 +137,10 @@ public class LocalEventTransport implements MuonResourceTransport,MuonBroadcastT
     @Override
     public URI getLocalConnectionURI() throws URISyntaxException {
         return new URI("local://local");
+    }
+
+    @Override
+    public TransportCodecType getCodecType() {
+        return TransportCodecType.BINARY;
     }
 }

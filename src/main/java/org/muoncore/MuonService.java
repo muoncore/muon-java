@@ -9,10 +9,10 @@ public interface MuonService extends MuonClient {
 
     public void receive(String event, MuonListener listener);
     public void onQueue(String queue, MuonListener listener);
-    public void onGet(String resource, String descriptor, MuonGet listener);
-    public void onPost(String resource, String descriptor, MuonPost listener);
-    public void onPut(String resource, String descriptor, MuonPut listener);
-    public void onDelete(String resource, String descriptor, MuonDelete listener);
+    public <T> void onGet(String resource, final Class<T> type, MuonGet<T> listener);
+    public <T> void onPost(String resource, final Class<T> type, MuonPost<T> listener);
+    public <T> void onPut(String resource, final Class<T> type, MuonPut<T> listener);
+    public <T> void onDelete(String resource, final Class<T> type, MuonDelete<T> listener);
 
     public void registerExtension(MuonExtension extension);
     public void start() throws URISyntaxException;
@@ -25,16 +25,16 @@ public interface MuonService extends MuonClient {
     public static interface MuonListener {
         public void onEvent(MuonMessageEvent event);
     }
-    public static interface MuonGet {
-        public Object onQuery(MuonResourceEvent queryEvent);
+    public static interface MuonGet<T> {
+        public Object onQuery(MuonResourceEvent<T> queryEvent);
     }
-    public static interface MuonPost {
-        public Object onCommand(MuonResourceEvent queryEvent);
+    public static interface MuonPost<T> {
+        public Object onCommand(MuonResourceEvent<T> queryEvent);
     }
-    public static interface MuonPut {
-        public Object onCommand(MuonResourceEvent queryEvent);
+    public static interface MuonPut<T> {
+        public Object onCommand(MuonResourceEvent<T> queryEvent);
     }
-    public static interface MuonDelete {
-        public Object onCommand(MuonResourceEvent queryEvent);
+    public static interface MuonDelete<T> {
+        public Object onCommand(MuonResourceEvent<T> queryEvent);
     }
 }

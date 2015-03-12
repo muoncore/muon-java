@@ -1,11 +1,10 @@
 package org.muoncore.extension.amqp;
 
-import com.rabbitmq.client.*;
-import org.eclipse.jetty.util.ajax.JSON;
 import org.muoncore.*;
+import org.muoncore.codec.Codecs;
+import org.muoncore.codec.TransportCodecType;
 import org.muoncore.extension.amqp.stream.AmqpStream;
 import org.muoncore.transports.*;
-import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 import java.io.IOException;
@@ -14,7 +13,6 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AMQPEventTransport
@@ -36,11 +34,17 @@ public class AMQPEventTransport
     private AmqpResources resources;
     private AmqpQueues queues;
     private AmqpStream streams;
+    private Codecs codecs;
 
-    public AMQPEventTransport(String url, String serviceName, List<String> tags) throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException, IOException {
+    public AMQPEventTransport(
+            String url,
+            String serviceName,
+            List<String> tags,
+            Codecs codecs) throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException, IOException {
         this.serviceName = serviceName;
         this.tags = tags;
         this.rabbitUrl = url;
+        this.codecs = codecs;
 
         log.info("Connecting to AMQP host at " + rabbitUrl);
     }
@@ -56,7 +60,7 @@ public class AMQPEventTransport
     }
 
     @Override
-    public void listenOnResource(final String resource, final String verb, final Muon.EventResourceTransportListener listener) {
+    public <T> void listenOnResource(String resource, String verb, Class<T> type, Muon.EventResourceTransportListener<T> listener) {
         resources.listenOnResource(resource, verb, listener);
     }
 
@@ -78,7 +82,7 @@ public class AMQPEventTransport
             connection = new AmqpConnection(rabbitUrl);
             broadcast = new AmqpBroadcast(connection);
             queues = new AmqpQueues(connection.getChannel());
-            resources = new AmqpResources(queues, serviceName);
+            resources = new AmqpResources(queues, serviceName, codecs);
             streams = new AmqpStream(serviceName, queues);
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -121,5 +125,10 @@ public class AMQPEventTransport
     @Override
     public URI getLocalConnectionURI() throws URISyntaxException {
         return new URI(rabbitUrl);
+    }
+
+    @Override
+    public TransportCodecType getCodecType() {
+        return TransportCodecType.BINARY;
     }
 }

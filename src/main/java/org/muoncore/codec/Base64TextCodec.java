@@ -37,4 +37,9 @@ public class Base64TextCodec implements TextCodec {
         byte[] val = delegate.encode(data);
         return encoder.encodeToString(val);
     }
+
+    @Override
+    public String getContentType() {
+        return delegate.getContentType();
+    }
 }

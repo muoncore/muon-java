@@ -7,22 +7,22 @@ public interface MuonClient {
 
     public void emit(MuonMessageEvent event);
     public void sendMessage(MuonMessageEvent event);
-    public MuonResult get(String resourceQuery);
-    public MuonResult post(String resource, MuonResourceEvent payload);
-    public MuonResult put(String resource, MuonResourceEvent payload);
+    public <T> MuonResult<T> get(String resourceQuery, Class<T> type);
+    public <T> MuonResult<T> post(String resource, MuonResourceEvent<T> payload, Class<T> type);
+    public <T> MuonResult<T> put(String resource, MuonResourceEvent<T> payload, Class<T> type);
 
     public void shutdown();
 
-    public static class MuonResult {
+    public static class MuonResult<T> {
         private boolean success;
 
-        private MuonResourceEvent event;
+        private MuonResourceEvent<T> event;
 
-        public MuonResourceEvent getResponseEvent() {
+        public MuonResourceEvent<T> getResponseEvent() {
             return event;
         }
 
-        public void setEvent(MuonResourceEvent event) {
+        public void setEvent(MuonResourceEvent<T> event) {
             this.event = event;
         }
 

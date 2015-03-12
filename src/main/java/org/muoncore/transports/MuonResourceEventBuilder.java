@@ -7,20 +7,14 @@ import java.util.List;
 
 public class MuonResourceEventBuilder {
 
-    String url;
-    Object content;
-    String mimeType;
-    List<String[]> headers = new ArrayList<String[]>();
+    private String url;
+    private Object content;
+    private List<String[]> headers = new ArrayList<String[]>();
 
-    public static MuonResourceEventBuilder textMessage(String text) {
+    public static MuonResourceEventBuilder event(Object content) {
         MuonResourceEventBuilder builder = new MuonResourceEventBuilder();
-        builder.content = text;
+        builder.content = content;
         return builder;
-    }
-
-    public MuonResourceEventBuilder withMimeType(String type) {
-        mimeType = type;
-        return this;
     }
 
     public MuonResourceEventBuilder withHeader(String key, String value) {
@@ -39,10 +33,11 @@ public class MuonResourceEventBuilder {
         try {
             URI uri = null;
             if (url != null) uri = new URI(url);
-            MuonResourceEvent ev = new MuonResourceEvent(uri, mimeType, content);
+            MuonResourceEvent ev = new MuonResourceEvent(uri);
             for(String[] header: headers) {
                 ev.addHeader(header[0], header[1]);
             }
+            ev.setDecodedContent(content);
             return ev;
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("URI Is not valid", e);

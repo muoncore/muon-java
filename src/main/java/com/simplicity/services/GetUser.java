@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 
 public class GetUser {
 
@@ -20,7 +21,8 @@ public class GetUser {
         muon.setServiceIdentifer("userchecker");
         muon.start();
 
-        String data = muon.get("muon://users/mydata/happy").getResponseEvent().getPayload().toString();
+        Map data = muon.get(
+                "muon://users/mydata/happy", Map.class).getResponseEvent().getDecodedContent();
 
         System.out.println ("We had data " + data);
     }

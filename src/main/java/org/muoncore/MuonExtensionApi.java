@@ -1,5 +1,6 @@
 package org.muoncore;
 
+import org.muoncore.codec.Codecs;
 import org.muoncore.internal.Dispatcher;
 import org.muoncore.transports.MuonEventRegister;
 import org.muoncore.transports.MuonEventTransport;
@@ -22,9 +23,11 @@ public class MuonExtensionApi {
     private List<MuonEventRegister> events;
     private List<MuonStreamRegister> streams;
     private List<String> tags;
+    private Codecs codecs;
 
     public MuonExtensionApi(
             Muon muon,
+            Codecs codecs,
             List<String> tags,
             List<MuonEventTransport> transports,
             Dispatcher dispatcher,
@@ -33,6 +36,7 @@ public class MuonExtensionApi {
             List<MuonStreamRegister> streams,
             List<MuonResourceRegister> resource) {
         this.muon = muon;
+        this.codecs = codecs;
         this.tags = tags;
         this.transports = transports;
         this.dispatcher = dispatcher;
@@ -40,6 +44,10 @@ public class MuonExtensionApi {
         this.resources = resource;
         this.events = events;
         this.streams = streams;
+    }
+
+    public Codecs getCodecs() {
+        return codecs;
     }
 
     public List<MuonEventRegister> getEvents() {
