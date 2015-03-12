@@ -188,10 +188,10 @@ public class Muon implements MuonService {
 
     private <T> void decode(MuonResourceEvent<T> ev, TransportCodecType codecType, Class<T> type) {
         if (codecType== TransportCodecType.BINARY) {
-            T obj = codecs.decodeObject(ev.getBinaryEncodedContent(), type);
+            T obj = codecs.decodeObject(ev.getBinaryEncodedContent(),ev.getContentType(), type);
             ev.setDecodedContent(obj);
         } else {
-            T obj = codecs.decodeObject(ev.getTextEncodedContent(), type);
+            T obj = codecs.decodeObject(ev.getTextEncodedContent(),ev.getContentType(), type);
             ev.setDecodedContent(obj);
         }
     }

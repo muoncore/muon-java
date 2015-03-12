@@ -62,6 +62,8 @@ public class AmqpQueues {
                         MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(queueName);
 
                         Map<Object, Object> headers = (Map) delivery.getProperties().getHeaders();
+                        String contentType = delivery.getProperties().getContentType();
+                        headers.put("Content-Type", contentType);
 
                         if (headers != null) {
                             for (Map.Entry<Object, Object> entry : headers.entrySet()) {

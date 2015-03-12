@@ -11,45 +11,107 @@ group = theGroup
 version = theVersion
 
 ext {
-    reactorVersion = '2.0.0.M1'
+  gradleVersion = '2.3'
+
+  // Libraries
+  reactiveStreamsVersion = '1.0.0.RC3'
+
+  reactorVersion = '2.0.0.M1'
+}
+
+allprojects {
+	apply plugin: 'java'
+
+	[compileJava, compileTestJava]*.options*.compilerArgs = [
+			"-Xlint:varargs",
+			"-Xlint:cast",
+			"-Xlint:classfile",
+			"-Xlint:dep-ann",
+			"-Xlint:divzero",
+			"-Xlint:empty",
+			"-Xlint:finally",
+			"-Xlint:overrides",
+			"-Xlint:path",
+			"-Xlint:processing",
+			"-Xlint:static",
+			"-Xlint:try",
+			"-Xlint:deprecation",
+			"-Xlint:unchecked"
+	]
+	
+	compileJava {
+		sourceCompatibility = 1.7
+		targetCompatibility = 1.7
+	}
+
+	compileTestJava {
+		sourceCompatibility = 1.8
+		targetCompatibility = 1.8
+	}
+
+	repositories {
+		jcenter()
+		mavenCentral()
+	}
+}
+
+subprojects { subproject ->
+	dependencies {
+		testCompile "org.spockframework:spock-core:1.0-groovy-2.3"
+	}
+}
+
+project('muon-core') {
+	description = 'Core Muon for Java'
+	dependencies {
+		// Reactive Streams
+		compile "org.reactivestreams:reactive-streams:$reactiveStreamsVersion"
+		
+		//Gson codec (the default)
+		compile 'com.google.code.gson:gson:2.3.1'
+	}
+}
+
+project('muon-tck') {
+	description = 'Muon TCK Implementation for testing the validity of this Muon library'
+	dependencies {
+		// ripc-core
+		compile project(":muon-core")
+		compile "org.projectreactor:reactor-core:$reactorVersion"
+		
+		compile('org.codehaus.groovy:groovy-all:2.3.10')
+	}
+}
+
+project('muon-http') {
+	description = 'HTTP integration for Muon'
+	dependencies {
+		compile project(":muon-core")
+		compile 'org.eclipse.jetty:jetty-server:8.1.16.v20140903'
+		compile 'org.eclipse.jetty:jetty-client:8.1.16.v20140903'
+		compile 'com.google.guava:guava:18.0'
+	}
+}
+
+project('muon-amqp') {
+	description = 'Core Muon for Java'
+	dependencies {
+		compile project(":muon-core")
+		compile "com.rabbitmq:amqp-client:3.3.2"
+	}
+}
+
+project('muon-zeromq') {
+	description = 'ZeroMQ integration for Muon'
+	dependencies {
+		compile project(":muon-core")
+	}
 }
 
 
-repositories {
-  jcenter()
-  maven { url 'http://repo.spring.io/libs-milestone' }
-}
-
-dependencies {
-
-    compile "org.projectreactor:reactor-core:$reactorVersion"
-
-
-    //amqp transport
-    compile "com.rabbitmq:amqp-client:3.3.2"
-    compile 'com.google.code.gson:gson:2.3.1'
-
-    //http transport
-    compile 'org.eclipse.jetty:jetty-server:8.1.16.v20140903'
-    compile 'org.eclipse.jetty:jetty-client:8.1.16.v20140903'
-    compile 'com.google.guava:guava:18.0'
-
-    //lets stream
-    compile 'org.reactivestreams:reactive-streams:1.0.0.RC3'
-
-
-    compile('org.codehaus.groovy:groovy-all:2.3.10')
-    testCompile "org.spockframework:spock-core:1.0-groovy-2.3", {
-      exclude module:"groovy-all"
-    }
-}
 task wrapper(type: Wrapper) {
     gradleVersion = '2.2'
 }
-//
-//artifacts {
-//  archives sourcesJar, javadocJar
-//}
 configurations {
   published
 }

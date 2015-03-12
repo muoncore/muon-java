@@ -40,13 +40,13 @@ public class Codecs {
         return codec.encode(object);
     }
 
-    public <T> T decodeObject(String source, Class<T> type) {
+    public <T> T decodeObject(String source, String contentType, Class<T> type) {
         TextCodec codec = textCodecLookup.get(type);
         if (codec == null) { codec = defaultTextCodec; }
         return codec.decode(source, type);
     }
 
-    public <T> T decodeObject(byte[] source, Class<T> type) {
+    public <T> T decodeObject(byte[] source, String contentType, Class<T> type) {
         BinaryCodec codec = binaryCodecLookup.get(type);
         if (codec == null) { codec = defaultBinaryCodec; }
         return codec.decode(source, type);

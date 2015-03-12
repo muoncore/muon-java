@@ -68,7 +68,7 @@ public class AmqpResources {
                 ev.setBinaryEncodedContent(request.getEncodedBinaryContent());
 
                 ev.getHeaders().putAll(request.getHeaders());
-
+                ev.setContentType(request.getHeaders().get("Content-Type"));
                 Object response = listener.onEvent(resource, ev);
                 log.finer("Sending" + response);
 
