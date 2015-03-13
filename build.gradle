@@ -29,6 +29,7 @@ subprojects { subproject ->
   apply plugin: 'com.jfrog.bintray'
   apply plugin: 'groovy'
 
+  group="io.muoncore"
   version=globalVersion.toString()
 
 	dependencies {
@@ -64,9 +65,7 @@ subprojects { subproject ->
     pkg {
       userOrg = 'muoncore'
       repo = 'muon-java'
-//      name = 'muon-core'
       name = subproject.name
-//      desc = 'Core Muon Java'
       desc = subproject.description
       websiteUrl = 'https://muoncore.io'
       issueTrackerUrl = 'https://github.com/simplicityitself/muon-core-java/issues'
