@@ -196,6 +196,16 @@ public class Muon implements MuonService {
         }
     }
 
+    private <T> void decode(MuonMessageEvent<T> ev, TransportCodecType codecType, Class<T> type) {
+        if (codecType== TransportCodecType.BINARY) {
+            T obj = codecs.decodeObject(ev.getBinaryEncodedContent(), ev.getContentType(), type);
+            ev.setDecodedContent(obj);
+        } else {
+            T obj = codecs.decodeObject(ev.getTextEncodedContent(), ev.getContentType(), type);
+            ev.setDecodedContent(obj);
+        }
+    }
+
     public <T> MuonResult<T> get(MuonResourceEvent<T> payload, Class<T> type) {
         MuonResourceEvent<T> ev = resourceEvent("get", payload);
         return dispatchEvent(ev, payload.getResource(), type);
@@ -222,11 +232,10 @@ public class Muon implements MuonService {
     public void receive(String event, final MuonListener listener) {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
-        for(MuonBroadcastTransport transport: broadcastTransports.all()) {
+        for(final MuonBroadcastTransport transport: broadcastTransports.all()) {
             transport.listenOnBroadcastEvent(event, new EventMessageTransportListener() {
                 @Override
                 public void onEvent(String name, MuonMessageEvent obj) {
-                    //TODO, decode the payload
                     listener.onEvent(obj);
                 }
             });
@@ -366,11 +375,12 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public void onQueue(String queue, final MuonListener listener) {
-        for(MuonQueueTransport transport: queueingTransports.all()) {
-            transport.listenOnQueueEvent(queue, new EventMessageTransportListener() {
+    public <T> void onQueue(String queue, final Class<T> type, final MuonListener<T> listener) {
+        for(final MuonQueueTransport transport: queueingTransports.all()) {
+            transport.listenOnQueueEvent(queue, type, new EventMessageTransportListener() {
                 @Override
                 public void onEvent(String name, MuonMessageEvent obj) {
+                    decode(obj, transport.getCodecType(), type);
                     listener.onEvent(obj);
                 }
             });

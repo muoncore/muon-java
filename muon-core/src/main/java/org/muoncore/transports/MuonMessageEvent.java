@@ -4,14 +4,15 @@ package org.muoncore.transports;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MuonMessageEvent {
+public class MuonMessageEvent<T> {
     private String eventName;
     private Map<String, String> headers = new HashMap<String, String>();
-    private Object decodedContent;
+    private String contentType;
+    private T decodedContent;
     private byte[] encodedBinaryContent;
     private String encodedStringContent;
 
-    public MuonMessageEvent(String eventName, Object decodedContent) {
+    public MuonMessageEvent(String eventName, T decodedContent) {
         this.eventName = eventName;
         this.decodedContent = decodedContent;
     }
@@ -24,7 +25,19 @@ public class MuonMessageEvent {
         this.encodedStringContent = encodedContent;
     }
 
-    public MuonMessageEvent(Object decodedContent) {
+    public void setDecodedContent(T decodedContent) {
+        this.decodedContent = decodedContent;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public MuonMessageEvent(T decodedContent) {
         this.decodedContent = decodedContent;
     }
 
@@ -40,11 +53,11 @@ public class MuonMessageEvent {
         return headers;
     }
 
-    public Object getDecodedContent() {
+    public T getDecodedContent() {
         return decodedContent;
     }
 
-    public byte[] getEncodedBinaryContent() {
+    public byte[] getBinaryEncodedContent() {
         return encodedBinaryContent;
     }
 
@@ -52,7 +65,7 @@ public class MuonMessageEvent {
         this.encodedBinaryContent = encodedBinaryContent;
     }
 
-    public String getEncodedStringContent() {
+    public String getTextEncodedContent() {
         return encodedStringContent;
     }
 

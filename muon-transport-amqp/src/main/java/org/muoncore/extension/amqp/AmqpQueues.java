@@ -10,6 +10,7 @@ import org.muoncore.transports.MuonMessageEventBuilder;
 import org.muoncore.transports.MuonMessageEvent;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,7 +31,7 @@ public class AmqpQueues {
 
     public MuonClient.MuonResult send(String queueName, MuonMessageEvent event) {
 
-        byte[] messageBytes = event.getEncodedBinaryContent();
+        byte[] messageBytes = event.getBinaryEncodedContent();
         MuonService.MuonResult ret = new MuonService.MuonResult();
 
         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers((Map) event.getHeaders()).build();
@@ -43,7 +44,7 @@ public class AmqpQueues {
         return ret;
     }
 
-    public void listenOnQueueEvent(final String queueName, final Muon.EventMessageTransportListener listener) {
+    public <T> void listenOnQueueEvent(final String queueName, Class<T> type, final Muon.EventMessageTransportListener listener) {
         spinner.execute(new Runnable() {
             @Override
             public void run() {
@@ -61,21 +62,23 @@ public class AmqpQueues {
 
                         MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(queueName);
 
-                        Map<Object, Object> headers = (Map) delivery.getProperties().getHeaders();
+                        Map<String, Object> headers = delivery.getProperties().getHeaders();
+                        if (headers == null) {
+                            headers = new HashMap<String, Object>();
+                        }
                         String contentType = delivery.getProperties().getContentType();
                         headers.put("Content-Type", contentType);
 
-                        if (headers != null) {
-                            for (Map.Entry<Object, Object> entry : headers.entrySet()) {
-                                if (entry.getValue() == null) {
-                                    log.warning("Value of " + entry.getKey() + " is null");
+                        for (Map.Entry<String, Object> entry : headers.entrySet()) {
+                            if (entry.getValue() == null) {
+                                log.warning("Value of " + entry.getKey() + " is null");
 
-                                }
-                                builder.withHeader(entry.getKey().toString(), entry.getValue().toString());
                             }
+                            builder.withHeader(entry.getKey(), entry.getValue().toString());
                         }
 
                         MuonMessageEvent ev = builder.build();
+                        ev.setContentType(contentType);
                         ev.setEncodedBinaryContent(content);
                         listener.onEvent(queueName, ev);
 

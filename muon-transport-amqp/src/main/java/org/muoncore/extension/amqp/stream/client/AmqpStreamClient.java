@@ -34,7 +34,7 @@ public class AmqpStreamClient implements
         this.streamName = streamName;
 
         privateStreamQueue = UUID.randomUUID().toString();
-        queues.listenOnQueueEvent(privateStreamQueue, this);
+        queues.listenOnQueueEvent(privateStreamQueue, Void.class, this);
 
         MuonMessageEvent ev = MuonMessageEventBuilder.named("")
                 .withNoContent()
@@ -56,7 +56,7 @@ public class AmqpStreamClient implements
     public void onEvent(String name, MuonMessageEvent obj) {
         if (obj.getHeaders().get(AmqpStream.STREAM_COMMAND) != null &&
                 obj.getHeaders().get(AmqpStream.STREAM_COMMAND).equals(AmqpStreamControl.SUBSCRIPTION_ACK)) {
-            remoteId = obj.getHeaders().get(AmqpStreamControl.SUBSCRIPTION_STREAM_ID);
+            remoteId = (String) obj.getHeaders().get(AmqpStreamControl.SUBSCRIPTION_STREAM_ID);
             log.fine("Received SUBSCRIPTION_ACK " + remoteId + " activating local subscription");
             subscriber.onSubscribe(this);
         } else if (obj.getHeaders().get(AmqpStream.STREAM_COMMAND) != null &&
@@ -66,7 +66,7 @@ public class AmqpStreamClient implements
         } else if (obj.getHeaders().get("TYPE").equals("data")) {
             subscriber.onNext(obj.getDecodedContent());
         } else if (obj.getHeaders().get("TYPE").equals("error")) {
-            subscriber.onError(new IOException(obj.getHeaders().get("ERROR")));
+            subscriber.onError(new IOException((String) obj.getHeaders().get("ERROR")));
         } else if (obj.getHeaders().get("TYPE").equals("complete")) {
             subscriber.onComplete();
         }

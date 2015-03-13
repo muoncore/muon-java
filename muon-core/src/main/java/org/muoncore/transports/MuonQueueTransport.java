@@ -5,8 +5,9 @@ import org.muoncore.MuonClient;
 
 public interface MuonQueueTransport  extends MuonEventTransport {
 
-    public MuonClient.MuonResult send(String queueName, MuonMessageEvent event);
+    public <T> MuonClient.MuonResult send(String queueName, MuonMessageEvent<T> event);
 
-    public void listenOnQueueEvent(String queueName,
+    public <T> void listenOnQueueEvent(String queueName,
+                                    Class<T> messageType,
                                        Muon.EventMessageTransportListener listener);
 }

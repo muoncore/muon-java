@@ -8,7 +8,7 @@ import java.net.URISyntaxException;
 public interface MuonService extends MuonClient {
 
     public void receive(String event, MuonListener listener);
-    public void onQueue(String queue, MuonListener listener);
+    public <T> void onQueue(String queue, final Class<T> type, MuonListener<T> listener);
     public <T> void onGet(String resource, final Class<T> type, MuonGet<T> listener);
     public <T> void onPost(String resource, final Class<T> type, MuonPost<T> listener);
     public <T> void onPut(String resource, final Class<T> type, MuonPut<T> listener);
@@ -22,8 +22,8 @@ public interface MuonService extends MuonClient {
     //todo, should this be in the interface?
     public void setServiceIdentifer(String serviceIdentifer);
 
-    public static interface MuonListener {
-        public void onEvent(MuonMessageEvent event);
+    public static interface MuonListener<T> {
+        public void onEvent(MuonMessageEvent<T> event);
     }
     public static interface MuonGet<T> {
         public Object onQuery(MuonResourceEvent<T> queryEvent);

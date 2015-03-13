@@ -6,7 +6,6 @@ import org.muoncore.codec.Codecs;
 import org.muoncore.transports.MuonMessageEvent;
 import org.muoncore.transports.MuonMessageEventBuilder;
 import org.muoncore.transports.MuonResourceEvent;
-import org.muoncore.transports.MuonResourceEventBuilder;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -44,14 +43,14 @@ public class AmqpResources {
 
         log.info("Opening resource queue to listen for resource requests " + resourceQueue);
 
-        queues.listenOnQueueEvent(resourceQueue, new Muon.EventMessageTransportListener() {
+        queues.listenOnQueueEvent(resourceQueue, Void.class, new Muon.EventMessageTransportListener() {
             @Override
             public void onEvent(String name, MuonMessageEvent request) {
 
-                String verb = request.getHeaders().get("verb");
-                String resource =  request.getHeaders().get("RESOURCE");
+                String verb = (String) request.getHeaders().get("verb");
+                String resource =  (String) request.getHeaders().get("RESOURCE");
                 String key = resource + "-" + verb;
-                String responseQueue = request.getHeaders().get("RESPONSE_QUEUE");
+                String responseQueue = (String) request.getHeaders().get("RESPONSE_QUEUE");
 
                 //find the listener
                 Muon.EventResourceTransportListener listener = resourceListeners.get(key);
@@ -65,10 +64,10 @@ public class AmqpResources {
                 }
 
                 MuonResourceEvent ev = new MuonResourceEvent(null);
-                ev.setBinaryEncodedContent(request.getEncodedBinaryContent());
+                ev.setBinaryEncodedContent(request.getBinaryEncodedContent());
 
                 ev.getHeaders().putAll(request.getHeaders());
-                ev.setContentType(request.getHeaders().get("Content-Type"));
+                ev.setContentType((String) request.getHeaders().get("Content-Type"));
                 Object response = listener.onEvent(resource, ev);
                 log.finer("Sending" + response);
 
@@ -89,13 +88,12 @@ public class AmqpResources {
             String returnQueue = "resourcereturn." + UUID.randomUUID().toString();
             String resourceQueue = "resource-listen." + event.getUri().getHost();
 
-            queues.listenOnQueueEvent(returnQueue, new Muon.EventMessageTransportListener() {
+            queues.listenOnQueueEvent(returnQueue, Void.class, new Muon.EventMessageTransportListener() {
                 @Override
                 public void onEvent(String name, MuonMessageEvent obj) {
-
                     MuonResourceEvent resEv = new MuonResourceEvent(null);
                     resEv.getHeaders().putAll(obj.getHeaders());
-                    resEv.setBinaryEncodedContent(obj.getEncodedBinaryContent());
+                    resEv.setBinaryEncodedContent(obj.getBinaryEncodedContent());
 
                     ret.setEvent(resEv);
                     ret.setSuccess(true);

@@ -55,8 +55,8 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
         //create a sub id
         String id = UUID.randomUUID().toString();
 
-        String replyStreamName = ev.getHeaders().get(REPLY_QUEUE_NAME);
-        String requestedStreamName = ev.getHeaders().get(REQUESTED_STREAM_NAME);
+        String replyStreamName = (String) ev.getHeaders().get(REPLY_QUEUE_NAME);
+        String requestedStreamName = (String) ev.getHeaders().get(REQUESTED_STREAM_NAME);
 
         AmqpProxySubscriber subscriber = new AmqpProxySubscriber(replyStreamName, queues);
 
@@ -85,15 +85,15 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
 
     private void requestData(MuonMessageEvent ev) {
         //lookup the sub
-        String id = ev.getHeaders().get(SUBSCRIPTION_STREAM_ID);
+        String id = (String) ev.getHeaders().get(SUBSCRIPTION_STREAM_ID);
         AmqpProxySubscriber sub = subscriptions.get(id);
-        long n = Long.parseLong(ev.getHeaders().get(REQUEST_COUNT));
+        long n = Long.parseLong((String) ev.getHeaders().get(REQUEST_COUNT));
 
         sub.request(n);
     }
 
     private void cancelSubscription(MuonMessageEvent ev) {
-        String id = ev.getHeaders().get(SUBSCRIPTION_STREAM_ID);
+        String id = (String) ev.getHeaders().get(SUBSCRIPTION_STREAM_ID);
         AmqpProxySubscriber sub = subscriptions.get(id);
         sub.cancel();
     }

@@ -41,23 +41,23 @@ public class TCKService {
         muon.start();
 
         final List events = Collections.synchronizedList(new ArrayList());
-        final List queueEvents = Collections.synchronizedList(new ArrayList());
+        final List<Map> queueEvents = Collections.synchronizedList(new ArrayList<Map>());
 
         Publisher pub = Streams.range(1, 10);
 
         muon.streamSource("myStream", pub);
 
-        muon.onQueue("tckQueue", new MuonService.MuonListener() {
+        muon.onQueue("tckQueue", Map.class, new MuonService.MuonListener<Map>() {
             @Override
-            public void onEvent(MuonMessageEvent event) {
+            public void onEvent(MuonMessageEvent<Map> event) {
                 queueEvents.clear();
-                queueEvents.add(JSON.parse(event.getDecodedContent().toString()));
+                queueEvents.add(event.getDecodedContent());
             }
         });
-        muon.onQueue("tckQueueSend", new MuonService.MuonListener() {
+        muon.onQueue("tckQueueSend", Map.class, new MuonService.MuonListener<Map>() {
             @Override
-            public void onEvent(MuonMessageEvent event) {
-                Map data = (Map) JSON.parse(event.getDecodedContent().toString());
+            public void onEvent(MuonMessageEvent<Map> event) {
+                Map data = event.getDecodedContent();
                 muon.sendMessage(
                         MuonMessageEventBuilder.named(
                                 (String) data.get("data")).withNoContent().build());

@@ -60,7 +60,7 @@ public class AmqpStream {
     }
 
     private void listenToControlQueue() {
-        queues.listenOnQueueEvent(commandQueue, streamControl);
+        queues.listenOnQueueEvent(commandQueue, Void.class, streamControl);
     }
 
     public void streamSource(String streamName, MuonStreamGenerator pub) {

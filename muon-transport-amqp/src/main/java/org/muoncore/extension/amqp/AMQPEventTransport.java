@@ -101,8 +101,8 @@ public class AMQPEventTransport
     }
 
     @Override
-    public void listenOnQueueEvent(String queueName, Muon.EventMessageTransportListener listener) {
-        queues.listenOnQueueEvent(queueName, listener);
+    public <T> void listenOnQueueEvent(String queueName, Class<T> messageType, Muon.EventMessageTransportListener listener) {
+        queues.listenOnQueueEvent(queueName, messageType, listener);
     }
 
     @Override
