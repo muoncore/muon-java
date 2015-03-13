@@ -57,6 +57,53 @@ subprojects { subproject ->
     compile "org.codehaus.groovy:groovy-all:2.4.1"
 		testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
 	}
+
+  bintray {
+    user = bintrayUsername
+    key = bintrayPassword
+
+    dryRun = false //Whether to run this as dry-run, without deploying
+    publish = true //If version should be auto published after an upload
+
+    configurations = ['published']//, 'archives']
+//  publications = ['mavenJava']
+
+    pkg {
+      userOrg = 'muoncore'
+      repo = 'muon-java'
+//      name = 'muon-core'
+      name = subproject.name
+//      desc = 'Core Muon Java'
+      desc = subproject.description
+      websiteUrl = 'https://muoncore.io'
+      issueTrackerUrl = 'https://github.com/simplicityitself/muon-core-java/issues'
+      vcsUrl = 'https://github.com/simplicityitself/muon-core-java.git'
+      licenses = ['Apache-2.0']
+      labels = ['muon', 'microservices']
+      publicDownloadNumbers = true
+      attributes= ['a': ['ay1', 'ay2'], 'b': ['bee'], c: 'cee'] //Optional package-level attributes
+      //Optional version descriptor
+      version {
+        name = project.version
+        //attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin'] //Optional version-level attributes
+//      gpg {
+//        sign = true //Determines whether to GPG sign the files. The default is false
+//        passphrase = 'passphrase' //Optional. The passphrase for GPG signing'
+//      }
+        mavenCentralSync {
+          sync = false //Optional (true by default). Determines whether to sync the version to Maven Central.
+          user = 'userToken' //OSS user token
+          password = 'paasword' //OSS user password
+          close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+        }
+      }
+    }
+  }
+
+
+
+
+
 }
 
 project('muon-core') {
@@ -101,7 +148,7 @@ project('muon-transport-zeromq') {
   description = 'ZeroMQ integration for Muon'
   dependencies {
     compile project(":muon-core")
-    compile "org.zeromq:jeromq:0.3.4"
+//    compile "org.zeromq:jeromq:0.3.4"
   }
 }
 
@@ -137,43 +184,3 @@ configurations {
 }
 
 ext.publish = true
-
-bintray {
-  user = bintrayUsername
-  key = bintrayPassword
-
-  dryRun = false //Whether to run this as dry-run, without deploying
-  publish = true //If version should be auto published after an upload
-
-  configurations = ['published', 'archives']
-//  publications = ['mavenJava']
-
-  pkg {
-    userOrg = 'muoncore'
-    repo = 'muon-java'
-    name = 'muon-core'
-    desc = 'Core Muon Java'
-    websiteUrl = 'https://muoncore.io'
-    issueTrackerUrl = 'https://github.com/simplicityitself/muon-core-java/issues'
-    vcsUrl = 'https://github.com/simplicityitself/muon-core-java.git'
-    licenses = ['Apache-2.0']
-    labels = ['muon', 'microservices']
-    publicDownloadNumbers = true
-    attributes= ['a': ['ay1', 'ay2'], 'b': ['bee'], c: 'cee'] //Optional package-level attributes
-    //Optional version descriptor
-    version {
-      name = project.version
-      //attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin'] //Optional version-level attributes
-//      gpg {
-//        sign = true //Determines whether to GPG sign the files. The default is false
-//        passphrase = 'passphrase' //Optional. The passphrase for GPG signing'
-//      }
-      mavenCentralSync {
-        sync = false //Optional (true by default). Determines whether to sync the version to Maven Central.
-        user = 'userToken' //OSS user token
-        password = 'paasword' //OSS user password
-        close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
-      }
-    }
-  }
-}

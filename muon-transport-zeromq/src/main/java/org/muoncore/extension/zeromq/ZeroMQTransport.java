@@ -4,6 +4,8 @@ import org.muoncore.MuonStreamGenerator;
 import org.muoncore.codec.TransportCodecType;
 import org.muoncore.transports.MuonStreamTransport;
 import org.reactivestreams.Subscriber;
+import org.zeromq.ZContext;
+import org.zeromq.ZMQ;
 
 import java.net.URI;
 import java.net.URISyntaxException;

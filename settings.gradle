@@ -1,4 +1,4 @@
-rootProject.name = theName
+rootProject.name = "muon"
 
 include 'muon-core',
 		'muon-transport-http1',
