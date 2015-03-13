@@ -58,7 +58,7 @@ subprojects { subproject ->
 		testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
 	}
 
-  bintray {
+ /* bintray {
     user = bintrayUsername
     key = bintrayPassword
 
@@ -98,7 +98,7 @@ subprojects { subproject ->
         }
       }
     }
-  }
+  }*/
 
 
 
