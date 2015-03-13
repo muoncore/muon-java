@@ -13,6 +13,8 @@ apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
 def globalVersion = new Version(currentVersion)
+def hasbintray = hasProperty("bintrayUsername")
+
 
 ext {
   gradleVersion = '2.3'
@@ -23,50 +25,33 @@ ext {
   reactorVersion = '2.0.0.M1'
 }
 
-allprojects {
-	apply plugin: 'groovy'
-  apply plugin: 'com.jfrog.bintray'
-
-	/*[compileJava, compileTestJava]*.options*.compilerArgs = [
-			"-Xlint:varargs",
-			"-Xlint:cast",
-			"-Xlint:classfile",
-			"-Xlint:dep-ann",
-			"-Xlint:divzero",
-			"-Xlint:empty",
-			"-Xlint:finally",
-			"-Xlint:overrides",
-			"-Xlint:path",
-			"-Xlint:processing",
-			"-Xlint:static",
-			"-Xlint:try",
-			"-Xlint:deprecation",
-			"-Xlint:unchecked"
-	]*/
-	
-	compileJava {
-		sourceCompatibility = 1.7
-		targetCompatibility = 1.7
-	}
-
-	compileTestJava {
-		sourceCompatibility = 1.8
-		targetCompatibility = 1.8
-	}
-
-	repositories {
-		jcenter()
-	}
-}
-
 subprojects { subproject ->
+  apply plugin: 'com.jfrog.bintray'
+  apply plugin: 'groovy'
+
+  version=globalVersion.toString()
+
 	dependencies {
     compile "org.codehaus.groovy:groovy-all:2.4.1"
 		testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
 	}
 
+  compileJava {
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+  }
+
+  compileTestJava {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+  }
+
+  repositories {
+    jcenter()
+  }
+
   bintray {
-    if (hasProperty('bintrayUsername')) {
+    if (hasbintray) {
       user = bintrayUsername
       key = bintrayPassword
     }
@@ -74,7 +59,7 @@ subprojects { subproject ->
     dryRun = false //Whether to run this as dry-run, without deploying
     publish = true //If version should be auto published after an upload
 
-    configurations = ['published']//, 'archives']
+    configurations = ['published', 'archives']
 
     pkg {
       userOrg = 'muoncore'
@@ -91,7 +76,7 @@ subprojects { subproject ->
       publicDownloadNumbers = true
       //Optional version descriptor
       version {
-        name = project.version
+        name = globalVersion.toString()
         //attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin'] //Optional version-level attributes
 //      gpg {
 //        sign = true //Determines whether to GPG sign the files. The default is false
