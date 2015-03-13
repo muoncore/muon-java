@@ -1,11 +1,18 @@
-plugins {
-  id "com.jfrog.bintray" version "1.0"
+import java.text.SimpleDateFormat
+
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0"
+  }
 }
+
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-group = theGroup
-version = theVersion
+def globalVersion = new Version(currentVersion)
 
 ext {
   gradleVersion = '2.3'
@@ -18,6 +25,7 @@ ext {
 
 allprojects {
 	apply plugin: 'groovy'
+  apply plugin: 'com.jfrog.bintray'
 
 	/*[compileJava, compileTestJava]*.options*.compilerArgs = [
 			"-Xlint:varargs",
@@ -48,7 +56,6 @@ allprojects {
 
 	repositories {
 		jcenter()
-		mavenCentral()
 	}
 }
 
@@ -58,15 +65,16 @@ subprojects { subproject ->
 		testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
 	}
 
- /* bintray {
-    user = bintrayUsername
-    key = bintrayPassword
+  bintray {
+    if (hasProperty('bintrayUsername')) {
+      user = bintrayUsername
+      key = bintrayPassword
+    }
 
     dryRun = false //Whether to run this as dry-run, without deploying
     publish = true //If version should be auto published after an upload
 
     configurations = ['published']//, 'archives']
-//  publications = ['mavenJava']
 
     pkg {
       userOrg = 'muoncore'
@@ -81,7 +89,6 @@ subprojects { subproject ->
       licenses = ['Apache-2.0']
       labels = ['muon', 'microservices']
       publicDownloadNumbers = true
-      attributes= ['a': ['ay1', 'ay2'], 'b': ['bee'], c: 'cee'] //Optional package-level attributes
       //Optional version descriptor
       version {
         name = project.version
@@ -98,12 +105,7 @@ subprojects { subproject ->
         }
       }
     }
-  }*/
-
-
-
-
-
+  }
 }
 
 project('muon-core') {
@@ -148,7 +150,7 @@ project('muon-transport-zeromq') {
   description = 'ZeroMQ integration for Muon'
   dependencies {
     compile project(":muon-core")
-//    compile "org.zeromq:jeromq:0.3.4"
+    compile "org.zeromq:jeromq:0.3.4"
   }
 }
 
@@ -179,8 +181,66 @@ project('muon-discovery-eureka') {
 task wrapper(type: Wrapper) {
     gradleVersion = '2.2'
 }
+
+subprojects {
+  apply plugin: 'maven'
+
+  if (project.plugins.hasPlugin('java')) {
+    // manifest.mainAttributes(provider: 'gradle')
+    configurations {
+      published
+    }
+    dependencies {
+      testCompile 'junit:junit:4.7'
+    }
+
+    task sourceJar(type: Jar) {
+      from sourceSets.main.allSource
+      classifier = 'sources'
+    }
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+      classifier = 'javadoc'
+      from javadoc.destinationDir
+    }
+
+    // Add the sourceJars to non-extractor modules
+    artifacts {
+      published sourceJar
+      published javadocJar
+    }
+  }
+}
+
 configurations {
   published
 }
 
-ext.publish = true
+class Version {
+  String originalVersion
+  String thisVersion
+  String status
+  Date buildTime
+
+  Version(String versionValue) {
+    buildTime = new Date()
+    originalVersion = versionValue
+    if (originalVersion.endsWith('-SNAPSHOT')) {
+      status = 'integration'
+      thisVersion = originalVersion.substring(0, originalVersion.length() - 'SNAPSHOT'.length()) + getTimestamp()
+    } else {
+      status = 'release'
+      thisVersion = versionValue
+    }
+  }
+
+  String getTimestamp() {
+    // Convert local file timestamp to UTC
+    def format = new SimpleDateFormat('yyyyMMddHHmmss')
+    format.setCalendar(Calendar.getInstance(TimeZone.getTimeZone('UTC')));
+    return format.format(buildTime)
+  }
+
+  String toString() {
+    thisVersion
+  }
+}
