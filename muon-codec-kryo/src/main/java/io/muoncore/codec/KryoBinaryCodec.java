@@ -14,9 +14,8 @@ public class KryoBinaryCodec implements BinaryCodec {
     @Override
     public <T> T decode(byte[] encodedData, Class<T> type) {
         Kryo kryo = new Kryo();
-        ByteArrayInputStream bis = new ByteArrayInputStream(encodedData);
 
-        Input input = new Input(bis);
+        Input input = new Input(encodedData);
         T decodedObject = kryo.readObject(input, type);
         input.close();
 
@@ -31,11 +30,10 @@ public class KryoBinaryCodec implements BinaryCodec {
     @Override
     public byte[] encode(Object data) {
         Kryo kryo = new Kryo();
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Output output = new Output(bos);
+        Output output = new Output();
         kryo.writeObject(output, data);
         output.close();
-        return bos.toByteArray();
+        return output.getBuffer();
     }
 
     @Override
