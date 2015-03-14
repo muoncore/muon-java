@@ -83,7 +83,7 @@ public class AMQPEventTransport
             broadcast = new AmqpBroadcast(connection);
             queues = new AmqpQueues(connection.getChannel());
             resources = new AmqpResources(queues, serviceName, codecs);
-            streams = new AmqpStream(serviceName, queues);
+            streams = new AmqpStream(serviceName, queues, codecs);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
@@ -106,10 +106,10 @@ public class AMQPEventTransport
     }
 
     @Override
-    public void subscribeToStream(String url,Map<String,String> params, Subscriber subscriber) throws URISyntaxException {
+    public <T> void subscribeToStream(String url, Class<T> type, Map<String, String> params, Subscriber<T> subscriber) throws URISyntaxException {
         URI uri = new URI(url);
 
-        streams.subscribeToStream(uri.getHost(), uri.getPath(), params, subscriber);
+        streams.subscribeToStream(uri.getHost(), uri.getPath(), type, params, subscriber);
     }
 
     @Override

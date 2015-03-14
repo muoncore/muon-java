@@ -71,4 +71,20 @@ public class Codecs {
         ret.add(defaultBinaryCodec.getContentType());
         return ret;
     }
+
+    public String getBinaryContentType(Class type) {
+        BinaryCodec codec = binaryCodecLookup.get(type);
+        if (codec != null) {
+            return codec.getContentType();
+        }
+        return defaultBinaryCodec.getContentType();
+    }
+
+    public String getStringContentType(Class type) {
+        TextCodec codec = textCodecLookup.get(type);
+        if (codec != null) {
+            return codec.getContentType();
+        }
+        return defaultTextCodec.getContentType();
+    }
 }

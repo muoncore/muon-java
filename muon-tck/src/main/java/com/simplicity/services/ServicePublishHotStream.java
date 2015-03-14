@@ -34,12 +34,31 @@ public class ServicePublishHotStream {
                     while(true) {
                         Thread.sleep(5000);
                         System.out.println("Sending data");
-                        stream.accept("I am a teapot " + System.currentTimeMillis());
+
+                        stream.accept(new Awesome("I am a teapot", System.currentTimeMillis()));
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
+    }
+
+    static class Awesome {
+        private String myname;
+        private long something;
+
+        public Awesome(String myname, long something) {
+            this.myname = myname;
+            this.something = something;
+        }
+
+        public long getSomething() {
+            return something;
+        }
+
+        public String getMyname() {
+            return myname;
+        }
     }
 }

@@ -34,6 +34,8 @@ public class AmqpQueues {
         byte[] messageBytes = event.getBinaryEncodedContent();
         MuonService.MuonResult ret = new MuonService.MuonResult();
 
+        event.getHeaders().put("Content Type", event.getContentType());
+
         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers((Map) event.getHeaders()).build();
         try {
             channel.basicPublish("", queueName, props, messageBytes);
@@ -67,14 +69,11 @@ public class AmqpQueues {
                             headers = new HashMap<String, Object>();
                         }
                         String contentType = delivery.getProperties().getContentType();
-                        headers.put("Content-Type", contentType);
 
                         for (Map.Entry<String, Object> entry : headers.entrySet()) {
-                            if (entry.getValue() == null) {
-                                log.warning("Value of " + entry.getKey() + " is null");
-
+                            if (entry.getValue() != null) {
+                                builder.withHeader(entry.getKey(), entry.getValue().toString());
                             }
-                            builder.withHeader(entry.getKey(), entry.getValue().toString());
                         }
 
                         MuonMessageEvent ev = builder.build();

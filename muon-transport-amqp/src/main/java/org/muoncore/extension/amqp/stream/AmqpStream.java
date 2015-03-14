@@ -1,6 +1,7 @@
 package org.muoncore.extension.amqp.stream;
 
 import org.muoncore.MuonStreamGenerator;
+import org.muoncore.codec.Codecs;
 import org.muoncore.extension.amqp.AmqpQueues;
 import org.muoncore.extension.amqp.stream.client.AmqpStreamClient;
 import org.muoncore.extension.amqp.stream.server.AmqpStreamControl;
@@ -47,15 +48,16 @@ public class AmqpStream {
     private AmqpQueues queues;
     private AmqpStreamControl streamControl;
     private String commandQueue;
+    private Codecs codecs;
 
     //TODO, cleanups abound!
     List<AmqpStreamClient> streamClients = new ArrayList<AmqpStreamClient>();
 
-
-    public AmqpStream(String serviceName, AmqpQueues queues) {
+    public AmqpStream(String serviceName, AmqpQueues queues, Codecs codecs) {
         this.queues = queues;
         this.commandQueue = serviceName + "_stream_control";
-        streamControl = new AmqpStreamControl(queues);
+        this.codecs = codecs;
+        streamControl = new AmqpStreamControl(queues, codecs);
         listenToControlQueue();
     }
 
@@ -67,17 +69,19 @@ public class AmqpStream {
         streamControl.getPublisherStreams().put(streamName, pub);
     }
 
-    public void subscribeToStream(String remoteServiceName, String streamName, Map<String, String> params, Subscriber subscriber) {
+    public <T> void subscribeToStream(String remoteServiceName, String streamName, Class<T> type, Map<String, String> params, Subscriber<T> subscriber) {
 
         String remoteCommandQueue = remoteServiceName + "_stream_control";
 
         log.fine("Subscribing to remote stream " + remoteCommandQueue + ":" + streamName);
 
-        streamClients.add(new AmqpStreamClient(
+        streamClients.add(new AmqpStreamClient<T>(
                 remoteCommandQueue,
                 streamName,
                 params,
                 subscriber,
+                type,
+                codecs,
                 queues));
     }
 

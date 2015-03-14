@@ -27,19 +27,19 @@ public class ServiceAsapConsumer {
         //allow discovery settle time.
         Thread.sleep(5000);
 
-        HotStream sub = Streams.defer();
+        HotStream<Map> sub = Streams.defer();
 
         Map<String,String> params  = new HashMap<String, String>();
 
 //        params.put("max", "500");
 
-        muon.subscribe("muon://asapcore/events", params, sub);
+        muon.subscribe("muon://asapcore/events", Map.class, params, sub);
 
         final List items = new ArrayList();
 
-        sub.consume(new Consumer() {
+        sub.consume(new Consumer<Map>() {
             @Override
-            public void accept(Object o) {
+            public void accept(Map o) {
                 items.add(o);
                 System.out.println("I have a message " + o);
             }

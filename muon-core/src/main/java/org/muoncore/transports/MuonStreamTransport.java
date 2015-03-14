@@ -18,6 +18,6 @@ public interface MuonStreamTransport extends MuonEventTransport {
     /**
      * Remotely subscribes to the remote stream and pushes data into the subscriber.
      */
-    public void subscribeToStream(String url, Map<String, String> params, Subscriber subscriber) throws URISyntaxException;
+    public <T> void subscribeToStream(String url, Class<T> type, Map<String, String> params, Subscriber<T> subscriber) throws URISyntaxException;
 
 }

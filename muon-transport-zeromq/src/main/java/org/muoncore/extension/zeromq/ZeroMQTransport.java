@@ -19,7 +19,7 @@ public class ZeroMQTransport implements MuonStreamTransport {
     }
 
     @Override
-    public void subscribeToStream(String url, Map<String, String> params, Subscriber subscriber) throws URISyntaxException {
+    public <T> void subscribeToStream(String url, Class<T> type, Map<String, String> params, Subscriber<T> subscriber) throws URISyntaxException {
 
     }
 

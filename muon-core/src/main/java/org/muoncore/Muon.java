@@ -343,7 +343,7 @@ public class Muon implements MuonService {
         }
     }
 
-    public void streamSource(String streamName, Publisher pub) {
+    public <T> void streamSource(String streamName, Publisher<T> pub) {
         streamSource(streamName, new MuonStreamExistingGenerator(pub));
     }
 
@@ -354,11 +354,11 @@ public class Muon implements MuonService {
      * @param subscriber
      * @throws URISyntaxException
      */
-    public void subscribe(String url, Subscriber subscriber) throws URISyntaxException {
-        subscribe(url, new HashMap<String, String>(), subscriber);
+    public <T> void subscribe(String url, Class<T> type, Subscriber<T> subscriber) throws URISyntaxException {
+        subscribe(url, type, new HashMap<String, String>(), subscriber);
     }
 
-    public void subscribe(String url, Map<String, String> params, Subscriber subscriber) throws URISyntaxException {
+    public <T> void subscribe(String url, Class<T> type, Map<String, String> params, Subscriber<T> subscriber) throws URISyntaxException {
 
         String host = new URI(url).getHost();
         ServiceDescriptor descriptor = discovery.getService(new URI(url));
@@ -371,7 +371,7 @@ public class Muon implements MuonService {
             return;
         }
 
-        t.subscribeToStream(url,params, subscriber);
+        t.subscribeToStream(url, type, params, subscriber);
     }
 
     @Override

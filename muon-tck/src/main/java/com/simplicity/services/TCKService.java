@@ -43,7 +43,7 @@ public class TCKService {
         final List events = Collections.synchronizedList(new ArrayList());
         final List<Map> queueEvents = Collections.synchronizedList(new ArrayList<Map>());
 
-        Publisher pub = Streams.range(1, 10);
+        Publisher<Integer> pub = Streams.range(1, 10);
 
         muon.streamSource("myStream", pub);
 

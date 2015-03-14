@@ -2,6 +2,7 @@ package org.muoncore.extension.amqp.stream.server;
 
 import org.muoncore.Muon;
 import org.muoncore.MuonStreamGenerator;
+import org.muoncore.codec.Codecs;
 import org.muoncore.extension.amqp.AmqpQueues;
 import org.muoncore.extension.amqp.stream.AmqpStream;
 import org.muoncore.transports.MuonMessageEvent;
@@ -28,9 +29,11 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
     private HashMap<String, AmqpProxySubscriber> subscriptions = new HashMap<String, AmqpProxySubscriber>();
 
     private AmqpQueues queues;
+    private Codecs codecs;
 
-    public AmqpStreamControl(AmqpQueues queues) {
+    public AmqpStreamControl(AmqpQueues queues, Codecs codecs) {
         this.queues = queues;
+        this.codecs = codecs;
     }
 
     @Override
@@ -58,7 +61,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
         String replyStreamName = (String) ev.getHeaders().get(REPLY_QUEUE_NAME);
         String requestedStreamName = (String) ev.getHeaders().get(REQUESTED_STREAM_NAME);
 
-        AmqpProxySubscriber subscriber = new AmqpProxySubscriber(replyStreamName, queues);
+        AmqpProxySubscriber subscriber = new AmqpProxySubscriber(replyStreamName, queues, codecs);
 
         MuonStreamGenerator generator = publisherStreams.get(requestedStreamName);
         if (generator == null) {

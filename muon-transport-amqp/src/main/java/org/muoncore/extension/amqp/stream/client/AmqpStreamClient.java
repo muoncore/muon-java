@@ -1,6 +1,7 @@
 package org.muoncore.extension.amqp.stream.client;
 
 import org.muoncore.Muon;
+import org.muoncore.codec.Codecs;
 import org.muoncore.extension.amqp.AmqpQueues;
 import org.muoncore.extension.amqp.stream.AmqpStream;
 import org.muoncore.extension.amqp.stream.server.AmqpStreamControl;
@@ -14,24 +15,35 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-public class AmqpStreamClient implements
+public class AmqpStreamClient<T> implements
         Muon.EventMessageTransportListener,
         Subscription {
     private AmqpQueues queues;
     private String streamName;
     private String privateStreamQueue;
     private String commandQueue;
-    private Subscriber subscriber;
+    private Subscriber<T> subscriber;
+    private Class<T> type;
+    private Codecs codecs;
 
     private String remoteId;
 
     private Logger log = Logger.getLogger(AmqpStreamClient.class.getName());
 
-    public AmqpStreamClient(String commandQueue, String streamName, Map<String, String> params,  Subscriber subscriber, AmqpQueues queues) {
+    public AmqpStreamClient(
+            String commandQueue,
+            String streamName,
+            Map<String, String> params,
+            Subscriber<T> subscriber,
+            Class<T> type,
+            Codecs codecs,
+            AmqpQueues queues) {
         this.queues = queues;
         this.subscriber = subscriber;
         this.commandQueue = commandQueue;
         this.streamName = streamName;
+        this.type = type;
+        this.codecs = codecs;
 
         privateStreamQueue = UUID.randomUUID().toString();
         queues.listenOnQueueEvent(privateStreamQueue, Void.class, this);
@@ -43,7 +55,8 @@ public class AmqpStreamClient implements
                 .withHeader(AmqpStreamControl.REPLY_QUEUE_NAME, privateStreamQueue).build();
 
         ev.getHeaders().putAll(params);
-
+        //TODO, necessary?
+        ev.setContentType("application/json");
         queues.send(commandQueue, ev);
 
     }
@@ -64,7 +77,9 @@ public class AmqpStreamClient implements
             log.warning("SUBSCRIPTION_NACK for stream [" + streamName + "] stream is NOT established");
             subscriber.onError(new IllegalArgumentException("SUBSCRIPTION_NACK for stream [" + streamName + "] stream is NOT established"));
         } else if (obj.getHeaders().get("TYPE").equals("data")) {
-            subscriber.onNext(obj.getDecodedContent());
+            byte[] data = obj.getBinaryEncodedContent();
+            T decodedObject = codecs.decodeObject(data, obj.getContentType(), type);
+            subscriber.onNext(decodedObject);
         } else if (obj.getHeaders().get("TYPE").equals("error")) {
             subscriber.onError(new IOException((String) obj.getHeaders().get("ERROR")));
         } else if (obj.getHeaders().get("TYPE").equals("complete")) {

@@ -1,6 +1,8 @@
 package org.muoncore.extension.amqp.stream.server;
 
+import org.muoncore.codec.Codecs;
 import org.muoncore.extension.amqp.AmqpQueues;
+import org.muoncore.transports.MuonMessageEvent;
 import org.muoncore.transports.MuonMessageEventBuilder;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -12,10 +14,15 @@ public class AmqpProxySubscriber implements Subscriber {
     private Subscription subscription;
     private AmqpQueues queues;
     private String resourceQueue;
+    private Codecs codecs;
 
-    AmqpProxySubscriber(String resourceQueue, AmqpQueues queues) {
+    AmqpProxySubscriber(
+            String resourceQueue,
+            AmqpQueues queues,
+            Codecs codecs) {
         this.queues = queues;
         this.resourceQueue = resourceQueue;
+        this.codecs = codecs;
     }
 
     public void cancel() {
@@ -37,10 +44,15 @@ public class AmqpProxySubscriber implements Subscriber {
 
     @Override
     public void onNext(Object o) {
-        queues.send(resourceQueue,
-                MuonMessageEventBuilder.named(resourceQueue)
-                        .withHeader("TYPE", "data")
-                        .withContent(o).build());
+
+        MuonMessageEvent msg = MuonMessageEventBuilder.named(resourceQueue)
+                .withHeader("TYPE", "data")
+                .withContent(o).build();
+
+        msg.setContentType(codecs.getBinaryContentType(o.getClass()));
+        msg.setEncodedBinaryContent(codecs.encodeToByte(o));
+
+        queues.send(resourceQueue, msg);
     }
 
     @Override

@@ -29,20 +29,49 @@ public class ServiceStreamConsumer {
         //allow discovery settle time.
         Thread.sleep(5000);
 
-        HotStream sub = Streams.defer();
+        HotStream<Consume> sub = Streams.defer();
 
         Map<String,String> params  = new HashMap<String, String>();
 
         params.put("max", "500");
 
-        muon.subscribe("muon://cl/counter", params, sub);
+        muon.subscribe("muon://cl/counter", Consume.class, params, sub);
 
-        sub.consume(new Consumer() {
+        sub.consume(new Consumer<Consume>() {
             @Override
-            public void accept(Object o) {
+            public void accept(Consume o) {
                 System.out.println("I have a message " + o);
             }
         });
 
+    }
+
+    static class Consume {
+        private String myname;
+        private long something;
+
+        public void setMyname(String myname) {
+            this.myname = myname;
+        }
+
+        public void setSomething(long something) {
+            this.something = something;
+        }
+
+        public long getSomething() {
+            return something;
+        }
+
+        public String getMyname() {
+            return myname;
+        }
+
+        @Override
+        public String toString() {
+            return "Consume{" +
+                    "myname='" + myname + '\'' +
+                    ", something=" + something +
+                    '}';
+        }
     }
 }

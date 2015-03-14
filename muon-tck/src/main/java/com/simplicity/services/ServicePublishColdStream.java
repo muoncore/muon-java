@@ -29,8 +29,7 @@ public class ServicePublishColdStream {
             @Override
             public Publisher generatePublisher(Map<String, String> parameters) {
                 int max = Integer.parseInt(parameters.get("max"));
-                Stream stream = Streams.range(0, max);
-                return stream;
+                return Streams.range(0, max);
             }
         });
     }
