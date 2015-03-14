@@ -1,8 +1,8 @@
 package com.simplicity.services;
 
-import org.muoncore.Muon;
-import org.muoncore.extension.amqp.discovery.AmqpDiscovery;
-import org.muoncore.extension.amqp.AmqpTransportExtension;
+import io.muoncore.Muon;
+import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
+import io.muoncore.extension.amqp.AmqpTransportExtension;
 import reactor.function.Consumer;
 import reactor.rx.Streams;
 import reactor.rx.stream.HotStream;

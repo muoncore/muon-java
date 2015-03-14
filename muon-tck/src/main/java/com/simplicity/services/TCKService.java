@@ -1,17 +1,17 @@
 package com.simplicity.services;
 
+import io.muoncore.Muon;
+import io.muoncore.MuonService;
+import io.muoncore.ServiceDescriptor;
 import org.eclipse.jetty.util.ajax.JSON;
-import org.muoncore.*;
-import org.muoncore.extension.amqp.discovery.AmqpDiscovery;
-import org.muoncore.extension.amqp.AmqpTransportExtension;
-import org.muoncore.extension.http.HttpTransportExtension;
-import org.muoncore.extension.zeromq.ZeroMQExtension;
-import org.muoncore.transports.MuonMessageEvent;
-import org.muoncore.transports.MuonMessageEventBuilder;
-import org.muoncore.transports.MuonResourceEvent;
+import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
+import io.muoncore.extension.amqp.AmqpTransportExtension;
+import io.muoncore.extension.http.HttpTransportExtension;
+import io.muoncore.transports.MuonMessageEvent;
+import io.muoncore.transports.MuonMessageEventBuilder;
+import io.muoncore.transports.MuonResourceEvent;
 import org.reactivestreams.Publisher;
 import reactor.rx.Streams;
-import org.muoncore.extension.streamcontrol.StreamControlExtension;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

@@ -1,11 +1,11 @@
 package com.simplicity.services;
 
-import org.muoncore.Muon;
-import org.muoncore.MuonService;
-import org.muoncore.extension.amqp.discovery.AmqpDiscovery;
-import org.muoncore.extension.amqp.AmqpTransportExtension;
-import org.muoncore.extension.http.HttpTransportExtension;
-import org.muoncore.transports.MuonResourceEvent;
+import io.muoncore.Muon;
+import io.muoncore.MuonService;
+import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
+import io.muoncore.extension.amqp.AmqpTransportExtension;
+import io.muoncore.extension.http.HttpTransportExtension;
+import io.muoncore.transports.MuonResourceEvent;
 import reactor.rx.Streams;
 import reactor.rx.stream.HotStream;
 

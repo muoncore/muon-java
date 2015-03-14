@@ -1,11 +1,10 @@
 package com.simplicity.services;
 
-import org.muoncore.Muon;
-import org.muoncore.MuonStreamGenerator;
-import org.muoncore.extension.amqp.discovery.AmqpDiscovery;
-import org.muoncore.extension.amqp.AmqpTransportExtension;
+import io.muoncore.Muon;
+import io.muoncore.MuonStreamGenerator;
+import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
+import io.muoncore.extension.amqp.AmqpTransportExtension;
 import org.reactivestreams.Publisher;
-import reactor.rx.Stream;
 import reactor.rx.Streams;
 
 import java.io.IOException;

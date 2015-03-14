@@ -110,12 +110,12 @@ project('muon-tck') {
     maven { url 'http://repo.spring.io/libs-milestone' }
   }
 	dependencies {
-		// ripc-core
 		compile project(":muon-core")
 		compile project(":muon-transport-amqp")
 		compile project(":muon-discovery-amqp")
 		compile project(":muon-transport-http1")
 		compile project(":muon-transport-zeromq")
+		compile project(":muon-codec-kryo")
 		compile "org.projectreactor:reactor-core:$reactorVersion"
 	}
 }
@@ -159,6 +159,14 @@ project('muon-discovery-eureka') {
   description = 'Eureka discovery integration for Muon'
   dependencies {
     compile project(":muon-core")
+  }
+}
+
+project('muon-codec-kryo') {
+  description = 'Eureka discovery integration for Muon'
+  dependencies {
+    compile project(":muon-core")
+    compile 'com.esotericsoftware:kryo-shaded:3.0.0'
   }
 }
 

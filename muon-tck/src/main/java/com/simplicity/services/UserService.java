@@ -1,10 +1,10 @@
 package com.simplicity.services;
 
-import org.muoncore.Muon;
-import org.muoncore.extension.amqp.discovery.AmqpDiscovery;
-import org.muoncore.transports.MuonResourceEvent;
-import org.muoncore.MuonService;
-import org.muoncore.extension.amqp.AmqpTransportExtension;
+import io.muoncore.Muon;
+import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
+import io.muoncore.transports.MuonResourceEvent;
+import io.muoncore.MuonService;
+import io.muoncore.extension.amqp.AmqpTransportExtension;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
