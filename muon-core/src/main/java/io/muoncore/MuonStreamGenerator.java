@@ -4,8 +4,8 @@ import org.reactivestreams.Publisher;
 
 import java.util.Map;
 
-public interface MuonStreamGenerator {
+public interface MuonStreamGenerator<T> {
 
-    Publisher generatePublisher(Map<String, String> parameters);
+    Publisher<T> generatePublisher(Map<String, String> parameters);
 
 }

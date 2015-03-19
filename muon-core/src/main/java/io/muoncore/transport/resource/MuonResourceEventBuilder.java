@@ -1,4 +1,4 @@
-package io.muoncore.transports;
+package io.muoncore.transport.resource;
 
 import java.net.URI;
 import java.net.URISyntaxException;

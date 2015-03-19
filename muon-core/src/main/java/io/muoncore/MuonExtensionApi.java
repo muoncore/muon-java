@@ -2,10 +2,10 @@ package io.muoncore;
 
 import io.muoncore.codec.Codecs;
 import io.muoncore.internal.Dispatcher;
-import io.muoncore.transports.MuonEventRegister;
-import io.muoncore.transports.MuonEventTransport;
-import io.muoncore.transports.MuonResourceRegister;
-import io.muoncore.transports.MuonStreamRegister;
+import io.muoncore.transport.support.MuonEventRegister;
+import io.muoncore.transport.MuonEventTransport;
+import io.muoncore.transport.resource.MuonResourceRegister;
+import io.muoncore.transport.stream.MuonStreamRegister;
 
 import java.util.Collections;
 import java.util.List;

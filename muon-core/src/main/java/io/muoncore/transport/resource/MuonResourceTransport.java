@@ -1,7 +1,8 @@
-package io.muoncore.transports;
+package io.muoncore.transport.resource;
 
 import io.muoncore.Muon;
 import io.muoncore.MuonClient;
+import io.muoncore.transport.MuonEventTransport;
 
 public interface MuonResourceTransport extends MuonEventTransport {
 

@@ -10,13 +10,9 @@ public class Codecs {
     private Map<Class, TextCodec> textCodecLookup = new HashMap<Class, TextCodec>();
     private Map<Class, BinaryCodec> binaryCodecLookup = new HashMap<Class, BinaryCodec>();
 
-    public static Codecs defaults() {
-        Codecs codecs = new Codecs();
-
-        codecs.defaultBinaryCodec = new TextBinaryCodec(new GsonTextCodec());
-        codecs.defaultTextCodec = new GsonTextCodec();
-
-        return codecs;
+    public Codecs() {
+        defaultBinaryCodec = new TextBinaryCodec(new GsonTextCodec());
+        defaultTextCodec = new GsonTextCodec();
     }
 
     public Codecs withClassCodec(Class type, BinaryCodec binaryCodec) {

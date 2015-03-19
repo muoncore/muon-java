@@ -4,7 +4,14 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.codec.TransportCodecType;
 import io.muoncore.internal.Dispatcher;
 import io.muoncore.internal.MuonStreamExistingGenerator;
-import io.muoncore.transports.*;
+import io.muoncore.transport.*;
+import io.muoncore.transport.broadcast.MuonBroadcastTransport;
+import io.muoncore.transport.resource.MuonResourceEvent;
+import io.muoncore.transport.resource.MuonResourceEventBuilder;
+import io.muoncore.transport.resource.MuonResourceTransport;
+import io.muoncore.transport.stream.MuonStreamRegister;
+import io.muoncore.transport.stream.MuonStreamTransport;
+import io.muoncore.transport.support.TransportList;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
@@ -27,14 +34,13 @@ public class Muon implements MuonService {
     private TransportList<MuonStreamTransport> streamingTransports = new TransportList<MuonStreamTransport>();
     private TransportList<MuonQueueTransport> queueingTransports = new TransportList<MuonQueueTransport>();
 
-    private List<MuonExtension> extensions = new ArrayList<MuonExtension>();
 
-    private List<MuonResourceRegister> resources = new ArrayList<MuonResourceRegister>();
-    private List<MuonEventRegister> events = new ArrayList<MuonEventRegister>();
-    private List<MuonStreamRegister> streams = new ArrayList<MuonStreamRegister>();
+//    private List<MuonResourceRegister> resources = new ArrayList<MuonResourceRegister>();
+//    private List<MuonEventRegister> events = new ArrayList<MuonEventRegister>();
+//    private List<MuonStreamRegister> streams = new ArrayList<MuonStreamRegister>();
 
-    private Dispatcher dispatcher = new Dispatcher();
-    private Codecs codecs = Codecs.defaults();
+    private Dispatcher dispatcher;
+    private Codecs codecs = new Codecs();
 
     private String serviceIdentifier;
 
@@ -42,34 +48,27 @@ public class Muon implements MuonService {
 
     private List<String> tags = new ArrayList<String>();
 
-    @Override
-    public void registerExtension(MuonExtension extension) {
-        extensions.add(extension);
-    }
-
     public Muon(Discovery discovery) {
         this.discovery = discovery;
+        dispatcher = new Dispatcher(codecs);
     }
 
     public void start() throws URISyntaxException {
-        for (MuonExtension extension: extensions) {
-            extension.init(
-                    new MuonExtensionApi(
-                            this,
-                            codecs,
-                            null,
-                            transports,
-                            dispatcher,
-                            extensions,
-                            events,
-                            streams,
-                            resources));
-        }
         for(MuonEventTransport transport: nonInitTransports) {
             initialiseTransport(transport);
         }
         discovery.advertiseLocalService(getCurrentLocalDescriptor());
         started = true;
+    }
+
+    @Override
+    public List<String> getTags() {
+        return tags;
+    }
+
+    @Override
+    public Codecs getCodecs() {
+        return codecs;
     }
 
     public ServiceDescriptor getCurrentLocalDescriptor() throws URISyntaxException {
@@ -92,7 +91,8 @@ public class Muon implements MuonService {
                 new ArrayList<URI>(streamConnectionUris));
     }
 
-    void registerTransport(MuonEventTransport transport) {
+    @Override
+    public void registerTransport(MuonEventTransport transport) {
         transports.add(transport);
 
         if(transport instanceof MuonResourceTransport) {
@@ -112,7 +112,7 @@ public class Muon implements MuonService {
             nonInitTransports.add(transport);
         } else {
             //post start addition of a transport, maybe not ideal, but certainly not prevented either.
-            //permits the addition of new transports dynamically, which may be useful.
+            //permits the addition of new transport dynamically, which may be useful.
             initialiseTransport(transport);
         }
     }
@@ -229,13 +229,14 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public void receive(String event, final MuonListener listener) {
+    public <T> void receive(String event, final Class<T> type, final MuonListener<T> listener) {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(final MuonBroadcastTransport transport: broadcastTransports.all()) {
-            transport.listenOnBroadcastEvent(event, new EventMessageTransportListener() {
+            transport.listenOnBroadcastEvent(event, new EventMessageTransportListener<T>() {
                 @Override
-                public void onEvent(String name, MuonMessageEvent obj) {
+                public void onEvent(String name, MuonMessageEvent<T> obj) {
+                    decode(obj, transport.getCodecType(), type);
                     listener.onEvent(obj);
                 }
             });
@@ -313,8 +314,8 @@ public class Muon implements MuonService {
         return discovery.getKnownServices();
     }
 
-    public static interface EventMessageTransportListener {
-        void onEvent(String name, MuonMessageEvent obj);
+    public static interface EventMessageTransportListener<T> {
+        void onEvent(String name, MuonMessageEvent<T> obj);
     }
 
     public static interface EventResourceTransportListener<T> {
@@ -329,22 +330,28 @@ public class Muon implements MuonService {
         return resourceTransports.findBestResourceTransport(remoteDescriptor);
     }
 
+
+
     /**
      * experimental streaming support
      */
+
+    public List<MuonStreamRegister> getStreams() {
+        return null;//streams;
+    }
 
     /**
      *
      * @param streamName
      */
-    public void streamSource(String streamName, MuonStreamGenerator generator) {
+    public <T> void streamSource(String streamName, Class<T> type, MuonStreamGenerator<T> generator) {
         for(MuonStreamTransport transport: streamingTransports.all()) {
             transport.provideStreamSource(streamName, generator);
         }
     }
 
-    public <T> void streamSource(String streamName, Publisher<T> pub) {
-        streamSource(streamName, new MuonStreamExistingGenerator(pub));
+    public <T> void streamSource(String streamName, Class<T> type, Publisher<T> pub) {
+        streamSource(streamName, type, new MuonStreamExistingGenerator<T>(pub));
     }
 
     /**
@@ -393,7 +400,7 @@ public class Muon implements MuonService {
         //it will only be sent on one, and that will be the first one.
 
         if (queueingTransports.all().size() == 0) {
-            throw new IllegalStateException("No transports that support queueing are configured");
+            throw new IllegalStateException("No transport that support queueing are configured");
         }
         MuonQueueTransport selectedTransport = queueingTransports.all().get(0);
         selectedTransport.send(event.getEventName(), event);

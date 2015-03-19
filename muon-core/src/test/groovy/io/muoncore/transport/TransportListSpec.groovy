@@ -1,6 +1,7 @@
-package io.muoncore.transports
+package io.muoncore.transport
 
 import io.muoncore.ServiceDescriptor
+import io.muoncore.transport.support.TransportList
 import spock.lang.Specification
 
 class TransportListSpec extends Specification {

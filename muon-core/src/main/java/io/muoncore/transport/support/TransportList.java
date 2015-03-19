@@ -1,6 +1,10 @@
-package io.muoncore.transports;
+package io.muoncore.transport.support;
 
 import io.muoncore.ServiceDescriptor;
+import io.muoncore.transport.*;
+import io.muoncore.transport.broadcast.MuonBroadcastTransport;
+import io.muoncore.transport.resource.MuonResourceTransport;
+import io.muoncore.transport.stream.MuonStreamTransport;
 
 import java.net.URI;
 import java.util.ArrayList;

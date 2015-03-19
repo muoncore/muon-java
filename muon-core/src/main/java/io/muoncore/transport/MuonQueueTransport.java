@@ -1,4 +1,4 @@
-package io.muoncore.transports;
+package io.muoncore.transport;
 
 import io.muoncore.Muon;
 import io.muoncore.MuonClient;

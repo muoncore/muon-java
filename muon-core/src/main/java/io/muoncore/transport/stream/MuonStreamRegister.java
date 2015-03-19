@@ -1,10 +1,10 @@
-package io.muoncore.transports;
+package io.muoncore.transport.stream;
 
-public class MuonEventRegister {
+public class MuonStreamRegister {
 
     private String name;
 
-    public MuonEventRegister(String name) {
+    public MuonStreamRegister(String name) {
         this.name = name;
     }
 

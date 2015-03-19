@@ -1,7 +1,7 @@
 package io.muoncore;
 
-import io.muoncore.transports.MuonMessageEvent;
-import io.muoncore.transports.MuonResourceEvent;
+import io.muoncore.transport.MuonMessageEvent;
+import io.muoncore.transport.resource.MuonResourceEvent;
 
 public interface MuonClient {
 

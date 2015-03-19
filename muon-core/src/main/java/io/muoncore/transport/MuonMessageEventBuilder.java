@@ -1,4 +1,4 @@
-package io.muoncore.transports;
+package io.muoncore.transport;
 
 import java.util.ArrayList;
 import java.util.List;

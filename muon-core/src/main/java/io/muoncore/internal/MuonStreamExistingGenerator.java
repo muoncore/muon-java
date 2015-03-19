@@ -5,16 +5,16 @@ import org.reactivestreams.Publisher;
 
 import java.util.Map;
 
-public class MuonStreamExistingGenerator implements MuonStreamGenerator {
+public class MuonStreamExistingGenerator<T> implements MuonStreamGenerator<T> {
 
-    private Publisher publisher;
+    private Publisher<T> publisher;
 
-    public MuonStreamExistingGenerator(Publisher publisher) {
+    public MuonStreamExistingGenerator(Publisher<T> publisher) {
         this.publisher = publisher;
     }
 
     @Override
-    public Publisher generatePublisher(Map<String, String> parameters) {
+    public Publisher<T> generatePublisher(Map<String, String> parameters) {
         return publisher;
     }
 }
