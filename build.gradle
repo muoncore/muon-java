@@ -97,6 +97,7 @@ project('muon-core') {
 	dependencies {
 		// Reactive Streams
 		compile "org.reactivestreams:reactive-streams:$reactiveStreamsVersion"
+    compile 'com.google.guava:guava:18.0'
 		
 		//Gson codec (the default)
 		compile 'com.google.code.gson:gson:2.3.1'
@@ -126,7 +127,6 @@ project('muon-transport-http1') {
 		compile project(":muon-core")
 		compile 'org.eclipse.jetty:jetty-server:8.1.16.v20140903'
 		compile 'org.eclipse.jetty:jetty-client:8.1.16.v20140903'
-		compile 'com.google.guava:guava:18.0'
 	}
 }
 
@@ -162,8 +162,15 @@ project('muon-discovery-eureka') {
   }
 }
 
+project('muon-codec-avro') {
+  description = 'Codec implementations using Apache Avro'
+  dependencies {
+    compile project(":muon-core")
+  }
+}
+
 project('muon-codec-kryo') {
-  description = 'Eureka discovery integration for Muon'
+  description = 'Codec implementation using Kryo (for communication with other JVMs only)'
   dependencies {
     compile project(":muon-core")
     compile 'com.esotericsoftware:kryo-shaded:3.0.0'

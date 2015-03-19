@@ -2,6 +2,7 @@ package io.muoncore.extension.http;
 
 import io.muoncore.MuonExtension;
 import io.muoncore.MuonExtensionApi;
+import io.muoncore.MuonService;
 
 public class HttpTransportExtension implements MuonExtension {
 
@@ -12,12 +13,7 @@ public class HttpTransportExtension implements MuonExtension {
     }
 
     @Override
-    public void init(MuonExtensionApi muonApi) {
-        muonApi.addTransport(new HttpEventTransport(port));
-    }
-
-    @Override
-    public String getName() {
-        return "http/1.0";
+    public void extend(MuonService muonApi) {
+        muonApi.registerTransport(new HttpEventTransport(port));
     }
 }

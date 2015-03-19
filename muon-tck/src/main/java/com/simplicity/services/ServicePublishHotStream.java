@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 
 public class ServicePublishHotStream {
 
@@ -19,12 +20,12 @@ public class ServicePublishHotStream {
                 new AmqpDiscovery("amqp://localhost:5672"));
 
         muon.setServiceIdentifer("cl");
-        muon.registerExtension(new AmqpTransportExtension("amqp://localhost:5672"));
+        new AmqpTransportExtension("amqp://localhost:5672").extend(muon);
         muon.start();
 
         final HotStream stream = Streams.defer();
 
-        muon.streamSource("/counter", stream);
+        muon.streamSource("/counter", Map.class, stream);
 
         //generate data every so often
         new Thread(new Runnable() {

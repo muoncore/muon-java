@@ -2,7 +2,7 @@ package io.muoncore.extension.zeromq;
 
 import io.muoncore.MuonStreamGenerator;
 import io.muoncore.codec.TransportCodecType;
-import io.muoncore.transports.MuonStreamTransport;
+import io.muoncore.transport.stream.MuonStreamTransport;
 import org.reactivestreams.Subscriber;
 
 import java.net.URI;
@@ -15,6 +15,7 @@ public class ZeroMQTransport implements MuonStreamTransport {
     public void provideStreamSource(String streamName, MuonStreamGenerator sourceOfData) {
 
     }
+
 
     @Override
     public <T> void subscribeToStream(String url, Class<T> type, Map<String, String> params, Subscriber<T> subscriber) throws URISyntaxException {

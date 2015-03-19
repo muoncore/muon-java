@@ -3,9 +3,9 @@ package io.muoncore.extension.amqp;
 import io.muoncore.Muon;
 import io.muoncore.MuonService;
 import io.muoncore.codec.Codecs;
-import io.muoncore.transports.MuonMessageEvent;
-import io.muoncore.transports.MuonMessageEventBuilder;
-import io.muoncore.transports.MuonResourceEvent;
+import io.muoncore.transport.MuonMessageEvent;
+import io.muoncore.transport.MuonMessageEventBuilder;
+import io.muoncore.transport.resource.MuonResourceEvent;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -73,6 +73,8 @@ public class AmqpResources {
 
                 MuonMessageEvent responseEvent = new MuonMessageEvent("", codecs.encodeToByte(response));
                 responseEvent.addHeader("Status", "200");
+                //TODO, detect the contenbt type!
+                responseEvent.setContentType("application/json");
 
                 queues.send(responseQueue, responseEvent);
             }

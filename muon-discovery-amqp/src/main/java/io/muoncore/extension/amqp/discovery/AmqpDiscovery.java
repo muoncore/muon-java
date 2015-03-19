@@ -4,13 +4,16 @@ import com.google.gson.Gson;
 import io.muoncore.Discovery;
 import io.muoncore.Muon;
 import io.muoncore.ServiceDescriptor;
+import io.muoncore.codec.GsonTextCodec;
+import io.muoncore.codec.TextBinaryCodec;
 import io.muoncore.extension.amqp.AMQPEventTransport;
 import io.muoncore.extension.amqp.AmqpBroadcast;
 import io.muoncore.extension.amqp.AmqpConnection;
-import io.muoncore.transports.MuonMessageEvent;
-import io.muoncore.transports.MuonMessageEventBuilder;
+import io.muoncore.transport.MuonMessageEvent;
+import io.muoncore.transport.MuonMessageEventBuilder;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -54,12 +57,21 @@ public class AmqpDiscovery implements Discovery {
         connect();
     }
 
+    private Map decode(MuonMessageEvent event) {
+        return new TextBinaryCodec(new GsonTextCodec()).decode(
+                event.getBinaryEncodedContent());
+    }
+
+    private byte[] encode(MuonMessageEvent event) throws UnsupportedEncodingException {
+        return new GsonTextCodec().encode(event.getDecodedContent()).getBytes("UTF8");
+    }
+
     public void connect() {
         amqpBroadcast.listenOnBroadcastEvent(SERVICE_ANNOUNCE, new Muon.EventMessageTransportListener() {
             @Override
             public void onEvent(String name, MuonMessageEvent obj) {
-                Gson gson = new Gson();
-                Map announce = gson.fromJson((String) obj.getDecodedContent(), Map.class);
+                Map announce = decode(obj);
+
                 serviceCache.addService(announce);
             }
         });
@@ -99,12 +111,18 @@ public class AmqpDiscovery implements Discovery {
                             discoveryMessage.put(RESOURCE_CONNECTIONS, descriptor.getResourceConnectionUrls());
                             discoveryMessage.put(STREAM_CONNECTIONS, descriptor.getStreamConnectionUrls());
 
-                            amqpBroadcast.broadcast(SERVICE_ANNOUNCE, MuonMessageEventBuilder.named(SERVICE_ANNOUNCE)
-                                    .withContent(gson.toJson(discoveryMessage)).build());
+                            MuonMessageEvent ev = MuonMessageEventBuilder.named(SERVICE_ANNOUNCE)
+                                    .withContent(discoveryMessage).build();
+
+                            ev.setEncodedBinaryContent(encode(ev));
+
+                            amqpBroadcast.broadcast(SERVICE_ANNOUNCE, ev);
                         }
                         Thread.sleep(3000);
                     }
                 } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
             }

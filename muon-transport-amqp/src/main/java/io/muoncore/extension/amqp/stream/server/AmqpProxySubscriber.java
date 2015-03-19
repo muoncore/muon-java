@@ -2,8 +2,8 @@ package io.muoncore.extension.amqp.stream.server;
 
 import io.muoncore.codec.Codecs;
 import io.muoncore.extension.amqp.AmqpQueues;
-import io.muoncore.transports.MuonMessageEvent;
-import io.muoncore.transports.MuonMessageEventBuilder;
+import io.muoncore.transport.MuonMessageEvent;
+import io.muoncore.transport.MuonMessageEventBuilder;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -49,6 +49,9 @@ public class AmqpProxySubscriber implements Subscriber {
                 .withHeader("TYPE", "data")
                 .withContent(o).build();
 
+        //TODO, include an accepts heqder in the subscription negotiation
+        //use that to pick a content type up front and then use that
+        //in all subsequent sends.
         msg.setContentType(codecs.getBinaryContentType(o.getClass()));
         msg.setEncodedBinaryContent(codecs.encodeToByte(o));
 

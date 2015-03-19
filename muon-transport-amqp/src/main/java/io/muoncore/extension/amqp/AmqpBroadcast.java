@@ -5,8 +5,8 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.QueueingConsumer;
 import io.muoncore.Muon;
 import io.muoncore.MuonService;
-import io.muoncore.transports.MuonMessageEventBuilder;
-import io.muoncore.transports.MuonMessageEvent;
+import io.muoncore.transport.MuonMessageEventBuilder;
+import io.muoncore.transport.MuonMessageEvent;
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,13 +31,13 @@ public class AmqpBroadcast {
 
     public MuonService.MuonResult broadcast(String eventName, MuonMessageEvent event) {
         //TODO, marshalling.
-        String payload = event.getDecodedContent().toString();
-        byte[] messageBytes = payload.getBytes();
+        byte[] messageBytes = event.getBinaryEncodedContent();
 
         MuonService.MuonResult ret = new MuonService.MuonResult();
 
         //TODO, send the headers... ?
         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers((Map) event.getHeaders()).build();
+
         try {
             channel.basicPublish(EXCHANGE_NAME, eventName, props, messageBytes);
 
@@ -65,13 +65,10 @@ public class AmqpBroadcast {
 
                     while (true) {
                         QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-                        String message = new String(delivery.getBody());
+                        byte[] body = delivery.getBody();
 
-                        log.finer("Received '" + message + "'");
-
-                        MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(resource)
+                        MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(resource);
 //                                .withMimeType(delivery.getProperties().getContentType())
-                                .withContent(message);
 
                         Map<Object, Object> headers = (Map) delivery.getProperties().getHeaders();
 
@@ -82,6 +79,8 @@ public class AmqpBroadcast {
                         }
 
                         MuonMessageEvent ev = builder.build();
+                        ev.setContentType(delivery.getProperties().getContentType());
+                        ev.setEncodedBinaryContent(body);
 
                         listener.onEvent(resource, ev);
                     }

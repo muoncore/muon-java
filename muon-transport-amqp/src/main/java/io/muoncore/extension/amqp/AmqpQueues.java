@@ -6,8 +6,8 @@ import com.rabbitmq.client.QueueingConsumer;
 import io.muoncore.Muon;
 import io.muoncore.MuonClient;
 import io.muoncore.MuonService;
-import io.muoncore.transports.MuonMessageEventBuilder;
-import io.muoncore.transports.MuonMessageEvent;
+import io.muoncore.transport.MuonMessageEventBuilder;
+import io.muoncore.transport.MuonMessageEvent;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,7 +34,7 @@ public class AmqpQueues {
         byte[] messageBytes = event.getBinaryEncodedContent();
         MuonService.MuonResult ret = new MuonService.MuonResult();
 
-        event.getHeaders().put("Content Type", event.getContentType());
+        event.getHeaders().put("Content-Type", event.getContentType());
 
         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers((Map) event.getHeaders()).build();
         try {

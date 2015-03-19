@@ -3,13 +3,14 @@ package com.simplicity.services;
 import io.muoncore.Muon;
 import io.muoncore.MuonService;
 import io.muoncore.ServiceDescriptor;
+import io.muoncore.codec.KryoExtension;
 import org.eclipse.jetty.util.ajax.JSON;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.extension.amqp.AmqpTransportExtension;
 import io.muoncore.extension.http.HttpTransportExtension;
-import io.muoncore.transports.MuonMessageEvent;
-import io.muoncore.transports.MuonMessageEventBuilder;
-import io.muoncore.transports.MuonResourceEvent;
+import io.muoncore.transport.MuonMessageEvent;
+import io.muoncore.transport.MuonMessageEventBuilder;
+import io.muoncore.transport.resource.MuonResourceEvent;
 import org.reactivestreams.Publisher;
 import reactor.rx.Streams;
 
@@ -17,10 +18,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * An implementation of the Muon HTTP TCK Resources to prove compatibility of the library
@@ -29,23 +27,26 @@ public class TCKService {
 
     public static void main(String[] args) throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, IOException {
 
+
         final Muon muon = new Muon(
                 new AmqpDiscovery("amqp://localhost:5672"));
 
         muon.setServiceIdentifer("tck");
         muon.addTags("my-tag", "tck-service");
 
-        muon.registerExtension(new HttpTransportExtension(7171));
-        muon.registerExtension(new AmqpTransportExtension("amqp://localhost:5672"));
-//        muon.registerExtension(new StreamControlExtension());
+        new HttpTransportExtension(7171).extend(muon);
+        new AmqpTransportExtension("amqp://localhost:5672").extend(muon);
+//        new StreamControlExtension().extend(muon);
+        new KryoExtension().extend(muon);
+
         muon.start();
 
-        final List events = Collections.synchronizedList(new ArrayList());
+        final List<Map> events = Collections.synchronizedList(new ArrayList());
         final List<Map> queueEvents = Collections.synchronizedList(new ArrayList<Map>());
 
         Publisher<Integer> pub = Streams.range(1, 10);
 
-        muon.streamSource("myStream", pub);
+        muon.streamSource("myStream", Integer.class, pub);
 
         muon.onQueue("tckQueue", Map.class, new MuonService.MuonListener<Map>() {
             @Override
@@ -71,19 +72,19 @@ public class TCKService {
             }
         });
 
-        muon.receive("echoBroadcast", new MuonService.MuonListener() {
-            public void onEvent(MuonMessageEvent event) {
+        muon.receive("echoBroadcast", Map.class, new MuonService.MuonListener<Map>() {
+            public void onEvent(MuonMessageEvent<Map> event) {
                 muon.emit(
                         MuonMessageEventBuilder.named("echoBroadcastResponse")
-                                .withContent(event.getDecodedContent().toString())
+                                .withContent(event.getDecodedContent())
                                 .build()
                 );
             }
         });
 
-        muon.receive("tckBroadcast", new MuonService.MuonListener() {
-            public void onEvent(MuonMessageEvent event) {
-                events.add(JSON.parse(event.getDecodedContent().toString()));
+        muon.receive("tckBroadcast", Map.class, new MuonService.MuonListener<Map>() {
+            public void onEvent(MuonMessageEvent<Map> event) {
+                events.add(event.getDecodedContent());
             }
         });
 
@@ -94,17 +95,11 @@ public class TCKService {
             }
         });
 
-        muon.onGet("/event", Map.class, new MuonService.MuonGet<Map>() {
-            @Override
-            public Object onQuery(MuonResourceEvent<Map> queryEvent) {
-                return events;
-            }
-        });
         muon.onDelete("/event", Map.class, new MuonService.MuonDelete<Map>() {
             @Override
             public Object onCommand(MuonResourceEvent<Map> queryEvent) {
                 events.clear();
-                return new Object();
+                return new HashMap();
             }
         });
 

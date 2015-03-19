@@ -21,12 +21,12 @@ public class ServicePublishColdStream {
                 new AmqpDiscovery("amqp://localhost:5672"));
 
         muon.setServiceIdentifer("cl");
-        muon.registerExtension(new AmqpTransportExtension("amqp://localhost:5672"));
+        new AmqpTransportExtension("amqp://localhost:5672").extend(muon);
         muon.start();
 
-        muon.streamSource("/counter", new MuonStreamGenerator() {
+        muon.streamSource("/counter", Integer.class, new MuonStreamGenerator<Integer>() {
             @Override
-            public Publisher generatePublisher(Map<String, String> parameters) {
+            public Publisher<Integer> generatePublisher(Map<String, String> parameters) {
                 int max = Integer.parseInt(parameters.get("max"));
                 return Streams.range(0, max);
             }

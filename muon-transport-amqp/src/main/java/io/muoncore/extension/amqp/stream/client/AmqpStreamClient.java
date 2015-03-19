@@ -5,8 +5,8 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.extension.amqp.AmqpQueues;
 import io.muoncore.extension.amqp.stream.AmqpStream;
 import io.muoncore.extension.amqp.stream.server.AmqpStreamControl;
-import io.muoncore.transports.MuonMessageEvent;
-import io.muoncore.transports.MuonMessageEventBuilder;
+import io.muoncore.transport.MuonMessageEvent;
+import io.muoncore.transport.MuonMessageEventBuilder;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 

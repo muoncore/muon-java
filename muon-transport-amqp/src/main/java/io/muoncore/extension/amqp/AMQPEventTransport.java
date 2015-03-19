@@ -7,12 +7,17 @@ import io.muoncore.MuonStreamGenerator;
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.TransportCodecType;
 import io.muoncore.extension.amqp.stream.AmqpStream;
-import io.muoncore.transports.*;
+import io.muoncore.transport.*;
+import io.muoncore.transport.broadcast.MuonBroadcastTransport;
+import io.muoncore.transport.resource.MuonResourceEvent;
+import io.muoncore.transport.resource.MuonResourceTransport;
+import io.muoncore.transport.stream.MuonStreamTransport;
 import org.reactivestreams.Subscriber;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -30,7 +35,7 @@ public class AMQPEventTransport
     private String serviceName;
     private List<String> tags;
 
-    private String rabbitUrl = "amqp://localhost:5672";
+    private String rabbitUrl;
 
     private AmqpConnection connection;
     private AmqpBroadcast broadcast;
@@ -134,4 +139,6 @@ public class AMQPEventTransport
     public TransportCodecType getCodecType() {
         return TransportCodecType.BINARY;
     }
+
+
 }

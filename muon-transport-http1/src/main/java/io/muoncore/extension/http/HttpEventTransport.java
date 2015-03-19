@@ -9,9 +9,9 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import io.muoncore.codec.TransportCodecType;
-import io.muoncore.transports.MuonResourceEvent;
-import io.muoncore.transports.MuonResourceEventBuilder;
-import io.muoncore.transports.MuonResourceTransport;
+import io.muoncore.transport.resource.MuonResourceEvent;
+import io.muoncore.transport.resource.MuonResourceEventBuilder;
+import io.muoncore.transport.resource.MuonResourceTransport;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

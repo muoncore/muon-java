@@ -2,6 +2,7 @@ package io.muoncore.extension.amqp;
 
 import io.muoncore.MuonExtension;
 import io.muoncore.MuonExtensionApi;
+import io.muoncore.MuonService;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -17,28 +18,23 @@ public class AmqpTransportExtension implements MuonExtension {
     }
 
     @Override
-    public void init(MuonExtensionApi muonApi) {
+    public void extend(MuonService muonApi) {
         try {
             AMQPEventTransport trans = new AMQPEventTransport(
                     url,
-                    muonApi.getMuon().getServiceIdentifer(),
+                    muonApi.getServiceIdentifer(),
                     muonApi.getTags(),
                     muonApi.getCodecs());
 
-            muonApi.addTransport(trans);
+            muonApi.registerTransport(trans);
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Unable to start AMQP Extension", e);
+            throw new IllegalStateException("Unable to start AMQP Transport", e);
         } catch (KeyManagementException e) {
-            throw new IllegalStateException("Unable to start AMQP Extension", e);
+            throw new IllegalStateException("Unable to start AMQP Transport", e);
         } catch (URISyntaxException e) {
-            throw new IllegalStateException("Unable to start AMQP Extension", e);
+            throw new IllegalStateException("Unable to start AMQP Transport", e);
         } catch (IOException e) {
-            throw new IllegalStateException("Unable to start AMQP Extension", e);
+            throw new IllegalStateException("Unable to start AMQP Transport", e);
         }
-    }
-
-    @Override
-    public String getName() {
-        return "amqp/1.0";
     }
 }
