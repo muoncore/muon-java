@@ -10,6 +10,7 @@ import io.muoncore.transport.resource.MuonResourceEvent;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -71,9 +72,15 @@ public class AmqpResources {
                 Object response = listener.onEvent(resource, ev);
                 log.finer("Sending" + response);
 
-                MuonMessageEvent responseEvent = new MuonMessageEvent("", codecs.encodeToByte(response));
+                byte[] responseBytes = new byte[0];
+                if (response != null) {
+                    responseBytes = codecs.encodeToByte(response);
+                }
+
+                MuonMessageEvent responseEvent = new MuonMessageEvent("", responseBytes);
                 responseEvent.addHeader("Status", "200");
-                //TODO, detect the contenbt type!
+
+                //TODO, detect the content type from the codec!
                 responseEvent.setContentType("application/json");
 
                 queues.send(responseQueue, responseEvent);
@@ -84,6 +91,7 @@ public class AmqpResources {
     public MuonService.MuonResult emitForReturn(String eventName, MuonResourceEvent event) {
 
         final MuonService.MuonResult ret = new MuonService.MuonResult();
+        ret.setEvent(new MuonResourceEvent(null));
         final CountDownLatch responseReceivedSignal = new CountDownLatch(1);
 
         try {
@@ -107,10 +115,10 @@ public class AmqpResources {
             messageEvent.getHeaders().putAll(event.getHeaders());
             messageEvent.getHeaders().put("RESOURCE", event.getResource());
             messageEvent.getHeaders().put("RESPONSE_QUEUE",returnQueue);
-
+            messageEvent.setEncodedBinaryContent(event.getBinaryEncodedContent());
             queues.send(resourceQueue, messageEvent);
 
-            responseReceivedSignal.await(2, TimeUnit.SECONDS);
+            responseReceivedSignal.await(15, TimeUnit.SECONDS);
 
             return ret;
 

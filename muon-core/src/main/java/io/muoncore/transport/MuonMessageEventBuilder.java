@@ -1,6 +1,7 @@
 package io.muoncore.transport;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MuonMessageEventBuilder {
@@ -21,7 +22,7 @@ public class MuonMessageEventBuilder {
     }
 
     public MuonMessageEventBuilder withNoContent() {
-        this.decodedContent = null;
+        this.decodedContent = new HashMap();
         return this;
     }
 

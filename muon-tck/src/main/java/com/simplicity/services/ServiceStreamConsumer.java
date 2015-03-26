@@ -3,6 +3,8 @@ package com.simplicity.services;
 import io.muoncore.*;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.extension.amqp.AmqpTransportExtension;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import reactor.function.Consumer;
 import reactor.rx.Streams;
 import reactor.rx.stream.HotStream;
@@ -43,6 +45,30 @@ public class ServiceStreamConsumer {
                 System.out.println("I have a message " + o);
             }
         });
+
+        sub.subscribe(
+                new Subscriber<Consume>() {
+                    @Override
+                    public void onSubscribe(Subscription s) {
+
+                    }
+
+                    @Override
+                    public void onNext(Consume consume) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        System.out.println("Stream completed with ERROR");
+                        t.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        System.out.println("Stream completed successfully and is disconnected");
+                    }
+                });
 
     }
 

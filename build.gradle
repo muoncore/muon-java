@@ -9,9 +9,6 @@ buildscript {
   }
 }
 
-apply plugin: 'maven'
-apply plugin: 'maven-publish'
-
 def globalVersion = new Version(currentVersion)
 def hasbintray = hasProperty("bintrayUsername")
 
@@ -28,6 +25,8 @@ ext {
 subprojects { subproject ->
   apply plugin: 'com.jfrog.bintray'
   apply plugin: 'groovy'
+  apply plugin: 'maven'
+  apply plugin: 'maven-publish'
 
   group="io.muoncore"
   version=globalVersion.toString()

@@ -32,9 +32,17 @@ public class AmqpQueues {
     public MuonClient.MuonResult send(String queueName, MuonMessageEvent event) {
 
         byte[] messageBytes = event.getBinaryEncodedContent();
+        //TODO, one of the many sucky things about this mish mash design.
+        if (messageBytes == null) {
+            messageBytes = "{}".getBytes();
+        }
         MuonService.MuonResult ret = new MuonService.MuonResult();
 
-        event.getHeaders().put("Content-Type", event.getContentType());
+        String contentType = event.getContentType();
+        if (contentType == null) {
+            contentType = "application/json";
+        }
+        event.getHeaders().put("Content-Type", contentType);
 
         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers((Map) event.getHeaders()).build();
         try {
@@ -59,29 +67,37 @@ public class AmqpQueues {
                     channel.basicConsume(queueName, false, consumer);
 
                     while (true) {
-                        QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-                        byte[] content = delivery.getBody();
+                        try {
+                            QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+                            byte[] content = delivery.getBody();
 
-                        MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(queueName);
+                            MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(queueName);
 
-                        Map<String, Object> headers = delivery.getProperties().getHeaders();
-                        if (headers == null) {
-                            headers = new HashMap<String, Object>();
-                        }
-                        String contentType = delivery.getProperties().getContentType();
-
-                        for (Map.Entry<String, Object> entry : headers.entrySet()) {
-                            if (entry.getValue() != null) {
-                                builder.withHeader(entry.getKey(), entry.getValue().toString());
+                            Map<String, Object> headers = delivery.getProperties().getHeaders();
+                            if (headers == null) {
+                                headers = new HashMap<String, Object>();
                             }
+                            String contentType = "";
+                            if (headers.get("Content-Type") != null) {
+                                contentType = headers.get("Content-Type").toString();
+                            }
+
+                            for (Map.Entry<String, Object> entry : headers.entrySet()) {
+                                if (entry.getValue() != null) {
+                                    builder.withHeader(entry.getKey(), entry.getValue().toString());
+                                }
+                            }
+
+                            MuonMessageEvent ev = builder.build();
+                            ev.setContentType(contentType);
+                            ev.setEncodedBinaryContent(content);
+                            listener.onEvent(queueName, ev);
+
+                            channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                        } catch (Exception e) {
+                            log.log(Level.WARNING, e.getMessage(), e);
+                            ///TODO, send an error?
                         }
-
-                        MuonMessageEvent ev = builder.build();
-                        ev.setContentType(contentType);
-                        ev.setEncodedBinaryContent(content);
-                        listener.onEvent(queueName, ev);
-
-                        channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                     }
                 } catch (Exception e) {
                     log.log(Level.WARNING, e.getMessage(), e);

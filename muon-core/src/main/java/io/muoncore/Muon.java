@@ -159,20 +159,37 @@ public class Muon implements MuonService {
         return dispatchEvent(ev, resourceQuery, type);
     }
 
-    private <T> MuonResult<T> dispatchEvent(MuonResourceEvent<T> ev, String resourceQuery, Class<T> type) {
+    private <T> MuonResult<T> dispatchEvent(MuonResourceEvent ev, String resourceQuery, Class<T> type) {
         MuonResourceTransport trans = transport(ev);
         if (trans == null) {
             MuonResult ret = new MuonResult();
-            ret.setEvent(MuonResourceEventBuilder.event("")
+            ret.setEvent(MuonResourceEventBuilder.event(null)
                     .withUri(resourceQuery)
                     .withHeader("status", "404")
                     .build());
             ret.setSuccess(false);
             return ret;
         }
+        ev.addHeader("Accept", getAcceptHeader(type));
         encode(ev, trans.getCodecType());
-        return trans.emitForReturn(resourceQuery, ev);
+
+        MuonResult<T> ret = trans.emitForReturn(resourceQuery, ev);
+        decode(ret.getResponseEvent(), trans.getCodecType(), type);
+        return ret;
     }
+
+    private String getAcceptHeader(Class type) {
+        Set<String> acceptsContentTypes = codecs.getBinaryContentTypesAvailable(type);
+
+        StringBuilder buf = new StringBuilder();
+        for(String accept: acceptsContentTypes) {
+            buf.append(accept);
+            buf.append(",");
+        }
+
+        return buf.toString().substring(0, buf.length() -1);
+    }
+
 
     private <T> void encode(MuonResourceEvent<T> ev, TransportCodecType type) {
         if (ev.getDecodedContent() != null) {
@@ -187,6 +204,7 @@ public class Muon implements MuonService {
     }
 
     private <T> void decode(MuonResourceEvent<T> ev, TransportCodecType codecType, Class<T> type) {
+        if (ev == null) return;
         if (codecType== TransportCodecType.BINARY) {
             T obj = codecs.decodeObject(ev.getBinaryEncodedContent(),ev.getContentType(), type);
             ev.setDecodedContent(obj);
@@ -197,6 +215,7 @@ public class Muon implements MuonService {
     }
 
     private <T> void decode(MuonMessageEvent<T> ev, TransportCodecType codecType, Class<T> type) {
+        if (ev == null) return;
         if (codecType== TransportCodecType.BINARY) {
             T obj = codecs.decodeObject(ev.getBinaryEncodedContent(), ev.getContentType(), type);
             ev.setDecodedContent(obj);
@@ -370,7 +389,13 @@ public class Muon implements MuonService {
         String host = new URI(url).getHost();
         ServiceDescriptor descriptor = discovery.getService(new URI(url));
 
+        if (descriptor == null) {
+            subscriber.onError(new IllegalStateException("Service not found"));
+            return;
+        }
+
         MuonStreamTransport t = streamingTransports.findBestStreamTransport(descriptor);
+
 
         if (t == null) {
             log.warning("Stream subscription to " + url + " cannot be made, no transport can connect using the connection details " + descriptor.getStreamConnectionUrls());

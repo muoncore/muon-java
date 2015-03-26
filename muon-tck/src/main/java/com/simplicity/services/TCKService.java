@@ -1,10 +1,10 @@
 package com.simplicity.services;
 
 import io.muoncore.Muon;
+import io.muoncore.MuonClient;
 import io.muoncore.MuonService;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.codec.KryoExtension;
-import org.eclipse.jetty.util.ajax.JSON;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.extension.amqp.AmqpTransportExtension;
 import io.muoncore.extension.http.HttpTransportExtension;
@@ -41,68 +41,42 @@ public class TCKService {
 
         muon.start();
 
-        final List<Map> events = Collections.synchronizedList(new ArrayList());
-        final List<Map> queueEvents = Collections.synchronizedList(new ArrayList<Map>());
+        queueSetup(muon);
 
+        broadcastSetup(muon);
+
+        outboundResourcesSetup(muon);
+
+        inboundResourcesSetup(muon);
+
+        streamPublisher(muon);
+
+    }
+
+    private static void outboundResourcesSetup(final Muon muon) {
+        muon.onGet("/invokeresponse", Map.class, new MuonService.MuonGet<Map>() {
+                    @Override
+                    public Object onQuery(MuonResourceEvent<Map> queryEvent) {
+
+                        String url = (String) queryEvent.getDecodedContent().get("resource");
+
+                        MuonClient.MuonResult<Map> rsult = muon.get(url, Map.class);
+
+                        Map data = rsult.getResponseEvent().getDecodedContent();
+
+                        return data;
+                    }
+                }
+        );
+    }
+
+    private static void streamPublisher(Muon muon) {
         Publisher<Integer> pub = Streams.range(1, 10);
 
         muon.streamSource("myStream", Integer.class, pub);
+    }
 
-        muon.onQueue("tckQueue", Map.class, new MuonService.MuonListener<Map>() {
-            @Override
-            public void onEvent(MuonMessageEvent<Map> event) {
-                queueEvents.clear();
-                queueEvents.add(event.getDecodedContent());
-            }
-        });
-        muon.onQueue("tckQueueSend", Map.class, new MuonService.MuonListener<Map>() {
-            @Override
-            public void onEvent(MuonMessageEvent<Map> event) {
-                Map data = event.getDecodedContent();
-                muon.sendMessage(
-                        MuonMessageEventBuilder.named(
-                                (String) data.get("data")).withNoContent().build());
-            }
-        });
-
-        muon.onGet("/tckQueueRes", Map.class, new MuonService.MuonGet<Map>() {
-            @Override
-            public Object onQuery(MuonResourceEvent<Map> queryEvent) {
-                return queueEvents;
-            }
-        });
-
-        muon.receive("echoBroadcast", Map.class, new MuonService.MuonListener<Map>() {
-            public void onEvent(MuonMessageEvent<Map> event) {
-                muon.emit(
-                        MuonMessageEventBuilder.named("echoBroadcastResponse")
-                                .withContent(event.getDecodedContent())
-                                .build()
-                );
-            }
-        });
-
-        muon.receive("tckBroadcast", Map.class, new MuonService.MuonListener<Map>() {
-            public void onEvent(MuonMessageEvent<Map> event) {
-                events.add(event.getDecodedContent());
-            }
-        });
-
-        muon.onGet("/event", Map.class, new MuonService.MuonGet<Map>() {
-            @Override
-            public Object onQuery(MuonResourceEvent<Map> queryEvent) {
-                return events;
-            }
-        });
-
-        muon.onDelete("/event", Map.class, new MuonService.MuonDelete<Map>() {
-            @Override
-            public Object onCommand(MuonResourceEvent<Map> queryEvent) {
-                events.clear();
-                return new HashMap();
-            }
-        });
-
+    private static void inboundResourcesSetup(final Muon muon) {
         muon.onGet("/echo", Map.class, new MuonService.MuonGet<Map>() {
             @Override
             public Object onQuery(MuonResourceEvent<Map> queryEvent) {
@@ -162,5 +136,74 @@ public class TCKService {
                 return ids;
             }
         });
+    }
+
+    private static List<Map> broadcastSetup(final Muon muon) {
+        final List<Map> events = Collections.synchronizedList(new ArrayList<Map>());
+
+        muon.receive("echoBroadcast", Map.class, new MuonService.MuonListener<Map>() {
+            public void onEvent(MuonMessageEvent<Map> event) {
+                muon.emit(
+                        MuonMessageEventBuilder.named("echoBroadcastResponse")
+                                .withContent(event.getDecodedContent())
+                                .build()
+                );
+            }
+        });
+
+        muon.receive("tckBroadcast", Map.class, new MuonService.MuonListener<Map>() {
+            public void onEvent(MuonMessageEvent<Map> event) {
+                events.add(event.getDecodedContent());
+            }
+        });
+
+
+        muon.onGet("/event", Map.class, new MuonService.MuonGet<Map>() {
+            @Override
+            public Object onQuery(MuonResourceEvent<Map> queryEvent) {
+                return events;
+            }
+        });
+
+        muon.onDelete("/event", Map.class, new MuonService.MuonDelete<Map>() {
+            @Override
+            public Object onCommand(MuonResourceEvent<Map> queryEvent) {
+                events.clear();
+                return new HashMap();
+            }
+        });
+
+        return events;
+    }
+
+    private static void queueSetup(final Muon muon) {
+        //Setup required to pass the Queue TCK. Not convinced this concept is a good idea at all.
+        final List<Map> queueEvents = Collections.synchronizedList(new ArrayList<Map>());
+
+        muon.onQueue("tckQueue", Map.class, new MuonService.MuonListener<Map>() {
+            @Override
+            public void onEvent(MuonMessageEvent<Map> event) {
+                queueEvents.clear();
+                queueEvents.add(event.getDecodedContent());
+            }
+        });
+        muon.onQueue("tckQueueSend", Map.class, new MuonService.MuonListener<Map>() {
+            @Override
+            public void onEvent(MuonMessageEvent<Map> event) {
+                Map data = event.getDecodedContent();
+                muon.sendMessage(
+                        MuonMessageEventBuilder.named(
+                                (String) data.get("data")).withNoContent().build());
+            }
+        });
+
+
+        muon.onGet("/tckQueueRes", Map.class, new MuonService.MuonGet<Map>() {
+            @Override
+            public Object onQuery(MuonResourceEvent<Map> queryEvent) {
+                return queueEvents;
+            }
+        });
+
     }
 }
