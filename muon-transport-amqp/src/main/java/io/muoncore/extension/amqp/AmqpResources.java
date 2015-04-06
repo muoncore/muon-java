@@ -111,10 +111,15 @@ public class AmqpResources {
                 }
             });
 
+            //TODO, bring this in as a request/ response correlation ID during the switch to internal eventing.
+            String uuid = UUID.randomUUID().toString();
+
             MuonMessageEvent messageEvent = new MuonMessageEvent(event.getResource(), event.getDecodedContent());
             messageEvent.getHeaders().putAll(event.getHeaders());
             messageEvent.getHeaders().put("RESOURCE", event.getResource());
             messageEvent.getHeaders().put("RESPONSE_QUEUE",returnQueue);
+            messageEvent.getHeaders().put("RequestID", uuid);
+
             messageEvent.setEncodedBinaryContent(event.getBinaryEncodedContent());
             queues.send(resourceQueue, messageEvent);
 

@@ -54,6 +54,16 @@ public class TCKService {
     }
 
     private static void outboundResourcesSetup(final Muon muon) {
+
+        final Map storedata = new HashMap();
+
+        muon.onGet("/invokeresponse-store", Map.class, new MuonService.MuonGet<Map>() {
+            @Override
+            public Object onQuery(MuonResourceEvent<Map> queryEvent) {
+                return storedata;
+            }
+        });
+
         muon.onGet("/invokeresponse", Map.class, new MuonService.MuonGet<Map>() {
                     @Override
                     public Object onQuery(MuonResourceEvent<Map> queryEvent) {
@@ -63,6 +73,9 @@ public class TCKService {
                         MuonClient.MuonResult<Map> rsult = muon.get(url, Map.class);
 
                         Map data = rsult.getResponseEvent().getDecodedContent();
+
+                        storedata.clear();
+                        storedata.putAll(data);
 
                         return data;
                     }
