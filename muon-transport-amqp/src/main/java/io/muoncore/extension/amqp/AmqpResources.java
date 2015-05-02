@@ -60,6 +60,7 @@ public class AmqpResources {
                     log.fine("Couldn't find a matching listener for " + key);
                     queues.send(responseQueue, MuonMessageEventBuilder.named("")
                             .withHeader("Status", "404")
+                            .withHeader("RequestID", (String) request.getHeaders().get("RequestID"))
                             .withContent("").build());
                     return;
                 }
@@ -79,6 +80,7 @@ public class AmqpResources {
 
                 MuonMessageEvent responseEvent = new MuonMessageEvent("", responseBytes);
                 responseEvent.addHeader("Status", "200");
+                responseEvent.addHeader("RequestID", (String) request.getHeaders().get("RequestID"));
 
                 //TODO, detect the content type from the codec!
                 responseEvent.setContentType("application/json");
@@ -92,6 +94,7 @@ public class AmqpResources {
 
         final MuonService.MuonResult ret = new MuonService.MuonResult();
         ret.setEvent(new MuonResourceEvent(null));
+        ret.getResponseEvent().getHeaders().put("Status", "404");
         final CountDownLatch responseReceivedSignal = new CountDownLatch(1);
 
         try {
@@ -102,6 +105,7 @@ public class AmqpResources {
                 @Override
                 public void onEvent(String name, MuonMessageEvent obj) {
                     MuonResourceEvent resEv = new MuonResourceEvent(null);
+                    resEv.getHeaders().put("Status", "200");
                     resEv.getHeaders().putAll(obj.getHeaders());
                     resEv.setBinaryEncodedContent(obj.getBinaryEncodedContent());
 

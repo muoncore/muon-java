@@ -327,6 +327,7 @@ public class Muon implements MuonService {
         for(MuonEventTransport transport: transports) {
             transport.shutdown();
         }
+        log.info("Muon has shutdown");
     }
 
     public List<ServiceDescriptor> discoverServices() {

@@ -3,6 +3,7 @@ package io.muoncore.extension.amqp;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.ShutdownSignalException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -40,8 +41,12 @@ public class AmqpConnection {
         try {
             channel.close();
             connection.close();
+        } catch (ShutdownSignalException ex) {
+            if (ex.isHardError()) {
+                log.log(Level.WARNING, ex.getMessage(), ex);
+            }
         } catch (Exception e) {
-            log.log(Level.SEVERE, e.getMessage(), e);
+            log.log(Level.WARNING, e.getMessage(), e);
         }
     }
 }

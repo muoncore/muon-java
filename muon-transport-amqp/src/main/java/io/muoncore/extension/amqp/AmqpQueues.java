@@ -3,6 +3,7 @@ package io.muoncore.extension.amqp;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.QueueingConsumer;
+import com.rabbitmq.client.ShutdownSignalException;
 import io.muoncore.Muon;
 import io.muoncore.MuonClient;
 import io.muoncore.MuonService;
@@ -66,7 +67,8 @@ public class AmqpQueues {
                     QueueingConsumer consumer = new QueueingConsumer(channel);
                     channel.basicConsume(queueName, false, consumer);
 
-                    while (true) {
+                    boolean running = true;
+                    while (running) {
                         try {
                             QueueingConsumer.Delivery delivery = consumer.nextDelivery();
                             byte[] content = delivery.getBody();
@@ -94,6 +96,11 @@ public class AmqpQueues {
                             listener.onEvent(queueName, ev);
 
                             channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                        } catch (ShutdownSignalException ex) {
+                            if (ex.isHardError()) {
+                                log.log(Level.WARNING, ex.getMessage(), ex);
+                            }
+                            running = false;
                         } catch (Exception e) {
                             log.log(Level.WARNING, e.getMessage(), e);
                             ///TODO, send an error?
@@ -108,5 +115,10 @@ public class AmqpQueues {
 
     public void shutdown() {
         spinner.shutdown();
+        try {
+            channel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
