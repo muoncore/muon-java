@@ -27,16 +27,12 @@ public class AmqpResources {
     private AmqpQueues queues;
 
     private ExecutorService spinner;
-    private String serviceName;
-    private Codecs codecs;
 
     private Map<String, Muon.EventResourceTransportListener> resourceListeners = new HashMap<String, Muon.EventResourceTransportListener>();
 
     public AmqpResources(final AmqpQueues queues,
                          String serviceName, final Codecs codecs) throws IOException {
         this.queues = queues;
-        this.serviceName = serviceName;
-        this.codecs = codecs;
 
         spinner = Executors.newCachedThreadPool();
 
@@ -115,7 +111,6 @@ public class AmqpResources {
                 }
             });
 
-            //TODO, bring this in as a request/ response correlation ID during the switch to internal eventing.
             String uuid = UUID.randomUUID().toString();
 
             MuonMessageEvent messageEvent = new MuonMessageEvent(event.getResource(), event.getDecodedContent());

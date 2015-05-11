@@ -30,12 +30,10 @@ public class AmqpBroadcast {
     }
 
     public MuonService.MuonResult broadcast(String eventName, MuonMessageEvent event) {
-        //TODO, marshalling.
         byte[] messageBytes = event.getBinaryEncodedContent();
 
         MuonService.MuonResult ret = new MuonService.MuonResult();
 
-        //TODO, send the headers... ?
         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers((Map) event.getHeaders()).build();
 
         try {
@@ -64,29 +62,31 @@ public class AmqpBroadcast {
                     channel.basicConsume(queueName, true, consumer);
 
                     while (true) {
-                        QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-                        byte[] body = delivery.getBody();
+                        try {
+                            QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+                            byte[] body = delivery.getBody();
 
-                        MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(resource);
+                            MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(resource);
 //                                .withMimeType(delivery.getProperties().getContentType())
 
-                        Map<Object, Object> headers = (Map) delivery.getProperties().getHeaders();
+                            Map<Object, Object> headers = (Map) delivery.getProperties().getHeaders();
 
-                        if (headers != null) {
-                            for (Map.Entry<Object, Object> entry : headers.entrySet()) {
-                                builder.withHeader(entry.getKey().toString(), entry.getValue().toString());
+                            if (headers != null) {
+                                for (Map.Entry<Object, Object> entry : headers.entrySet()) {
+                                    builder.withHeader(entry.getKey().toString(), entry.getValue().toString());
+                                }
                             }
+
+                            MuonMessageEvent ev = builder.build();
+                            ev.setContentType(delivery.getProperties().getContentType());
+                            ev.setEncodedBinaryContent(body);
+
+                            listener.onEvent(resource, ev);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
-
-                        MuonMessageEvent ev = builder.build();
-                        ev.setContentType(delivery.getProperties().getContentType());
-                        ev.setEncodedBinaryContent(body);
-
-                        listener.onEvent(resource, ev);
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }

@@ -28,13 +28,14 @@ import java.util.logging.Logger;
  *      remote is requesting that the subscription be closed.
  *      local resources destroyed, Subscribe
  *
- * The resource queue can then have on it:
+ * The data queue can have on it:
  *  - DATA
  *      semantics - Subscriber.onNext
  *      a data message
  *  - ERROR
  *      semantics - Subscriber.onError
  *      an error was thrown by the publisher
+ *      The client must then terminate it's side. The local subscription will be removed
  *  - COMPLETE
  *      semantics Subscriber.onComplete
  *      The publisher is finished.
@@ -93,13 +94,5 @@ public class AmqpStream {
         }
 
         return streams;
-    }
-
-    public void streamSink(String streamName, Subscriber targetOfData) {
-        streamControl.getSubscriberStreams().put(streamName, targetOfData);
-    }
-
-    public void publishToStream(String url, Publisher publisher) {
-
     }
 }

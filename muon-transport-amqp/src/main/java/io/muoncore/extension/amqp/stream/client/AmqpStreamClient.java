@@ -76,6 +76,10 @@ public class AmqpStreamClient<T> implements
                     obj.getHeaders().get(AmqpStream.STREAM_COMMAND).equals(AmqpStreamControl.SUBSCRIPTION_NACK)) {
             log.warning("SUBSCRIPTION_NACK for stream [" + streamName + "] stream is NOT established");
             subscriber.onError(new IllegalArgumentException("SUBSCRIPTION_NACK for stream [" + streamName + "] stream is NOT established"));
+        } else if (obj.getHeaders().get(AmqpStream.STREAM_COMMAND) != null &&
+                obj.getHeaders().get(AmqpStream.STREAM_COMMAND).equals(AmqpStreamControl.COMMAND_KEEP_ALIVE)) {
+            //TODO, remove this and store hte keep alive record for connection cleanup.
+            log.info("Keep Alive received");
         } else if (obj.getHeaders().get("TYPE").equals("data")) {
             byte[] data = obj.getBinaryEncodedContent();
             T decodedObject = codecs.decodeObject(data, obj.getContentType(), type);
