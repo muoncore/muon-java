@@ -18,10 +18,10 @@ public class ServicePublishColdStream {
     public static void main(String[] args) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException {
 
         final Muon muon = new Muon(
-                new AmqpDiscovery("amqp://localhost:5672"));
+                new AmqpDiscovery("amqp://localhost"));
 
         muon.setServiceIdentifer("cl");
-        new AmqpTransportExtension("amqp://localhost:5672").extend(muon);
+        new AmqpTransportExtension("amqp://localhost").extend(muon);
         muon.start();
 
         muon.streamSource("/counter", Integer.class, new MuonStreamGenerator<Integer>() {
@@ -31,5 +31,7 @@ public class ServicePublishColdStream {
                 return Streams.range(0, max);
             }
         });
+
+        muon.streamSource("/countersimple", Integer.class, Streams.range(0, 100));
     }
 }

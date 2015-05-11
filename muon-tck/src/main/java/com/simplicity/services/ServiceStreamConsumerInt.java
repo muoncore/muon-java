@@ -1,8 +1,8 @@
 package com.simplicity.services;
 
-import io.muoncore.*;
-import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
+import io.muoncore.Muon;
 import io.muoncore.extension.amqp.AmqpTransportExtension;
+import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.function.Consumer;
@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class ServiceStreamConsumer {
+public class ServiceStreamConsumerInt {
 
     public static void main(String[] args) throws URISyntaxException, InterruptedException, NoSuchAlgorithmException, KeyManagementException, IOException {
 
@@ -31,25 +31,28 @@ public class ServiceStreamConsumer {
         //amqp discovery settle time.
         Thread.sleep(5000);
 
-        HotStream<Map> sub = Streams.defer();
+        HotStream<Integer> sub = Streams.defer();
+
+        sub.consume(new Consumer<Integer>() {
+            @Override
+            public void accept(Integer o) {
+                System.out.println("I have a message " + o);
+            }
+        });
+
+
 
         Map<String,String> params  = new HashMap<String, String>();
 
         params.put("max", "500");
 
-        muon.subscribe("muon://cl/counter", Map.class, params, sub);
+        muon.subscribe("muon://cl/counter", Integer.class, params, sub);
 
-        sub.consume(new Consumer<Map>() {
-            @Override
-            public void accept(Map o) {
-                System.out.println("I have a message " + o);
-            }
-        });
 
         sub.subscribe(
-                new Subscriber<Map>() {
+                new Subscriber<Integer>() {
                     public void onSubscribe(Subscription s) {}
-                    public void onNext(Map consume) {}
+                    public void onNext(Integer consume) {}
                     public void onError(Throwable t) {
                         System.out.println("Stream completed with ERROR");
                         t.printStackTrace();

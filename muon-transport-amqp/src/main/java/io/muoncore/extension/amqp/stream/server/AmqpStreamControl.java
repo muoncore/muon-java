@@ -14,8 +14,11 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 public class AmqpStreamControl implements Muon.EventMessageTransportListener {
+    private Logger log = Logger.getLogger(AmqpStream.class.getName());
+
     public static final String COMMAND_REQUEST = "REQUEST";
     public static final String COMMAND_KEEP_ALIVE = "KEEP-ALIVE";
     public static final String COMMAND_SUBSCRIBE = "SUBSCRIBE";
@@ -30,7 +33,6 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
     private HashMap<String, AmqpProxySubscriber> subscriptions = new HashMap<String, AmqpProxySubscriber>();
     private ExecutorService spinner;
 
-    //TODO, extract out
     private Map<String, Long> lastSeenKeepAlive = new HashMap<String, Long>();
 
     private AmqpQueues queues;
@@ -68,6 +70,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
     }
 
     private void harvestBrokenStream(String id) {
+        log.warning("Subscription " + id + " has timed out of keep-alive, expiring and closing");
         AmqpProxySubscriber subscriber = subscriptions.remove(id);
         lastSeenKeepAlive.remove(id);
         subscriber.onError(new IOException("No KEEP-ALIVE received within the required time period. This subscription is now closed"));
@@ -144,7 +147,10 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
 
     private void cancelSubscription(MuonMessageEvent ev) {
         String id = (String) ev.getHeaders().get(SUBSCRIPTION_STREAM_ID);
-        AmqpProxySubscriber sub = subscriptions.get(id);
-        sub.cancel();
+        lastSeenKeepAlive.remove(id);
+        AmqpProxySubscriber sub = subscriptions.remove(id);
+        if (sub != null){
+            sub.cancel();
+        }
     }
 }

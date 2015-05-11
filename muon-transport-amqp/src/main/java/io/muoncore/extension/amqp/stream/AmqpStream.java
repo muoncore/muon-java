@@ -11,6 +11,8 @@ import org.reactivestreams.Subscriber;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 /**
@@ -51,7 +53,8 @@ public class AmqpStream {
     private String commandQueue;
     private Codecs codecs;
 
-    //TODO, cleanups abound!
+    private Executor spinner = Executors.newSingleThreadExecutor();
+
     List<AmqpStreamClient> streamClients = new ArrayList<AmqpStreamClient>();
 
     public AmqpStream(String serviceName, AmqpQueues queues, Codecs codecs) {
@@ -60,6 +63,40 @@ public class AmqpStream {
         this.codecs = codecs;
         streamControl = new AmqpStreamControl(queues, codecs);
         listenToControlQueue();
+        monitorClientExpiry();
+    }
+
+    private void monitorClientExpiry() {
+        spinner.execute(new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        Thread.sleep(1000);
+
+                        for(AmqpStreamClient client: new ArrayList<AmqpStreamClient>(streamClients)) {
+                            if (client.getLastSeenKeepAlive() + 3000 < System.currentTimeMillis()) {
+                                expireClientConnection(client);
+                            }
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    private void expireClientConnection(AmqpStreamClient client) {
+        streamClients.remove(client);
+        log.warning("Connection to service " + client.getStreamName() +
+                " has expired. The server did not send keep-alive.");
+
+        client.onError(
+                new IllegalStateException(
+                        "Connection to service " +
+                                client.getStreamName() +
+                                " has expired. The server did not send keep-alive."));
     }
 
     private void listenToControlQueue() {
