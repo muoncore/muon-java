@@ -11,7 +11,9 @@ import io.muoncore.transport.MuonMessageEventBuilder;
 import io.muoncore.transport.MuonMessageEvent;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,14 +22,14 @@ import java.util.logging.Logger;
 
 public class AmqpQueues {
 
-    private Logger log = Logger.getLogger(AmqpQueues.class.getName());
-
-    private Channel channel;
     private ExecutorService spinner;
+    private Channel channel;
+    private Map<Muon.EventMessageTransportListener, QueueListener> listeners;
 
     public AmqpQueues(Channel channel) throws IOException {
         this.channel = channel;
         spinner = Executors.newCachedThreadPool();
+        listeners = new HashMap<Muon.EventMessageTransportListener, QueueListener>();
     }
 
     public MuonClient.MuonResult send(String queueName, MuonMessageEvent event) {
@@ -55,62 +57,19 @@ public class AmqpQueues {
         return ret;
     }
 
+    public void removeListener(Muon.EventMessageTransportListener listener) {
+        QueueListener queueListener = listeners.remove(listener);
+        if (queueListener != null) {
+            queueListener.cancel();
+        }
+    }
+
     public <T> void listenOnQueueEvent(final String queueName, Class<T> type, final Muon.EventMessageTransportListener listener) {
-        spinner.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    channel.queueDeclare(queueName, true, false, true, null);
-
-                    log.fine("Waiting for point to point messages " + queueName);
-
-                    QueueingConsumer consumer = new QueueingConsumer(channel);
-                    channel.basicConsume(queueName, false, consumer);
-
-                    boolean running = true;
-                    while (running) {
-                        try {
-                            QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-                            byte[] content = delivery.getBody();
-
-                            MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(queueName);
-
-                            Map<String, Object> headers = delivery.getProperties().getHeaders();
-                            if (headers == null) {
-                                headers = new HashMap<String, Object>();
-                            }
-                            String contentType = "";
-                            if (headers.get("Content-Type") != null) {
-                                contentType = headers.get("Content-Type").toString();
-                            }
-
-                            for (Map.Entry<String, Object> entry : headers.entrySet()) {
-                                if (entry.getValue() != null) {
-                                    builder.withHeader(entry.getKey(), entry.getValue().toString());
-                                }
-                            }
-
-                            MuonMessageEvent ev = builder.build();
-                            ev.setContentType(contentType);
-                            ev.setEncodedBinaryContent(content);
-                            listener.onEvent(queueName, ev);
-
-                            channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-                        } catch (ShutdownSignalException ex) {
-                            if (ex.isHardError()) {
-                                log.log(Level.WARNING, ex.getMessage(), ex);
-                            }
-                            running = false;
-                        } catch (Exception e) {
-                            log.log(Level.WARNING, e.getMessage(), e);
-                            ///TODO, send an error?
-                        }
-                    }
-                } catch (Exception e) {
-                    log.log(Level.WARNING, e.getMessage(), e);
-                }
-            }
-        });
+        QueueListener queueListener = new QueueListener(
+                channel, queueName, listener
+        );
+        listeners.put(listener, queueListener);
+        spinner.execute(queueListener);
     }
 
     public void shutdown() {

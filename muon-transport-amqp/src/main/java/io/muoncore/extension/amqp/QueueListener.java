@@ -1,0 +1,94 @@
+package io.muoncore.extension.amqp;
+
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.QueueingConsumer;
+import com.rabbitmq.client.ShutdownSignalException;
+import io.muoncore.Muon;
+import io.muoncore.transport.MuonMessageEvent;
+import io.muoncore.transport.MuonMessageEventBuilder;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class QueueListener implements Runnable {
+
+    private boolean running;
+    private Channel channel;
+    private Logger log = Logger.getLogger(AmqpQueues.class.getName());
+    private String queueName;
+    private Muon.EventMessageTransportListener listener;
+    private QueueingConsumer consumer;
+
+    public QueueListener(Channel channel, String queueName, Muon.EventMessageTransportListener listener) {
+        this.channel = channel;
+        this.queueName = queueName;
+        this.listener = listener;
+    }
+
+    @Override
+    public void run() {
+        try {
+            channel.queueDeclare(queueName, true, false, true, null);
+
+            log.fine("Waiting for point to point messages " + queueName);
+
+            consumer = new QueueingConsumer(channel);
+            channel.basicConsume(queueName, false, consumer);
+
+            running = true;
+            while (running) {
+                try {
+                    QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+
+                    byte[] content = delivery.getBody();
+
+                    MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(queueName);
+
+                    Map<String, Object> headers = delivery.getProperties().getHeaders();
+                    if (headers == null) {
+                        headers = new HashMap<String, Object>();
+                    }
+                    String contentType = "";
+                    if (headers.get("Content-Type") != null) {
+                        contentType = headers.get("Content-Type").toString();
+                    }
+
+                    for (Map.Entry<String, Object> entry : headers.entrySet()) {
+                        if (entry.getValue() != null) {
+                            builder.withHeader(entry.getKey(), entry.getValue().toString());
+                        }
+                    }
+
+                    MuonMessageEvent ev = builder.build();
+                    ev.setContentType(contentType);
+                    ev.setEncodedBinaryContent(content);
+                    listener.onEvent(queueName, ev);
+
+                    channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                } catch (ShutdownSignalException ex) {
+                    if (ex.isHardError()) {
+                        log.log(Level.WARNING, ex.getMessage(), ex);
+                    }
+                    running = false;
+                } catch (Exception e) {
+                    log.log(Level.WARNING, e.getMessage(), e);
+                    ///TODO, send an error?
+                }
+            }
+        } catch (Exception e) {
+            log.log(Level.WARNING, e.getMessage(), e);
+        }
+    }
+
+    public void cancel() {
+        running = false;
+        try {
+            consumer.handleCancel("Muon-Cancel");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}

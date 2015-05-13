@@ -72,10 +72,10 @@ public class AmqpStream {
             public void run() {
                 while(true) {
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(1500);
 
                         for(AmqpStreamClient client: new ArrayList<AmqpStreamClient>(streamClients)) {
-                            if (client.getLastSeenKeepAlive() + 3000 < System.currentTimeMillis()) {
+                            if (client.getLastSeenKeepAlive() + 3500 < System.currentTimeMillis()) {
                                 expireClientConnection(client);
                             }
                         }

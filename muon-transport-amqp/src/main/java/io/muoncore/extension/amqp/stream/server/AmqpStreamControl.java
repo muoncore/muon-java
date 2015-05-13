@@ -29,8 +29,8 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
     public static final String REQUEST_COUNT = "N";
     public static final String SUBSCRIPTION_ACK = "SUBSCRIPTION_ACK";
     public static final String SUBSCRIPTION_NACK = "SUBSCRIPTION_NACK";
-    private HashMap<String, MuonStreamGenerator> publisherStreams = new HashMap<String, MuonStreamGenerator>();
-    private HashMap<String, AmqpProxySubscriber> subscriptions = new HashMap<String, AmqpProxySubscriber>();
+    private Map<String, MuonStreamGenerator> publisherStreams = new HashMap<String, MuonStreamGenerator>();
+    private Map<String, AmqpProxySubscriber> subscriptions = Collections.synchronizedMap(new HashMap<String, AmqpProxySubscriber>());
     private ExecutorService spinner;
 
     private Map<String, Long> lastSeenKeepAlive = new HashMap<String, Long>();
@@ -41,12 +41,12 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
     public AmqpStreamControl(final AmqpQueues queues, Codecs codecs) {
         this.queues = queues;
         this.codecs = codecs;
-        spinner = Executors.newCachedThreadPool();
+        spinner = Executors.newSingleThreadExecutor();
         monitorKeepAlive();
     }
 
     private void monitorKeepAlive() {
-        final int KEEP_ALIVE_ERROR = 2000;
+        final int KEEP_ALIVE_ERROR = 6000;
         //TODO, extract out into a monitor concept. This will vary hugely between transports.
         spinner.execute(new Runnable() {
             @Override
@@ -55,6 +55,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
                     try {
                         Thread.sleep(1000);
                         Set<String> subscriberIds = new HashSet<String>(subscriptions.keySet());
+                        log.finer("Checking Subscriptions " + subscriptions);
                         long expiryTime = System.currentTimeMillis() - KEEP_ALIVE_ERROR;
                         for (String subId : subscriberIds) {
                             if (lastSeenKeepAlive.get(subId) < expiryTime) {
@@ -94,7 +95,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
         return publisherStreams;
     }
 
-    private void createNewSubscription(MuonMessageEvent ev) {
+    private synchronized void createNewSubscription(MuonMessageEvent ev) {
         //create a sub id
         String id = UUID.randomUUID().toString();
 
@@ -118,6 +119,9 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
 
         lastSeenKeepAlive.put(id, System.currentTimeMillis());
         subscriptions.put(id, subscriber);
+
+        log.finer("Created new subscription with id " + id + " to " + requestedStreamName);
+        log.finer("Subscriptions now " + subscriptions);
 
         //send the sub id back to origin over replyTo queue.
         queues.send(replyStreamName,
@@ -148,6 +152,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
     private void cancelSubscription(MuonMessageEvent ev) {
         String id = (String) ev.getHeaders().get(SUBSCRIPTION_STREAM_ID);
         lastSeenKeepAlive.remove(id);
+        log.fine("Removing subscriber " + id);
         AmqpProxySubscriber sub = subscriptions.remove(id);
         if (sub != null){
             sub.cancel();

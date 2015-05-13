@@ -8,21 +8,20 @@ import io.muoncore.transport.MuonMessageEventBuilder;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
+import java.util.logging.Logger;
 
 /**
  * Proxies original subscription on the other side of this MQ.
  */
 public class AmqpProxySubscriber implements Subscriber {
+    private Logger log = Logger.getLogger(AmqpProxySubscriber.class.getName());
+
     private Subscription subscription;
     private AmqpQueues queues;
     private String resourceQueue;
     private Codecs codecs;
-    private ExecutorService spinner;
-
-    private boolean running = true;
+    private ScheduledExecutorService keepAliveScheduler;
 
     AmqpProxySubscriber(
             final String resourceQueue,
@@ -31,41 +30,35 @@ public class AmqpProxySubscriber implements Subscriber {
         this.queues = queues;
         this.resourceQueue = resourceQueue;
         this.codecs = codecs;
-        spinner = Executors.newCachedThreadPool();
+        keepAliveScheduler = Executors.newScheduledThreadPool(1);
 
         sendKeepAlive();
     }
 
     private void sendKeepAlive() {
-        spinner.execute(new Runnable() {
+
+        Runnable keepAliveSender = new Runnable() {
             @Override
             public void run() {
-                while(running) {
-                    try {
-                        Thread.sleep(1000);
-                        MuonMessageEvent ev = MuonMessageEventBuilder.named(
-                                "")
-                                .withNoContent()
-                                .withHeader(AmqpStream.STREAM_COMMAND, AmqpStreamControl.COMMAND_KEEP_ALIVE)
-                                .build();
+                log.info("Sending client keep-alive " + resourceQueue);
+                MuonMessageEvent ev = MuonMessageEventBuilder.named(
+                        "")
+                        .withNoContent()
+                        .withHeader(AmqpStream.STREAM_COMMAND, AmqpStreamControl.COMMAND_KEEP_ALIVE)
+                        .build();
 
-                        AmqpProxySubscriber.this.queues.send(
-                                resourceQueue,
-                                ev);
-                    } catch(InterruptedException ex) {
-                        running = false;
-                    } catch(Exception ex) {
-                        ex.printStackTrace();
-                    }
-                }
+                AmqpProxySubscriber.this.queues.send(
+                        resourceQueue,
+                        ev);
             }
-        });
+        };
+
+        keepAliveScheduler.scheduleAtFixedRate(keepAliveSender, 0, 1, TimeUnit.SECONDS);
     }
 
-
     public void cancel() {
-        running=false;
-        spinner.shutdownNow();
+        log.info("Subscription cancelled");
+        keepAliveScheduler.shutdownNow();
         if (subscription != null) {
             subscription.cancel();
         }
@@ -100,8 +93,8 @@ public class AmqpProxySubscriber implements Subscriber {
 
     @Override
     public void onError(Throwable t) {
-        running=false;
-        spinner.shutdownNow();
+        log.info("Subscription error");
+        keepAliveScheduler.shutdownNow();
 
         queues.send(resourceQueue,
                 MuonMessageEventBuilder.named(resourceQueue)
@@ -112,8 +105,8 @@ public class AmqpProxySubscriber implements Subscriber {
 
     @Override
     public void onComplete() {
-        running=false;
-        spinner.shutdownNow();
+        log.info("Subscription complete");
+        keepAliveScheduler.shutdownNow();
         queues.send(resourceQueue,
                 MuonMessageEventBuilder.named(resourceQueue)
                         .withNoContent()
