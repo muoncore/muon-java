@@ -31,12 +31,12 @@ public class QueueListener implements Runnable {
     @Override
     public void run() {
         try {
+            log.info("Opening Queue: " + queueName);
             channel.queueDeclare(queueName, true, false, true, null);
-
-            log.fine("Waiting for point to point messages " + queueName);
 
             consumer = new QueueingConsumer(channel);
             channel.basicConsume(queueName, false, consumer);
+            log.info("Queue ready: " + queueName);
 
             running = true;
             while (running) {
@@ -69,6 +69,7 @@ public class QueueListener implements Runnable {
 
                     channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                 } catch (ShutdownSignalException ex) {
+                    ex.printStackTrace();
                     if (ex.isHardError()) {
                         log.log(Level.WARNING, ex.getMessage(), ex);
                     }
@@ -81,9 +82,11 @@ public class QueueListener implements Runnable {
         } catch (Exception e) {
             log.log(Level.WARNING, e.getMessage(), e);
         }
+        log.warning("Queue Listener exits: " + queueName);
     }
 
     public void cancel() {
+        log.info("Queue listener is cancelled:" + queueName);
         running = false;
         try {
             consumer.handleCancel("Muon-Cancel");

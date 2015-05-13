@@ -11,10 +11,7 @@ import io.muoncore.transport.MuonMessageEventBuilder;
 import io.muoncore.transport.MuonMessageEvent;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -22,14 +19,14 @@ import java.util.logging.Logger;
 
 public class AmqpQueues {
 
-    private ExecutorService spinner;
+    final private ExecutorService spinner;
     private Channel channel;
     private Map<Muon.EventMessageTransportListener, QueueListener> listeners;
 
     public AmqpQueues(Channel channel) throws IOException {
         this.channel = channel;
         spinner = Executors.newCachedThreadPool();
-        listeners = new HashMap<Muon.EventMessageTransportListener, QueueListener>();
+        listeners = Collections.synchronizedMap(new HashMap<Muon.EventMessageTransportListener, QueueListener>());
     }
 
     public MuonClient.MuonResult send(String queueName, MuonMessageEvent event) {
@@ -58,26 +55,33 @@ public class AmqpQueues {
     }
 
     public void removeListener(Muon.EventMessageTransportListener listener) {
-        QueueListener queueListener = listeners.remove(listener);
-        if (queueListener != null) {
-            queueListener.cancel();
+        synchronized (spinner) {
+            QueueListener queueListener = listeners.remove(listener);
+            if (queueListener != null) {
+                queueListener.cancel();
+            }
         }
     }
 
     public <T> void listenOnQueueEvent(final String queueName, Class<T> type, final Muon.EventMessageTransportListener listener) {
-        QueueListener queueListener = new QueueListener(
-                channel, queueName, listener
-        );
-        listeners.put(listener, queueListener);
-        spinner.execute(queueListener);
+        synchronized (spinner) {
+            QueueListener queueListener = new QueueListener(
+                    channel, queueName, listener
+            );
+            listeners.put(listener, queueListener);
+//            spinner.execute(queueListener);
+            new Thread(queueListener).start();
+        }
     }
 
     public void shutdown() {
-        spinner.shutdown();
-        try {
-            channel.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        synchronized (spinner) {
+            spinner.shutdown();
+            try {
+                channel.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

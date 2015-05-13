@@ -93,7 +93,7 @@ public class AmqpProxySubscriber implements Subscriber {
 
     @Override
     public void onError(Throwable t) {
-        log.info("Subscription error");
+        log.info("Subscription error: " + resourceQueue + ": " + t.getMessage());
         keepAliveScheduler.shutdownNow();
 
         queues.send(resourceQueue,
@@ -105,7 +105,7 @@ public class AmqpProxySubscriber implements Subscriber {
 
     @Override
     public void onComplete() {
-        log.info("Subscription complete");
+        log.info("Subscription complete: " + resourceQueue);
         keepAliveScheduler.shutdownNow();
         queues.send(resourceQueue,
                 MuonMessageEventBuilder.named(resourceQueue)

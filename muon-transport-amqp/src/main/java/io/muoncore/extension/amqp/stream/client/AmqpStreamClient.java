@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class AmqpStreamClient<T> implements
@@ -30,8 +32,7 @@ public class AmqpStreamClient<T> implements
 
     private String remoteId;
 
-    private ExecutorService spinner;
-    boolean running = false;
+    private ScheduledExecutorService keepAliveScheduler;
 
     private Logger log = Logger.getLogger(AmqpStreamClient.class.getName());
 
@@ -54,13 +55,21 @@ public class AmqpStreamClient<T> implements
 
         privateStreamQueue = UUID.randomUUID().toString();
         queues.listenOnQueueEvent(privateStreamQueue, Void.class, this);
-
+        log.info("Listening for events from the remote on " + privateStreamQueue);
 
         MuonMessageEvent ev = MuonMessageEventBuilder.named("")
                 .withNoContent()
                 .withHeader(AmqpStream.STREAM_COMMAND, AmqpStreamControl.COMMAND_SUBSCRIBE)
                 .withHeader(AmqpStreamControl.REQUESTED_STREAM_NAME, streamName)
                 .withHeader(AmqpStreamControl.REPLY_QUEUE_NAME, privateStreamQueue).build();
+
+        //TODO, an event should be emitted bu the listenOnQueue above. We need to know when the queue is ready
+        //otherwise we end up in a race with the remote service
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         ev.getHeaders().putAll(params);
         //TODO, necessary?
@@ -76,10 +85,11 @@ public class AmqpStreamClient<T> implements
 
     @Override
     public void onEvent(String name, MuonMessageEvent obj) {
+        log.info("Received message " + obj.getHeaders().get(AmqpStream.STREAM_COMMAND) + " on queue " + name);
         if (obj.getHeaders().get(AmqpStream.STREAM_COMMAND) != null &&
                 obj.getHeaders().get(AmqpStream.STREAM_COMMAND).equals(AmqpStreamControl.SUBSCRIPTION_ACK)) {
             remoteId = (String) obj.getHeaders().get(AmqpStreamControl.SUBSCRIPTION_STREAM_ID);
-            log.fine("Received SUBSCRIPTION_ACK " + remoteId + " activating local subscription");
+            log.info("Received SUBSCRIPTION_ACK " + remoteId + " activating local subscription");
             lastSeenKeepAlive = System.currentTimeMillis();
             sendKeepAlive();
             subscriber.onSubscribe(this);
@@ -117,7 +127,7 @@ public class AmqpStreamClient<T> implements
     @Override
     public void request(long n) {
         //request the remote publisher to send more data
-        log.finer("Requesting " + n + " more data from server " + remoteId);
+        log.info("Requesting " + n + " more data from server " + remoteId);
         queues.send(commandQueue,
                 MuonMessageEventBuilder.named("")
                         .withNoContent()
@@ -127,44 +137,34 @@ public class AmqpStreamClient<T> implements
     }
 
     private void sendKeepAlive() {
-        if (running) return;
-        if (spinner != null) {
-            spinner.shutdownNow();
+        if (keepAliveScheduler != null) {
+            keepAliveScheduler.shutdownNow();
         }
-        spinner = Executors.newSingleThreadExecutor();
-        spinner.execute(new Runnable() {
+        keepAliveScheduler = Executors.newScheduledThreadPool(1);
+        Runnable keepAliveSender = new Runnable() {
             @Override
             public void run() {
-                running = true;
-                while(running) {
-                    try {
-                        log.fine("Sending client keep alive : " + remoteId);
-                        MuonMessageEvent ev = MuonMessageEventBuilder.named(
-                                "")
-                                .withNoContent()
-                                .withHeader(AmqpStreamControl.SUBSCRIPTION_STREAM_ID, remoteId)
-                                .withHeader(AmqpStream.STREAM_COMMAND, AmqpStreamControl.COMMAND_KEEP_ALIVE)
-                                .build();
+                log.fine("Sending client keep alive : " + remoteId);
+                MuonMessageEvent ev = MuonMessageEventBuilder.named(
+                        "")
+                        .withNoContent()
+                        .withHeader(AmqpStreamControl.SUBSCRIPTION_STREAM_ID, remoteId)
+                        .withHeader(AmqpStream.STREAM_COMMAND, AmqpStreamControl.COMMAND_KEEP_ALIVE)
+                        .build();
 
-                        AmqpStreamClient.this.queues.send(
-                                commandQueue,
-                                ev);
-                        Thread.sleep(1000);
-                    } catch(InterruptedException ex) {
-                        running = false;
-                    } catch(Exception ex) {
-                        ex.printStackTrace();
-                    }
-                }
+                AmqpStreamClient.this.queues.send(
+                        commandQueue,
+                        ev);
             }
-        });
+        };
+
+        keepAliveScheduler.scheduleAtFixedRate(keepAliveSender, 0, 1, TimeUnit.SECONDS);
     }
 
     private void shutdown() {
-        running=false;
-        if (spinner != null) {
-            spinner.shutdownNow();
-            spinner = null;
+        if (keepAliveScheduler != null) {
+            keepAliveScheduler.shutdownNow();
+            keepAliveScheduler = null;
         }
         queues.removeListener(this);
     }

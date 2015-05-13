@@ -5,14 +5,19 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.extension.amqp.AmqpQueues;
 import io.muoncore.extension.amqp.stream.client.AmqpStreamClient;
 import io.muoncore.extension.amqp.stream.server.AmqpStreamControl;
+import io.muoncore.transport.MuonMessageEvent;
+import io.muoncore.transport.MuonMessageEventBuilder;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 /**
@@ -53,9 +58,9 @@ public class AmqpStream {
     private String commandQueue;
     private Codecs codecs;
 
-    private Executor spinner = Executors.newSingleThreadExecutor();
+    private ScheduledExecutorService keepAliveExpiryScheduler = Executors.newScheduledThreadPool(1);
 
-    List<AmqpStreamClient> streamClients = new ArrayList<AmqpStreamClient>();
+    List<AmqpStreamClient> streamClients = Collections.synchronizedList(new ArrayList<AmqpStreamClient>());
 
     public AmqpStream(String serviceName, AmqpQueues queues, Codecs codecs) {
         this.queues = queues;
@@ -67,24 +72,18 @@ public class AmqpStream {
     }
 
     private void monitorClientExpiry() {
-        spinner.execute(new Runnable() {
+        Runnable keepAliveSender = new Runnable() {
             @Override
             public void run() {
-                while(true) {
-                    try {
-                        Thread.sleep(1500);
-
-                        for(AmqpStreamClient client: new ArrayList<AmqpStreamClient>(streamClients)) {
-                            if (client.getLastSeenKeepAlive() + 3500 < System.currentTimeMillis()) {
-                                expireClientConnection(client);
-                            }
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+            for(AmqpStreamClient client: new ArrayList<AmqpStreamClient>(streamClients)) {
+                if (client.getLastSeenKeepAlive() + 3500 < System.currentTimeMillis()) {
+                    expireClientConnection(client);
                 }
             }
-        });
+            }
+        };
+
+        keepAliveExpiryScheduler.scheduleAtFixedRate(keepAliveSender, 4, 2, TimeUnit.SECONDS);
     }
 
     private void expireClientConnection(AmqpStreamClient client) {
@@ -111,7 +110,7 @@ public class AmqpStream {
 
         String remoteCommandQueue = remoteServiceName + "_stream_control";
 
-        log.fine("Subscribing to remote stream " + remoteCommandQueue + ":" + streamName);
+        log.info("Subscribing to remote stream " + remoteCommandQueue + ":" + streamName);
 
         streamClients.add(new AmqpStreamClient<T>(
                 remoteCommandQueue,

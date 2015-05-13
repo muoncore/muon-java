@@ -29,11 +29,11 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
     public static final String REQUEST_COUNT = "N";
     public static final String SUBSCRIPTION_ACK = "SUBSCRIPTION_ACK";
     public static final String SUBSCRIPTION_NACK = "SUBSCRIPTION_NACK";
-    private Map<String, MuonStreamGenerator> publisherStreams = new HashMap<String, MuonStreamGenerator>();
+    private Map<String, MuonStreamGenerator> publisherStreams = Collections.synchronizedMap(new HashMap<String, MuonStreamGenerator>());
     private Map<String, AmqpProxySubscriber> subscriptions = Collections.synchronizedMap(new HashMap<String, AmqpProxySubscriber>());
     private ExecutorService spinner;
 
-    private Map<String, Long> lastSeenKeepAlive = new HashMap<String, Long>();
+    private Map<String, Long> lastSeenKeepAlive = Collections.synchronizedMap(new HashMap<String, Long>());
 
     private AmqpQueues queues;
     private Codecs codecs;
@@ -46,7 +46,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
     }
 
     private void monitorKeepAlive() {
-        final int KEEP_ALIVE_ERROR = 6000;
+        final int KEEP_ALIVE_ERROR = 10000;
         //TODO, extract out into a monitor concept. This will vary hugely between transports.
         spinner.execute(new Runnable() {
             @Override
@@ -129,6 +129,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
                         .withNoContent()
                         .withHeader(AmqpStream.STREAM_COMMAND, SUBSCRIPTION_ACK)
                         .withHeader(AmqpStreamControl.SUBSCRIPTION_STREAM_ID, id).build());
+        log.info("Sent ACK for " + id);
     }
 
     private void requestData(MuonMessageEvent ev) {
