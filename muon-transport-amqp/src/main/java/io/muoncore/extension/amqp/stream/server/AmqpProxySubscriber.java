@@ -40,7 +40,7 @@ public class AmqpProxySubscriber implements Subscriber {
         Runnable keepAliveSender = new Runnable() {
             @Override
             public void run() {
-                log.info("Sending client keep-alive " + resourceQueue);
+                log.finer("Sending client keep-alive " + resourceQueue);
                 MuonMessageEvent ev = MuonMessageEventBuilder.named(
                         "")
                         .withNoContent()
@@ -78,6 +78,14 @@ public class AmqpProxySubscriber implements Subscriber {
     @Override
     public void onNext(Object o) {
 
+        //TODO, this artificially slows it down to prevent overflowing the
+        //amqp queues when running full speed. Need to ensure the backpressure does this job instead.
+        //as this totally sucks
+        //also, agree a buffering protocol.
+        try {
+            Thread.sleep(1);
+        } catch (InterruptedException e) { }
+
         MuonMessageEvent msg = MuonMessageEventBuilder.named(resourceQueue)
                 .withHeader("TYPE", "data")
                 .withContent(o).build();
@@ -93,7 +101,7 @@ public class AmqpProxySubscriber implements Subscriber {
 
     @Override
     public void onError(Throwable t) {
-        log.info("Subscription error: " + resourceQueue + ": " + t.getMessage());
+        log.warning("Subscription error: " + resourceQueue + ": " + t.getMessage());
         keepAliveScheduler.shutdownNow();
 
         queues.send(resourceQueue,

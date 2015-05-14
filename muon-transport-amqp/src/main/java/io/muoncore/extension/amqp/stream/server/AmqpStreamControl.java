@@ -129,7 +129,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
                         .withNoContent()
                         .withHeader(AmqpStream.STREAM_COMMAND, SUBSCRIPTION_ACK)
                         .withHeader(AmqpStreamControl.SUBSCRIPTION_STREAM_ID, id).build());
-        log.info("Sent ACK for " + id);
+        log.finer("Sent ACK for " + id);
     }
 
     private void requestData(MuonMessageEvent ev) {

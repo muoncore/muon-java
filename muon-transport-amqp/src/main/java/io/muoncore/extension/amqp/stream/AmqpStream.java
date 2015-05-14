@@ -72,14 +72,17 @@ public class AmqpStream {
     }
 
     private void monitorClientExpiry() {
+        final int KEEP_ALIVE_EXPIRY = 5000;
         Runnable keepAliveSender = new Runnable() {
             @Override
             public void run() {
-            for(AmqpStreamClient client: new ArrayList<AmqpStreamClient>(streamClients)) {
-                if (client.getLastSeenKeepAlive() + 3500 < System.currentTimeMillis()) {
-                    expireClientConnection(client);
+                List<AmqpStreamClient> clients = new ArrayList<AmqpStreamClient>(streamClients);
+                for(AmqpStreamClient client: clients) {
+                    if (System.currentTimeMillis() - client.getLastSeenKeepAlive() > KEEP_ALIVE_EXPIRY) {
+                        log.info("Expiring connection, number of clients is :" + clients.size());
+                        expireClientConnection(client);
+                    }
                 }
-            }
             }
         };
 

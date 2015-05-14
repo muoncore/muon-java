@@ -85,11 +85,11 @@ public class AmqpStreamClient<T> implements
 
     @Override
     public void onEvent(String name, MuonMessageEvent obj) {
-        log.info("Received message " + obj.getHeaders().get(AmqpStream.STREAM_COMMAND) + " on queue " + name);
+        log.finer("Received message " + obj.getHeaders().get(AmqpStream.STREAM_COMMAND) + " on queue " + name);
         if (obj.getHeaders().get(AmqpStream.STREAM_COMMAND) != null &&
                 obj.getHeaders().get(AmqpStream.STREAM_COMMAND).equals(AmqpStreamControl.SUBSCRIPTION_ACK)) {
             remoteId = (String) obj.getHeaders().get(AmqpStreamControl.SUBSCRIPTION_STREAM_ID);
-            log.info("Received SUBSCRIPTION_ACK " + remoteId + " activating local subscription");
+            log.fine("Received SUBSCRIPTION_ACK " + remoteId + " activating local subscription");
             lastSeenKeepAlive = System.currentTimeMillis();
             sendKeepAlive();
             subscriber.onSubscribe(this);
@@ -105,9 +105,11 @@ public class AmqpStreamClient<T> implements
             T decodedObject = codecs.decodeObject(data, obj.getContentType(), type);
             subscriber.onNext(decodedObject);
         } else if (obj.getHeaders().get("TYPE").equals("error")) {
+            log.warning(streamName+ " " + remoteId + ":Error reported by remote : " + obj.getHeaders().get("ERROR"));
             shutdown();
             onError(new IOException((String) obj.getHeaders().get("ERROR")));
         } else if (obj.getHeaders().get("TYPE").equals("complete")) {
+            log.info(streamName+ " " + remoteId + ":Remote reports stream is completed");
             shutdown();
             subscriber.onComplete();
         } else {
@@ -127,7 +129,7 @@ public class AmqpStreamClient<T> implements
     @Override
     public void request(long n) {
         //request the remote publisher to send more data
-        log.info("Requesting " + n + " more data from server " + remoteId);
+        log.fine("Requesting " + n + " more data from server " + remoteId);
         queues.send(commandQueue,
                 MuonMessageEventBuilder.named("")
                         .withNoContent()
@@ -171,6 +173,7 @@ public class AmqpStreamClient<T> implements
 
     @Override
     public void cancel() {
+        new Exception().printStackTrace();
         shutdown();
         queues.send(commandQueue,
                 MuonMessageEventBuilder.named("")

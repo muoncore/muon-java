@@ -17,7 +17,7 @@ public class QueueListener implements Runnable {
 
     private boolean running;
     private Channel channel;
-    private Logger log = Logger.getLogger(AmqpQueues.class.getName());
+    private Logger log = Logger.getLogger(QueueListener.class.getName());
     private String queueName;
     private Muon.EventMessageTransportListener listener;
     private QueueingConsumer consumer;
@@ -32,7 +32,7 @@ public class QueueListener implements Runnable {
     public void run() {
         try {
             log.info("Opening Queue: " + queueName);
-            channel.queueDeclare(queueName, true, false, true, null);
+            channel.queueDeclare(queueName, false, false, true, null);
 
             consumer = new QueueingConsumer(channel);
             channel.basicConsume(queueName, false, consumer);
@@ -92,6 +92,12 @@ public class QueueListener implements Runnable {
             consumer.handleCancel("Muon-Cancel");
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                channel.queueDelete(queueName, false, false);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

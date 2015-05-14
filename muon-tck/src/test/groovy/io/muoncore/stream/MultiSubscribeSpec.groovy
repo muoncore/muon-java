@@ -92,25 +92,3 @@ class MultiSubscribeSpec extends Specification {
   }
 }
 
-class MySubscriber implements Subscriber {
-  @Override
-  void onSubscribe(Subscription s) {
-    println "Subscribed"
-  }
-
-  @Override
-  void onNext(Object o) {
-
-  }
-
-  @Override
-  void onError(Throwable t) {
-    println "Error was thrown: '${t.message}'"
-    t.printStackTrace()
-  }
-
-  @Override
-  void onComplete() {
-    println "Subscriber is now completed"
-  }
-}
