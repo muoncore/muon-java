@@ -173,7 +173,6 @@ public class AmqpStreamClient<T> implements
 
     @Override
     public void cancel() {
-        new Exception().printStackTrace();
         shutdown();
         queues.send(commandQueue,
                 MuonMessageEventBuilder.named("")

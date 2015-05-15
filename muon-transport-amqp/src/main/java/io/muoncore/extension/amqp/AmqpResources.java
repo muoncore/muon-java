@@ -16,6 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AmqpResources {
@@ -66,7 +67,12 @@ public class AmqpResources {
 
                 ev.getHeaders().putAll(request.getHeaders());
                 ev.setContentType((String) request.getHeaders().get("Content-Type"));
-                Object response = listener.onEvent(resource, ev);
+                Object response = new HashMap();
+                try {
+                    response = listener.onEvent(resource, ev);
+                } catch (Exception ex) {
+                    log.log(Level.WARNING, "Resource handler failed to process correctly", ex);
+                }
                 log.finer("Sending" + response);
 
                 byte[] responseBytes = new byte[0];
