@@ -1,6 +1,7 @@
 package io.muoncore.extension.amqp;
 
 import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.ConsumerCancelledException;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.ShutdownSignalException;
 import io.muoncore.Muon;
@@ -69,14 +70,11 @@ public class QueueListener implements Runnable {
 
                     channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                 } catch (ShutdownSignalException ex) {
-                    ex.printStackTrace();
-                    if (ex.isHardError()) {
-                        log.log(Level.WARNING, ex.getMessage(), ex);
-                    }
-                    running = false;
+                    log.log(Level.FINER, ex.getMessage(), ex);
+                } catch (ConsumerCancelledException ex) {
+                    log.log(Level.FINER, ex.getMessage(), ex);
                 } catch (Exception e) {
                     log.log(Level.WARNING, e.getMessage(), e);
-                    ///TODO, send an error?
                 }
             }
         } catch (Exception e) {

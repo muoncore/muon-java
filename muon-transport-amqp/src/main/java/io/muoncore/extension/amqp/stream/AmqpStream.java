@@ -72,7 +72,7 @@ public class AmqpStream {
     }
 
     private void monitorClientExpiry() {
-        final int KEEP_ALIVE_EXPIRY = 5000;
+        final int KEEP_ALIVE_EXPIRY = 20000;
         Runnable keepAliveSender = new Runnable() {
             @Override
             public void run() {

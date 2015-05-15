@@ -97,7 +97,7 @@ public class AmqpResources {
             String returnQueue = "resourcereturn." + UUID.randomUUID().toString();
             String resourceQueue = "resource-listen." + event.getUri().getHost();
 
-            queues.listenOnQueueEvent(returnQueue, Void.class, new Muon.EventMessageTransportListener() {
+            Muon.EventMessageTransportListener listener = new Muon.EventMessageTransportListener() {
                 @Override
                 public void onEvent(String name, MuonMessageEvent obj) {
                     MuonResourceEvent resEv = new MuonResourceEvent(null);
@@ -107,9 +107,12 @@ public class AmqpResources {
 
                     ret.setEvent(resEv);
                     ret.setSuccess(true);
+
                     responseReceivedSignal.countDown();
                 }
-            });
+            };
+
+            queues.listenOnQueueEvent(returnQueue, Void.class, listener);
 
             String uuid = UUID.randomUUID().toString();
 
@@ -123,6 +126,8 @@ public class AmqpResources {
             queues.send(resourceQueue, messageEvent);
 
             responseReceivedSignal.await(15, TimeUnit.SECONDS);
+
+            queues.removeListener(listener);
 
             return ret;
 
