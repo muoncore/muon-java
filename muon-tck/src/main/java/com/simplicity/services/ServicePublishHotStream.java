@@ -4,7 +4,7 @@ import io.muoncore.Muon;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.extension.amqp.AmqpTransportExtension;
 import reactor.rx.Streams;
-import reactor.rx.stream.HotStream;
+import reactor.rx.broadcast.Broadcaster;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -23,7 +23,7 @@ public class ServicePublishHotStream {
         new AmqpTransportExtension("amqp://localhost:5672").extend(muon);
         muon.start();
 
-        final HotStream stream = Streams.defer();
+        final Broadcaster stream = Broadcaster.create();
 
         muon.streamSource("/counter", Map.class, stream);
 

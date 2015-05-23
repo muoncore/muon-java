@@ -14,12 +14,12 @@ def hasbintray = hasProperty("bintrayUsername")
 
 
 ext {
-  gradleVersion = '2.3'
+  gradleVersion = '2.4'
 
   // Libraries
-  reactiveStreamsVersion = '1.0.0.RC3'
+  reactiveStreamsVersion = '1.0.0.final'
 
-  reactorVersion = '2.0.0.M1'
+  reactorVersion = '2.0.1.RELEASE'
 }
 
 subprojects { subproject ->
@@ -101,6 +101,8 @@ project('muon-core') {
 		//Gson codec (the default)
 		compile 'com.google.code.gson:gson:2.3.1'
     testCompile "org.spockframework:spock-core:1.0-groovy-2.3"
+    testCompile "io.projectreactor:reactor-stream:$reactorVersion"
+    testCompile 'org.slf4j:slf4j-jdk14:1.7.12'
 	}
 }
 
@@ -116,7 +118,8 @@ project('muon-tck') {
 		compile project(":muon-transport-http1")
 		compile project(":muon-transport-zeromq")
 		compile project(":muon-codec-kryo")
-		compile "org.projectreactor:reactor-core:$reactorVersion"
+    compile "io.projectreactor:reactor-stream:$reactorVersion"
+    compile 'org.slf4j:slf4j-jdk14:1.7.12'
 	}
 }
 
@@ -177,7 +180,7 @@ project('muon-codec-kryo') {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.2'
+    gradleVersion = '2.4'
 }
 
 subprojects {

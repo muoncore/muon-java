@@ -5,9 +5,10 @@ import io.muoncore.extension.amqp.AmqpTransportExtension;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import reactor.function.Consumer;
+import reactor.fn.Consumer;
+import reactor.rx.Stream;
 import reactor.rx.Streams;
-import reactor.rx.stream.HotStream;
+import reactor.rx.broadcast.Broadcaster;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -31,7 +32,7 @@ public class ServiceStreamConsumerInt {
         //amqp discovery settle time.
         Thread.sleep(5000);
 
-        HotStream<Integer> sub = Streams.defer();
+        Broadcaster<Integer> sub = Broadcaster.create();
 
         sub.consume(new Consumer<Integer>() {
             @Override
@@ -39,8 +40,6 @@ public class ServiceStreamConsumerInt {
                 System.out.println("I have a message " + o);
             }
         });
-
-
 
         Map<String,String> params  = new HashMap<String, String>();
 

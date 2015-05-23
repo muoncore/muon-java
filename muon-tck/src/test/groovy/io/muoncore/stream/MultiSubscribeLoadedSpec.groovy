@@ -4,6 +4,7 @@ import io.muoncore.Muon
 import io.muoncore.extension.amqp.AmqpTransportExtension
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery
 import reactor.rx.Streams
+import reactor.rx.broadcast.Broadcaster
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
@@ -18,7 +19,7 @@ class MultiSubscribeLoadedSpec extends Specification {
     muon.serviceIdentifer = "eventsource"
     new AmqpTransportExtension("amqp://localhost").extend(muon)
 
-    def pub = Streams.defer()
+    def pub = Broadcaster.create()
         .capacity(5000)
 
     def consumes = []
@@ -33,19 +34,21 @@ class MultiSubscribeLoadedSpec extends Specification {
     Thread.sleep(3500)
 
     int messages = 10000
-    def numSubscribers = 20
+    def numSubscribers = 100
     def errors = []
     def items = []
 
     numSubscribers.times {
       def localitems = []
       items << localitems
-      def stream = Streams.defer()
+      def stream = Broadcaster.create()
 
-      stream.consume {
-        localitems << it
+      stream.observeError(Exception) {
+        println "Error!"
+      }.consume {
+          localitems << it
       }
-      stream.subscribe(new MySubscriber(errors: errors))
+
       muon.subscribe("muon://eventsource/core", Map, stream)
     }
 
@@ -64,11 +67,11 @@ class MultiSubscribeLoadedSpec extends Specification {
       def size = items*.size()
       def consumessize = consumes.size()
       consumessize == messages
-      size.sum() == messages * numSubscribers
+      items*.size().sum() == messages * numSubscribers
     }
+
     cleanup:
-    println "There were ${errors.size()} errors in the streams"
-    println errors
+    muon.shutdown()
   }
 }
 

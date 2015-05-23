@@ -1,12 +1,13 @@
 package com.simplicity.services;
 
 import io.muoncore.Muon;
+import io.muoncore.MuonFuture;
+import io.muoncore.MuonFutures;
 import io.muoncore.MuonService;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.extension.amqp.AmqpTransportExtension;
 import io.muoncore.transport.resource.MuonResourceEvent;
-import reactor.rx.Streams;
-import reactor.rx.stream.HotStream;
+import reactor.rx.broadcast.Broadcaster;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -26,17 +27,17 @@ public class ServiceResourceToPublishHotStream {
         new AmqpTransportExtension("amqp://localhost:5672").extend(muon);
         muon.start();
 
-        final HotStream<Map> stream = Streams.defer();
+        final Broadcaster<Map> stream = Broadcaster.create();
 
         muon.onGet("/data", Map.class, new MuonService.MuonGet<Map>() {
             @Override
-            public Object onQuery(MuonResourceEvent queryEvent) {
+            public MuonFuture onQuery(MuonResourceEvent queryEvent) {
 
                 Map<String, String> data = new HashMap<String, String>();
 
                 stream.accept(data);
 
-                return data;
+                return MuonFutures.immediately(data);
             }
         });
 

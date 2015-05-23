@@ -20,15 +20,18 @@ public class AmqpProxySubscriber implements Subscriber {
     private Subscription subscription;
     private AmqpQueues queues;
     private String resourceQueue;
+    private String keepAliveQueue;
     private Codecs codecs;
     private ScheduledExecutorService keepAliveScheduler;
 
     AmqpProxySubscriber(
             final String resourceQueue,
+            String keepAliveQueue,
             AmqpQueues queues,
             Codecs codecs) {
         this.queues = queues;
         this.resourceQueue = resourceQueue;
+        this.keepAliveQueue = keepAliveQueue;
         this.codecs = codecs;
         keepAliveScheduler = Executors.newScheduledThreadPool(1);
 
@@ -40,7 +43,7 @@ public class AmqpProxySubscriber implements Subscriber {
         Runnable keepAliveSender = new Runnable() {
             @Override
             public void run() {
-                log.finer("Sending client keep-alive " + resourceQueue);
+                log.finer("Sending client keep-alive " + keepAliveQueue);
                 MuonMessageEvent ev = MuonMessageEventBuilder.named(
                         "")
                         .withNoContent()
@@ -48,7 +51,7 @@ public class AmqpProxySubscriber implements Subscriber {
                         .build();
 
                 AmqpProxySubscriber.this.queues.send(
-                        resourceQueue,
+                        keepAliveQueue,
                         ev);
             }
         };
@@ -78,14 +81,6 @@ public class AmqpProxySubscriber implements Subscriber {
     @Override
     public void onNext(Object o) {
 
-        //TODO, this artificially slows it down to prevent overflowing the
-        //amqp queues when running full speed. Need to ensure the backpressure does this job instead.
-        //as this totally sucks
-        //also, agree a buffering protocol.
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException e) { }
-
         MuonMessageEvent msg = MuonMessageEventBuilder.named(resourceQueue)
                 .withHeader("TYPE", "data")
                 .withContent(o).build();
@@ -104,7 +99,7 @@ public class AmqpProxySubscriber implements Subscriber {
         log.warning("Subscription error: " + resourceQueue + ": " + t.getMessage());
         keepAliveScheduler.shutdownNow();
 
-        queues.send(resourceQueue,
+        queues.send(keepAliveQueue,
                 MuonMessageEventBuilder.named(resourceQueue)
                         .withNoContent()
                         .withHeader("TYPE", "error")

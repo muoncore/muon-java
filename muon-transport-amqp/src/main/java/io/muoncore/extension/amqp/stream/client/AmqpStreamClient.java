@@ -25,6 +25,7 @@ public class AmqpStreamClient<T> implements
     private AmqpQueues queues;
     private String streamName;
     private String privateStreamQueue;
+    private String privateKeepAliveQueue;
     private String commandQueue;
     private Subscriber<T> subscriber;
     private Class<T> type;
@@ -54,14 +55,17 @@ public class AmqpStreamClient<T> implements
         this.codecs = codecs;
 
         privateStreamQueue = UUID.randomUUID().toString();
+        privateKeepAliveQueue = UUID.randomUUID().toString();
         queues.listenOnQueueEvent(privateStreamQueue, Void.class, this);
+        queues.listenOnQueueEvent(privateKeepAliveQueue, Void.class, this);
         log.info("Listening for events from the remote on " + privateStreamQueue);
 
         MuonMessageEvent ev = MuonMessageEventBuilder.named("")
                 .withNoContent()
                 .withHeader(AmqpStream.STREAM_COMMAND, AmqpStreamControl.COMMAND_SUBSCRIBE)
                 .withHeader(AmqpStreamControl.REQUESTED_STREAM_NAME, streamName)
-                .withHeader(AmqpStreamControl.REPLY_QUEUE_NAME, privateStreamQueue).build();
+                .withHeader(AmqpStreamControl.REPLY_QUEUE_NAME, privateStreamQueue)
+                .withHeader(AmqpStreamControl.REPLY_QUEUE_NAME, privateKeepAliveQueue).build();
 
         //TODO, an event should be emitted bu the listenOnQueue above. We need to know when the queue is ready
         //otherwise we end up in a race with the remote service

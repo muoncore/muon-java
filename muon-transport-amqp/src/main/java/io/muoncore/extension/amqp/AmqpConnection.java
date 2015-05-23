@@ -41,6 +41,7 @@ public class AmqpConnection {
         try {
             channel.close();
             connection.close();
+            Thread.sleep(1000);
         } catch (ShutdownSignalException ex) {
             if (ex.isHardError()) {
                 log.log(Level.WARNING, ex.getMessage(), ex);

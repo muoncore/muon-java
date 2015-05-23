@@ -6,6 +6,7 @@ import io.muoncore.extension.amqp.discovery.AmqpDiscovery
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import reactor.rx.Streams
+import reactor.rx.broadcast.Broadcaster
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
@@ -19,7 +20,7 @@ class MultiSubscribeSpec extends Specification {
     def muon = new Muon(new AmqpDiscovery("amqp://localhost"))
     muon.serviceIdentifer = "eventsource"
     new AmqpTransportExtension("amqp://localhost").extend(muon)
-    def pub = Streams.defer()
+    def pub = Broadcaster.create()
     muon.start()
 
     muon.streamSource("/core", Map, pub)
@@ -30,12 +31,13 @@ class MultiSubscribeSpec extends Specification {
     int concurrentSubs = 20
 
     concurrentSubs.times {
-      def stream = Streams.defer()
+      def stream = Broadcaster.create()
 
-      stream.consume {
-        items << it
+      stream.observeError(Exception) { e, b ->
+        println "Error!"
+      }.consume {
+          items << it
       }
-      stream.subscribe(new MySubscriber())
       muon.subscribe("muon://eventsource/core", Map, stream)
     }
 
@@ -49,6 +51,10 @@ class MultiSubscribeSpec extends Specification {
     new PollingConditions(timeout: 5).eventually {
       items.size() == concurrentSubs
     }
+
+    cleanup:
+    muon.shutdown()
+    Thread.sleep(2000)
   }
 
   def "Multiple concurrent muon based subscribers can open the same channel"() {
@@ -56,7 +62,7 @@ class MultiSubscribeSpec extends Specification {
     def muon = new Muon(new AmqpDiscovery("amqp://localhost"))
     muon.serviceIdentifer = "eventsource"
     new AmqpTransportExtension("amqp://localhost").extend(muon)
-    def pub = Streams.defer()
+    def pub = Broadcaster.create()
     muon.start()
 
     muon.streamSource("/core", Map, pub)
@@ -70,12 +76,13 @@ class MultiSubscribeSpec extends Specification {
 
     concurrentSubs.times {
       Thread.start {
-        def stream = Streams.defer()
+        def stream = Broadcaster.create()
 
-        stream.consume {
+        stream.observeError(Exception){
+          println "Error!"
+        }.consume {
           items << it
         }
-        stream.subscribe(new MySubscriber())
         muon.subscribe("muon://eventsource/core", Map, stream)
       }
     }
@@ -89,6 +96,9 @@ class MultiSubscribeSpec extends Specification {
     new PollingConditions(timeout: 5).eventually {
       items.size() == concurrentSubs
     }
+
+    cleanup:
+    muon.shutdown()
   }
 }
 

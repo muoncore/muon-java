@@ -1,6 +1,7 @@
 package com.simplicityitself.services
 
 import io.muoncore.Muon
+import io.muoncore.MuonFutures
 import io.muoncore.extension.amqp.AmqpTransportExtension
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery
 import spock.lang.Specification
@@ -17,8 +18,8 @@ class MuonShutdownSpec extends Specification {
 
     muon1.start()
 
-    muon1.onGet("/hello", Map){
-      return [message:"You are awesome"]
+    muon1.onGet("/hello", Map) {
+      return MuonFutures.immediately([message:"You are awesome"])
     }
 
     Thread.sleep(3000)
@@ -37,7 +38,7 @@ class MuonShutdownSpec extends Specification {
     muon2.start()
 
     muon2.onGet("/hello", Map){
-      return [message:"second service"]
+      return MuonFutures.immediately([message:"second service"])
     }
 
 
@@ -49,7 +50,7 @@ class MuonShutdownSpec extends Specification {
 
     then: "The request is handled by the new muon"
 
-    ret.success
-    ret.responseEvent.decodedContent.message == "second service"
+    ret.get().success
+    ret.get().responseEvent.decodedContent.message == "second service"
   }
 }

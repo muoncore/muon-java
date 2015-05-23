@@ -5,15 +5,13 @@ import io.muoncore.extension.amqp.AmqpTransportExtension;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import reactor.function.Consumer;
-import reactor.rx.Streams;
-import reactor.rx.stream.HotStream;
+import reactor.fn.Consumer;
+import reactor.rx.broadcast.Broadcaster;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -41,7 +39,7 @@ public class ServiceStreamConsumerReconnect {
     }
 
     private static void connect(final Muon muon, final int rand) throws URISyntaxException {
-        final HotStream<Map> sub = Streams.defer();
+        final Broadcaster<Map> sub = Broadcaster.create();
         Map<String,String> params  = new HashMap<String, String>();
 
         params.put("max", "5");

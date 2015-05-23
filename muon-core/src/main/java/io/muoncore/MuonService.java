@@ -34,15 +34,15 @@ public interface MuonService extends MuonClient {
         public void onEvent(MuonMessageEvent<T> event);
     }
     public static interface MuonGet<T> {
-        public Object onQuery(MuonResourceEvent<T> queryEvent);
+        public MuonFuture<?> onQuery(MuonResourceEvent<T> queryEvent);
     }
     public static interface MuonPost<T> {
-        public Object onCommand(MuonResourceEvent<T> queryEvent);
+        public MuonFuture<?> onCommand(MuonResourceEvent<T> queryEvent);
     }
     public static interface MuonPut<T> {
-        public Object onCommand(MuonResourceEvent<T> queryEvent);
+        public MuonFuture<?> onCommand(MuonResourceEvent<T> queryEvent);
     }
     public static interface MuonDelete<T> {
-        public Object onCommand(MuonResourceEvent<T> queryEvent);
+        public MuonFuture<?> onCommand(MuonResourceEvent<T> queryEvent);
     }
 }

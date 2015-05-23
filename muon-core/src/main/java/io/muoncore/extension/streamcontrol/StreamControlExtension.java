@@ -1,6 +1,8 @@
 package io.muoncore.extension.streamcontrol;
 
 import io.muoncore.MuonExtension;
+import io.muoncore.MuonFuture;
+import io.muoncore.MuonFutures;
 import io.muoncore.MuonService;
 import io.muoncore.transport.resource.MuonResourceEvent;
 import io.muoncore.transport.stream.MuonStreamRegister;
@@ -20,14 +22,14 @@ public class StreamControlExtension implements MuonExtension {
                 Map.class,
                 new MuonService.MuonGet<Map>() {
                     @Override
-                    public Object onQuery(MuonResourceEvent<Map> queryEvent) {
+                    public MuonFuture onQuery(MuonResourceEvent<Map> queryEvent) {
                         List<String> streams = new ArrayList<String>();
 
                         for (MuonStreamRegister stream : muonApi.getStreams()) {
                             streams.add(stream.getName());
                         }
 
-                        return streams;
+                        return MuonFutures.immediately(streams);
                     }
                 });
     }

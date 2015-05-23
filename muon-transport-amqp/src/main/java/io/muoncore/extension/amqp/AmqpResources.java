@@ -68,8 +68,9 @@ public class AmqpResources {
                 ev.getHeaders().putAll(request.getHeaders());
                 ev.setContentType((String) request.getHeaders().get("Content-Type"));
                 Object response = new HashMap();
+                //TODO, frp this crap, esp the future.
                 try {
-                    response = listener.onEvent(resource, ev);
+                    response = listener.onEvent(resource, ev).get();
                 } catch (Exception ex) {
                     log.log(Level.WARNING, "Resource handler failed to process correctly", ex);
                 }

@@ -24,6 +24,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
     public static final String COMMAND_SUBSCRIBE = "SUBSCRIBE";
     public static final String COMMAND_CANCEL = "CANCEL";
     public static final String REPLY_QUEUE_NAME = "REPLY_QUEUE_NAME";
+    public static final String KEEPALIVE_QUEUE_NAME = "KEEPALIVE_QUEUE_NAME";
     public static final String REQUESTED_STREAM_NAME = "REQUESTED_STREAM_NAME";
     public static final String SUBSCRIPTION_STREAM_ID = "SUBSCRIPTION_STREAM_ID";
     public static final String REQUEST_COUNT = "N";
@@ -100,9 +101,13 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
         String id = UUID.randomUUID().toString();
 
         String replyStreamName = (String) ev.getHeaders().get(REPLY_QUEUE_NAME);
+        String keepAliveStreamName = (String) ev.getHeaders().get(KEEPALIVE_QUEUE_NAME);
         String requestedStreamName = (String) ev.getHeaders().get(REQUESTED_STREAM_NAME);
 
-        AmqpProxySubscriber subscriber = new AmqpProxySubscriber(replyStreamName, queues, codecs);
+        AmqpProxySubscriber subscriber = new AmqpProxySubscriber(
+                replyStreamName,
+                keepAliveStreamName,
+                queues, codecs);
 
         MuonStreamGenerator generator = publisherStreams.get(requestedStreamName);
         if (generator == null) {

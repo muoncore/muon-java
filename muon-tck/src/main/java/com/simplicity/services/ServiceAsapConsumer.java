@@ -3,9 +3,9 @@ package com.simplicity.services;
 import io.muoncore.Muon;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.extension.amqp.AmqpTransportExtension;
-import reactor.function.Consumer;
+import reactor.fn.Consumer;
 import reactor.rx.Streams;
-import reactor.rx.stream.HotStream;
+import reactor.rx.broadcast.Broadcaster;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -27,7 +27,7 @@ public class ServiceAsapConsumer {
         //allow discovery settle time.
         Thread.sleep(5000);
 
-        HotStream<Map> sub = Streams.defer();
+        Broadcaster<Map> sub = Broadcaster.create();
 
         Map<String,String> params  = new HashMap<String, String>();
 
@@ -45,7 +45,6 @@ public class ServiceAsapConsumer {
             }
         });
 
-        sub.drain();
 
         System.out.println("Items were ... " + items.size());
     }

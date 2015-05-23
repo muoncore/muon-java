@@ -31,6 +31,7 @@ public class KryoBinaryCodec implements BinaryCodec {
     public byte[] encode(Object data) {
         Kryo kryo = new Kryo();
         Output output = new Output();
+        output.setBuffer(new byte[5000]);
         kryo.writeObject(output, data);
         output.close();
         return output.getBuffer();
