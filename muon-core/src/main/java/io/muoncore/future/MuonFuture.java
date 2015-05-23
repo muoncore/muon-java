@@ -1,4 +1,4 @@
-package io.muoncore;
+package io.muoncore.future;
 
 import org.reactivestreams.Publisher;
 

@@ -1,8 +1,8 @@
 package com.simplicity.services;
 
 import io.muoncore.Muon;
-import io.muoncore.MuonFuture;
-import io.muoncore.MuonFutures;
+import io.muoncore.future.MuonFuture;
+import io.muoncore.future.MuonFutures;
 import io.muoncore.MuonService;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.extension.amqp.AmqpTransportExtension;

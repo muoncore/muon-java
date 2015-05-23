@@ -5,6 +5,8 @@ import io.muoncore.codec.KryoExtension;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.extension.amqp.AmqpTransportExtension;
 import io.muoncore.extension.http.HttpTransportExtension;
+import io.muoncore.future.MuonFuture;
+import io.muoncore.future.MuonFutures;
 import io.muoncore.transport.MuonMessageEvent;
 import io.muoncore.transport.MuonMessageEventBuilder;
 import io.muoncore.transport.resource.MuonResourceEvent;

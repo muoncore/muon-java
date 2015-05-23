@@ -1,8 +1,8 @@
-package io.muoncore;
+package io.muoncore.future;
 
-import io.muoncore.internal.ImmediateReturnFuture;
-import io.muoncore.internal.PublisherBackedFuture;
 import org.reactivestreams.Publisher;
+
+import java.util.concurrent.Future;
 
 public class MuonFutures {
 

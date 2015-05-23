@@ -1,6 +1,7 @@
 package io.muoncore.internal
 
-import io.muoncore.MuonFuture
+import io.muoncore.future.MuonFuture
+import io.muoncore.future.PublisherBackedFuture
 import reactor.rx.Streams
 import reactor.rx.broadcast.Broadcaster
 import spock.lang.Specification

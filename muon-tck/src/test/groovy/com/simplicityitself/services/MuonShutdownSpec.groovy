@@ -1,7 +1,7 @@
 package com.simplicityitself.services
 
 import io.muoncore.Muon
-import io.muoncore.MuonFutures
+import io.muoncore.future.MuonFutures
 import io.muoncore.extension.amqp.AmqpTransportExtension
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery
 import spock.lang.Specification

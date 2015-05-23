@@ -1,5 +1,6 @@
 package io.muoncore;
 
+import io.muoncore.future.MuonFuture;
 import io.muoncore.transport.MuonMessageEvent;
 import io.muoncore.transport.resource.MuonResourceEvent;
 

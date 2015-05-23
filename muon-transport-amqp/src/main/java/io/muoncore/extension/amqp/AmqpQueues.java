@@ -34,7 +34,7 @@ public class AmqpQueues {
         byte[] messageBytes = event.getBinaryEncodedContent();
         //TODO, one of the many sucky things about this mish mash design.
         if (messageBytes == null) {
-            messageBytes = "{}".getBytes();
+            messageBytes = new byte[0];
         }
         MuonService.MuonResult ret = new MuonService.MuonResult();
 

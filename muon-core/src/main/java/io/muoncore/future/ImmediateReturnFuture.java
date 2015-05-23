@@ -1,6 +1,6 @@
-package io.muoncore.internal;
+package io.muoncore.future;
 
-import io.muoncore.MuonFuture;
+import io.muoncore.future.MuonFuture;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;

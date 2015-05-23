@@ -2,7 +2,8 @@ package io.muoncore;
 
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.TransportCodecType;
-import io.muoncore.internal.ImmediateReturnFuture;
+import io.muoncore.future.MuonFuture;
+import io.muoncore.future.ImmediateReturnFuture;
 import io.muoncore.internal.Dispatcher;
 import io.muoncore.internal.MuonStreamExistingGenerator;
 import io.muoncore.transport.*;
