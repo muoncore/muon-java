@@ -29,7 +29,7 @@ public class ServiceResourceToPublishHotStream {
 
         final Broadcaster<Map> stream = Broadcaster.create();
 
-        muon.onGet("/data", Map.class, new MuonService.MuonGet<Map>() {
+        muon.onQuery("/data", Map.class, new MuonService.MuonQuery<Map>() {
             @Override
             public MuonFuture onQuery(MuonResourceEvent queryEvent) {
 

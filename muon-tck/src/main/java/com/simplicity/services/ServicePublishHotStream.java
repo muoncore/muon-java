@@ -31,15 +31,16 @@ public class ServicePublishHotStream {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                while(true) {
                 try {
-                    while(true) {
-                        Thread.sleep(5000);
+
+                        Thread.sleep(500);
                         System.out.println("Sending data");
 
                         stream.accept(new Awesome("I am a teapot", System.currentTimeMillis()));
-                    }
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
+                }
                 }
             }
         }).start();

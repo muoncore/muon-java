@@ -18,9 +18,9 @@ public class StreamControlExtension implements MuonExtension {
 
     @Override
     public void extend(final MuonService muonApi) {
-        muonApi.onGet("/reactive-streams",
+        muonApi.onQuery("/reactive-streams",
                 Map.class,
-                new MuonService.MuonGet<Map>() {
+                new MuonService.MuonQuery<Map>() {
                     @Override
                     public MuonFuture onQuery(MuonResourceEvent<Map> queryEvent) {
                         List<String> streams = new ArrayList<String>();

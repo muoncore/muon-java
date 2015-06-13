@@ -269,7 +269,7 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public <T> void onGet(String resource, final Class<T> type, final MuonGet<T> listener) {
+    public <T> void onQuery(String resource, final Class<T> type, final MuonQuery<T> listener) {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(final MuonResourceTransport transport: resourceTransports.all()) {
@@ -284,41 +284,11 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public <T> void onPost(String resource, final Class<T> type, final MuonPost<T> listener) {
+    public <T> void onCommand(String resource, final Class<T> type, final MuonCommand<T> listener) {
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(final MuonResourceTransport transport: resourceTransports.all()) {
             transport.listenOnResource(resource, "post", type, new EventResourceTransportListener<T>() {
-                @Override
-                public MuonFuture onEvent(String name, MuonResourceEvent<T> obj) {
-                    decode(obj, transport.getCodecType(), type);
-                    return listener.onCommand(obj);
-                }
-            });
-        }
-    }
-
-    @Override
-    public <T> void onPut(String resource, final Class<T> type, final MuonPut<T> listener) {
-        //TODO, extract this into some lifecycle init during start.
-        //instead just store this.
-        for(final MuonResourceTransport transport: resourceTransports.all()) {
-            transport.listenOnResource(resource, "put", type, new EventResourceTransportListener<T>() {
-                @Override
-                public MuonFuture onEvent(String name, MuonResourceEvent<T> obj) {
-                    decode(obj, transport.getCodecType(), type);
-                    return listener.onCommand(obj);
-                }
-            });
-        }
-    }
-
-    @Override
-    public <T> void onDelete(String resource, final Class<T> type, final MuonDelete<T> listener) {
-        //TODO, extract this into some lifecycle init during start.
-        //instead just store this.
-        for(final MuonResourceTransport transport: resourceTransports.all()) {
-            transport.listenOnResource(resource, "delete", type, new EventResourceTransportListener<T>() {
                 @Override
                 public MuonFuture onEvent(String name, MuonResourceEvent<T> obj) {
                     decode(obj, transport.getCodecType(), type);
@@ -413,7 +383,6 @@ public class Muon implements MuonService {
         t.subscribeToStream(url, type, params, subscriber);
     }
 
-    @Override
     public <T> void onQueue(String queue, final Class<T> type, final MuonListener<T> listener) {
         for(final MuonQueueTransport transport: queueingTransports.all()) {
             transport.listenOnQueueEvent(queue, type, new EventMessageTransportListener() {
