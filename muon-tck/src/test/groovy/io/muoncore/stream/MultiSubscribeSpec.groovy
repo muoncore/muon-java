@@ -70,7 +70,7 @@ class MultiSubscribeSpec extends Specification {
     Thread.sleep(3500)
 
     def items = []
-    int concurrentSubs = 10
+    int concurrentSubs = 5
 
     Executors.newCachedThreadPool()
 

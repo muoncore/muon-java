@@ -12,6 +12,15 @@ buildscript {
 def globalVersion = new Version(currentVersion)
 def hasbintray = hasProperty("bintrayUsername")
 
+//compileJava {
+//  sourceCompatibility = 1.7
+//  targetCompatibility = 1.7
+//}
+//
+//compileTestJava {
+//  sourceCompatibility = 1.7
+//  targetCompatibility = 1.7
+//}
 
 ext {
   gradleVersion = '2.4'
@@ -37,13 +46,13 @@ subprojects { subproject ->
 	}
 
   compileJava {
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
   }
 
   compileTestJava {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
   }
 
   repositories {
@@ -67,8 +76,8 @@ subprojects { subproject ->
       name = subproject.name
       desc = subproject.description
       websiteUrl = 'https://muoncore.io'
-      issueTrackerUrl = 'https://github.com/simplicityitself/muon-core-java/issues'
-      vcsUrl = 'https://github.com/simplicityitself/muon-core-java.git'
+      issueTrackerUrl = 'https://github.com/muoncore/muon-java/issues'
+      vcsUrl = 'https://github.com/muoncore/muon-java.git'
       licenses = ['Apache-2.0']
       labels = ['muon', 'microservices']
       publicDownloadNumbers = true
@@ -192,7 +201,7 @@ project('muon-spring') {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.4'
+    gradleVersion = '2.5'
 }
 
 subprojects {

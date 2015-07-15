@@ -3,14 +3,11 @@ package io.muoncore.stream
 import io.muoncore.Muon
 import io.muoncore.extension.amqp.AmqpTransportExtension
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery
-import reactor.rx.Streams
 import reactor.rx.broadcast.Broadcaster
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
-import java.util.concurrent.Executors
-
-class MultiSubscribeLoadedSpec extends Specification {
+class MultiDistinctSubscribeLoadedSpec extends Specification {
 
   def "A loaded channel remains available."() {
 
@@ -31,12 +28,12 @@ class MultiSubscribeLoadedSpec extends Specification {
 
     muon.streamSource("/core", Map, pub)
 
-    Thread.sleep(3500)
-
     int messages = 5000
     def numSubscribers = 20
-    def errors = []
+    def MuonResourceService = []
     def items = []
+
+    def clientMuons = []
 
     numSubscribers.times {
       def localitems = []
@@ -51,6 +48,11 @@ class MultiSubscribeLoadedSpec extends Specification {
 
       muon.subscribe("muon://eventsource/core", Map, stream)
     }
+
+
+
+    Thread.sleep(3500)
+
 
     and:
     Thread.sleep(6000)
