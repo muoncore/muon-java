@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.annotation.PostConstruct;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +42,11 @@ public class MuonStreamSubscriptionService {
     }
 
     public void setupMuonMapping(String streamUrl, final MuonStreamMethodInvocation muonStreamMethodInvocation) {
-        StreamConnector streamConnector = new StreamConnector(muon, streamUrl, muonStreamMethodInvocation);
+        setupMuonMapping(streamUrl, new HashMap<String, String>(), muonStreamMethodInvocation);
+    }
+
+    public void setupMuonMapping(String streamUrl, Map<String, String> params, final MuonStreamMethodInvocation muonStreamMethodInvocation) {
+        StreamConnector streamConnector = new StreamConnector(muon, streamUrl, params, muonStreamMethodInvocation);
         try {
             streamConnector.safeConnectToStream();
         } catch (Exception e) {

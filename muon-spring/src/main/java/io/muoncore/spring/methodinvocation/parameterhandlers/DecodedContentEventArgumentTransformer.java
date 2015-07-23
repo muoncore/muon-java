@@ -17,9 +17,9 @@ public class DecodedContentEventArgumentTransformer implements MethodArgumentTra
     }
 
     @Override
-    public Object extractArgument(Object muonResourceEvent) {
-        if (muonResourceEvent instanceof MuonResourceEvent) {
-            return ((MuonResourceEvent) muonResourceEvent).getDecodedContent();
+    public Object extractArgument(Object muonEvent) {
+        if (muonEvent instanceof MuonResourceEvent) {
+            return ((MuonResourceEvent) muonEvent).getDecodedContent();
         } else {
             throw new IllegalStateException("@DecodedContent annotation should be used only on resource handlers");
         }

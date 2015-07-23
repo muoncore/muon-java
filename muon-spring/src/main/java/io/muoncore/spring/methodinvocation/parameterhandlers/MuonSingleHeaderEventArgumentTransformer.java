@@ -18,11 +18,11 @@ public class MuonSingleHeaderEventArgumentTransformer implements MethodArgumentT
     }
 
     @Override
-    public Object extractArgument(Object muonResourceEvent) {
-        if (muonResourceEvent instanceof MuonResourceEvent) {
+    public Object extractArgument(Object muonEvent) {
+        if (muonEvent instanceof MuonResourceEvent) {
             final MuonHeader muonHeaderAnnotation = parameter.getAnnotation(MuonHeader.class);
             assert muonHeaderAnnotation != null;
-            return ((MuonResourceEvent) muonResourceEvent).getHeaders().get(muonHeaderAnnotation.value());
+            return ((MuonResourceEvent) muonEvent).getHeaders().get(muonHeaderAnnotation.value());
         } else {
             throw new IllegalStateException("@MuonHeader(\"<header-name>\") annotation should be used only on resource handlers");
         }

@@ -8,18 +8,21 @@ import reactor.fn.Consumer;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.net.URISyntaxException;
+import java.util.Map;
 
 public class StreamConnector {
 
+    private Map<String, String> params;
     private Muon muon;
     private MuonStreamMethodInvocation muonStreamMethodInvocation;
     private String muonUrl;
 
     private ConnectionState connectionState = ConnectionState.DISCONNECTED;
 
-    public StreamConnector(Muon muon, String muonUrl, MuonStreamMethodInvocation muonStreamMethodInvocation) {
+    public StreamConnector(Muon muon, String muonUrl, Map<String, String> params, MuonStreamMethodInvocation muonStreamMethodInvocation) {
         this.muon = muon;
         this.muonUrl = muonUrl;
+        this.params = params;
         this.muonStreamMethodInvocation = muonStreamMethodInvocation;
     }
 
@@ -56,7 +59,7 @@ public class StreamConnector {
             }
         });
 
-        muon.subscribe(muonUrl, muonStreamMethodInvocation.getDecodedParameterType(), localstream);
+        muon.subscribe(muonUrl, muonStreamMethodInvocation.getDecodedParameterType(), params, localstream);
         if (connectionState == ConnectionState.CONNECTING) {
             connectionState = ConnectionState.CONNECTED;
         }
