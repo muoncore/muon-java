@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface MuonStreamListener {
     /**
-     * Full muon URL to subscribe to, e.g. muon://service/stream
+     * @return Full muon URL to subscribe to, e.g. muon://service/stream
      */
     String url();
 }

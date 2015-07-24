@@ -91,6 +91,13 @@ public class AmqpStream {
 
     private void expireClientConnection(AmqpStreamClient client) {
         streamClients.remove(client);
+
+        if (client.isTerminated()) {
+            log.info("Connection to service " + client.getStreamName() +
+                    " has terminated. Removing local record");
+            return;
+        }
+
         log.warning("Connection to service " + client.getStreamName() +
                 " has expired. The server did not send keep-alive.");
 

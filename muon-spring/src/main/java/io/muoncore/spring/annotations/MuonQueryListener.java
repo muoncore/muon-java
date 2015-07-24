@@ -13,7 +13,8 @@ import java.lang.annotation.*;
 public @interface MuonQueryListener {
     /**
      * Query path, should start with /.
-     * For example, /resource will map all queries to muon://<serviceName>/resource
+     * For example, /resource will map all queries to muon://[serviceName]/resource
+     * @return the path to listen on
      */
     String path();
 }

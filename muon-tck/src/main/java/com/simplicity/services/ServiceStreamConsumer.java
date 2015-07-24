@@ -6,6 +6,7 @@ import io.muoncore.extension.amqp.AmqpTransportExtension;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.fn.Consumer;
+import reactor.rx.Streams;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.io.IOException;
@@ -34,29 +35,24 @@ public class ServiceStreamConsumer {
 
         Map<String,String> params  = new HashMap<String, String>();
 
-        params.put("max", "500");
+//        params.put("max", "500");
 
-        muon.subscribe("muon://cl/counter", Map.class, params, sub);
-
-        sub.consume(new Consumer<Map>() {
-            @Override
-            public void accept(Map o) {
-                System.out.println("I have a message " + o);
+        muon.subscribe("muon://cl/counter?max=20", Integer.class, params, new Subscriber<Integer>() {
+            public void onSubscribe(Subscription s) {
+                s.request(Integer.MAX_VALUE);
+            }
+            public void onNext(Integer consume) {
+                System.out.println("Received data " + consume);
+            }
+            public void onError(Throwable t) {
+                System.out.println("Stream completed with ERROR");
+                t.printStackTrace();
+            }
+            public void onComplete() {
+                System.out.println("Stream completed successfully and is disconnected");
             }
         });
 
-        sub.subscribe(
-                new Subscriber<Map>() {
-                    public void onSubscribe(Subscription s) {}
-                    public void onNext(Map consume) {}
-                    public void onError(Throwable t) {
-                        System.out.println("Stream completed with ERROR");
-                        t.printStackTrace();
-                    }
-                    public void onComplete() {
-                        System.out.println("Stream completed successfully and is disconnected");
-                    }
-                });
     }
 
     static class Consume {

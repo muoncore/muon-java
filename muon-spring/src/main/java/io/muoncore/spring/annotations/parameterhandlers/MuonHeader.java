@@ -11,8 +11,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface MuonHeader {
     /**
-     * Muon header name
-     *
+     * @return Muon header name
      */
     String value();
 }

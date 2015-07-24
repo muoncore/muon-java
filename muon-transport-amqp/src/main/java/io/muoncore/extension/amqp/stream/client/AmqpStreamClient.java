@@ -39,6 +39,8 @@ public class AmqpStreamClient<T> implements
 
     private long lastSeenKeepAlive;
 
+    private boolean isTerminated = false;
+
     public AmqpStreamClient(
             String commandQueue,
             String streamName,
@@ -65,7 +67,7 @@ public class AmqpStreamClient<T> implements
                 .withHeader(AmqpStream.STREAM_COMMAND, AmqpStreamControl.COMMAND_SUBSCRIBE)
                 .withHeader(AmqpStreamControl.REQUESTED_STREAM_NAME, streamName)
                 .withHeader(AmqpStreamControl.REPLY_QUEUE_NAME, privateStreamQueue)
-                .withHeader(AmqpStreamControl.REPLY_QUEUE_NAME, privateKeepAliveQueue).build();
+                .withHeader(AmqpStreamControl.KEEPALIVE_QUEUE_NAME, privateKeepAliveQueue).build();
 
         //TODO, an event should be emitted bu the listenOnQueue above. We need to know when the queue is ready
         //otherwise we end up in a race with the remote service
@@ -85,6 +87,10 @@ public class AmqpStreamClient<T> implements
 
     public String getStreamName() {
         return streamName;
+    }
+
+    public boolean isTerminated() {
+        return isTerminated;
     }
 
     @Override
@@ -171,6 +177,7 @@ public class AmqpStreamClient<T> implements
         if (keepAliveScheduler != null) {
             keepAliveScheduler.shutdownNow();
             keepAliveScheduler = null;
+            isTerminated = true;
         }
         queues.removeListener(this);
     }

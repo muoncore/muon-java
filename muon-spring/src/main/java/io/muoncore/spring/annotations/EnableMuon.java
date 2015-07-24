@@ -23,6 +23,7 @@ public @interface EnableMuon {
 
     /**
      * Assign a name to the Muon service instance
+     * @return the name of the service
      */
     String serviceName();
 

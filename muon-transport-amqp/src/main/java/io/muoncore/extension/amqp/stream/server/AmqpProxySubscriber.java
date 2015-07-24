@@ -43,7 +43,7 @@ public class AmqpProxySubscriber implements Subscriber {
         Runnable keepAliveSender = new Runnable() {
             @Override
             public void run() {
-                log.finer("Sending client keep-alive " + keepAliveQueue);
+                log.finer("Sending keep-alive to client " + keepAliveQueue);
                 MuonMessageEvent ev = MuonMessageEventBuilder.named(
                         "")
                         .withNoContent()

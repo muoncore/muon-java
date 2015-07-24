@@ -26,7 +26,7 @@ ext {
   gradleVersion = '2.4'
 
   // Libraries
-  reactiveStreamsVersion = '1.0.0.final'
+  reactiveStreamsVersion = '1.0.0'
 
   reactorVersion = '2.0.1.RELEASE'
 }

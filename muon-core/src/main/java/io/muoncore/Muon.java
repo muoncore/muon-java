@@ -1,5 +1,6 @@
 package io.muoncore;
 
+import com.google.common.base.Splitter;
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.TransportCodecType;
 import io.muoncore.future.MuonFuture;
@@ -19,6 +20,7 @@ import org.reactivestreams.Subscriber;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -363,8 +365,16 @@ public class Muon implements MuonService {
 
     public <T> void subscribe(String url, Class<T> type, Map<String, String> params, Subscriber<T> subscriber) throws URISyntaxException {
 
-        String host = new URI(url).getHost();
-        ServiceDescriptor descriptor = discovery.getService(new URI(url));
+        URI uri = new URI(url);
+
+        String host = uri.getHost();
+
+        params.putAll(Splitter.on('&')
+                .trimResults()
+                .withKeyValueSeparator("=")
+                .split(uri.getQuery()));
+
+        ServiceDescriptor descriptor = discovery.getService(uri);
 
         if (descriptor == null) {
             subscriber.onError(new IllegalStateException("Service not found"));
@@ -372,7 +382,6 @@ public class Muon implements MuonService {
         }
 
         MuonStreamTransport t = streamingTransports.findBestStreamTransport(descriptor);
-
 
         if (t == null) {
             log.warning("Stream subscription to " + url + " cannot be made, no transport can connect using the connection details " + descriptor.getStreamConnectionUrls());
