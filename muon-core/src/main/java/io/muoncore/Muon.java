@@ -3,11 +3,13 @@ package io.muoncore;
 import com.google.common.base.Splitter;
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.TransportCodecType;
-import io.muoncore.future.MuonFuture;
 import io.muoncore.future.ImmediateReturnFuture;
+import io.muoncore.future.MuonFuture;
 import io.muoncore.internal.Dispatcher;
 import io.muoncore.internal.MuonStreamExistingGenerator;
-import io.muoncore.transport.*;
+import io.muoncore.transport.MuonEventTransport;
+import io.muoncore.transport.MuonMessageEvent;
+import io.muoncore.transport.MuonQueueTransport;
 import io.muoncore.transport.broadcast.MuonBroadcastTransport;
 import io.muoncore.transport.resource.MuonResourceEvent;
 import io.muoncore.transport.resource.MuonResourceEventBuilder;
@@ -20,7 +22,6 @@ import org.reactivestreams.Subscriber;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -369,11 +370,12 @@ public class Muon implements MuonService {
 
         String host = uri.getHost();
 
-        params.putAll(Splitter.on('&')
-                .trimResults()
-                .withKeyValueSeparator("=")
-                .split(uri.getQuery()));
-
+        if (uri.getQuery() != null) {
+            params.putAll(Splitter.on('&')
+                    .trimResults()
+                    .withKeyValueSeparator("=")
+                    .split(uri.getQuery()));
+        }
         ServiceDescriptor descriptor = discovery.getService(uri);
 
         if (descriptor == null) {

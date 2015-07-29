@@ -17,9 +17,9 @@ public class MuonHeadersEventArgumentTransformer implements MethodArgumentTransf
     }
 
     @Override
-    public Object extractArgument(Object muonResourceEvent) {
-        if (muonResourceEvent instanceof MuonResourceEvent) {
-            return ((MuonResourceEvent) muonResourceEvent).getHeaders();
+    public Object extractArgument(Object muonEvent) {
+        if (muonEvent instanceof MuonResourceEvent) {
+            return ((MuonResourceEvent) muonEvent).getHeaders();
         } else {
             throw new IllegalStateException("@MuonHeaders annotation should be used only on resource handlers");
         }

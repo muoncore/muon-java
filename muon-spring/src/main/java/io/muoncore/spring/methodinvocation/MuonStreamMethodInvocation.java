@@ -1,7 +1,6 @@
 package io.muoncore.spring.methodinvocation;
 
-import io.muoncore.spring.methodinvocation.parameterhandlers.MethodArgumentTransformer;
-import io.muoncore.spring.methodinvocation.parameterhandlers.PassThroughArgumentTransformer;
+import io.muoncore.spring.methodinvocation.parameterhandlers.StreamMethodArgumentTransformerFactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -18,7 +17,9 @@ public class MuonStreamMethodInvocation extends AbstractMuonMethodInvocation<Obj
             throw new IllegalStateException("Streaming subscription handles should have only one parameter, event object");
         }
         for (Parameter parameter : method.getParameters()) {
-            argumentTransformers.add(new PassThroughArgumentTransformer(parameter));
+            argumentTransformers.add(
+                    StreamMethodArgumentTransformerFactory.createMethodParameterHandler(parameter)
+            );
         }
     }
 

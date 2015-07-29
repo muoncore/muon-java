@@ -4,6 +4,10 @@ import io.muoncore.Discovery;
 import io.muoncore.Muon;
 import io.muoncore.MuonExtension;
 import io.muoncore.exception.MuonException;
+import io.muoncore.spring.annotationprocessor.MethodAnnotationProcessor;
+import io.muoncore.spring.annotationprocessor.MuonResourceListenerMethodAnnotationProcessor;
+import io.muoncore.spring.annotationprocessor.MuonStreamListenerMethodAnnotationProcessor;
+import io.muoncore.spring.annotationprocessor.PhotonStreamListenerMethodAnnotationProcessor;
 import io.muoncore.spring.mapping.MuonResourceService;
 import io.muoncore.spring.mapping.MuonStreamSubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,5 +70,23 @@ public class MuonBootstrapConfiguration {
     public MuonResourceService muonResourceService() {
         return new MuonResourceService();
     }
+
+    @Bean
+    public MethodAnnotationProcessor muonStreamListenerMethodAnnotationProcessor() {
+        return new MuonStreamListenerMethodAnnotationProcessor();
+    }
+
+    @Bean
+    public MethodAnnotationProcessor muonResourceListenerMethodAnnotationProcessor() {
+        return new MuonResourceListenerMethodAnnotationProcessor();
+    }
+
+    @Bean
+    public MethodAnnotationProcessor photonStreamListenerMethodAnnotationProcessor() {
+        return new PhotonStreamListenerMethodAnnotationProcessor();
+    }
+
 }
+
+
 
