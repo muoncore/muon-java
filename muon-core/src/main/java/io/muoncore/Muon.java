@@ -1,13 +1,16 @@
 package io.muoncore;
 
-import com.google.common.base.Splitter;
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.TransportCodecType;
-import io.muoncore.future.MuonFuture;
 import io.muoncore.future.ImmediateReturnFuture;
+import io.muoncore.future.MuonFuture;
 import io.muoncore.internal.Dispatcher;
 import io.muoncore.internal.MuonStreamExistingGenerator;
-import io.muoncore.transport.*;
+import io.muoncore.spec.Operation;
+import io.muoncore.spec.ServiceSpecification;
+import io.muoncore.transport.MuonEventTransport;
+import io.muoncore.transport.MuonMessageEvent;
+import io.muoncore.transport.MuonQueueTransport;
 import io.muoncore.transport.broadcast.MuonBroadcastTransport;
 import io.muoncore.transport.resource.MuonResourceEvent;
 import io.muoncore.transport.resource.MuonResourceEventBuilder;
@@ -15,14 +18,28 @@ import io.muoncore.transport.resource.MuonResourceTransport;
 import io.muoncore.transport.stream.MuonStreamRegister;
 import io.muoncore.transport.stream.MuonStreamTransport;
 import io.muoncore.transport.support.TransportList;
+
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
+
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.util.*;
-import java.util.logging.Logger;
+import com.google.common.base.Splitter;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 public class Muon implements MuonService {
 
@@ -38,7 +55,8 @@ public class Muon implements MuonService {
     private TransportList<MuonStreamTransport> streamingTransports = new TransportList<MuonStreamTransport>();
     private TransportList<MuonQueueTransport> queueingTransports = new TransportList<MuonQueueTransport>();
 
-
+    private ServiceSpecification specification = new ServiceSpecification();
+    
 //    private List<MuonResourceRegister> resources = new ArrayList<MuonResourceRegister>();
 //    private List<MuonEventRegister> events = new ArrayList<MuonEventRegister>();
 //    private List<MuonStreamRegister> streams = new ArrayList<MuonStreamRegister>();
@@ -62,10 +80,57 @@ public class Muon implements MuonService {
             initialiseTransport(transport);
         }
         discovery.advertiseLocalService(getCurrentLocalDescriptor());
+        
+        addSpecEndpoints();
+
         started = true;
     }
 
-    @Override
+    private JsonObject filterOperations(Collection<Operation> elems, Class<?> filter) {
+    	JsonObject response = new JsonObject();
+    	JsonArray arOps = new JsonArray();
+    	
+    	for(Operation elem : elems) {
+    		if(filter == null || filter.isInstance(elem)) {
+    			JsonObject arElem = new JsonObject();
+    			arElem.addProperty("endpoint", elem.getResource());
+    			arElem.addProperty("method", elem.getClass().getSimpleName().toLowerCase());
+    			// arElem.addProperty("return_type", elem.getType().getSimpleName().toLowerCase());
+    			arOps.add(arElem);
+    		}
+    	}
+    	response.add("operations", arOps);
+    	
+    	return response;
+    }
+    
+    private void addSpecEndpoints() {
+    	Gson gson = new Gson();
+    	Type tmap = new TypeToken<Map<String, Object>>(){}.getType();
+    	
+    	// Add endpoints for schemas and specification
+    	onQuery("/muon/introspect", Map.class, new MuonQuery<Map>() {
+    		@Override
+    		public MuonFuture<Map> onQuery(MuonResourceEvent<Map> queryEvent) {
+    			JsonObject response = filterOperations(specification.getOperations(), null);
+    			return new ImmediateReturnFuture<Map>(gson.fromJson(response, tmap));
+    		}
+    	});
+    	
+    	for(Class<?> t : Operation.availableTypes()) {
+    		String lowT = t.getSimpleName().toLowerCase();
+    		
+    		onQuery("/muon/introspect/" + lowT, Map.class, new MuonQuery<Map>() {
+				@Override
+				public MuonFuture<?> onQuery(MuonResourceEvent<Map> queryEvent) {
+					JsonObject response = filterOperations(specification.getOperations(), t);
+					return new ImmediateReturnFuture<Map>(gson.fromJson(response, tmap));
+				}
+    		});
+    	}
+	}
+
+	@Override
     public List<String> getTags() {
         return tags;
     }
@@ -272,6 +337,9 @@ public class Muon implements MuonService {
 
     @Override
     public <T> void onQuery(String resource, final Class<T> type, final MuonQuery<T> listener) {
+    	// Add operation to service specification
+    	specification.addQuery(resource, type, listener);
+    	
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(final MuonResourceTransport transport: resourceTransports.all()) {
@@ -287,6 +355,9 @@ public class Muon implements MuonService {
 
     @Override
     public <T> void onCommand(String resource, final Class<T> type, final MuonCommand<T> listener) {
+    	// Add operation to service specification
+    	specification.addCommand(resource, type, listener);
+    	
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(final MuonResourceTransport transport: resourceTransports.all()) {
@@ -343,6 +414,9 @@ public class Muon implements MuonService {
      * @param streamName
      */
     public <T> void streamSource(String streamName, Class<T> type, MuonStreamGenerator<T> generator) {
+    	// Add operation to service specification
+    	specification.addStream(streamName, type, generator);
+    	
         for(MuonStreamTransport transport: streamingTransports.all()) {
             transport.provideStreamSource(streamName, generator);
         }
