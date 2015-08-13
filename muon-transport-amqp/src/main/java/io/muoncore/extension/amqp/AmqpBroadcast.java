@@ -34,7 +34,9 @@ public class AmqpBroadcast {
 
         MuonService.MuonResult ret = new MuonService.MuonResult();
 
-        AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers((Map) event.getHeaders()).build();
+        AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
+                .contentType(event.getContentType())
+                .headers((Map) event.getHeaders()).build();
 
         try {
             channel.basicPublish(EXCHANGE_NAME, eventName, props, messageBytes);

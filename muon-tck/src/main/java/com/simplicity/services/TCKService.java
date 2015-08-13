@@ -29,13 +29,13 @@ public class TCKService {
 
 
         final Muon muon = new Muon(
-                new AmqpDiscovery("amqp://muon:microservices@localhost:5672"));
+                new AmqpDiscovery("amqp://muon:microservices@localhost"));
 
         muon.setServiceIdentifer("tck");
         muon.addTags("my-tag", "tck-service");
 
         new HttpTransportExtension(7171).extend(muon);
-        new AmqpTransportExtension("amqp://muon:microservices@localhost:5672").extend(muon);
+        new AmqpTransportExtension("amqp://muon:microservices@localhost").extend(muon);
 //        new StreamControlExtension().extend(muon);
         new KryoExtension().extend(muon);
 
