@@ -56,7 +56,7 @@ public class Muon implements MuonService {
     private TransportList<MuonQueueTransport> queueingTransports = new TransportList<MuonQueueTransport>();
 
     private ServiceSpecification specification = new ServiceSpecification();
-    
+
 //    private List<MuonResourceRegister> resources = new ArrayList<MuonResourceRegister>();
 //    private List<MuonEventRegister> events = new ArrayList<MuonEventRegister>();
 //    private List<MuonStreamRegister> streams = new ArrayList<MuonStreamRegister>();
@@ -80,7 +80,7 @@ public class Muon implements MuonService {
             initialiseTransport(transport);
         }
         discovery.advertiseLocalService(getCurrentLocalDescriptor());
-        
+
         addSpecEndpoints();
 
         started = true;
@@ -89,7 +89,7 @@ public class Muon implements MuonService {
     private JsonObject filterOperations(Collection<Operation> elems, Class<?> filter) {
     	JsonObject response = new JsonObject();
     	JsonArray arOps = new JsonArray();
-    	
+
     	for(Operation elem : elems) {
     		if(filter == null || filter.isInstance(elem)) {
     			JsonObject arElem = new JsonObject();
@@ -100,31 +100,30 @@ public class Muon implements MuonService {
     		}
     	}
     	response.add("operations", arOps);
-    	
+
     	return response;
     }
-    
+
     private void addSpecEndpoints() {
-    	Gson gson = new Gson();
-    	Type tmap = new TypeToken<Map<String, Object>>(){}.getType();
-    	
+    	final Gson gson = new Gson();
+
     	// Add endpoints for schemas and specification
     	onQuery("/muon/introspect", Map.class, new MuonQuery<Map>() {
     		@Override
     		public MuonFuture<Map> onQuery(MuonResourceEvent<Map> queryEvent) {
     			JsonObject response = filterOperations(specification.getOperations(), null);
-    			return new ImmediateReturnFuture<Map>(gson.fromJson(response, tmap));
+    			return new ImmediateReturnFuture<Map>(gson.fromJson(response, Map.class));
     		}
     	});
-    	
-    	for(Class<?> t : Operation.availableTypes()) {
+
+    	for(final Class<?> t : Operation.availableTypes()) {
     		String lowT = t.getSimpleName().toLowerCase();
-    		
+
     		onQuery("/muon/introspect/" + lowT, Map.class, new MuonQuery<Map>() {
 				@Override
 				public MuonFuture<?> onQuery(MuonResourceEvent<Map> queryEvent) {
 					JsonObject response = filterOperations(specification.getOperations(), t);
-					return new ImmediateReturnFuture<Map>(gson.fromJson(response, tmap));
+					return new ImmediateReturnFuture<Map>(gson.fromJson(response, Map.class));
 				}
     		});
     	}
@@ -180,7 +179,7 @@ public class Muon implements MuonService {
         if (!started) {
             nonInitTransports.add(transport);
         } else {
-            //post start addition of a transport, maybe not ideal, but certainly not prevented either.
+            //command start addition of a transport, maybe not ideal, but certainly not prevented either.
             //permits the addition of new transport dynamically, which may be useful.
             initialiseTransport(transport);
         }
@@ -215,17 +214,6 @@ public class Muon implements MuonService {
     @Override
     public void emit(MuonMessageEvent ev) {
         dispatcher.dispatchToTransports(ev, broadcastTransports.all());
-    }
-
-    @Override
-    public <T> MuonFuture<MuonResult<T>> get(String resourceQuery, Class<T> type) {
-        MuonResourceEvent<T> ev = null;
-        try {
-            ev = resourceEvent("get", new MuonResourceEvent<T>(new URI(resourceQuery)));
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        return dispatchEvent(ev, resourceQuery, type);
     }
 
     private <T> MuonFuture<MuonResult<T>> dispatchEvent(MuonResourceEvent ev, String resourceQuery, Class<T> type) {
@@ -298,20 +286,24 @@ public class Muon implements MuonService {
         }
     }
 
-    public <T> MuonFuture<MuonResult<T>> get(MuonResourceEvent<T> payload, Class<T> type) {
-        MuonResourceEvent<T> ev = resourceEvent("get", payload);
+    public <T> MuonFuture<MuonResult<T>> query(String resourceQuery, Class<T> type) {
+        MuonResourceEvent<T> ev = null;
+        try {
+            ev = resourceEvent("get", new MuonResourceEvent<T>(new URI(resourceQuery)));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return dispatchEvent(ev, resourceQuery, type);
+    }
+
+    public <T> MuonFuture<MuonResult<T>> query(MuonResourceEvent<T> payload, Class<T> type) {
+        MuonResourceEvent<T> ev = resourceEvent("query", payload);
         return dispatchEvent(ev, payload.getResource(), type);
     }
 
     @Override
-    public <T> MuonFuture<MuonResult<T>> post(String resource, MuonResourceEvent<T> payload, Class<T> type) {
-        MuonResourceEvent<T> ev = resourceEvent("post", payload);
-        return dispatchEvent(ev, resource, type);
-    }
-
-    @Override
-    public <T> MuonFuture<MuonResult<T>> put(String resource, MuonResourceEvent<T> payload, Class<T> type) {
-        MuonResourceEvent<T> ev = resourceEvent("put", payload);
+    public <T> MuonFuture<MuonResult<T>> command(String resource, MuonResourceEvent<T> payload, Class<T> type) {
+        MuonResourceEvent<T> ev = resourceEvent("command", payload);
         return dispatchEvent(ev, resource, type);
     }
 
@@ -339,11 +331,11 @@ public class Muon implements MuonService {
     public <T> void onQuery(String resource, final Class<T> type, final MuonQuery<T> listener) {
     	// Add operation to service specification
     	specification.addQuery(resource, type, listener);
-    	
+
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(final MuonResourceTransport transport: resourceTransports.all()) {
-            transport.listenOnResource(resource, "get", type, new EventResourceTransportListener<T>() {
+            transport.listenOnResource(resource, "query", type, new EventResourceTransportListener<T>() {
                 @Override
                 public MuonFuture onEvent(String name, MuonResourceEvent<T> obj) {
                     decode(obj, transport.getCodecType(), type);
@@ -357,11 +349,11 @@ public class Muon implements MuonService {
     public <T> void onCommand(String resource, final Class<T> type, final MuonCommand<T> listener) {
     	// Add operation to service specification
     	specification.addCommand(resource, type, listener);
-    	
+
         //TODO, extract this into some lifecycle init during start.
         //instead just store this.
         for(final MuonResourceTransport transport: resourceTransports.all()) {
-            transport.listenOnResource(resource, "post", type, new EventResourceTransportListener<T>() {
+            transport.listenOnResource(resource, "command", type, new EventResourceTransportListener<T>() {
                 @Override
                 public MuonFuture onEvent(String name, MuonResourceEvent<T> obj) {
                     decode(obj, transport.getCodecType(), type);
@@ -416,7 +408,7 @@ public class Muon implements MuonService {
     public <T> void streamSource(String streamName, Class<T> type, MuonStreamGenerator<T> generator) {
     	// Add operation to service specification
     	specification.addStream(streamName, type, generator);
-    	
+
         for(MuonStreamTransport transport: streamingTransports.all()) {
             transport.provideStreamSource(streamName, generator);
         }
@@ -464,18 +456,6 @@ public class Muon implements MuonService {
         }
 
         t.subscribeToStream(url, type, params, subscriber);
-    }
-
-    public <T> void onQueue(String queue, final Class<T> type, final MuonListener<T> listener) {
-        for(final MuonQueueTransport transport: queueingTransports.all()) {
-            transport.listenOnQueueEvent(queue, type, new EventMessageTransportListener() {
-                @Override
-                public void onEvent(String name, MuonMessageEvent obj) {
-                    decode(obj, transport.getCodecType(), type);
-                    listener.onEvent(obj);
-                }
-            });
-        }
     }
 
     @Override

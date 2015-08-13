@@ -44,7 +44,10 @@ public class AmqpQueues {
         }
         event.getHeaders().put("Content-Type", contentType);
 
-        AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers((Map) event.getHeaders()).build();
+        AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().
+                contentType(contentType)
+                .headers((Map) event.getHeaders()).build();
+
         try {
             channel.basicPublish("", queueName, props, messageBytes);
             ret.setSuccess(true);
