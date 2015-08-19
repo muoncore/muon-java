@@ -17,9 +17,9 @@ class MultiSubscribeSpec extends Specification {
   def "Multiple muon based subscribers can open the same channel"() {
 
     given:
-    def muon = new Muon(new AmqpDiscovery("amqp://localhost"))
+    def muon = new Muon(new AmqpDiscovery("amqp://muon:microservices@localhost"))
     muon.serviceIdentifer = "eventsource"
-    new AmqpTransportExtension("amqp://localhost").extend(muon)
+    new AmqpTransportExtension("amqp://muon:microservices@localhost").extend(muon)
     def pub = Broadcaster.create()
     muon.start()
 
@@ -59,9 +59,9 @@ class MultiSubscribeSpec extends Specification {
 
   def "Multiple concurrent muon based subscribers can open the same channel"() {
 
-    def muon = new Muon(new AmqpDiscovery("amqp://localhost"))
+    def muon = new Muon(new AmqpDiscovery("amqp://muon:microservices@localhost"))
     muon.serviceIdentifer = "eventsource"
-    new AmqpTransportExtension("amqp://localhost").extend(muon)
+    new AmqpTransportExtension("amqp://muon:microservices@localhost").extend(muon)
     def pub = Broadcaster.create()
     muon.start()
 

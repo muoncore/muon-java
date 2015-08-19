@@ -17,10 +17,10 @@ public class ServicePublishHotStream {
     public static void main(String[] args) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException {
 
         final Muon muon = new Muon(
-                new AmqpDiscovery("amqp://localhost:5672"));
+                new AmqpDiscovery("amqp://muon:microservices@localhost:5672"));
 
         muon.setServiceIdentifer("cl");
-        new AmqpTransportExtension("amqp://localhost:5672").extend(muon);
+        new AmqpTransportExtension("amqp://muon:microservices@localhost:5672").extend(muon);
         muon.start();
 
         final Broadcaster stream = Broadcaster.create();

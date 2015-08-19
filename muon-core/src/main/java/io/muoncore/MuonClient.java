@@ -7,7 +7,6 @@ import io.muoncore.transport.resource.MuonResourceEvent;
 public interface MuonClient {
 
     public void emit(MuonMessageEvent event);
-    public void sendMessage(MuonMessageEvent event);
     public <T> MuonFuture<MuonResult<T>> query(MuonResourceEvent<T> payload, Class<T> type);
     public <T> MuonFuture<MuonResult<T>> command(String resource, MuonResourceEvent<T> payload, Class<T> type);
 

@@ -4,6 +4,7 @@ import io.muoncore.MuonService.MuonCommand;
 import io.muoncore.MuonService.MuonQuery;
 import io.muoncore.MuonStreamGenerator;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,7 +28,7 @@ public class ServiceSpecification {
 	
 	public void addQuery(String resource, final Class<?> type,
 			final MuonQuery<?> listener) {
-		ops.add(new Query(resource, type, listener));
+		ops.add(new Query(resource, type, Arrays.asList("fakedforgood"), listener));
 	}
 
 	public Collection<Operation> getOperations() {

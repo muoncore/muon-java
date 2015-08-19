@@ -435,11 +435,12 @@ public class Muon implements MuonService {
 
         String host = uri.getHost();
 
-        params.putAll(Splitter.on('&')
-                .trimResults()
-                .withKeyValueSeparator("=")
-                .split(uri.getQuery()));
-
+        if (uri.getQuery() != null && uri.getQuery().trim().length() > 0) {
+            params.putAll(Splitter.on('&')
+                    .trimResults()
+                    .withKeyValueSeparator("=")
+                    .split(uri.getQuery()));
+        }
         ServiceDescriptor descriptor = discovery.getService(uri);
 
         if (descriptor == null) {
@@ -456,17 +457,5 @@ public class Muon implements MuonService {
         }
 
         t.subscribeToStream(url, type, params, subscriber);
-    }
-
-    @Override
-    public void sendMessage(MuonMessageEvent event) {
-        //this selects the transport to choose to send this message
-        //it will only be sent on one, and that will be the first one.
-
-        if (queueingTransports.all().size() == 0) {
-            throw new IllegalStateException("No transport that support queueing are configured");
-        }
-        MuonQueueTransport selectedTransport = queueingTransports.all().get(0);
-        selectedTransport.send(event.getEventName(), event);
     }
 }
