@@ -1,5 +1,6 @@
 package io.muoncore;
 
+import com.google.gson.*;
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.TransportCodecType;
 import io.muoncore.future.ImmediateReturnFuture;
@@ -36,9 +37,6 @@ import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 import com.google.common.base.Splitter;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 public class Muon implements MuonService {
@@ -100,6 +98,8 @@ public class Muon implements MuonService {
     		}
     	}
     	response.add("operations", arOps);
+
+        response.add("amqp-protocol-version", new JsonPrimitive("5"));
 
     	return response;
     }
