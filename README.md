@@ -1,3 +1,2 @@
-# Muon Java.
+# Muon Java
 
-Testing
