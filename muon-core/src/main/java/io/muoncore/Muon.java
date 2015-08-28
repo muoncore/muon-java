@@ -1,12 +1,12 @@
 package io.muoncore;
 
-import com.google.gson.*;
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.TransportCodecType;
 import io.muoncore.future.ImmediateReturnFuture;
 import io.muoncore.future.MuonFuture;
 import io.muoncore.internal.Dispatcher;
 import io.muoncore.internal.MuonStreamExistingGenerator;
+import io.muoncore.log.EventLogger;
 import io.muoncore.spec.Operation;
 import io.muoncore.spec.ServiceSpecification;
 import io.muoncore.transport.MuonEventTransport;
@@ -20,7 +20,6 @@ import io.muoncore.transport.stream.MuonStreamRegister;
 import io.muoncore.transport.stream.MuonStreamTransport;
 import io.muoncore.transport.support.TransportList;
 
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -37,7 +36,10 @@ import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 import com.google.common.base.Splitter;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 public class Muon implements MuonService {
 
@@ -80,6 +82,7 @@ public class Muon implements MuonService {
         discovery.advertiseLocalService(getCurrentLocalDescriptor());
 
         addSpecEndpoints();
+        EventLogger.initialise(this);
 
         started = true;
     }
