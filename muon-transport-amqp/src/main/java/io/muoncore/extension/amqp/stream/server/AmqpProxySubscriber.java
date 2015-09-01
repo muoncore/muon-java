@@ -3,6 +3,7 @@ package io.muoncore.extension.amqp.stream.server;
 import io.muoncore.codec.Codecs;
 import io.muoncore.extension.amqp.AmqpQueues;
 import io.muoncore.extension.amqp.stream.AmqpStream;
+import io.muoncore.log.EventLogger;
 import io.muoncore.transport.MuonMessageEvent;
 import io.muoncore.transport.MuonMessageEventBuilder;
 import org.reactivestreams.Subscriber;
@@ -91,6 +92,8 @@ public class AmqpProxySubscriber implements Subscriber {
         msg.setContentType(codecs.getBinaryContentType(o.getClass()));
         msg.setEncodedBinaryContent(codecs.encodeToByte(o));
 
+        EventLogger.logEvent(resourceQueue, msg);
+
         queues.send(resourceQueue, msg);
     }
 
@@ -99,20 +102,27 @@ public class AmqpProxySubscriber implements Subscriber {
         log.warning("Subscription error: " + resourceQueue + ": " + t.getMessage());
         keepAliveScheduler.shutdownNow();
 
-        queues.send(keepAliveQueue,
-                MuonMessageEventBuilder.named(resourceQueue)
-                        .withNoContent()
-                        .withHeader("TYPE", "error")
-                        .withHeader("ERROR", t.getMessage()).build());
+        MuonMessageEvent msg = MuonMessageEventBuilder.named(resourceQueue)
+                .withNoContent()
+                .withHeader("TYPE", "error")
+                .withHeader("ERROR", t.getMessage()).build();
+
+        EventLogger.logEvent(resourceQueue, msg);
+
+        queues.send(keepAliveQueue, msg);
     }
 
     @Override
     public void onComplete() {
         log.info("Subscription complete: " + resourceQueue);
         keepAliveScheduler.shutdownNow();
-        queues.send(resourceQueue,
-                MuonMessageEventBuilder.named(resourceQueue)
-                        .withNoContent()
-                        .withHeader("TYPE", "complete").build());
+
+        MuonMessageEvent msg = MuonMessageEventBuilder.named(resourceQueue)
+                .withNoContent()
+                .withHeader("TYPE", "complete").build();
+
+        EventLogger.logEvent(resourceQueue, msg);
+
+        queues.send(resourceQueue, msg);
     }
 }

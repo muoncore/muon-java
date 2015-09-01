@@ -5,6 +5,7 @@ import io.muoncore.MuonStreamGenerator;
 import io.muoncore.codec.Codecs;
 import io.muoncore.extension.amqp.AmqpQueues;
 import io.muoncore.extension.amqp.stream.AmqpStream;
+import io.muoncore.log.EventLogger;
 import io.muoncore.transport.MuonMessageEvent;
 import io.muoncore.transport.MuonMessageEventBuilder;
 import org.reactivestreams.Publisher;
@@ -81,6 +82,7 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
 
     @Override
     public void onEvent(String name, MuonMessageEvent ev) {
+
         if (ev.getHeaders().get(AmqpStream.STREAM_COMMAND).equals(COMMAND_KEEP_ALIVE)) {
             lastSeenKeepAlive.put((String) ev.getHeaders().get(SUBSCRIPTION_STREAM_ID), System.currentTimeMillis());
         } else if (ev.getHeaders().get(AmqpStream.STREAM_COMMAND).equals(COMMAND_SUBSCRIBE)) {

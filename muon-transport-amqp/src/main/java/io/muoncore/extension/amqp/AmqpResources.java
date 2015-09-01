@@ -37,7 +37,7 @@ public class AmqpResources {
 
         spinner = Executors.newCachedThreadPool();
 
-        String resourceQueue = "resource-listen." + serviceName;
+        final String resourceQueue = "resource-listen." + serviceName;
 
         log.info("Opening resource queue to listen for resource requests " + resourceQueue);
 
@@ -52,6 +52,8 @@ public class AmqpResources {
 
                 //find the listener
                 Muon.EventResourceTransportListener listener = resourceListeners.get(key);
+
+                EventLogger.logEvent(resourceQueue, request);
 
                 if (listener == null) {
                     log.fine("Couldn't find a matching listener for " + key);

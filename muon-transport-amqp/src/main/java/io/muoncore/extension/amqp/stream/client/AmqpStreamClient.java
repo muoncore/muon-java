@@ -5,6 +5,7 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.extension.amqp.AmqpQueues;
 import io.muoncore.extension.amqp.stream.AmqpStream;
 import io.muoncore.extension.amqp.stream.server.AmqpStreamControl;
+import io.muoncore.log.EventLogger;
 import io.muoncore.transport.MuonMessageEvent;
 import io.muoncore.transport.MuonMessageEventBuilder;
 import org.reactivestreams.Subscriber;
@@ -112,6 +113,7 @@ public class AmqpStreamClient<T> implements
             lastSeenKeepAlive = System.currentTimeMillis();
         } else if (obj.getHeaders().get("TYPE").equals("data")) {
             byte[] data = obj.getBinaryEncodedContent();
+            EventLogger.logEvent(streamName, obj);
             T decodedObject = codecs.decodeObject(data, obj.getContentType(), type);
             subscriber.onNext(decodedObject);
         } else if (obj.getHeaders().get("TYPE").equals("error")) {
