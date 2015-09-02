@@ -1,3 +1,3 @@
 # Muon Java
 
-<a href="https://teamcity.simplicityitself.com/app/rest/builds/buildType:(id:MuonCoreJava)/statusIcon"/>
+<a href="http://teamcity.simplicityitself.com/app/rest/builds/buildType:(id:MuonCoreJava)/statusIcon"/>
