@@ -45,54 +45,59 @@ public class AmqpResources {
             @Override
             public void onEvent(String name, MuonMessageEvent request) {
 
-                String verb = (String) request.getHeaders().get("verb");
-                String resource =  (String) request.getHeaders().get("RESOURCE");
-                String key = resource + "-" + verb;
-                String responseQueue = (String) request.getHeaders().get("RESPONSE_QUEUE");
-
-                //find the listener
-                Muon.EventResourceTransportListener listener = resourceListeners.get(key);
-
-                EventLogger.logEvent(resourceQueue, request);
-
-                if (listener == null) {
-                    log.fine("Couldn't find a matching listener for " + key);
-                    queues.send(responseQueue, MuonMessageEventBuilder.named("")
-                            .withHeader("Status", "404")
-                            .withHeader("RequestID", (String) request.getHeaders().get("RequestID"))
-                            .withContent("").build());
-                    return;
-                }
-
-                MuonResourceEvent ev = new MuonResourceEvent(null);
-                ev.setBinaryEncodedContent(request.getBinaryEncodedContent());
-
-                ev.getHeaders().putAll(request.getHeaders());
-                ev.setContentType((String) request.getHeaders().get("Content-Type"));
-                Object response = new HashMap();
-                //TODO, frp this crap, esp the future.
                 try {
-                    response = listener.onEvent(resource, ev).get();
+                    String verb = (String) request.getHeaders().get("verb");
+                    String resource = (String) request.getHeaders().get("RESOURCE");
+                    String key = resource + "-" + verb;
+                    String responseQueue = (String) request.getHeaders().get("RESPONSE_QUEUE");
+
+                    //find the listener
+                    Muon.EventResourceTransportListener listener = resourceListeners.get(key);
+
+                    EventLogger.logEvent(resourceQueue, request);
+
+                    if (listener == null) {
+                        log.fine("Couldn't find a matching listener for " + key);
+                        queues.send(responseQueue, MuonMessageEventBuilder.named("")
+                                .withHeader("Status", "404")
+                                .withHeader("message", "no handler is registered for the endpoint " + key)
+                                .withHeader("RequestID", (String) request.getHeaders().get("RequestID"))
+                                .withContent("").build());
+                        return;
+                    }
+
+                    MuonResourceEvent ev = new MuonResourceEvent(null);
+                    ev.setBinaryEncodedContent(request.getBinaryEncodedContent());
+
+                    ev.getHeaders().putAll(request.getHeaders());
+                    ev.setContentType((String) request.getHeaders().get("Content-Type"));
+                    Object response = new HashMap();
+                    //TODO, frp this crap, esp the future.
+                    try {
+                        response = listener.onEvent(resource, ev).get();
+                    } catch (Exception ex) {
+                        log.log(Level.WARNING, "Resource handler failed to process correctly", ex);
+                    }
+                    log.finer("Sending" + response);
+
+                    byte[] responseBytes = new byte[0];
+                    if (response != null) {
+                        responseBytes = codecs.encodeToByte(response);
+                    }
+
+                    MuonMessageEvent responseEvent = new MuonMessageEvent("", responseBytes);
+                    responseEvent.addHeader("Status", "200");
+                    responseEvent.addHeader("RequestID", (String) request.getHeaders().get("RequestID"));
+
+                    //TODO, detect the content type from the codec!
+                    responseEvent.setContentType("application/json");
+
+                    EventLogger.logEvent(responseQueue, responseEvent);
+
+                    queues.send(responseQueue, responseEvent);
                 } catch (Exception ex) {
-                    log.log(Level.WARNING, "Resource handler failed to process correctly", ex);
+                    log.log(Level.SEVERE, "Error occurred while processing inbound event", ex);
                 }
-                log.finer("Sending" + response);
-
-                byte[] responseBytes = new byte[0];
-                if (response != null) {
-                    responseBytes = codecs.encodeToByte(response);
-                }
-
-                MuonMessageEvent responseEvent = new MuonMessageEvent("", responseBytes);
-                responseEvent.addHeader("Status", "200");
-                responseEvent.addHeader("RequestID", (String) request.getHeaders().get("RequestID"));
-
-                //TODO, detect the content type from the codec!
-                responseEvent.setContentType("application/json");
-
-                EventLogger.logEvent(responseQueue, responseEvent);
-                    
-                queues.send(responseQueue, responseEvent);
             }
         });
     }
@@ -136,7 +141,9 @@ public class AmqpResources {
             messageEvent.setEncodedBinaryContent(event.getBinaryEncodedContent());
             queues.send(resourceQueue, messageEvent);
 
-            responseReceivedSignal.await(15, TimeUnit.SECONDS);
+            if (!responseReceivedSignal.await(15, TimeUnit.SECONDS)) {
+                ret.getResponseEvent().getHeaders().put("message", "The remote service did not return within the local timeout");
+            }
 
             queues.removeListener(listener);
 
@@ -150,7 +157,7 @@ public class AmqpResources {
 
     public void listenOnResource(final String resource, final String verb, final Muon.EventResourceTransportListener listener) {
         String key = resource + "-" + verb;
-        log.info("Register listener for " + key);
+        log.fine("Register listener for " + key);
         resourceListeners.put(key, listener);
     }
 

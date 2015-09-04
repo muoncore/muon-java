@@ -226,7 +226,8 @@ public class Muon implements MuonService {
             final MuonResult ret = new MuonResult();
             ret.setEvent(MuonResourceEventBuilder.event(null)
                     .withUri(resourceQuery)
-                    .withHeader("status", "404")
+                    .withHeader("Status", "404")
+                    .withHeader("message", "No transport can be found to dispatch this message")
                     .build());
             ret.setSuccess(false);
 

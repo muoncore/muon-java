@@ -131,7 +131,6 @@ public class EventLogger {
 		try {
 			File f = File.createTempFile("event", ".log");
 			pw = new PrintWriter(f);
-			System.out.println("Logging events at " + f.getAbsolutePath());
 			pw.println("Starting...");
 			pw.flush();
 
@@ -148,7 +147,7 @@ public class EventLogger {
 	
 	public static void logEvent(String queueName, MuonMessageEvent event) {
 		Map<String,Object> ev = new HashMap<String,Object>();
-		
+
 		pw.println("Logging event...");
 		pw.flush();
 		if(event != null /* &&

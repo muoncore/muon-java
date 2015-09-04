@@ -32,8 +32,8 @@ public class MuonTestCase {
 	@Before
 	public void setUp() throws Exception {
 		uuid = UUID.randomUUID().toString();
-		Discovery d = new AmqpDiscovery("amqp://localhost");
-		AmqpTransportExtension ate = new AmqpTransportExtension("amqp://localhost");
+		Discovery d = new AmqpDiscovery("amqp://muon:microservices@localhost");
+		AmqpTransportExtension ate = new AmqpTransportExtension("amqp://muon:microservices@localhost");
 		m = new Muon(d);
 		m.setServiceIdentifer("test-" + uuid);
 		m.addTag("server");
@@ -57,8 +57,8 @@ public class MuonTestCase {
 					}
 		});
 		
-		d = new AmqpDiscovery("amqp://localhost");
-		ate = new AmqpTransportExtension("amqp://localhost");
+		d = new AmqpDiscovery("amqp://muon:microservices@localhost");
+		ate = new AmqpTransportExtension("amqp://muon:microservices@localhost");
 		c = new Muon(d);
 		c.setServiceIdentifer("test-" + uuid + "-client");
 		c.addTag("client");
@@ -67,28 +67,30 @@ public class MuonTestCase {
 		
 		Thread.sleep(10000);
 	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Test
-	public void onePost() throws InterruptedException, ExecutionException {
-		Map resource = new HashMap();
-		resource.put("val", 1.0);
-		
-		MuonResourceEventBuilder mre = MuonResourceEventBuilder.event(resource);
-		mre.withUri("muon://test-" + uuid + "/post-endpoint");
-		MuonFuture mf = c.command("muon://test-" + uuid + "/post-endpoint", mre.build(), Map.class);
-		System.out.println(mf.get().getClass());
-		MuonResult result = (MuonResult) mf.get();
-		Map mResult = (Map) result.getResponseEvent().getDecodedContent();
-		
-		assertEquals(mResult.get("val"), 2.0);
-	}
+//
+//	@SuppressWarnings({ "rawtypes", "unchecked" })
+//	@Test
+//	public void onePost() throws InterruptedException, ExecutionException {
+//		Map resource = new HashMap();
+//		resource.put("val", 1.0);
+//
+//		MuonResourceEventBuilder mre = MuonResourceEventBuilder.event(resource);
+//		mre.withUri("muon://test-" + uuid + "/post-endpoint");
+//		MuonFuture mf = c.command("muon://test-" + uuid + "/post-endpoint", mre.build(), Map.class);
+//		System.out.println(mf.get().getClass());
+//		MuonResult result = (MuonResult) mf.get();
+//		Map mResult = (Map) result.getResponseEvent().getDecodedContent();
+//
+//		assertEquals(mResult.get("val"), 2.0);
+//	}
 	
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void manyPosts() throws InterruptedException, ExecutionException {
 		for(int i=0;i<10;i++) {
+			System.out.println("----------------------------------------------------------------------------------");
+
 			Map resource = new HashMap();
 			resource.put("val", 1.0);
 
@@ -96,10 +98,14 @@ public class MuonTestCase {
 			mre.withUri("muon://test-" + uuid + "/post-endpoint");
 			MuonFuture mf = c.command("muon://test-" + uuid + "/post-endpoint", mre.build(), Map.class);
 			MuonResult result = (MuonResult) mf.get();
+			if (!result.isSuccess()) {
+				System.out.println("Not working");
+			}
 			Map mResult = (Map) result.getResponseEvent().getDecodedContent();
-			System.out.println(mResult);
+			System.out.println(" Return is " + mResult);
 
 			assertEquals(mResult.get("val"), 2.0);
+			System.out.println("===========================================================================================");
 		}
 	}
 }

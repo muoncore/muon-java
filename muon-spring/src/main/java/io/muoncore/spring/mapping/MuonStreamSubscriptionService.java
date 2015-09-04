@@ -27,7 +27,6 @@ public class MuonStreamSubscriptionService {
             public void run() {
                 for (StreamConnector streamConnector : streamConnectors) {
                     if (!streamConnector.isConnected()) {
-                        System.out.println("Stream " + streamConnector.getMuonUrl() + " has disconnected, reconnecting");
                         try {
                             streamConnector.safeConnectToStream();
                         } catch (URISyntaxException e) {

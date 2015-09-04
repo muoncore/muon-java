@@ -29,11 +29,23 @@ public class QueueListener implements Runnable {
         this.listener = listener;
     }
 
+    public void blockUntilReady() {
+        synchronized (this) {
+            try {
+                wait();
+            } catch (InterruptedException e) {}
+        }
+    }
+
     @Override
     public void run() {
         try {
             log.info("Opening Queue: " + queueName);
             channel.queueDeclare(queueName, false, false, true, null);
+
+            synchronized (this) {
+                notify();
+            }
 
             consumer = new QueueingConsumer(channel);
             channel.basicConsume(queueName, false, consumer);

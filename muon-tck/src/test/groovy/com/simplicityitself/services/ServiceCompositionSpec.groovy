@@ -34,7 +34,7 @@ class ServiceCompositionSpec extends Specification {
 
     when:
 
-    muon.get("muon://muonservice/fast", String).get()
+    muon.query("muon://muonservice/fast", String).get()
     Stream<String> s2 = callResourceWithTimeout("fast")
     Stream<String> s1 = callResourceWithTimeout("slow")
 
@@ -54,7 +54,7 @@ class ServiceCompositionSpec extends Specification {
 
   private Stream<String> callResourceWithTimeout(resource) {
     return Streams.wrap(
-        muon.get("muon://muonservice/${resource}", String).toPublisher())
+        muon.query("muon://muonservice/${resource}", String).toPublisher())
         .map {
         return it.responseEvent.decodedContent;
     }.timeout(3000, TimeUnit.MILLISECONDS,
@@ -62,14 +62,14 @@ class ServiceCompositionSpec extends Specification {
   }
 
   private quickResource() {
-    muon.onGet("/quick", Map) {
+    muon.onQuery("/quick", Map) {
       println "Called /quick"
       return MuonFutures.immediately("This is fast!")
     }
   }
 
   private slowResource() {
-    muon.onGet("/slow", Map) {
+    muon.onQuery("/slow", Map) {
       println "Called /slow"
       def pub = Broadcaster.create()
       Thread.start {
@@ -82,10 +82,10 @@ class ServiceCompositionSpec extends Specification {
   }
 
   def muon() {
-    def discovery1 = new AmqpDiscovery("amqp://localhost")
+    def discovery1 = new AmqpDiscovery("amqp://muon:microservices@localhost")
     def muon = new Muon(discovery1)
     muon.serviceIdentifer = "muonservice"
-    new AmqpTransportExtension("amqp://localhost").extend(muon)
+    new AmqpTransportExtension("amqp://muon:microservices@localhost").extend(muon)
     muon.start()
     Thread.sleep(3500)
     muon

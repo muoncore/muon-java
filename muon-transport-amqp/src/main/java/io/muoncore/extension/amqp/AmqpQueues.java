@@ -30,9 +30,7 @@ public class AmqpQueues {
     }
 
     public MuonClient.MuonResult send(String queueName, MuonMessageEvent event) {
-
         byte[] messageBytes = event.getBinaryEncodedContent();
-        //TODO, one of the many sucky things about this mish mash design.
         if (messageBytes == null) {
             messageBytes = new byte[0];
         }
@@ -47,6 +45,7 @@ public class AmqpQueues {
         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().
                 contentType(contentType)
                 .headers((Map) event.getHeaders()).build();
+
 
         try {
             channel.basicPublish("", queueName, props, messageBytes);
@@ -74,6 +73,7 @@ public class AmqpQueues {
             listeners.put(listener, queueListener);
 //            spinner.execute(queueListener);
             new Thread(queueListener).start();
+            queueListener.blockUntilReady();
         }
     }
 

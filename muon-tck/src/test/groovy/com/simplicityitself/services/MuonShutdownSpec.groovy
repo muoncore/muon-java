@@ -11,10 +11,10 @@ class MuonShutdownSpec extends Specification {
   def "Muon can be cleanly shut down and replaced in a single process"() {
 
     given:
-    def discovery1 = new AmqpDiscovery("amqp://localhost")
+    def discovery1 = new AmqpDiscovery("amqp://muon:microservices@localhost")
     def muon1 = new Muon(discovery1)
     muon1.serviceIdentifer = "muonservice"
-    new AmqpTransportExtension("amqp://localhost").extend(muon1)
+    new AmqpTransportExtension("amqp://muon:microservices@localhost").extend(muon1)
 
     muon1.start()
 
@@ -31,10 +31,10 @@ class MuonShutdownSpec extends Specification {
 
     and:"a new muonservice is started"
 
-    def discovery2 = new AmqpDiscovery("amqp://localhost")
+    def discovery2 = new AmqpDiscovery("amqp://muon:microservices@localhost")
     def muon2 = new Muon(discovery2)
     muon2.serviceIdentifer = "muonservice"
-    new AmqpTransportExtension("amqp://localhost").extend(muon2)
+    new AmqpTransportExtension("amqp://muon:microservices@localhost").extend(muon2)
     muon2.start()
 
     muon2.onGet("/hello", Map){
