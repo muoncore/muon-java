@@ -1,10 +1,12 @@
 package io.muoncore.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import io.muoncore.Discovery;
 import io.muoncore.Muon;
 import io.muoncore.MuonClient.MuonResult;
 import io.muoncore.MuonService;
+import io.muoncore.MuonStreamGenerator;
 import io.muoncore.extension.amqp.AmqpTransportExtension;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.future.MuonFuture;
@@ -12,21 +14,27 @@ import io.muoncore.future.MuonFutures;
 import io.muoncore.transport.resource.MuonResourceEvent;
 import io.muoncore.transport.resource.MuonResourceEventBuilder;
 
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 /**
  * @author sergio
  *
  */
 public class MuonTestCase {
-	private Muon 	m, c;
-	private String	uuid;
+	private Muon 			m, c;
+	private String			uuid;
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Before
@@ -54,6 +62,24 @@ public class MuonTestCase {
 						res.put("val", (Double) resource.get("val") + 1.0);
 						
 						return MuonFutures.immediately(res);
+					}
+		});
+		m.streamSource("/stream-endpoint", Map.class,
+				new MuonStreamGenerator<Map>() {
+					@Override
+					public Publisher<Map> generatePublisher(
+							Map<String, String> parameters) {
+						return new Publisher<Map>() {
+							@Override
+							public void subscribe(Subscriber<? super Map> s) {
+								Map elem = new HashMap();
+								for(double i=1.0;i<6.0;i=i+1) {
+									elem.put("val", i);
+									s.onNext(elem);
+								}
+								s.onComplete();
+							}
+						};
 					}
 		});
 		
@@ -106,6 +132,55 @@ public class MuonTestCase {
 
 			assertEquals(mResult.get("val"), 2.0);
 			System.out.println("===========================================================================================");
+		}
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void streamTest() throws URISyntaxException, InterruptedException {
+		BlockingQueue	bq;
+		Map				endToken;
+		
+		bq = new LinkedBlockingQueue();
+		endToken = new HashMap();
+		endToken.put("end", "ok");
+		
+		c.subscribe("muon://test-" + uuid + "/stream-endpoint",
+				Map.class, new Subscriber() {
+					@Override
+					public void onSubscribe(Subscription s) {
+						System.out.println("Subscribed!");
+					}
+
+					@Override
+					public void onNext(Object t) {
+						try {
+							bq.put(t);
+						} catch (InterruptedException e) {
+							fail(e.getMessage());
+						}
+					}
+
+					@Override
+					public void onError(Throwable t) {
+						fail(t.getMessage());
+					}
+
+					@Override
+					public void onComplete() {
+						try {
+							bq.put(endToken);
+						} catch (InterruptedException e) {
+							fail(e.getMessage());
+						}
+					}
+		});
+		
+		Map elem = (Map) bq.take();
+		double i = 1.0;
+		while(elem.get("end") == null || !elem.get("end").equals("ok")) {
+			assertEquals(elem.get("val"), i);
+			i = i + 1.0;
 		}
 	}
 }
