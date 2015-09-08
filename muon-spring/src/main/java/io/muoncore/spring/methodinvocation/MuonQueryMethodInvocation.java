@@ -8,9 +8,9 @@ import io.muoncore.transport.resource.MuonResourceEvent;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-public class MuonResourceMethodInvocation extends AbstractMuonMethodInvocation<MuonResourceEvent> {
+public class MuonQueryMethodInvocation extends AbstractMuonMethodInvocation<MuonResourceEvent> {
 
-    public MuonResourceMethodInvocation(Method method, Object bean) {
+    public MuonQueryMethodInvocation(Method method, Object bean) {
         super(bean, method);
         initArgumentTransformers();
     }

@@ -1,11 +1,13 @@
 package io.muoncore.spring;
 
+import io.muoncore.spring.annotations.MuonCommandListener;
 import io.muoncore.spring.annotations.MuonController;
 import io.muoncore.spring.annotations.MuonQueryListener;
 import io.muoncore.spring.annotations.MuonStreamListener;
 import io.muoncore.spring.mapping.MuonResourceService;
 import io.muoncore.spring.mapping.MuonStreamSubscriptionService;
-import io.muoncore.spring.methodinvocation.MuonResourceMethodInvocation;
+import io.muoncore.spring.methodinvocation.MuonCommandMethodInvocation;
+import io.muoncore.spring.methodinvocation.MuonQueryMethodInvocation;
 import io.muoncore.spring.methodinvocation.MuonStreamMethodInvocation;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +44,11 @@ public class MuonControllerBeanPostProcessor implements BeanPostProcessor {
             }
             MuonQueryListener muonQueryListener = AnnotationUtils.findAnnotation(method, MuonQueryListener.class);
             if (muonQueryListener != null) {
-                muonResourceService.addQueryMapping(muonQueryListener.path(), new MuonResourceMethodInvocation(method, bean));
+                muonResourceService.addQueryMapping(muonQueryListener.path(), new MuonQueryMethodInvocation(method, bean));
+            }
+            MuonCommandListener muonCommandListener = AnnotationUtils.findAnnotation(method, MuonCommandListener.class);
+            if (muonCommandListener != null) {
+                muonResourceService.addCommandMapping(muonCommandListener.path(), new MuonCommandMethodInvocation(method, bean));
             }
 
         }

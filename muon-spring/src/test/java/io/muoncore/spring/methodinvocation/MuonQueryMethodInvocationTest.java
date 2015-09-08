@@ -20,10 +20,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.util.ReflectionUtils.findMethod;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MuonResourceMethodInvocationTest {
+public class MuonQueryMethodInvocationTest {
     public static final String SAMPLE_OUTPUT_STRING = "the-string";
     public static final String SAMPLE_INPUT_STRING = "SAMPLE_INPUT_STRING";
-    private MuonResourceMethodInvocation methodInvocation;
+    private MuonQueryMethodInvocation methodInvocation;
 
     @Mock
     private MethodHolder methodHolder;
@@ -31,7 +31,7 @@ public class MuonResourceMethodInvocationTest {
     @Test
     public void shouldInvokeMethodWithoutParameters() throws Exception {
         when(methodHolder.methodWithoutParameters()).thenReturn(SAMPLE_OUTPUT_STRING);
-        methodInvocation = new MuonResourceMethodInvocation(
+        methodInvocation = new MuonQueryMethodInvocation(
                 findMethod(MethodHolder.class, "methodWithoutParameters"), methodHolder);
         assertThat((String) methodInvocation.invoke(getSampleMuonResourceEvent()), is(SAMPLE_OUTPUT_STRING));
         verify(methodHolder, times(1)).methodWithoutParameters();
@@ -44,7 +44,7 @@ public class MuonResourceMethodInvocationTest {
     @Test
     public void shouldMapDecodedContentToMethodParameter() throws Exception {
         when(methodHolder.decodedContentParameter(SAMPLE_INPUT_STRING)).thenReturn(SAMPLE_OUTPUT_STRING);
-        methodInvocation = new MuonResourceMethodInvocation(
+        methodInvocation = new MuonQueryMethodInvocation(
                 findMethod(MethodHolder.class, "decodedContentParameter", String.class), methodHolder);
         MuonResourceEvent<String> sampleMuonResourceEvent = getSampleMuonResourceEvent();
         sampleMuonResourceEvent.setDecodedContent(SAMPLE_INPUT_STRING);
@@ -58,7 +58,7 @@ public class MuonResourceMethodInvocationTest {
         muonHeaders.put("Content-type", "text/html");
         muonHeaders.put("param1", "value1");
         when(methodHolder.muonHeadersParameter(eq(muonHeaders))).thenReturn(SAMPLE_OUTPUT_STRING);
-        methodInvocation = new MuonResourceMethodInvocation(
+        methodInvocation = new MuonQueryMethodInvocation(
                 findMethod(MethodHolder.class, "muonHeadersParameter", Map.class), methodHolder);
         MuonResourceEvent<String> sampleMuonResourceEvent = getSampleMuonResourceEvent();
         sampleMuonResourceEvent.addHeader("Content-type", "text/html");
@@ -71,7 +71,7 @@ public class MuonResourceMethodInvocationTest {
     public void shouldMapMuonResourceEventToMethodParameters() throws Exception {
         MuonResourceEvent<String> sampleMuonResourceEvent = getSampleMuonResourceEvent();
         when(methodHolder.muonResourceEventParameter(sampleMuonResourceEvent)).thenReturn(SAMPLE_OUTPUT_STRING);
-        methodInvocation = new MuonResourceMethodInvocation(
+        methodInvocation = new MuonQueryMethodInvocation(
                 findMethod(MethodHolder.class, "muonResourceEventParameter", MuonResourceEvent.class), methodHolder);
 
         assertThat((String) methodInvocation.invoke(sampleMuonResourceEvent), is(SAMPLE_OUTPUT_STRING));
@@ -88,7 +88,7 @@ public class MuonResourceMethodInvocationTest {
         sampleMuonResourceEvent.setDecodedContent(SAMPLE_INPUT_STRING);
 
         when(methodHolder.multipleParameters(eq(SAMPLE_INPUT_STRING), eq(muonHeaders), eq(sampleMuonResourceEvent))).thenReturn(SAMPLE_OUTPUT_STRING);
-        methodInvocation = new MuonResourceMethodInvocation(
+        methodInvocation = new MuonQueryMethodInvocation(
                 findMethod(MethodHolder.class, "multipleParameters", String.class, Map.class, MuonResourceEvent.class), methodHolder);
 
         assertThat((String) methodInvocation.invoke(sampleMuonResourceEvent), is(SAMPLE_OUTPUT_STRING));
@@ -97,7 +97,7 @@ public class MuonResourceMethodInvocationTest {
     @Test
     public void shouldMapMuonSingleHeaderToMethodParameters() throws Exception {
         final String HEADER_VALUE = "value1";
-        methodInvocation = new MuonResourceMethodInvocation(
+        methodInvocation = new MuonQueryMethodInvocation(
                 findMethod(MethodHolder.class, "muonSingleHeaderParameter", String.class), methodHolder);
         MuonResourceEvent<String> sampleMuonResourceEvent = getSampleMuonResourceEvent();
         sampleMuonResourceEvent.addHeader("Content-type", "text/html");
@@ -110,7 +110,7 @@ public class MuonResourceMethodInvocationTest {
 
     @Test
     public void shouldMapMuonSingleHeaderToNullIfNotPresentMethodParameters() throws Exception {
-        methodInvocation = new MuonResourceMethodInvocation(
+        methodInvocation = new MuonQueryMethodInvocation(
                 findMethod(MethodHolder.class, "muonSingleHeaderParameter", String.class), methodHolder);
         MuonResourceEvent<String> sampleMuonResourceEvent = getSampleMuonResourceEvent();
         sampleMuonResourceEvent.addHeader("Content-type", "text/html");

@@ -1,9 +1,9 @@
 package io.muoncore.spring.methodinvocation.parameterhandlers;
 
-import io.muoncore.spring.annotations.parameterhandlers.MuonHeader;
-import io.muoncore.spring.mapping.MuonMappingException;
 import io.muoncore.spring.annotations.parameterhandlers.DecodedContent;
+import io.muoncore.spring.annotations.parameterhandlers.MuonHeader;
 import io.muoncore.spring.annotations.parameterhandlers.MuonHeaders;
+import io.muoncore.spring.mapping.MuonMappingException;
 import io.muoncore.transport.resource.MuonResourceEvent;
 
 import java.lang.reflect.Parameter;
@@ -18,6 +18,8 @@ public class ResourceMethodArgumentTransformerFactory {
             return new MuonHeadersEventArgumentTransformer(parameter);
         } else if (parameter.isAnnotationPresent(MuonHeader.class)) {
             return new MuonSingleHeaderEventArgumentTransformer(parameter);
+        } else if (parameter.isAnnotationPresent(io.muoncore.spring.annotations.parameterhandlers.Parameter.class)) {
+            return new ParameterEventArgumentTransformer(parameter);
         } else {
             throw new MuonMappingException("Unsupported argument type found");
         }
