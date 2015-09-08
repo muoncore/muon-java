@@ -6,6 +6,9 @@ import io.muoncore.Muon;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.codec.GsonTextCodec;
 import io.muoncore.codec.TextBinaryCodec;
+import io.muoncore.config.AutoConfiguration;
+import io.muoncore.config.MuonBuilder;
+import io.muoncore.exception.MuonException;
 import io.muoncore.extension.amqp.AMQPEventTransport;
 import io.muoncore.extension.amqp.AmqpBroadcast;
 import io.muoncore.extension.amqp.AmqpConnection;
@@ -27,6 +30,18 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 public class AmqpDiscovery implements Discovery {
+
+    static {
+
+        MuonBuilder.registerDiscovery( config -> {
+            try {
+                return new AmqpDiscovery(config.getDiscoveryUrl());
+            } catch (URISyntaxException | KeyManagementException | NoSuchAlgorithmException | IOException e) {
+                throw new MuonException("Unable to create AMQP discovery", e);
+            }
+        });
+    }
+
     private static final String RESOURCE_CONNECTIONS = "resourceConnections";
     private static final String STREAM_CONNECTIONS = "streamConnections";
     private static final String IDENTIFIER = "identifier";

@@ -2,6 +2,7 @@ package com.simplicity.services;
 
 import io.muoncore.*;
 import io.muoncore.codec.KryoExtension;
+import io.muoncore.config.MuonBuilder;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.extension.amqp.AmqpTransportExtension;
 import io.muoncore.extension.http.HttpTransportExtension;
@@ -20,6 +21,8 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
+
+
 /**
  * An implementation of the Muon HTTP TCK Resources to prove compatibility of the library
  */
@@ -27,17 +30,21 @@ public class TCKService {
 
     public static void main(String[] args) throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, IOException {
 
-
-        final Muon muon = new Muon(
-                new AmqpDiscovery("amqp://muon:microservices@localhost"));
-
-        muon.setServiceIdentifer("tck");
-        muon.addTags("my-tag", "tck-service");
-
-        new HttpTransportExtension(7171).extend(muon);
-        new AmqpTransportExtension("amqp://muon:microservices@localhost").extend(muon);
-//        new StreamControlExtension().extend(muon);
-        new KryoExtension().extend(muon);
+        final Muon muon = new MuonBuilder()
+                .withServiceIdentifier("tck")
+                .withTags("my-tag", "tck-service")
+                .build();
+//
+//        final Muon muon = new Muon(
+//                new AmqpDiscovery("amqp://muon:microservices@localhost"));
+//
+//        muon.setServiceIdentifer("tck");
+//        muon.addTags("my-tag", "tck-service");
+//
+//        new HttpTransportExtension(7171).extend(muon);
+//        new AmqpTransportExtension("amqp://muon:microservices@localhost").extend(muon);
+////        new StreamControlExtension().extend(muon);
+//        new KryoExtension().extend(muon);
 
         muon.start();
 

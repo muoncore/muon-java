@@ -1,8 +1,10 @@
 package io.muoncore.extension.amqp;
 
+import io.muoncore.Discovery;
 import io.muoncore.MuonExtension;
 import io.muoncore.MuonExtensionApi;
 import io.muoncore.MuonService;
+import io.muoncore.config.MuonBuilder;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -10,6 +12,10 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
 public class AmqpTransportExtension implements MuonExtension {
+
+    static {
+        MuonBuilder.registerExtension(config -> new AmqpTransportExtension(config.getDiscoveryUrl()));
+    }
 
     private String url;
 
