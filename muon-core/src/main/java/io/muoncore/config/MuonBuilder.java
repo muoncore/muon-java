@@ -58,14 +58,18 @@ public class MuonBuilder {
         extensions.add(builder);
     }
 
+    public static void addWriter(AutoConfigurationWriter writer) {
+        writers.add(writer);
+    }
+
     static {
         //for demo purposes, we boot these here. Need to get a cleaner way of either auto detecting, configuring etc.
         try {
             Class.forName("io.muoncore.extension.amqp.discovery.AmqpDiscovery");
             Class.forName("io.muoncore.extension.amqp.AmqpTransportExtension");
 
-            writers.add(new DockerConfigurationWriter());
-            writers.add(new ConfigFileConfigurationWriter());
+            addWriter(new DockerConfigurationWriter());
+            addWriter(new ConfigFileConfigurationWriter());
 
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
