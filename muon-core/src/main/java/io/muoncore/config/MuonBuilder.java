@@ -26,7 +26,7 @@ public class MuonBuilder {
         return this;
     }
 
-    public MuonBuilder withTags(String...name) {
+    public MuonBuilder withTags(String...tags) {
         this.tags = tags;
         return this;
     }
