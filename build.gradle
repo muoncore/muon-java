@@ -132,24 +132,6 @@ project('muon-tck') {
 	}
 }
 
-project('muon-transport-http1') {
-	description = 'HTTP integration for Muon'
-	dependencies {
-		compile project(":muon-core")
-		compile 'org.eclipse.jetty:jetty-server:8.1.16.v20140903'
-		compile 'org.eclipse.jetty:jetty-client:8.1.16.v20140903'
-	}
-}
-
-project('muon-transport-zeromq') {
-  description = 'ZeroMQ integration for Muon'
-  dependencies {
-    compile project(":muon-core")
-    compile "org.zeromq:jeromq:0.3.4"
-  }
-}
-
-
 project('muon-transport-amqp') {
 	description = 'Core Muon for Java'
 	dependencies {
@@ -162,21 +144,6 @@ project('muon-discovery-amqp') {
   description = 'A discovery system running on AMQP'
   dependencies {
     compile project(":muon-transport-amqp")
-  }
-}
-
-
-project('muon-discovery-eureka') {
-  description = 'Eureka discovery integration for Muon'
-  dependencies {
-    compile project(":muon-core")
-  }
-}
-
-project('muon-codec-avro') {
-  description = 'Codec implementations using Apache Avro'
-  dependencies {
-    compile project(":muon-core")
   }
 }
 
