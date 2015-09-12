@@ -1,11 +1,7 @@
 package com.simplicity.services;
 
 import io.muoncore.*;
-import io.muoncore.codec.KryoExtension;
 import io.muoncore.config.MuonBuilder;
-import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
-import io.muoncore.extension.amqp.AmqpTransportExtension;
-import io.muoncore.extension.http.HttpTransportExtension;
 import io.muoncore.future.MuonFuture;
 import io.muoncore.future.MuonFutures;
 import io.muoncore.transport.MuonMessageEvent;

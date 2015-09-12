@@ -124,8 +124,6 @@ project('muon-tck') {
 		compile project(":muon-core")
 		compile project(":muon-transport-amqp")
 		compile project(":muon-discovery-amqp")
-		compile project(":muon-transport-http1")
-		compile project(":muon-transport-zeromq")
 		compile project(":muon-codec-kryo")
     compile "io.projectreactor:reactor-stream:$reactorVersion"
     compile 'org.slf4j:slf4j-jdk14:1.7.12'
