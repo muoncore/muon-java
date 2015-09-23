@@ -36,6 +36,9 @@ public class MuonFactoryBean implements FactoryBean<Muon>, EmbeddedValueResolver
 
         muon.start();
 
+        //TODO Move this to a lifecycle event
+        Thread.sleep(6000);
+
         return muon;
     }
 
