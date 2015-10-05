@@ -3,6 +3,7 @@ package io.muoncore.extension.amqp;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.QueueingConsumer;
+import com.rabbitmq.client.ShutdownSignalException;
 import io.muoncore.Muon;
 import io.muoncore.MuonService;
 import io.muoncore.transport.MuonMessageEventBuilder;
@@ -84,6 +85,8 @@ public class AmqpBroadcast {
                             ev.setEncodedBinaryContent(body);
 
                             listener.onEvent(resource, ev);
+                        } catch (ShutdownSignalException ex) {
+                            throw ex;
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }

@@ -58,34 +58,24 @@ public class TCKService {
 
         final Map storedata = new HashMap();
 
-        muon.onCommand("/invokeresponse-store", Map.class, new MuonService.MuonCommand<Map>() {
-            @Override
-            public MuonFuture onCommand(MuonResourceEvent<Map> queryEvent) {
-                return MuonFutures.immediately(storedata);
-            }
-        });
+        muon.onQuery("/invokeresponse-store", Map.class, queryEvent -> MuonFutures.immediately(storedata));
 
-        muon.onQuery("/invokeresponse", Map.class, new MuonService.MuonQuery<Map>() {
-                @Override
-                public MuonFuture onQuery(MuonResourceEvent<Map> queryEvent) {
+        muon.onCommand("/invokeresponse", Map.class, queryEvent -> {
 
                     String url = (String) queryEvent.getDecodedContent().get("resource");
 
                     MuonFuture<MuonClient.MuonResult<Map>> rsult = muon.query(url, Map.class);
 
                     return MuonFutures.fromPublisher(
-                            Streams.wrap(rsult.toPublisher()).map(new Function<MuonClient.MuonResult<Map>, Map>() {
-                                @Override
-                                public Map apply(MuonClient.MuonResult<Map> mapMuonResult) {
-                                    Map data = mapMuonResult.getResponseEvent().getDecodedContent();
-                                    storedata.clear();
-                                    storedata.putAll(data);
+                            Streams.wrap(rsult.toPublisher()).map(mapMuonResult -> {
+                                Map data;
+                                data = mapMuonResult.getResponseEvent().getDecodedContent();
+                                storedata.clear();
+                                storedata.putAll(data);
 
-                                    return data;
-                                }
+                                return data;
                             }));
                 }
-            }
         );
     }
 
