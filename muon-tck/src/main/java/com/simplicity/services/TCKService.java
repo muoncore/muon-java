@@ -81,7 +81,7 @@ public class TCKService {
 
     private static void streamPublisher(Muon muon) {
         Publisher<Long> pub = Streams.range(1, 10);
-        muon.streamSource("myStream", Long.class, pub);
+        muon.streamSource("/myStream", Long.class, pub);
     }
 
     private static void inboundResourcesSetup(final Muon muon) {
