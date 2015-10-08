@@ -2,7 +2,6 @@ package io.muoncore.transport.support;
 
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.transport.*;
-import io.muoncore.transport.broadcast.MuonBroadcastTransport;
 import io.muoncore.transport.resource.MuonResourceTransport;
 import io.muoncore.transport.stream.MuonStreamTransport;
 
@@ -57,7 +56,6 @@ public class TransportList<T extends MuonEventTransport> {
     static {
         capabilityMapping = new HashMap<Class, String>();
         capabilityMapping.put(MuonResourceTransport.class, "resource");
-        capabilityMapping.put(MuonBroadcastTransport.class, "broadcast");
         capabilityMapping.put(MuonQueueTransport.class, "queue");
         capabilityMapping.put(MuonStreamTransport.class, "stream");
     }

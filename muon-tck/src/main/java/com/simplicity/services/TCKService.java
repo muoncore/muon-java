@@ -30,21 +30,8 @@ public class TCKService {
                 .withServiceIdentifier("tck")
                 .withTags("my-tag", "tck-service")
                 .build();
-//
-//        final Muon muon = new Muon(
-//                new AmqpDiscovery("amqp://muon:microservices@localhost"));
-//
-//        muon.setServiceIdentifer("tck");
-//        muon.addTags("my-tag", "tck-service");
-//
-//        new HttpTransportExtension(7171).extend(muon);
-//        new AmqpTransportExtension("amqp://muon:microservices@localhost").extend(muon);
-////        new StreamControlExtension().extend(muon);
-//        new KryoExtension().extend(muon);
 
         muon.start();
-
-        broadcastSetup(muon);
 
         outboundResourcesSetup(muon);
 
@@ -123,41 +110,4 @@ public class TCKService {
         });
     }
 
-    private static List<Map> broadcastSetup(final Muon muon) {
-        final List<Map> events = Collections.synchronizedList(new ArrayList<Map>());
-
-        muon.receive("echoBroadcast", Map.class, new MuonService.MuonListener<Map>() {
-            public void onEvent(MuonMessageEvent<Map> event) {
-                muon.emit(
-                        MuonMessageEventBuilder.named("echoBroadcastResponse")
-                                .withContent(event.getDecodedContent())
-                                .build()
-                );
-            }
-        });
-
-        muon.receive("tckBroadcast", Map.class, new MuonService.MuonListener<Map>() {
-            public void onEvent(MuonMessageEvent<Map> event) {
-                events.add(event.getDecodedContent());
-            }
-        });
-
-
-        muon.onQuery("/event", Map.class, new MuonService.MuonQuery<Map>() {
-            @Override
-            public MuonFuture onQuery(MuonResourceEvent<Map> queryEvent) {
-                return MuonFutures.immediately(events);
-            }
-        });
-
-        muon.onCommand("/event", Map.class, new MuonService.MuonCommand<Map>() {
-            @Override
-            public MuonFuture onCommand(MuonResourceEvent<Map> queryEvent) {
-                events.clear();
-                return MuonFutures.immediately(new HashMap());
-            }
-        });
-
-        return events;
-    }
 }

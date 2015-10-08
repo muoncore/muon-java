@@ -1,7 +1,6 @@
 package io.muoncore;
 
 import io.muoncore.codec.Codecs;
-import io.muoncore.internal.Dispatcher;
 import io.muoncore.transport.support.MuonEventRegister;
 import io.muoncore.transport.MuonEventTransport;
 import io.muoncore.transport.resource.MuonResourceRegister;
@@ -17,7 +16,7 @@ public class MuonExtensionApi {
 
     private List<MuonEventTransport> transports;
     private Muon muon;
-    private Dispatcher dispatcher;
+
     private List<MuonExtension> extensions;
     private List<MuonResourceRegister> resources;
     private List<MuonEventRegister> events;
@@ -30,7 +29,6 @@ public class MuonExtensionApi {
             Codecs codecs,
             List<String> tags,
             List<MuonEventTransport> transports,
-            Dispatcher dispatcher,
             List<MuonExtension> extensions,
             List<MuonEventRegister> events,
             List<MuonStreamRegister> streams,
@@ -39,7 +37,6 @@ public class MuonExtensionApi {
         this.codecs = codecs;
         this.tags = tags;
         this.transports = transports;
-        this.dispatcher = dispatcher;
         this.extensions = extensions;
         this.resources = resource;
         this.events = events;
@@ -64,10 +61,6 @@ public class MuonExtensionApi {
 
     public List<MuonExtension> getExtensions() {
         return extensions;
-    }
-
-    public Dispatcher getDispatcher() {
-        return dispatcher;
     }
 
     public MuonService getMuon() {
