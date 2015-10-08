@@ -5,8 +5,6 @@ import io.muoncore.Muon;
 import io.muoncore.MuonExtension;
 import io.muoncore.config.writers.ConfigFileConfigurationWriter;
 import io.muoncore.config.writers.DockerConfigurationWriter;
-import io.muoncore.exception.MuonException;
-import io.muoncore.transport.resource.MuonResourceTransport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +24,7 @@ public class MuonBuilder {
         return this;
     }
 
-    public MuonBuilder withTags(String...tags) {
+    public MuonBuilder withTags(String... tags) {
         this.tags = tags;
         return this;
     }
@@ -54,12 +52,25 @@ public class MuonBuilder {
     public static void registerDiscovery(DiscoveryBuilder builder) {
         discovery = builder;
     }
+
     public static void registerExtension(ExtensionBuilder builder) {
         extensions.add(builder);
     }
 
     public static void addWriter(AutoConfigurationWriter writer) {
         writers.add(writer);
+    }
+
+    public static void clearDiscovery() {
+        discovery = null;
+    }
+
+    public static void clearExtensions() {
+        extensions.clear();
+    }
+
+    public static void clearWriters() {
+        writers.clear();
     }
 
     static {
