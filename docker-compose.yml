@@ -10,3 +10,9 @@ muon-java-tck-endpoint:
   build: .
   links:
     - rabbitmq
+muon-tck:
+  image: simplicityitself/muon-amqp-protocol-spec
+  links:
+    - rabbitmq
+  volumes:
+    - ./test-results:/app/test-results/
