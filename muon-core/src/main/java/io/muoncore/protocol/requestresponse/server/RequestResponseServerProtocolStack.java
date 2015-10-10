@@ -11,7 +11,7 @@ import io.muoncore.transport.TransportClientSource;
 public interface RequestResponseServerProtocolStack extends
         TransportClientSource {
 
-    default <X> MuonFuture<Response> request(Request<X> event) {
+    default <X> MuonFuture<Response> handleRequest(Request<X> event) {
         StandardAsyncChannel<Request<X>, Response> api2rrp = new StandardAsyncChannel<>();
 
         ChannelFutureAdapter<Response, Request<X>> adapter =

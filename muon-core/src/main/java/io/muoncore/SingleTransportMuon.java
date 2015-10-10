@@ -18,15 +18,17 @@ public class SingleTransportMuon implements Muon
         this.discovery = discovery;
     }
 
-    @Override
-    public Discovery getDiscovery() {
-        return discovery;
-    }
 
-    @Override
-    public AutoConfiguration getConfiguration() {
-        return null;
-    }
+
+//    @Override
+//    public Discovery getDiscovery() {
+//        return discovery;
+//    }
+//
+//    @Override
+//    public AutoConfiguration getConfiguration() {
+//        return null;
+//    }
 
     @Override
     public TransportClient getTransportClient() {

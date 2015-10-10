@@ -14,7 +14,4 @@ public interface MuonTransport {
     String getUrlScheme();
 
     URI getLocalConnectionURI() throws URISyntaxException;
-
-    ChannelConnection<TransportOutboundMessage, TransportInboundMessage> inboundChannel(String name);
-    ChannelConnection<TransportOutboundMessage, TransportInboundMessage> channelToRemote(String remoteName, String channelName);
 }
