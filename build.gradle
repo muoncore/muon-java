@@ -43,6 +43,7 @@ subprojects { subproject ->
     dependencies {
         compile "org.codehaus.groovy:groovy-all:2.4.1"
         testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
+        testCompile 'cglib:cglib:2.2.2'
     }
 
     compileJava {
@@ -110,9 +111,9 @@ project('muon-core') {
 
         //Gson codec (the default)
         compile 'com.google.code.gson:gson:2.3.1'
-        testCompile "org.spockframework:spock-core:1.0-groovy-2.3"
         testCompile "io.projectreactor:reactor-stream:$reactorVersion"
         testCompile 'org.slf4j:slf4j-jdk14:1.7.12'
+
     }
 }
 

@@ -1,12 +1,11 @@
 package io.muoncore.extension.amqp;
 
-import io.muoncore.Muon;
-import io.muoncore.MuonService;
-import io.muoncore.codec.Codecs;
-import io.muoncore.log.EventLogger;
-import io.muoncore.transport.MuonMessageEvent;
-import io.muoncore.transport.MuonMessageEventBuilder;
-import io.muoncore.transport.resource.MuonResourceEvent;
+import io.muoncore.crud.OldMuon;
+import io.muoncore.crud.MuonService;
+import io.muoncore.crud.codec.Codecs;
+import io.muoncore.transport.crud.MuonMessageEvent;
+import io.muoncore.transport.crud.MuonMessageEventBuilder;
+import io.muoncore.transport.crud.requestresponse.MuonResourceEvent;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -29,7 +28,7 @@ public class AmqpResources {
 
     private ExecutorService spinner;
 
-    private Map<String, Muon.EventResourceTransportListener> resourceListeners = new HashMap<String, Muon.EventResourceTransportListener>();
+    private Map<String, OldMuon.EventResourceTransportListener> resourceListeners = new HashMap<String, OldMuon.EventResourceTransportListener>();
 
     public AmqpResources(final AmqpQueues queues,
                          String serviceName, final Codecs codecs) throws IOException {
@@ -41,7 +40,7 @@ public class AmqpResources {
 
         log.info("Opening resource queue to listen for resource requests " + resourceQueue);
 
-        queues.listenOnQueueEvent(resourceQueue, Void.class, new Muon.EventMessageTransportListener() {
+        queues.listenOnQueueEvent(resourceQueue, Void.class, new OldMuon.EventMessageTransportListener() {
             @Override
             public void onEvent(String name, MuonMessageEvent request) {
 
@@ -52,7 +51,7 @@ public class AmqpResources {
                     String responseQueue = (String) request.getHeaders().get("RESPONSE_QUEUE");
 
                     //find the listener
-                    Muon.EventResourceTransportListener listener = resourceListeners.get(key);
+                    OldMuon.EventResourceTransportListener listener = resourceListeners.get(key);
 
                     EventLogger.logEvent(resourceQueue, request);
 
@@ -113,7 +112,7 @@ public class AmqpResources {
             String returnQueue = "resourcereturn." + UUID.randomUUID().toString();
             String resourceQueue = "resource-listen." + event.getUri().getHost();
 
-            Muon.EventMessageTransportListener listener = new Muon.EventMessageTransportListener() {
+            OldMuon.EventMessageTransportListener listener = new OldMuon.EventMessageTransportListener() {
                 @Override
                 public void onEvent(String name, MuonMessageEvent obj) {
                     MuonResourceEvent resEv = new MuonResourceEvent(null);
@@ -155,7 +154,7 @@ public class AmqpResources {
         return ret;
     }
 
-    public void listenOnResource(final String resource, final String verb, final Muon.EventResourceTransportListener listener) {
+    public void listenOnResource(final String resource, final String verb, final OldMuon.EventResourceTransportListener listener) {
         String key = resource + "-" + verb;
         log.fine("Register listener for " + key);
         resourceListeners.put(key, listener);

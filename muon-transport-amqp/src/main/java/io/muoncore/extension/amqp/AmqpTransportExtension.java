@@ -1,9 +1,7 @@
 package io.muoncore.extension.amqp;
 
-import io.muoncore.Discovery;
 import io.muoncore.MuonExtension;
-import io.muoncore.MuonExtensionApi;
-import io.muoncore.MuonService;
+import io.muoncore.crud.MuonService;
 import io.muoncore.config.MuonBuilder;
 
 import java.io.IOException;

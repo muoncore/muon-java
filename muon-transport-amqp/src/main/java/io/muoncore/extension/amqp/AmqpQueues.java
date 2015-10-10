@@ -2,31 +2,26 @@ package io.muoncore.extension.amqp;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.QueueingConsumer;
-import com.rabbitmq.client.ShutdownSignalException;
-import io.muoncore.Muon;
-import io.muoncore.MuonClient;
-import io.muoncore.MuonService;
-import io.muoncore.transport.MuonMessageEventBuilder;
-import io.muoncore.transport.MuonMessageEvent;
+import io.muoncore.crud.OldMuon;
+import io.muoncore.crud.MuonClient;
+import io.muoncore.crud.MuonService;
+import io.muoncore.transport.crud.MuonMessageEvent;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class AmqpQueues {
 
     final private ExecutorService spinner;
     private Channel channel;
-    private Map<Muon.EventMessageTransportListener, QueueListener> listeners;
+    private Map<OldMuon.EventMessageTransportListener, QueueListener> listeners;
 
     public AmqpQueues(Channel channel) throws IOException {
         this.channel = channel;
         spinner = Executors.newCachedThreadPool();
-        listeners = Collections.synchronizedMap(new HashMap<Muon.EventMessageTransportListener, QueueListener>());
+        listeners = Collections.synchronizedMap(new HashMap<OldMuon.EventMessageTransportListener, QueueListener>());
     }
 
     public MuonClient.MuonResult send(String queueName, MuonMessageEvent event) {
@@ -56,7 +51,7 @@ public class AmqpQueues {
         return ret;
     }
 
-    public void removeListener(Muon.EventMessageTransportListener listener) {
+    public void removeListener(OldMuon.EventMessageTransportListener listener) {
         synchronized (spinner) {
             QueueListener queueListener = listeners.remove(listener);
             if (queueListener != null) {
@@ -65,7 +60,7 @@ public class AmqpQueues {
         }
     }
 
-    public <T> void listenOnQueueEvent(final String queueName, Class<T> type, final Muon.EventMessageTransportListener listener) {
+    public <T> void listenOnQueueEvent(final String queueName, Class<T> type, final OldMuon.EventMessageTransportListener listener) {
         synchronized (spinner) {
             QueueListener queueListener = new QueueListener(
                     channel, queueName, listener

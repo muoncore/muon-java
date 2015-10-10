@@ -4,9 +4,9 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConsumerCancelledException;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.ShutdownSignalException;
-import io.muoncore.Muon;
-import io.muoncore.transport.MuonMessageEvent;
-import io.muoncore.transport.MuonMessageEventBuilder;
+import io.muoncore.crud.OldMuon;
+import io.muoncore.transport.crud.MuonMessageEvent;
+import io.muoncore.transport.crud.MuonMessageEventBuilder;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -20,10 +20,10 @@ public class QueueListener implements Runnable {
     private Channel channel;
     private Logger log = Logger.getLogger(QueueListener.class.getName());
     private String queueName;
-    private Muon.EventMessageTransportListener listener;
+    private OldMuon.EventMessageTransportListener listener;
     private QueueingConsumer consumer;
 
-    public QueueListener(Channel channel, String queueName, Muon.EventMessageTransportListener listener) {
+    public QueueListener(Channel channel, String queueName, OldMuon.EventMessageTransportListener listener) {
         this.channel = channel;
         this.queueName = queueName;
         this.listener = listener;

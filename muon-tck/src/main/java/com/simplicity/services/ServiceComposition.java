@@ -1,10 +1,7 @@
 package com.simplicity.services;
 
-import io.muoncore.Muon;
-import io.muoncore.MuonClient;
-import io.muoncore.extension.amqp.AmqpTransportExtension;
-import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
-import io.muoncore.transport.MuonMessageEvent;
+import io.muoncore.crud.OldMuon;
+import io.muoncore.crud.MuonClient;
 import reactor.fn.Consumer;
 import reactor.fn.Function;
 import reactor.rx.Stream;
@@ -17,7 +14,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.*;
 
 public class ServiceComposition {
@@ -95,7 +91,7 @@ public class ServiceComposition {
     }
 
     private static Stream<List<Map>> loadData(
-            Muon muon) {
+            OldMuon muon) {
 
         Stream<Map> s1 = Streams.wrap(
                 muon.query("muon://user?name=dawson", Map.class).toPublisher())

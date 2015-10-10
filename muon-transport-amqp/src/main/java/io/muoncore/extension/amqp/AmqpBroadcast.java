@@ -4,10 +4,10 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.ShutdownSignalException;
-import io.muoncore.Muon;
-import io.muoncore.MuonService;
-import io.muoncore.transport.MuonMessageEventBuilder;
-import io.muoncore.transport.MuonMessageEvent;
+import io.muoncore.crud.OldMuon;
+import io.muoncore.crud.MuonService;
+import io.muoncore.transport.crud.MuonMessageEventBuilder;
+import io.muoncore.transport.crud.MuonMessageEvent;
 
 import java.io.IOException;
 import java.util.Map;
@@ -49,7 +49,7 @@ public class AmqpBroadcast {
         }
         return ret;
     }
-    public void listenOnBroadcastEvent(final String resource, final Muon.EventMessageTransportListener listener) {
+    public void listenOnBroadcastEvent(final String resource, final OldMuon.EventMessageTransportListener listener) {
         spinner.execute(() -> {
             try {
                 String queueName = null;

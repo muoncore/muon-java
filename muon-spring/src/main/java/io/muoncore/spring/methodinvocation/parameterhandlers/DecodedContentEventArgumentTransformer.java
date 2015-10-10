@@ -1,6 +1,6 @@
 package io.muoncore.spring.methodinvocation.parameterhandlers;
 
-import io.muoncore.transport.resource.MuonResourceEvent;
+import io.muoncore.transport.crud.requestresponse.MuonResourceEvent;
 
 import java.lang.reflect.Parameter;
 

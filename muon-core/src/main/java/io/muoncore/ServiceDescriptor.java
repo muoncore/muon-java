@@ -7,19 +7,22 @@ public class ServiceDescriptor {
 
     private String identifier;
     private List<String> tags;
-    private List<URI> resourceConnectionUrls;
-    private List<URI> streamConnectionUrls;
+    private List<String> codecs;
+    private List<URI> connectionUrls;
 
     public ServiceDescriptor(String identifier,
                              List<String> tags,
-                             List<URI> resourceConnectionUrls,
+                             List<String> codecs,
                              List<URI> streamConnectionUrls) {
         this.identifier = identifier;
         this.tags = tags;
-        this.resourceConnectionUrls = resourceConnectionUrls;
-        this.streamConnectionUrls = streamConnectionUrls;
+        this.codecs = codecs;
+        this.connectionUrls = streamConnectionUrls;
     }
 
+    public List<String> getCodecs() {
+        return codecs;
+    }
     public List<String> getTags() {
         return tags;
     }
@@ -28,11 +31,7 @@ public class ServiceDescriptor {
         return identifier;
     }
 
-    public List<URI> getResourceConnectionUrls() {
-        return resourceConnectionUrls;
-    }
-
-    public List<URI> getStreamConnectionUrls() {
-        return streamConnectionUrls;
+    public List<URI> getConnectionUrls() {
+        return connectionUrls;
     }
 }

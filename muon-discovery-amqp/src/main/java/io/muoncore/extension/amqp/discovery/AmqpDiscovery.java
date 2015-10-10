@@ -1,19 +1,17 @@
 package io.muoncore.extension.amqp.discovery;
 
-import com.google.gson.Gson;
 import io.muoncore.Discovery;
-import io.muoncore.Muon;
+import io.muoncore.crud.OldMuon;
 import io.muoncore.ServiceDescriptor;
-import io.muoncore.codec.GsonTextCodec;
-import io.muoncore.codec.TextBinaryCodec;
-import io.muoncore.config.AutoConfiguration;
+import io.muoncore.crud.codec.GsonTextCodec;
+import io.muoncore.crud.codec.TextBinaryCodec;
 import io.muoncore.config.MuonBuilder;
 import io.muoncore.exception.MuonException;
 import io.muoncore.extension.amqp.AMQPEventTransport;
 import io.muoncore.extension.amqp.AmqpBroadcast;
 import io.muoncore.extension.amqp.AmqpConnection;
-import io.muoncore.transport.MuonMessageEvent;
-import io.muoncore.transport.MuonMessageEventBuilder;
+import io.muoncore.transport.crud.MuonMessageEvent;
+import io.muoncore.transport.crud.MuonMessageEventBuilder;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -21,10 +19,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -54,10 +49,9 @@ public class AmqpDiscovery implements Discovery {
     private AmqpBroadcast amqpBroadcast;
     private ServiceDescriptor descriptor;
     private final static int PING_TIME=3000;
-    private Gson gson;
 
     private boolean isReady=false;
-    private List<Runnable> onReadyNotification = new ArrayList<Runnable>();
+    private List<Runnable> onReadyNotification = new ArrayList<>();
 
     public AmqpDiscovery(String amqpUrl) throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, IOException {
         this(new AmqpBroadcast(
@@ -65,7 +59,6 @@ public class AmqpDiscovery implements Discovery {
     }
 
     public AmqpDiscovery(AmqpBroadcast amqpBroadcast) {
-        this.gson = new Gson();
         this.amqpBroadcast = amqpBroadcast;
         serviceCache = new ServiceCache();
         spinner = Executors.newCachedThreadPool();
@@ -82,7 +75,7 @@ public class AmqpDiscovery implements Discovery {
     }
 
     public void connect() {
-        amqpBroadcast.listenOnBroadcastEvent(SERVICE_ANNOUNCE, new Muon.EventMessageTransportListener() {
+        amqpBroadcast.listenOnBroadcastEvent(SERVICE_ANNOUNCE, new OldMuon.EventMessageTransportListener() {
             @Override
             public void onEvent(String name, MuonMessageEvent obj) {
                 Map announce = decode(obj);
@@ -92,16 +85,13 @@ public class AmqpDiscovery implements Discovery {
         });
 
         startAnnouncePing();
-        spinner.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(PING_TIME + 200);
-                    isReady=true;
-                    notifyListeners();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        spinner.execute(() -> {
+            try {
+                Thread.sleep(PING_TIME + 200);
+                isReady=true;
+                notifyListeners();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         });
     }
@@ -113,40 +103,35 @@ public class AmqpDiscovery implements Discovery {
     }
 
     private void startAnnouncePing() {
-        spinner.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        if (descriptor != null) {
-                            Map<String,Object> discoveryMessage = new HashMap<String, Object>();
+        spinner.execute(() -> {
+            try {
+                while (true) {
+                    if (descriptor != null) {
+                        Map<String,Object> discoveryMessage = new HashMap<>();
 
-                            discoveryMessage.put(IDENTIFIER, descriptor.getIdentifier());
-                            discoveryMessage.put(TAGS, descriptor.getTags());
-                            discoveryMessage.put(RESOURCE_CONNECTIONS, descriptor.getResourceConnectionUrls());
-                            discoveryMessage.put(STREAM_CONNECTIONS, descriptor.getStreamConnectionUrls());
+                        discoveryMessage.put(IDENTIFIER, descriptor.getIdentifier());
+                        discoveryMessage.put(TAGS, descriptor.getTags());
+                        discoveryMessage.put(RESOURCE_CONNECTIONS, descriptor.getResourceConnectionUrls());
+                        discoveryMessage.put(STREAM_CONNECTIONS, descriptor.getStreamConnectionUrls());
 
-                            MuonMessageEvent ev = MuonMessageEventBuilder.named(SERVICE_ANNOUNCE)
-                                    .withContent(discoveryMessage).build();
+                        MuonMessageEvent ev = MuonMessageEventBuilder.named(SERVICE_ANNOUNCE)
+                                .withContent(discoveryMessage).build();
 
-                            ev.setEncodedBinaryContent(encode(ev));
+                        ev.setEncodedBinaryContent(encode(ev));
 
-                            amqpBroadcast.broadcast(SERVICE_ANNOUNCE, ev);
-                        }
-                        Thread.sleep(3000);
+                        amqpBroadcast.broadcast(SERVICE_ANNOUNCE, ev);
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                    Thread.sleep(3000);
                 }
+            } catch (InterruptedException | UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
         });
     }
 
     @Override
     public List<ServiceDescriptor> getKnownServices() {
-        List<ServiceDescriptor> services = new ArrayList<ServiceDescriptor>();
+        List<ServiceDescriptor> services = new ArrayList<>();
 
         try {
             for (Map data : serviceCache.getServices()) {
@@ -158,6 +143,7 @@ public class AmqpDiscovery implements Discovery {
                 services.add(new ServiceDescriptor(
                         (String) data.get(IDENTIFIER),
                         tagList,
+                        Collections.<String>emptyList(), //TODO, more thought on how we collect/ use the codecs information
                         connectionList,
                         streamConnectionList));
             }
@@ -198,23 +184,6 @@ public class AmqpDiscovery implements Discovery {
             ret = (List) tags;
         }
         return ret;
-    }
-
-    @Override
-    public ServiceDescriptor getService(URI searchUri) {
-
-        if (!searchUri.getScheme().equals("muon")) {
-            throw new IllegalArgumentException("Discovery requires muon://XXX scheme urls for lookup");
-        }
-
-        String serviceName = searchUri.getHost();
-
-        for(ServiceDescriptor desc: getKnownServices()) {
-            if (desc.getIdentifier().equals(serviceName)) {
-                return desc;
-            }
-        }
-        return null;
     }
 
     @Override

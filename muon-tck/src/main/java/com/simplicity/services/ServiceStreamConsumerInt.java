@@ -1,13 +1,11 @@
 package com.simplicity.services;
 
-import io.muoncore.Muon;
+import io.muoncore.crud.OldMuon;
 import io.muoncore.extension.amqp.AmqpTransportExtension;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.fn.Consumer;
-import reactor.rx.Stream;
-import reactor.rx.Streams;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.io.IOException;
@@ -22,7 +20,7 @@ public class ServiceStreamConsumerInt {
 
     public static void main(String[] args) throws URISyntaxException, InterruptedException, NoSuchAlgorithmException, KeyManagementException, IOException {
 
-        final Muon muon = new Muon(
+        final OldMuon muon = new OldMuon(
                 new AmqpDiscovery("amqp://localhost:5672"));
 
         muon.setServiceIdentifer("consumer-" + UUID.randomUUID().toString());

@@ -1,15 +1,13 @@
 package io.muoncore.extension.amqp.stream.server;
 
-import io.muoncore.Muon;
+import io.muoncore.crud.OldMuon;
 import io.muoncore.MuonStreamGenerator;
-import io.muoncore.codec.Codecs;
+import io.muoncore.crud.codec.Codecs;
 import io.muoncore.extension.amqp.AmqpQueues;
 import io.muoncore.extension.amqp.stream.AmqpStream;
-import io.muoncore.log.EventLogger;
-import io.muoncore.transport.MuonMessageEvent;
-import io.muoncore.transport.MuonMessageEventBuilder;
+import io.muoncore.transport.crud.MuonMessageEvent;
+import io.muoncore.transport.crud.MuonMessageEventBuilder;
 import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
 
 import java.io.IOException;
 import java.util.*;
@@ -17,7 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
-public class AmqpStreamControl implements Muon.EventMessageTransportListener {
+public class AmqpStreamControl implements OldMuon.EventMessageTransportListener {
     private Logger log = Logger.getLogger(AmqpStream.class.getName());
 
     public static final String COMMAND_REQUEST = "REQUEST";
