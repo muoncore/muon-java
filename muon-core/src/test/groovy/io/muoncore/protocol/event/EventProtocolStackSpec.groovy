@@ -1,7 +1,7 @@
 package io.muoncore.protocol.event
 
 import io.muoncore.channel.ChannelConnection
-import io.muoncore.protocol.ChannelFunctionExecShim
+import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.event.client.EventClientProtocolStack
 import io.muoncore.protocol.requestresponse.Response
 import io.muoncore.transport.client.TransportClient
@@ -17,7 +17,7 @@ class EventProtocolStackSpec extends Specification {
 
         def clientChannel = Mock(ChannelConnection) {
             receive(_) >> { func ->
-                capturedFunction = new ChannelFunctionExecShim(func[0])
+                capturedFunction = new ChannelFunctionExecShimBecauseGroovyCantCallLambda(func[0])
             }
         }
 

@@ -18,21 +18,6 @@ public class SingleTransportClient implements TransportClient {
 
     @Override
     public ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel() {
-        return null;
-    }
-
-    class SingleTransportChannelConnection implements ChannelConnection<TransportOutboundMessage, TransportInboundMessage> {
-
-
-
-        @Override
-        public void receive(ChannelFunction<TransportInboundMessage> function) {
-
-        }
-
-        @Override
-        public void send(TransportOutboundMessage message) {
-
-        }
+        return new SingleTransportChannelConnection(transport);
     }
 }

@@ -9,11 +9,11 @@ import io.muoncore.channel.ChannelConnection;
  *
  * Requiring this shim be used to convert and invoke in java.
  */
-public class ChannelFunctionExecShim {
+public class ChannelFunctionExecShimBecauseGroovyCantCallLambda {
 
     private ChannelConnection.ChannelFunction function;
 
-    public ChannelFunctionExecShim(ChannelConnection.ChannelFunction func) {
+    public ChannelFunctionExecShimBecauseGroovyCantCallLambda(ChannelConnection.ChannelFunction func) {
         this.function = func;
     }
 

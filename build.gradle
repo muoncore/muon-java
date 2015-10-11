@@ -117,6 +117,13 @@ project('muon-core') {
     }
 }
 
+project('muon-inmem') {
+    description = 'In memory transport and discovery, for testing'
+    dependencies {
+        compile project(":muon-core")
+    }
+}
+
 //project('muon-tck') {
 //    apply plugin: 'application'
 //
