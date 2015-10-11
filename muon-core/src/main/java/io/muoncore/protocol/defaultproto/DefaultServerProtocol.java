@@ -1,11 +1,11 @@
 package io.muoncore.protocol.defaultproto;
 
 import io.muoncore.channel.ChannelConnection;
-import io.muoncore.protocol.ServerProtocol;
+import io.muoncore.protocol.ServerProtocolStack;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
-public class DefaultServerProtocol implements ServerProtocol {
+public class DefaultServerProtocol implements ServerProtocolStack {
     @Override
     public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
         return new DefaultServerChannelConnection();

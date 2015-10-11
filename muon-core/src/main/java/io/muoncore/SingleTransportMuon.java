@@ -1,13 +1,9 @@
 package io.muoncore;
 
-import io.muoncore.channel.ChannelConnection;
-import io.muoncore.config.AutoConfiguration;
 import io.muoncore.protocol.DynamicRegistrationServerProtocols;
-import io.muoncore.protocol.ServerProtocols;
+import io.muoncore.protocol.ServerStacks;
 import io.muoncore.protocol.defaultproto.DefaultServerProtocol;
 import io.muoncore.transport.MuonTransport;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
 import io.muoncore.transport.client.SingleTransportClient;
 import io.muoncore.transport.client.TransportClient;
 
@@ -19,7 +15,7 @@ public class SingleTransportMuon implements Muon
 
     private TransportClient transportClient;
     private Discovery discovery;
-    private ServerProtocols protocols;
+    private ServerStacks protocols;
 
     public SingleTransportMuon(
             Discovery discovery,

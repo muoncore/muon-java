@@ -7,9 +7,9 @@ import spock.lang.Unroll
 class DynamicRegistrationServerProtocolsSpec extends Specification {
 
     def protos
-    def defaultproto = Mock(ServerProtocol)
-    def proto2 = Mock(ServerProtocol)
-    def proto3 = Mock(ServerProtocol)
+    def defaultproto = Mock(ServerProtocolStack)
+    def proto2 = Mock(ServerProtocolStack)
+    def proto3 = Mock(ServerProtocolStack)
 
     def setup() {
 
@@ -20,7 +20,7 @@ class DynamicRegistrationServerProtocolsSpec extends Specification {
 
     def "obtains channel from default ServerProtocol when no other match"() {
 
-        def defaultproto = Mock(ServerProtocol)
+        def defaultproto = Mock(ServerProtocolStack)
 
         def protos = new DynamicRegistrationServerProtocols(defaultproto)
 

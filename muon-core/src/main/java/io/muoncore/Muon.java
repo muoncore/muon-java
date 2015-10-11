@@ -2,7 +2,7 @@ package io.muoncore;
 
 import io.muoncore.protocol.event.client.EventClientProtocolStack;
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocolStack;
-import io.muoncore.protocol.requestresponse.server.RequestResponseServerProtocolStack;
+import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandler;
 
 /**
  * Default set of protocol stacks.
@@ -10,6 +10,6 @@ import io.muoncore.protocol.requestresponse.server.RequestResponseServerProtocol
 public interface Muon extends
         EventClientProtocolStack,
         RequestResponseClientProtocolStack,
-        RequestResponseServerProtocolStack {
+        RequestResponseServerHandler {
 
 }

@@ -1,22 +1,23 @@
 package io.muoncore.protocol.requestresponse.server;
 
-import io.muoncore.channel.async.StandardAsyncChannel;
-import io.muoncore.future.MuonFuture;
-import io.muoncore.protocol.ServerProtocols;
-import io.muoncore.protocol.channelfuture.ChannelFutureAdapter;
+import io.muoncore.channel.ChannelConnection;
+import io.muoncore.protocol.ServerProtocol;
+import io.muoncore.protocol.ServerProtocolStack;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocol;
-import io.muoncore.transport.TransportClientSource;
-import org.reactivestreams.Publisher;
+import io.muoncore.transport.TransportInboundMessage;
+import io.muoncore.transport.TransportOutboundMessage;
 
-import java.util.function.Predicate;
+/**
+ * Server side of the Requestr Response protocol.
+ *
+ * Transports open channels on this protocol when a remote request response client opens a channel through them
+ * and sends a first message.
+ */
+public class RequestResponseServerProtocolStack<X> implements ServerProtocolStack {
 
-public interface RequestResponseServerProtocolStack extends
-        TransportClientSource {
-
-    default <X, Y> Publisher<RequestWrapper<X,Y>> handleRequest(Predicate<Request<X>> request) {
-
+    @Override
+    public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
         return null;
     }
 }
