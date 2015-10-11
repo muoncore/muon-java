@@ -8,6 +8,23 @@ import io.muoncore.transport.TransportOutboundMessage;
 public class DefaultServerProtocol implements ServerProtocol {
     @Override
     public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
-        return null;
+        return new DefaultServerChannelConnection();
+    }
+
+    private static class DefaultServerChannelConnection implements ChannelConnection<TransportInboundMessage, TransportOutboundMessage> {
+
+        private ChannelFunction<TransportOutboundMessage> func;
+
+        @Override
+        public void receive(ChannelFunction<TransportOutboundMessage> function) {
+            func = function;
+        }
+
+        @Override
+        public void send(TransportInboundMessage message) {
+            if (func != null) {
+                func.apply(new TransportOutboundMessage(message.getId() + "REPLY", message.getSourceServiceName(), message.getProtocol(), true));
+            }
+        }
     }
 }
