@@ -1,5 +1,5 @@
 package io.muoncore.protocol.requestresponse;
 
-public class Response {
+public class Response<X> {
 
 }
