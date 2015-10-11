@@ -1,6 +1,6 @@
 package io.muoncore.memory.transport;
 
-import io.muoncore.protocol.ServerProtocols;
+import io.muoncore.protocol.ServerStacks;
 import io.muoncore.transport.MuonTransport;
 
 import java.net.URI;
@@ -8,9 +8,9 @@ import java.net.URISyntaxException;
 
 public class InMemTransport implements MuonTransport {
 
-    private ServerProtocols serverProtocols;
+    private ServerStacks serverProtocols;
 
-    public InMemTransport(ServerProtocols protocols) {
+    public InMemTransport(ServerStacks protocols) {
         this.serverProtocols = protocols;
     }
 

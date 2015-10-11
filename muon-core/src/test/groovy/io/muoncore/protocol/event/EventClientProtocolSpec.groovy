@@ -1,12 +1,13 @@
 package io.muoncore.protocol.event
 
+import io.muoncore.Discovery
 import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.protocol.event.client.EventClientProtocol
 import io.muoncore.protocol.requestresponse.Request
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
-class EventEmitProtocolSpec extends Specification {
+class EventClientProtocolSpec extends Specification {
 
     def "protocol sends a Request on for event Event"() {
 
@@ -19,7 +20,9 @@ class EventEmitProtocolSpec extends Specification {
             ret = it
         })
 
-        def proto = new EventClientProtocol(leftChannel.right(), rightChannel.left())
+        def proto = new EventClientProtocol(
+                Mock(Discovery),
+                leftChannel.right(), rightChannel.left())
 
         when:
         leftChannel.left().send(new Event(

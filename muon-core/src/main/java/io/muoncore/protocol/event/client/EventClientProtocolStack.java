@@ -1,5 +1,6 @@
 package io.muoncore.protocol.event.client;
 
+import io.muoncore.DiscoverySource;
 import io.muoncore.channel.async.StandardAsyncChannel;
 import io.muoncore.future.MuonFuture;
 import io.muoncore.protocol.channelfuture.ChannelFutureAdapter;
@@ -10,7 +11,7 @@ import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.transport.TransportClientSource;
 
 public interface EventClientProtocolStack extends
-        TransportClientSource {
+        TransportClientSource, DiscoverySource {
 
     default <X> MuonFuture<Response> event(Event<X> event) {
 
@@ -21,6 +22,7 @@ public interface EventClientProtocolStack extends
                 new ChannelFutureAdapter<>(api2eventproto.left());
 
         new EventClientProtocol<>(
+                getDiscovery(),
                 api2eventproto.right(),
                 event2rrp.left());
 

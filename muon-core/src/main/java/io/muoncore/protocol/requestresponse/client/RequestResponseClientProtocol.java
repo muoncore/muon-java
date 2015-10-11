@@ -17,7 +17,9 @@ public class RequestResponseClientProtocol<X> {
     public RequestResponseClientProtocol(ChannelConnection<Response, Request<X>> leftChannelConnection,
               ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection) {
 
-        rightChannelConnection.receive( message -> {leftChannelConnection.send(new Response()); });
+        rightChannelConnection.receive( message -> {leftChannelConnection.send(
+                new Response("hello"));
+        });
 
         leftChannelConnection.receive(request -> {
             TransportOutboundMessage msg = new TransportOutboundMessage(

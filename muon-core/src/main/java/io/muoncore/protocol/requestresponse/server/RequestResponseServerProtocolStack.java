@@ -1,10 +1,7 @@
 package io.muoncore.protocol.requestresponse.server;
 
 import io.muoncore.channel.ChannelConnection;
-import io.muoncore.protocol.ServerProtocol;
 import io.muoncore.protocol.ServerProtocolStack;
-import io.muoncore.protocol.requestresponse.Request;
-import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
@@ -18,6 +15,22 @@ public class RequestResponseServerProtocolStack<X> implements ServerProtocolStac
 
     @Override
     public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
-        return null;
+        return new TransportInboundMessageTransportOutboundMessageChannelConnection();
+    }
+
+    private static class TransportInboundMessageTransportOutboundMessageChannelConnection implements ChannelConnection<TransportInboundMessage, TransportOutboundMessage> {
+
+        private ChannelFunction<TransportOutboundMessage> function;
+
+        @Override
+        public void receive(ChannelFunction<TransportOutboundMessage> function) {
+            this.function = function;
+        }
+
+        @Override
+        public void send(TransportInboundMessage message) {
+            //TODO, lookup the handlers
+            function.apply(new TransportOutboundMessage("", message.getSourceServiceName(), message.getProtocol()));
+        }
     }
 }
