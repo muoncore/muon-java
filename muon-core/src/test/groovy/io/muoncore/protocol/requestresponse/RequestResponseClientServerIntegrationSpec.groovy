@@ -14,10 +14,13 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
         given:
 
         def server = new RequestResponseServerProtocolStack()
+
+        //todo, add a server side handler
+
         def channel = new StandardAsyncChannel()
 
         //does the conversion from outbound<=>inbound that the transport pair would ordinarily do.
-        Channels.transform(
+        Channels.connectAndTransform(
                 server.createChannel(),
                 channel.left(),
                 {

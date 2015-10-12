@@ -12,17 +12,10 @@ import spock.util.concurrent.PollingConditions
 
 class EventClientProtocolStackSpec extends Specification {
 
-    def "things unsure about"() {
-        expect:
-        throw new IllegalStateException("""
-WHere do we set the 'protocol' in the transportoutbound?
-logically here it should be the request/responseclientproto. this kind of sucks?""")
-    }
-
-
     def "Stack converts events to transport messages"() {
 
         def capturedFunction
+        def discovery = Mock(Discovery)
 
         def clientChannel = Mock(ChannelConnection) {
             receive(_) >> { func ->
@@ -42,7 +35,7 @@ logically here it should be the request/responseclientproto. this kind of sucks?
 
             @Override
             Discovery getDiscovery() {
-                throw new IllegalStateException("Not implemented here")
+                discovery
             }
         }
 
@@ -54,11 +47,43 @@ logically here it should be the request/responseclientproto. this kind of sucks?
             capturedFunction(new TransportInboundMessage("myId", "simples", "myChannel"))
         }
 
+        sleep(50)
+
         then:
         capturedFunction != null
         1 * clientChannel.send(_)
         new PollingConditions().eventually {
             future.get() instanceof Response
         }
+    }
+
+    def "Stack sends all with the event protocol set"() {
+
+        def discovery = Mock(Discovery)
+
+        def clientChannel = Mock(ChannelConnection)
+
+        def transportClient = Mock(TransportClient) {
+            openClientChannel() >> clientChannel
+        }
+
+        def eventProto = new EventClientProtocolStack() {
+            @Override
+            TransportClient getTransportClient() {
+                return transportClient
+            }
+
+            @Override
+            Discovery getDiscovery() {
+                discovery
+            }
+        }
+
+        when:
+        eventProto.event(new Event("simples", "myParent", "myService", []))
+        sleep(50)
+
+        then:
+        1 * clientChannel.send({ it.protocol == "event" })
     }
 }

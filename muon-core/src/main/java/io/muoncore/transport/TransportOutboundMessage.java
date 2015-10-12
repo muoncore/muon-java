@@ -31,4 +31,8 @@ public class TransportOutboundMessage {
     public String getId() {
         return id;
     }
+
+    public TransportOutboundMessage cloneWithProtocol(String protocol) {
+        return new TransportOutboundMessage(id, serviceName, protocol, closeChannel);
+    }
 }

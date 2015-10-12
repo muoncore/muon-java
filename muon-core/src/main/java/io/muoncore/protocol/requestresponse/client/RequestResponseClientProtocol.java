@@ -14,8 +14,8 @@ import io.muoncore.transport.TransportOutboundMessage;
  */
 public class RequestResponseClientProtocol<X> {
 
-    public RequestResponseClientProtocol(ChannelConnection<Response, Request<X>> leftChannelConnection,
-              ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection) {
+    public RequestResponseClientProtocol(final ChannelConnection<Response, Request<X>> leftChannelConnection,
+              final ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection) {
 
         rightChannelConnection.receive( message -> {leftChannelConnection.send(
                 new Response("hello"));

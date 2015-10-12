@@ -8,12 +8,12 @@ public class Channels {
         right.receive(left::send);
     }
     public static <LeftIn,LeftOut, RightIn, RightOut>
-        void transform(ChannelConnection<LeftOut, LeftIn> left,
-                                  ChannelConnection<RightOut, RightIn> right,
-                                  Function<LeftIn, RightOut> transformerLeftToRight,
-                                  Function<RightIn, LeftOut> transformerRightToLeft) {
+        void connectAndTransform(ChannelConnection<LeftOut, LeftIn> left,
+                                 ChannelConnection<RightOut, RightIn> right,
+                                 Function<LeftIn, RightOut> transformerLeftToRight,
+                                 Function<RightIn, LeftOut> transformerRightToLeft) {
 
         left.receive( message -> right.send(transformerLeftToRight.apply(message)));
-        right.receive( message -> left.send(transformerRightToLeft.apply(message)));
+        right.receive(message -> left.send(transformerRightToLeft.apply(message)));
     }
 }
