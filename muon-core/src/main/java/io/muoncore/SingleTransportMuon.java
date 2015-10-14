@@ -66,4 +66,12 @@ public class SingleTransportMuon implements Muon
     public TransportClient getTransportClient() {
         return transportClient;
     }
+
+    public static void main(String[] args) {
+        SingleTransportMuon muon = new SingleTransportMuon(null, null);
+
+        muon.handleRequest( request -> true, requestWrapper -> {
+            requestWrapper.answer(new Response(""));
+        });
+    }
 }

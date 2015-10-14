@@ -9,19 +9,29 @@ import java.util.function.Predicate;
 public interface RequestResponseServerHandlerApi extends
         RequestResponseHandlersSource {
 
-    default <X, Y> Publisher<RequestWrapper<X,Y>> handleRequest(Predicate<Request<X>> request) {
+    /**
+     * Simple handler API. Each incoming request will be passed to the handler instance for it
+     * to reply to.
+     *
+     * The predicate is used to match requests.
+     */
+    default void handleRequest(
+            final Predicate<Request> request,
+            final Handler handler) {
+        getRequestResponseHandlers().addHandler(new RequestResponseServerHandler() {
+            @Override
+            public Predicate<Request> getPredicate() {
+                return request;
+            }
 
-        //generate a handler from the predicate
+            @Override
+            public void handle(RequestWrapper request) {
+                handler.handle(request);
+            }
+        });
+    }
 
-        //some default predicates?
-
-        //create a publisher will somehow be linked to the channels?
-        // should publisher be the real api?
-
-        //have another, more traditional api as well?
-
-        //the wrappers created should be linked to the channel.
-
-        return null;
+    interface Handler {
+        void handle(RequestWrapper wrapper);
     }
 }

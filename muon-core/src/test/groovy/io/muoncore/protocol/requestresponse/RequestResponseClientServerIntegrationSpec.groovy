@@ -3,17 +3,20 @@ package io.muoncore.protocol.requestresponse
 import io.muoncore.channel.Channels
 import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocolStack
+import io.muoncore.protocol.requestresponse.server.RequestResponseHandlers
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerProtocolStack
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.client.TransportClient
 import spock.lang.Specification
+import spock.lang.Timeout
 
 class RequestResponseClientServerIntegrationSpec extends Specification {
 
+    @Timeout(2)
     def "client and server can communicate"() {
         given:
 
-        def server = new RequestResponseServerProtocolStack()
+        def server = new RequestResponseServerProtocolStack(Mock(RequestResponseHandlers))
 
         //todo, add a server side handler
 
