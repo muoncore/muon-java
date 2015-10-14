@@ -2,7 +2,7 @@ package io.muoncore.protocol.requestresponse
 
 import spock.lang.Specification
 
-class RequestResponseServerHandlerSpec extends Specification {
+class RequestResponseServerHandlerApiSpec extends Specification {
 
     def "RequestResponseServerHandlerSpec isnt tested"() {
         expect:

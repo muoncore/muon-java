@@ -13,7 +13,7 @@ class DynamicRegistrationServerProtocolsSpec extends Specification {
 
     def setup() {
 
-        protos = new DynamicRegistrationServerProtocols(defaultproto)
+        protos = new DynamicRegistrationServerStacks(defaultproto)
         protos.registerServerProtocol("simples", proto2)
         protos.registerServerProtocol("wibble", proto3)
     }
@@ -22,7 +22,7 @@ class DynamicRegistrationServerProtocolsSpec extends Specification {
 
         def defaultproto = Mock(ServerProtocolStack)
 
-        def protos = new DynamicRegistrationServerProtocols(defaultproto)
+        def protos = new DynamicRegistrationServerStacks(defaultproto)
 
         when:
         def ret = protos.openServerChannel("nothinghere")

@@ -1,6 +1,8 @@
 package io.muoncore.protocol.requestresponse.server;
 
-public interface RequestResponseHandlers {
+import io.muoncore.protocol.requestresponse.Request;
 
-    void addHandler();
+public interface RequestResponseHandlers {
+    void addHandler(RequestResponseServerHandler handler);
+    RequestResponseServerHandler findHandler(Request inbound);
 }

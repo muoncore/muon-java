@@ -7,12 +7,12 @@ import io.muoncore.transport.TransportOutboundMessage;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DynamicRegistrationServerProtocols implements ServerStacks, ServerRegistrar {
+public class DynamicRegistrationServerStacks implements ServerStacks, ServerRegistrar {
 
     private Map<String, ServerProtocolStack> protocols = new HashMap<>();
     private final ServerProtocolStack defaultProtocol;
 
-    public DynamicRegistrationServerProtocols(ServerProtocolStack defaultProtocol) {
+    public DynamicRegistrationServerStacks(ServerProtocolStack defaultProtocol) {
         this.defaultProtocol = defaultProtocol;
     }
 
