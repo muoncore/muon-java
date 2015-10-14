@@ -34,6 +34,7 @@ public class StandardAsyncChannelConnection<Outbound, Inbound> implements Channe
 
     @Override
     public void send(Outbound message) {
+        assert message != null;
         outbound.add(message);
     }
 

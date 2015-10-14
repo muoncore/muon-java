@@ -3,6 +3,7 @@ package io.muoncore.protocol.requestresponse.server;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.async.StandardAsyncChannel;
 import io.muoncore.protocol.ServerProtocolStack;
+import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.transport.TransportInboundMessage;
@@ -26,14 +27,25 @@ public class RequestResponseServerProtocolStack implements
     @Override
     public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
 
-        //RequestResponseServerHandler handler = handlers.findHandler()
-
-
-
         StandardAsyncChannel<TransportOutboundMessage, TransportInboundMessage> api2 = new StandardAsyncChannel<>();
 
+        api2.left().receive( message -> {
+            Request request = RRPTransformers.toRequest(message);
+            RequestResponseServerHandler handler = handlers.findHandler(request);
+            handler.handle(new RequestWrapper() {
+                @Override
+                public Request getRequest() {
+                    return request;
+                }
+
+                @Override
+                public void answer(Response response) {
+                    TransportOutboundMessage msg = RRPTransformers.toOutbound(response);
+                    api2.left().send(msg);
+                }
+            });
+        });
 
         return api2.right();
     }
-
 }

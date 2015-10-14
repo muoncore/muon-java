@@ -40,7 +40,7 @@ public class SingleTransportMuon implements Muon
 
             @Override
             public void handle(RequestWrapper request) {
-                request.answer(new Response(request.getRequest().getUrl()));
+                request.answer(new Response(request.getRequest().getId(),request.getRequest().getUrl()));
             }
         });
     }
@@ -71,7 +71,7 @@ public class SingleTransportMuon implements Muon
         SingleTransportMuon muon = new SingleTransportMuon(null, null);
 
         muon.handleRequest( request -> true, requestWrapper -> {
-            requestWrapper.answer(new Response(""));
+            requestWrapper.answer(new Response(requestWrapper.getRequest().getId(), "hello"));
         });
     }
 }

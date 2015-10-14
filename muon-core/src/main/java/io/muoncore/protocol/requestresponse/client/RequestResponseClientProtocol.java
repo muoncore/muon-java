@@ -1,6 +1,7 @@
 package io.muoncore.protocol.requestresponse.client;
 
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.transport.TransportInboundMessage;
@@ -17,18 +18,13 @@ public class RequestResponseClientProtocol<X> {
     public RequestResponseClientProtocol(final ChannelConnection<Response, Request<X>> leftChannelConnection,
               final ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection) {
 
-        rightChannelConnection.receive( message -> {leftChannelConnection.send(
-                new Response("hello"));
+        rightChannelConnection.receive( message -> {
+            leftChannelConnection.send(
+                RRPTransformers.toResponse(message));
         });
 
         leftChannelConnection.receive(request -> {
-            TransportOutboundMessage msg = new TransportOutboundMessage(
-                    request.getId(),
-                    "serviceName",
-                    "protocol"
-            );
-//            msg.setId(request.getId());
-            rightChannelConnection.send(msg);
+            rightChannelConnection.send(RRPTransformers.toOutbound(request));
         });
 
         /**

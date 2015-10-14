@@ -22,6 +22,9 @@ public class DynamicRequestResponseHandlers implements RequestResponseHandlers {
 
     @Override
     public RequestResponseServerHandler findHandler(Request inbound) {
-        return handlers.stream().filter( handler -> handler.getPredicate().test(inbound)).findFirst().orElse(defaultHandler);
+        assert inbound != null;
+        return handlers.stream().filter( handler -> {
+            return handler.getPredicate().test(inbound);
+        }).findFirst().orElse(defaultHandler);
     }
 }

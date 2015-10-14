@@ -17,7 +17,7 @@ public class EventClientProtocol<X> {
             ChannelConnection<Request<X>, Response> rightChannelConnection) {
 
         rightChannelConnection.receive( message -> {
-            leftChannelConnection.send(new Response("hello"));
+            leftChannelConnection.send(message);
         });
 
         leftChannelConnection.receive(event -> {
