@@ -144,13 +144,13 @@ project('muon-inmem') {
 //    }
 //}
 //
-//project('muon-transport-amqp') {
-//    description = 'Core Muon for Java'
-//    dependencies {
-//        compile project(":muon-core")
-//        compile "com.rabbitmq:amqp-client:3.3.2"
-//    }
-//}
+project('muon-transport-amqp') {
+    description = 'Core Muon for Java'
+    dependencies {
+        compile project(":muon-core")
+        compile "com.rabbitmq:amqp-client:3.3.2"
+    }
+}
 //
 //project('muon-discovery-amqp') {
 //    description = 'A discovery system running on AMQP'

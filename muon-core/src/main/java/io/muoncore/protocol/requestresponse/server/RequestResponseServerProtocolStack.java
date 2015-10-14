@@ -2,6 +2,7 @@ package io.muoncore.protocol.requestresponse.server;
 
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.async.StandardAsyncChannel;
+import io.muoncore.codec.Codecs;
 import io.muoncore.protocol.ServerProtocolStack;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
@@ -19,8 +20,10 @@ public class RequestResponseServerProtocolStack implements
         ServerProtocolStack {
 
     private final RequestResponseHandlers handlers;
+    private Codecs codecs;
 
-    public RequestResponseServerProtocolStack(RequestResponseHandlers handlers) {
+    public RequestResponseServerProtocolStack(RequestResponseHandlers handlers, Codecs codecs) {
+        this.codecs = codecs;
         this.handlers = handlers;
     }
 
@@ -30,7 +33,7 @@ public class RequestResponseServerProtocolStack implements
         StandardAsyncChannel<TransportOutboundMessage, TransportInboundMessage> api2 = new StandardAsyncChannel<>();
 
         api2.left().receive( message -> {
-            Request request = RRPTransformers.toRequest(message);
+            Request request = RRPTransformers.toRequest(message, codecs);
             RequestResponseServerHandler handler = handlers.findHandler(request);
             handler.handle(new RequestWrapper() {
                 @Override
@@ -40,7 +43,7 @@ public class RequestResponseServerProtocolStack implements
 
                 @Override
                 public void answer(Response response) {
-                    TransportOutboundMessage msg = RRPTransformers.toOutbound(response);
+                    TransportOutboundMessage msg = RRPTransformers.toOutbound(response, codecs);
                     api2.left().send(msg);
                 }
             });

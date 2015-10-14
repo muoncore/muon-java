@@ -1,6 +1,7 @@
 package io.muoncore.protocol.requestresponse.client;
 
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.codec.Codecs;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.Response;
@@ -15,16 +16,20 @@ import io.muoncore.transport.TransportOutboundMessage;
  */
 public class RequestResponseClientProtocol<X> {
 
-    public RequestResponseClientProtocol(final ChannelConnection<Response, Request<X>> leftChannelConnection,
-              final ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection) {
+    private Codecs codecs;
+
+    public RequestResponseClientProtocol(
+            final ChannelConnection<Response, Request<X>> leftChannelConnection,
+            final ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection,
+            final Codecs codecs) {
 
         rightChannelConnection.receive( message -> {
             leftChannelConnection.send(
-                RRPTransformers.toResponse(message));
+                RRPTransformers.toResponse(message, codecs));
         });
 
         leftChannelConnection.receive(request -> {
-            rightChannelConnection.send(RRPTransformers.toOutbound(request));
+            rightChannelConnection.send(RRPTransformers.toOutbound(request, codecs));
         });
 
         /**

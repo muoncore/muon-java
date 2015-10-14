@@ -1,22 +1,11 @@
 package io.muoncore.extension.amqp.stream.server;
 
-import io.muoncore.crud.codec.Codecs;
-import io.muoncore.extension.amqp.AmqpQueues;
-import io.muoncore.extension.amqp.stream.AmqpStream;
-import io.muoncore.log.EventLogger;
-import io.muoncore.transport.crud.MuonMessageEvent;
-import io.muoncore.transport.crud.MuonMessageEventBuilder;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-
-import java.util.concurrent.*;
-import java.util.logging.Logger;
 
 /**
  * Proxies original subscription on the other side of this MQ.
  */
-public class AmqpProxySubscriber implements Subscriber {
-    private Logger log = Logger.getLogger(AmqpProxySubscriber.class.getName());
+public class AmqpProxySubscriber /*implements Subscriber */{
+  /*  private Logger log = Logger.getLogger(AmqpProxySubscriber.class.getName());
 
     private Subscription subscription;
     private AmqpQueues queues;
@@ -124,5 +113,5 @@ public class AmqpProxySubscriber implements Subscriber {
         EventLogger.logEvent(resourceQueue, msg);
 
         queues.send(resourceQueue, msg);
-    }
+    }*/
 }

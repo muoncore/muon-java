@@ -1,5 +1,7 @@
 package io.muoncore;
 
+import io.muoncore.codec.Codecs;
+import io.muoncore.codec.JsonOnlyCodecs;
 import io.muoncore.protocol.DynamicRegistrationServerStacks;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.protocol.defaultproto.DefaultServerProtocol;
@@ -25,6 +27,7 @@ public class SingleTransportMuon implements Muon
     private Discovery discovery;
     private ServerStacks protocols;
     private RequestResponseHandlers requestResponseHandlers;
+    private Codecs codecs;
 
     public SingleTransportMuon(
             Discovery discovery,
@@ -32,6 +35,7 @@ public class SingleTransportMuon implements Muon
         this.transportClient = new SingleTransportClient(transport);
         this.discovery = discovery;
         this.protocols = new DynamicRegistrationServerStacks(new DefaultServerProtocol());
+        this.codecs = new JsonOnlyCodecs();
         this.requestResponseHandlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler() {
             @Override
             public Predicate<Request> getPredicate() {
@@ -46,6 +50,11 @@ public class SingleTransportMuon implements Muon
     }
 
     @Override
+    public Codecs getCodecs() {
+        return codecs;
+    }
+
+    @Override
     public Discovery getDiscovery() {
         return discovery;
     }
@@ -55,23 +64,18 @@ public class SingleTransportMuon implements Muon
         return requestResponseHandlers;
     }
 
-    //
-//    @Override
-//    public AutoConfiguration getConfiguration() {
-//        return null;
-//    }
-
-
     @Override
     public TransportClient getTransportClient() {
         return transportClient;
     }
-
-    public static void main(String[] args) {
-        SingleTransportMuon muon = new SingleTransportMuon(null, null);
-
-        muon.handleRequest( request -> true, requestWrapper -> {
-            requestWrapper.answer(new Response(requestWrapper.getRequest().getId(), "hello"));
-        });
-    }
+//
+//    public static void main(String[] args) {
+//        SingleTransportMuon muon = new SingleTransportMuon(discover, amqpTransport);
+//
+//        muon.handleRequest(
+//                request -> request.getUrl().startsWith("/hello"),
+//                requestWrapper -> {
+//            requestWrapper.answer(new Response(requestWrapper.getRequest().getId(), "hello"));
+//        });
+//    }
 }

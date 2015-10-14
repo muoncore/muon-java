@@ -2,6 +2,8 @@ package io.muoncore.protocol.event
 
 import io.muoncore.Discovery
 import io.muoncore.channel.ChannelConnection
+import io.muoncore.codec.Codecs
+import io.muoncore.codec.JsonOnlyCodecs
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.event.client.EventClientProtocolStack
 import io.muoncore.protocol.requestresponse.Response
@@ -36,6 +38,11 @@ class EventClientProtocolStackSpec extends Specification {
             @Override
             Discovery getDiscovery() {
                 discovery
+            }
+
+            @Override
+            Codecs getCodecs() {
+                return new JsonOnlyCodecs()
             }
         }
 
@@ -76,6 +83,11 @@ class EventClientProtocolStackSpec extends Specification {
             @Override
             Discovery getDiscovery() {
                 discovery
+            }
+
+            @Override
+            Codecs getCodecs() {
+                return new JsonOnlyCodecs()
             }
         }
 

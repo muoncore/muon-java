@@ -1,21 +1,5 @@
 package io.muoncore.extension.amqp.stream;
 
-import io.muoncore.MuonStreamGenerator;
-import io.muoncore.crud.codec.Codecs;
-import io.muoncore.extension.amqp.AmqpQueues;
-import io.muoncore.extension.amqp.stream.client.AmqpStreamClient;
-import io.muoncore.extension.amqp.stream.server.AmqpStreamControl;
-import org.reactivestreams.Subscriber;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
-
 /**
  * Every service has a stream control queue - servicename_stream_control
  * that queue has control messages
@@ -46,7 +30,7 @@ import java.util.logging.Logger;
  */
 public class AmqpStream {
 
-    private Logger log = Logger.getLogger(AmqpStream.class.getName());
+    /*private Logger log = Logger.getLogger(AmqpStream.class.getName());
 
     public static final String STREAM_COMMAND = "command";
     private AmqpQueues queues;
@@ -136,5 +120,5 @@ public class AmqpStream {
         }
 
         return streams;
-    }
+    }*/
 }

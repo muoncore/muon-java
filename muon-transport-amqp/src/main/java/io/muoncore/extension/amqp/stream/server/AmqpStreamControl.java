@@ -1,22 +1,8 @@
 package io.muoncore.extension.amqp.stream.server;
 
-import io.muoncore.crud.OldMuon;
-import io.muoncore.MuonStreamGenerator;
-import io.muoncore.crud.codec.Codecs;
-import io.muoncore.extension.amqp.AmqpQueues;
-import io.muoncore.extension.amqp.stream.AmqpStream;
-import io.muoncore.transport.crud.MuonMessageEvent;
-import io.muoncore.transport.crud.MuonMessageEventBuilder;
-import org.reactivestreams.Publisher;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Logger;
-
-public class AmqpStreamControl implements OldMuon.EventMessageTransportListener {
-    private Logger log = Logger.getLogger(AmqpStream.class.getName());
+public class AmqpStreamControl /*implements OldMuon.EventMessageTransportListener */{
+  /*  private Logger log = Logger.getLogger(AmqpStream.class.getName());
 
     public static final String COMMAND_REQUEST = "REQUEST";
     public static final String COMMAND_KEEP_ALIVE = "KEEP-ALIVE";
@@ -160,5 +146,5 @@ public class AmqpStreamControl implements OldMuon.EventMessageTransportListener 
         if (sub != null){
             sub.cancel();
         }
-    }
+    }*/
 }

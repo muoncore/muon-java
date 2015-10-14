@@ -1,20 +1,9 @@
 package io.muoncore.extension.amqp;
 
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
-import io.muoncore.crud.OldMuon;
-import io.muoncore.crud.MuonClient;
-import io.muoncore.crud.MuonService;
-import io.muoncore.transport.crud.MuonMessageEvent;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class AmqpQueues {
 
-    final private ExecutorService spinner;
+ /*   final private ExecutorService spinner;
     private Channel channel;
     private Map<OldMuon.EventMessageTransportListener, QueueListener> listeners;
 
@@ -81,5 +70,5 @@ public class AmqpQueues {
                 e.printStackTrace();
             }
         }
-    }
+    }*/
 }

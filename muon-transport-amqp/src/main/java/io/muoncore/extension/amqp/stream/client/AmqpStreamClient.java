@@ -1,28 +1,10 @@
 package io.muoncore.extension.amqp.stream.client;
 
-import io.muoncore.crud.OldMuon;
-import io.muoncore.crud.codec.Codecs;
-import io.muoncore.extension.amqp.AmqpQueues;
-import io.muoncore.extension.amqp.stream.AmqpStream;
-import io.muoncore.extension.amqp.stream.server.AmqpStreamControl;
-import io.muoncore.log.EventLogger;
-import io.muoncore.transport.crud.MuonMessageEvent;
-import io.muoncore.transport.crud.MuonMessageEventBuilder;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
-
-public class AmqpStreamClient<T> implements
+public class AmqpStreamClient<T>/* implements
         OldMuon.EventMessageTransportListener,
-        Subscription {
-    private AmqpQueues queues;
+        Subscription*/ {
+  /*  private AmqpQueues queues;
     private String streamName;
     private String privateStreamQueue;
     private String privateKeepAliveQueue;
@@ -192,5 +174,5 @@ public class AmqpStreamClient<T> implements
                         .withHeader(AmqpStream.STREAM_COMMAND, AmqpStreamControl.COMMAND_CANCEL)
                         .withHeader(AmqpStreamControl.SUBSCRIPTION_STREAM_ID, remoteId).build());
         log.info("Subscription " + remoteId + " has been cancelled, the remote has been notified");
-    }
+    }*/
 }

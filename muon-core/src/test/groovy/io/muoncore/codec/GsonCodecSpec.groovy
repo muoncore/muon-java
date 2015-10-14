@@ -1,11 +1,11 @@
-package io.muoncore.crud.codec
+package io.muoncore.codec
 
 import spock.lang.Specification
 
-class GsonBinaryCodecSpec extends Specification {
+class GsonCodecSpec extends Specification {
 
   def "gson codec converts object to byte array"() {
-    def codec = new TextBinaryCodec(new GsonTextCodec())
+    def codec = new GsonCodec()
 
     when:
     byte[] val = codec.encode(new MyTestClass(someValue: "hello", someOtherValue: 43))
@@ -15,7 +15,7 @@ class GsonBinaryCodecSpec extends Specification {
   }
 
   def "gson codec converts json string to object"() {
-    def codec = new TextBinaryCodec(new GsonTextCodec())
+    def codec = new GsonCodec()
 
     when:
     def value = codec.decode("""{"someValue":"hello","someOtherValue":43}""".bytes
@@ -28,7 +28,7 @@ class GsonBinaryCodecSpec extends Specification {
   }
 
   def "gson codec converts json string to a map"() {
-    def codec = new TextBinaryCodec(new GsonTextCodec())
+    def codec = new GsonCodec()
 
     when:
     def value = codec.decode("""{"someValue":"hello","someOtherValue":43}""".bytes)

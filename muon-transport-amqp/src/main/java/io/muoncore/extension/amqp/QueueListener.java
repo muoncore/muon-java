@@ -1,22 +1,9 @@
 package io.muoncore.extension.amqp;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.ConsumerCancelledException;
-import com.rabbitmq.client.QueueingConsumer;
-import com.rabbitmq.client.ShutdownSignalException;
-import io.muoncore.crud.OldMuon;
-import io.muoncore.transport.crud.MuonMessageEvent;
-import io.muoncore.transport.crud.MuonMessageEventBuilder;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+public class QueueListener /*implements Runnable */{
 
-public class QueueListener implements Runnable {
-
-    private boolean running;
+    /*private boolean running;
     private Channel channel;
     private Logger log = Logger.getLogger(QueueListener.class.getName());
     private String queueName;
@@ -109,5 +96,5 @@ public class QueueListener implements Runnable {
                 e.printStackTrace();
             }
         }
-    }
+    }*/
 }

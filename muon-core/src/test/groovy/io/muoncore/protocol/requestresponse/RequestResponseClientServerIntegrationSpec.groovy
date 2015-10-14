@@ -2,6 +2,8 @@ package io.muoncore.protocol.requestresponse
 
 import io.muoncore.channel.Channels
 import io.muoncore.channel.async.StandardAsyncChannel
+import io.muoncore.codec.Codecs
+import io.muoncore.codec.JsonOnlyCodecs
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocolStack
 import io.muoncore.protocol.requestresponse.server.DynamicRequestResponseHandlers
 import io.muoncore.protocol.requestresponse.server.RequestResponseHandlers
@@ -46,7 +48,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
             }
         })
 
-        def server = new RequestResponseServerProtocolStack(handlers)
+        def server = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs())
 
         def channel = new StandardAsyncChannel()
 
@@ -70,6 +72,11 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
             @Override
             TransportClient getTransportClient() {
                 return transportClient
+            }
+
+            @Override
+            Codecs getCodecs() {
+                return new JsonOnlyCodecs()
             }
         }
 

@@ -3,6 +3,7 @@ package io.muoncore.protocol.event.client;
 import io.muoncore.DiscoverySource;
 import io.muoncore.channel.Channels;
 import io.muoncore.channel.async.StandardAsyncChannel;
+import io.muoncore.codec.CodecsSource;
 import io.muoncore.future.MuonFuture;
 import io.muoncore.protocol.channelfuture.ChannelFutureAdapter;
 import io.muoncore.protocol.event.Event;
@@ -14,7 +15,7 @@ import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
 public interface EventClientProtocolStack extends
-        TransportClientSource, DiscoverySource {
+        TransportClientSource, DiscoverySource, CodecsSource {
 
     default <X> MuonFuture<Response> event(Event<X> event) {
 
@@ -30,7 +31,7 @@ public interface EventClientProtocolStack extends
                 api2eventproto.right(),
                 event2rrp.left());
 
-        new RequestResponseClientProtocol<>(event2rrp.right(), rrp2transport.left());
+        new RequestResponseClientProtocol<>(event2rrp.right(), rrp2transport.left(), getCodecs());
 
         Channels.connectAndTransform(rrp2transport.right(), getTransportClient().openClientChannel(),
                 transportOutboundMessage -> transportOutboundMessage.cloneWithProtocol("event"),

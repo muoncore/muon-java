@@ -1,5 +1,6 @@
 package io.muoncore.protocol.requestresponse
 
+import io.muoncore.codec.JsonOnlyCodecs
 import io.muoncore.protocol.requestresponse.server.RequestResponseHandlers
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandler
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandlerApi
@@ -15,7 +16,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
         def handlers = Mock(RequestResponseHandlers) {
             findHandler(_) >> Mock(RequestResponseServerHandlerApi.Handler)
         }
-        def stack = new RequestResponseServerProtocolStack(handlers)
+        def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs())
 
         when:
         def channel = stack.createChannel()
@@ -32,7 +33,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
         def handlers = Mock(RequestResponseHandlers) {
             findHandler(_) >> handler
         }
-        def stack = new RequestResponseServerProtocolStack(handlers)
+        def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs())
 
         when:
         def channel = stack.createChannel()
@@ -53,7 +54,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
         def handlers = Mock(RequestResponseHandlers) {
             findHandler(_) >> handler
         }
-        def stack = new RequestResponseServerProtocolStack(handlers)
+        def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs())
 
         def responseReceived
 

@@ -1,15 +1,10 @@
 package io.muoncore.transport;
 
 import io.muoncore.ServiceDescriptor;
-import io.muoncore.transport.*;
-import io.muoncore.transport.crud.requestresponse.MuonResourceTransport;
-import io.muoncore.transport.crud.stream.MuonStreamTransport;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class TransportList<T extends MuonTransport> {
 

@@ -1,7 +1,6 @@
 package io.muoncore.extension.amqp.discovery;
 
 import io.muoncore.Discovery;
-import io.muoncore.crud.OldMuon;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.crud.codec.GsonTextCodec;
 import io.muoncore.crud.codec.TextBinaryCodec;
@@ -10,8 +9,6 @@ import io.muoncore.exception.MuonException;
 import io.muoncore.extension.amqp.AMQPEventTransport;
 import io.muoncore.extension.amqp.AmqpBroadcast;
 import io.muoncore.extension.amqp.AmqpConnection;
-import io.muoncore.transport.crud.MuonMessageEvent;
-import io.muoncore.transport.crud.MuonMessageEventBuilder;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

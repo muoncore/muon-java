@@ -1,6 +1,8 @@
 package io.muoncore.transport;
 
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.exception.MuonTransportFailureException;
+import io.muoncore.exception.NoSuchServiceException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -9,7 +11,7 @@ public interface MuonTransport {
 
     void shutdown();
 
-    void start() throws Exception;
+    void start() throws MuonTransportFailureException;
 
     String getUrlScheme();
 
@@ -17,5 +19,5 @@ public interface MuonTransport {
 
     ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel(
             String serviceName,
-            String protocol);
+            String protocol) throws NoSuchServiceException, MuonTransportFailureException;
 }

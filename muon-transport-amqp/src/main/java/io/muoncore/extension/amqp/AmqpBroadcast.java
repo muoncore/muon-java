@@ -1,22 +1,7 @@
 package io.muoncore.extension.amqp;
 
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.QueueingConsumer;
-import com.rabbitmq.client.ShutdownSignalException;
-import io.muoncore.crud.OldMuon;
-import io.muoncore.crud.MuonService;
-import io.muoncore.transport.crud.MuonMessageEventBuilder;
-import io.muoncore.transport.crud.MuonMessageEvent;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Logger;
-
 public class AmqpBroadcast {
-
+/*
     static String EXCHANGE_NAME ="muon-broadcast";
 
     private Logger log = Logger.getLogger(AmqpBroadcast.class.getName());
@@ -97,5 +82,5 @@ public class AmqpBroadcast {
 
     public void shutdown() {
         spinner.shutdown();
-    }
+    }*/
 }

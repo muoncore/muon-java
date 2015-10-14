@@ -1,26 +1,8 @@
 package io.muoncore.extension.amqp;
 
-import io.muoncore.crud.OldMuon;
-import io.muoncore.crud.MuonService;
-import io.muoncore.crud.codec.Codecs;
-import io.muoncore.transport.crud.MuonMessageEvent;
-import io.muoncore.transport.crud.MuonMessageEventBuilder;
-import io.muoncore.transport.crud.requestresponse.MuonResourceEvent;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class AmqpResources {
 
-    static String EXCHANGE_NAME ="muon-resource";
+   /* static String EXCHANGE_NAME ="muon-resource";
 
     private Logger log = Logger.getLogger(AMQPEventTransport.class.getName());
 
@@ -163,5 +145,5 @@ public class AmqpResources {
     public void shutdown() {
         spinner.shutdown();
     }
-
+*/
 }
