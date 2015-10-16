@@ -5,7 +5,7 @@ import io.muoncore.transport.TransportOutboundMessage;
 
 public class AmqpMessageTransformers {
 
-    public static QueueListener.QueueMessage outboundToQueue(TransportOutboundMessage message) {
+    public static QueueListener.QueueMessage outboundToQueue(String queue, TransportOutboundMessage message) {
         return null;
     }
 

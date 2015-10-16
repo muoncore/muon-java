@@ -4,6 +4,8 @@ import io.muoncore.channel.ChannelConnection;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
+import java.io.IOException;
+
 /**
  * Created by david on 16/10/15.
  */

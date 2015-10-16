@@ -31,13 +31,19 @@ class AmqpChannelSpec extends Specification {
         given:
         def listenerfactory = Mock(QueueListenerFactory)
         def connection = Mock(AmqpConnection)
-        def channel = new DefaultAmqpChannel(connection, listenerfactory)
+        def channel = new DefaultAmqpChannel(connection, listenerfactory, "awesomeservice")
 
         when:
         channel.initiateHandshake("remoteservice", "fakeproto")
 
         then:
         1 * listenerfactory.listenOnQueue(_, _ as QueueFunction)
+        1 * connection.send({ QueueMessage message ->
+            message.queueName == "service.remoteservice" &&
+                    message.headers[AMQPMuonTransport.HEADER_PROTOCOL] == "fakeproto" &&
+                    message.headers[AMQPMuonTransport.HEADER_SOURCE_SERVICE] == "awesomeservice" &&
+                    message.headers[AMQPMuonTransport.HEADER_REPLY_TO] != null
+        })
     }
 
     def "Channel "() {
