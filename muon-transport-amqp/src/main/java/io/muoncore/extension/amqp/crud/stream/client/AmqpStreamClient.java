@@ -1,4 +1,4 @@
-package io.muoncore.extension.amqp.stream.client;
+package io.muoncore.extension.amqp.crud.stream.client;
 
 
 public class AmqpStreamClient<T>/* implements

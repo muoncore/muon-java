@@ -1,4 +1,4 @@
-package io.muoncore.extension.amqp.stream.server;
+package io.muoncore.extension.amqp.crud.stream.server;
 
 
 public class AmqpStreamControl /*implements OldMuon.EventMessageTransportListener */{

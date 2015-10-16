@@ -1,21 +1,77 @@
 package io.muoncore.extension.amqp
 
+import io.muoncore.channel.ChannelConnection
+import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
+import io.muoncore.protocol.ServerStacks
 import spock.lang.Specification
 
 class AMQPMuonTransportSpec extends Specification {
 
-    /*
+    def "Opens listen service queue for handshake. For every handshake, create a new channel"() {
+        def serverStacks = Mock(ServerStacks)
+        def serviceQueue = Mock(ServiceQueue)
+        def channelFactory = Mock(AmqpChannelFactory)
+        def transport = new AMQPMuonTransport(
+            "url", "myService", serverStacks, serviceQueue, channelFactory
+        )
 
-    outgoing connection
-        initially, just a normal channel.
-        when an outgoing message sent, channel established to remote/proto
+        when:
+        transport.start()
 
-    incoming connection, handshake and establish channel over AMQP, connect to ServerStacks
+        then:
+        1 * serviceQueue.onHandshake(_)
+    }
 
-    */
 
-    def "be awesome"() {
+    def "handshake processing causes a channel to be created"() {
+        def mockChannel = Mock(AmqpChannel)
+        def mockServerChannelConnection = Mock(ChannelConnection)
+        def func
+        def serverStacks = Mock(ServerStacks)
+        def serviceQueue = Mock(ServiceQueue) {
+            onHandshake(_) >> { args ->
+                    func = new ChannelFunctionExecShimBecauseGroovyCantCallLambda(args[0])
+            }
+        }
+        def channelFactory = Mock(AmqpChannelFactory)
+        def transport = new AMQPMuonTransport(
+                "url", "myService", serverStacks, serviceQueue, channelFactory
+        )
+        Thread.sleep(50)
 
+        when:
+        transport.start()
+        func(new AmqpHandshakeMessage("myfakeproto", "", ""))
+
+        then:
+        1 * channelFactory.createChannel() >> mockChannel
+        1 * mockChannel.respondToHandshake(_ as AmqpHandshakeMessage)
+        1 * serverStacks.openServerChannel("myfakeproto") >> mockServerChannelConnection
+    }
+
+    def "open channel will cause a channel to be created with handshake initiated"() {
+        def mockChannel = Mock(AmqpChannel)
+        def serverStacks = Mock(ServerStacks)
+        def serviceQueue = Mock(ServiceQueue)
+        def channelFactory = Mock(AmqpChannelFactory)
+        def transport = new AMQPMuonTransport(
+                "url", "myService", serverStacks, serviceQueue, channelFactory
+        )
+        Thread.sleep(50)
+
+        when:
+        transport.start()
+        transport.openClientChannel("someRemoteService", "fakeproto")
+
+        then:
+        1 * channelFactory.createChannel() >> mockChannel
+        1 * mockChannel.initiateHandshake("someRemoteService", "fakeproto")
+    }
+
+    def "on shutdown, closes all channels with poison pills in both directions"() {
+
+        expect:
+        throw new IllegalStateException("Not implemented")
     }
 
 }

@@ -1,4 +1,4 @@
-package io.muoncore.extension.amqp;
+package io.muoncore.extension.amqp.crud.stream;
 
 public class AmqpBroadcast {
 /*

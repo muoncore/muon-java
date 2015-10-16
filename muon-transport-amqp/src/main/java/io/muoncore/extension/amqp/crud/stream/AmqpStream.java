@@ -1,4 +1,4 @@
-package io.muoncore.extension.amqp.stream;
+package io.muoncore.extension.amqp.crud.stream;
 
 /**
  * Every service has a stream control queue - servicename_stream_control
