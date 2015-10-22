@@ -4,7 +4,6 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.codec.TransportCodecType;
 import io.muoncore.future.ImmediateReturnFuture;
 import io.muoncore.future.MuonFuture;
-import io.muoncore.internal.Dispatcher;
 import io.muoncore.internal.MuonStreamExistingGenerator;
 import io.muoncore.log.EventLogger;
 import io.muoncore.spec.Operation;
@@ -12,7 +11,6 @@ import io.muoncore.spec.ServiceSpecification;
 import io.muoncore.transport.MuonEventTransport;
 import io.muoncore.transport.MuonMessageEvent;
 import io.muoncore.transport.MuonQueueTransport;
-import io.muoncore.transport.broadcast.MuonBroadcastTransport;
 import io.muoncore.transport.resource.MuonResourceEvent;
 import io.muoncore.transport.resource.MuonResourceEventBuilder;
 import io.muoncore.transport.resource.MuonResourceTransport;
@@ -51,17 +49,11 @@ public class Muon implements MuonService {
     private List<MuonEventTransport> nonInitTransports = new ArrayList<MuonEventTransport>();
 
     private TransportList<MuonResourceTransport> resourceTransports = new TransportList<MuonResourceTransport>();
-    private TransportList<MuonBroadcastTransport> broadcastTransports = new TransportList<MuonBroadcastTransport>();
     private TransportList<MuonStreamTransport> streamingTransports = new TransportList<MuonStreamTransport>();
     private TransportList<MuonQueueTransport> queueingTransports = new TransportList<MuonQueueTransport>();
 
     private ServiceSpecification specification = new ServiceSpecification();
 
-//    private List<MuonResourceRegister> resources = new ArrayList<MuonResourceRegister>();
-//    private List<MuonEventRegister> events = new ArrayList<MuonEventRegister>();
-//    private List<MuonStreamRegister> streams = new ArrayList<MuonStreamRegister>();
-
-    private Dispatcher dispatcher;
     private Codecs codecs = new Codecs();
 
     private String serviceIdentifier;
@@ -72,7 +64,6 @@ public class Muon implements MuonService {
 
     public Muon(Discovery discovery) {
         this.discovery = discovery;
-        dispatcher = new Dispatcher(codecs);
     }
 
     public void start() throws URISyntaxException {
@@ -169,9 +160,6 @@ public class Muon implements MuonService {
         if(transport instanceof MuonResourceTransport) {
             resourceTransports.addTransport((MuonResourceTransport) transport);
         }
-        if(transport instanceof MuonBroadcastTransport) {
-            broadcastTransports.addTransport((MuonBroadcastTransport) transport);
-        }
         if(transport instanceof MuonStreamTransport) {
             streamingTransports.addTransport((MuonStreamTransport) transport);
         }
@@ -212,11 +200,6 @@ public class Muon implements MuonService {
 
     public void addTags(String ... tag) {
         this.tags.addAll(Arrays.asList(tag));
-    }
-
-    @Override
-    public void emit(MuonMessageEvent ev) {
-        dispatcher.dispatchToTransports(ev, broadcastTransports.all());
     }
 
     private <T> MuonFuture<MuonResult<T>> dispatchEvent(MuonResourceEvent ev, String resourceQuery, Class<T> type) {
@@ -317,21 +300,6 @@ public class Muon implements MuonService {
     }
 
     @Override
-    public <T> void receive(String event, final Class<T> type, final MuonListener<T> listener) {
-        //TODO, extract this into some lifecycle init during start.
-        //instead just store this.
-        for(final MuonBroadcastTransport transport: broadcastTransports.all()) {
-            transport.listenOnBroadcastEvent(event, new EventMessageTransportListener<T>() {
-                @Override
-                public void onEvent(String name, MuonMessageEvent<T> obj) {
-                    decode(obj, transport.getCodecType(), type);
-                    listener.onEvent(obj);
-                }
-            });
-        }
-    }
-
-    @Override
     public <T> void onQuery(String resource, final Class<T> type, final MuonQuery<T> listener) {
     	// Add operation to service specification
     	specification.addQuery(resource, type, listener);
@@ -394,12 +362,6 @@ public class Muon implements MuonService {
         }
         return resourceTransports.findBestResourceTransport(remoteDescriptor);
     }
-
-
-
-    /**
-     * experimental streaming support
-     */
 
     public List<MuonStreamRegister> getStreams() {
         return null;//streams;

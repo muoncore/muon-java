@@ -3,6 +3,7 @@ package io.muoncore.extension.amqp;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.QueueingConsumer;
+import com.rabbitmq.client.ShutdownSignalException;
 import io.muoncore.Muon;
 import io.muoncore.MuonService;
 import io.muoncore.transport.MuonMessageEventBuilder;
@@ -36,7 +37,7 @@ public class AmqpBroadcast {
 
         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
                 .contentType(event.getContentType())
-                .headers((Map) event.getHeaders()).build();
+                .headers(event.getHeaders()).build();
 
         try {
             channel.basicPublish(EXCHANGE_NAME, eventName, props, messageBytes);
@@ -49,48 +50,47 @@ public class AmqpBroadcast {
         return ret;
     }
     public void listenOnBroadcastEvent(final String resource, final Muon.EventMessageTransportListener listener) {
-        spinner.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String queueName = null;
-                    queueName = channel.queueDeclare().getQueue();
+        spinner.execute(() -> {
+            try {
+                String queueName = null;
+                queueName = channel.queueDeclare().getQueue();
 
-                    channel.queueBind(queueName, EXCHANGE_NAME, resource);
+                channel.queueBind(queueName, EXCHANGE_NAME, resource);
 
-                    log.fine("Waiting for discovery broadcast messages " + resource);
+                log.fine("Waiting for discovery broadcast messages " + resource);
 
-                    QueueingConsumer consumer = new QueueingConsumer(channel);
-                    channel.basicConsume(queueName, true, consumer);
+                QueueingConsumer consumer = new QueueingConsumer(channel);
+                channel.basicConsume(queueName, true, consumer);
 
-                    while (true) {
-                        try {
-                            QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-                            byte[] body = delivery.getBody();
+                while (true) {
+                    try {
+                        QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+                        byte[] body = delivery.getBody();
 
-                            MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(resource);
+                        MuonMessageEventBuilder builder = MuonMessageEventBuilder.named(resource);
 //                                .withMimeType(delivery.getProperties().getContentType())
 
-                            Map<Object, Object> headers = (Map) delivery.getProperties().getHeaders();
+                        Map<Object, Object> headers = (Map) delivery.getProperties().getHeaders();
 
-                            if (headers != null) {
-                                for (Map.Entry<Object, Object> entry : headers.entrySet()) {
-                                    builder.withHeader(entry.getKey().toString(), entry.getValue().toString());
-                                }
+                        if (headers != null) {
+                            for (Map.Entry<Object, Object> entry : headers.entrySet()) {
+                                builder.withHeader(entry.getKey().toString(), entry.getValue().toString());
                             }
-
-                            MuonMessageEvent ev = builder.build();
-                            ev.setContentType(delivery.getProperties().getContentType());
-                            ev.setEncodedBinaryContent(body);
-
-                            listener.onEvent(resource, ev);
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
                         }
+
+                        MuonMessageEvent ev = builder.build();
+                        ev.setContentType(delivery.getProperties().getContentType());
+                        ev.setEncodedBinaryContent(body);
+
+                        listener.onEvent(resource, ev);
+                    } catch (ShutdownSignalException ex) {
+                        throw ex;
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
     }

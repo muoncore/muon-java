@@ -6,34 +6,36 @@ import io.muoncore.transport.MuonEventTransport;
 import io.muoncore.transport.MuonMessageEvent;
 import io.muoncore.transport.resource.MuonResourceEvent;
 import io.muoncore.transport.stream.MuonStreamRegister;
+import org.reactivestreams.Publisher;
 
 import java.net.URISyntaxException;
 import java.util.List;
 
 public interface MuonService extends MuonClient {
 
-    public <T> void receive(String event, final Class<T> type, MuonListener<T> listener);
-    public <T> void onQuery(String resource, final Class<T> type, MuonQuery<T> listener);
-    public <T> void onCommand(String resource, final Class<T> type, MuonCommand<T> listener);
+    <T> void onQuery(String resource, final Class<T> type, MuonQuery<T> listener);
+    <T> void onCommand(String resource, final Class<T> type, MuonCommand<T> listener);
+    <T> void streamSource(String streamName, Class<T> type, MuonStreamGenerator<T> generator);
+    <T> void streamSource(String streamName, Class<T> type, Publisher<T> pub);
 
-    public void start() throws URISyntaxException;
+    void start() throws URISyntaxException;
 
-    public String getServiceIdentifer();
+    String getServiceIdentifer();
 
-    public void setServiceIdentifer(String serviceIdentifer);
+    void setServiceIdentifer(String serviceIdentifer);
 
-    public List<String> getTags();
-    public Codecs getCodecs();
+    List<String> getTags();
+    Codecs getCodecs();
     void registerTransport(MuonEventTransport transport);
-    public List<MuonStreamRegister> getStreams();
+    List<MuonStreamRegister> getStreams();
 
-    public static interface MuonListener<T> {
-        public void onEvent(MuonMessageEvent<T> event);
+    interface MuonListener<T> {
+        void onEvent(MuonMessageEvent<T> event);
     }
-    public static interface MuonQuery<T> {
-        public MuonFuture<?> onQuery(MuonResourceEvent<T> queryEvent);
+    interface MuonQuery<T> {
+        MuonFuture<?> onQuery(MuonResourceEvent<T> queryEvent);
     }
-    public static interface MuonCommand<T> {
-        public MuonFuture<?> onCommand(MuonResourceEvent<T> queryEvent);
+    interface MuonCommand<T> {
+        MuonFuture<?> onCommand(MuonResourceEvent<T> queryEvent);
     }
 }

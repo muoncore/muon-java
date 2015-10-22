@@ -8,7 +8,6 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.codec.TransportCodecType;
 import io.muoncore.extension.amqp.stream.AmqpStream;
 import io.muoncore.transport.*;
-import io.muoncore.transport.broadcast.MuonBroadcastTransport;
 import io.muoncore.transport.resource.MuonResourceEvent;
 import io.muoncore.transport.resource.MuonResourceTransport;
 import io.muoncore.transport.stream.MuonStreamTransport;
@@ -17,7 +16,6 @@ import org.reactivestreams.Subscriber;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -27,7 +25,6 @@ public class AMQPEventTransport
         implements
         MuonQueueTransport,
         MuonResourceTransport,
-        MuonBroadcastTransport,
         MuonStreamTransport {
 
     private Logger log = Logger.getLogger(AMQPEventTransport.class.getName());
@@ -58,11 +55,6 @@ public class AMQPEventTransport
     }
 
     @Override
-    public MuonService.MuonResult broadcast(String eventName, MuonMessageEvent event) {
-        return broadcast.broadcast(eventName, event);
-    }
-
-    @Override
     public MuonService.MuonResult emitForReturn(String eventName, MuonResourceEvent event) {
         return resources.emitForReturn(eventName, event);
     }
@@ -70,11 +62,6 @@ public class AMQPEventTransport
     @Override
     public <T> void listenOnResource(String resource, String verb, Class<T> type, Muon.EventResourceTransportListener<T> listener) {
         resources.listenOnResource(resource, verb, listener);
-    }
-
-    @Override
-    public void listenOnBroadcastEvent(final String resource, final Muon.EventMessageTransportListener listener) {
-        broadcast.listenOnBroadcastEvent(resource, listener);
     }
 
     @Override

@@ -50,23 +50,20 @@ public class AmqpStreamControl implements Muon.EventMessageTransportListener {
     private void monitorKeepAlive() {
         final int KEEP_ALIVE_ERROR = 10000;
         //TODO, extract out into a monitor concept. This will vary hugely between transports.
-        spinner.execute(new Runnable() {
-            @Override
-            public void run() {
-                while(true) {
-                    try {
-                        Thread.sleep(1000);
-                        Set<String> subscriberIds = new HashSet<String>(subscriptions.keySet());
-                        log.finer("Checking Subscriptions " + subscriptions);
-                        long expiryTime = System.currentTimeMillis() - KEEP_ALIVE_ERROR;
-                        for (String subId : subscriberIds) {
-                            if (lastSeenKeepAlive.get(subId) < expiryTime) {
-                                harvestBrokenStream(subId);
-                            }
+        spinner.execute(() -> {
+            while(true) {
+                try {
+                    Thread.sleep(1000);
+                    Set<String> subscriberIds = new HashSet<>(subscriptions.keySet());
+                    log.finer("Checking Subscriptions " + subscriptions);
+                    long expiryTime = System.currentTimeMillis() - KEEP_ALIVE_ERROR;
+                    for (String subId : subscriberIds) {
+                        if (lastSeenKeepAlive.get(subId) < expiryTime) {
+                            harvestBrokenStream(subId);
                         }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
                     }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
             }
         });

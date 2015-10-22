@@ -30,21 +30,8 @@ public class TCKService {
                 .withServiceIdentifier("tck")
                 .withTags("my-tag", "tck-service")
                 .build();
-//
-//        final Muon muon = new Muon(
-//                new AmqpDiscovery("amqp://muon:microservices@localhost"));
-//
-//        muon.setServiceIdentifer("tck");
-//        muon.addTags("my-tag", "tck-service");
-//
-//        new HttpTransportExtension(7171).extend(muon);
-//        new AmqpTransportExtension("amqp://muon:microservices@localhost").extend(muon);
-////        new StreamControlExtension().extend(muon);
-//        new KryoExtension().extend(muon);
 
         muon.start();
-
-        broadcastSetup(muon);
 
         outboundResourcesSetup(muon);
 
@@ -58,40 +45,30 @@ public class TCKService {
 
         final Map storedata = new HashMap();
 
-        muon.onCommand("/invokeresponse-store", Map.class, new MuonService.MuonCommand<Map>() {
-            @Override
-            public MuonFuture onCommand(MuonResourceEvent<Map> queryEvent) {
-                return MuonFutures.immediately(storedata);
-            }
-        });
+        muon.onQuery("/invokeresponse-store", Map.class, queryEvent -> MuonFutures.immediately(storedata));
 
-        muon.onQuery("/invokeresponse", Map.class, new MuonService.MuonQuery<Map>() {
-                @Override
-                public MuonFuture onQuery(MuonResourceEvent<Map> queryEvent) {
+        muon.onCommand("/invokeresponse", Map.class, queryEvent -> {
 
                     String url = (String) queryEvent.getDecodedContent().get("resource");
 
                     MuonFuture<MuonClient.MuonResult<Map>> rsult = muon.query(url, Map.class);
 
                     return MuonFutures.fromPublisher(
-                            Streams.wrap(rsult.toPublisher()).map(new Function<MuonClient.MuonResult<Map>, Map>() {
-                                @Override
-                                public Map apply(MuonClient.MuonResult<Map> mapMuonResult) {
-                                    Map data = mapMuonResult.getResponseEvent().getDecodedContent();
-                                    storedata.clear();
-                                    storedata.putAll(data);
+                            Streams.wrap(rsult.toPublisher()).map(mapMuonResult -> {
+                                Map data;
+                                data = mapMuonResult.getResponseEvent().getDecodedContent();
+                                storedata.clear();
+                                storedata.putAll(data);
 
-                                    return data;
-                                }
+                                return data;
                             }));
                 }
-            }
         );
     }
 
     private static void streamPublisher(Muon muon) {
         Publisher<Long> pub = Streams.range(1, 10);
-        muon.streamSource("myStream", Long.class, pub);
+        muon.streamSource("/myStream", Long.class, pub);
     }
 
     private static void inboundResourcesSetup(final Muon muon) {
@@ -133,41 +110,4 @@ public class TCKService {
         });
     }
 
-    private static List<Map> broadcastSetup(final Muon muon) {
-        final List<Map> events = Collections.synchronizedList(new ArrayList<Map>());
-
-        muon.receive("echoBroadcast", Map.class, new MuonService.MuonListener<Map>() {
-            public void onEvent(MuonMessageEvent<Map> event) {
-                muon.emit(
-                        MuonMessageEventBuilder.named("echoBroadcastResponse")
-                                .withContent(event.getDecodedContent())
-                                .build()
-                );
-            }
-        });
-
-        muon.receive("tckBroadcast", Map.class, new MuonService.MuonListener<Map>() {
-            public void onEvent(MuonMessageEvent<Map> event) {
-                events.add(event.getDecodedContent());
-            }
-        });
-
-
-        muon.onQuery("/event", Map.class, new MuonService.MuonQuery<Map>() {
-            @Override
-            public MuonFuture onQuery(MuonResourceEvent<Map> queryEvent) {
-                return MuonFutures.immediately(events);
-            }
-        });
-
-        muon.onCommand("/event", Map.class, new MuonService.MuonCommand<Map>() {
-            @Override
-            public MuonFuture onCommand(MuonResourceEvent<Map> queryEvent) {
-                events.clear();
-                return MuonFutures.immediately(new HashMap());
-            }
-        });
-
-        return events;
-    }
 }

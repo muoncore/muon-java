@@ -1,0 +1,15 @@
+rabbitmq:
+  image: rabbitmq:3.5.4-management
+  environment:
+    - RABBITMQ_DEFAULT_USER=muon
+    - RABBITMQ_DEFAULT_PASS=microservices
+muon-java-tck-endpoint:
+  build: .
+  links:
+    - rabbitmq
+muon-tck:
+  image: simplicityitself/muon-amqp-protocol-spec
+  links:
+    - rabbitmq
+  volumes:
+    - ./test-results:/app/test-results/

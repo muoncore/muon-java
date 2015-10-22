@@ -1,12 +1,12 @@
 import java.text.SimpleDateFormat
 
 buildscript {
-  repositories {
-    jcenter()
-  }
-  dependencies {
-    classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0"
-  }
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0"
+    }
 }
 
 def globalVersion = new Version(currentVersion)
@@ -23,150 +23,155 @@ def hasbintray = hasProperty("bintrayUsername")
 //}
 
 ext {
-  gradleVersion = '2.4'
+    gradleVersion = '2.4'
 
-  // Libraries
-  reactiveStreamsVersion = '1.0.0'
+    // Libraries
+    reactiveStreamsVersion = '1.0.0'
 
-  reactorVersion = '2.0.1.RELEASE'
+    reactorVersion = '2.0.1.RELEASE'
 }
 
 subprojects { subproject ->
-  apply plugin: 'com.jfrog.bintray'
-  apply plugin: 'groovy'
-  apply plugin: 'maven'
-  apply plugin: 'maven-publish'
+    apply plugin: 'com.jfrog.bintray'
+    apply plugin: 'groovy'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
 
-  group="io.muoncore"
-  version=globalVersion.toString()
+    group = "io.muoncore"
+    version = globalVersion.toString()
 
-	dependencies {
-    compile "org.codehaus.groovy:groovy-all:2.4.1"
-		testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
-	}
-
-  compileJava {
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
-  }
-
-  compileTestJava {
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
-  }
-
-  repositories {
-    jcenter()
-  }
-
-  bintray {
-    if (hasbintray) {
-      user = bintrayUsername
-      key = bintrayPassword
+    dependencies {
+        compile "org.codehaus.groovy:groovy-all:2.4.1"
+        testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
     }
 
-    dryRun = false //Whether to run this as dry-run, without deploying
-    publish = true //If version should be auto published after an upload
+    compileJava {
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
+    }
 
-    configurations = ['published', 'archives']
+    compileTestJava {
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
+    }
 
-    pkg {
-      userOrg = 'muoncore'
-      repo = 'muon-java'
-      name = subproject.name
-      desc = subproject.description
-      websiteUrl = 'https://muoncore.io'
-      issueTrackerUrl = 'https://github.com/muoncore/muon-java/issues'
-      vcsUrl = 'https://github.com/muoncore/muon-java.git'
-      licenses = ['Apache-2.0']
-      labels = ['muon', 'microservices']
-      publicDownloadNumbers = true
-      //Optional version descriptor
-      version {
-        name = globalVersion.toString()
-        //attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin'] //Optional version-level attributes
+    repositories {
+        jcenter()
+    }
+
+    bintray {
+        if (hasbintray) {
+            user = bintrayUsername
+            key = bintrayPassword
+        }
+
+        dryRun = false //Whether to run this as dry-run, without deploying
+        publish = true //If version should be auto published after an upload
+
+        configurations = ['published', 'archives']
+
+        pkg {
+            userOrg = 'muoncore'
+            repo = 'muon-java'
+            name = subproject.name
+            desc = subproject.description
+            websiteUrl = 'https://muoncore.io'
+            issueTrackerUrl = 'https://github.com/muoncore/muon-java/issues'
+            vcsUrl = 'https://github.com/muoncore/muon-java.git'
+            licenses = ['Apache-2.0']
+            labels = ['muon', 'microservices']
+            publicDownloadNumbers = true
+            //Optional version descriptor
+            version {
+                name = globalVersion.toString()
+                //attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin'] //Optional version-level attributes
 //      gpg {
 //        sign = true //Determines whether to GPG sign the files. The default is false
 //        passphrase = 'passphrase' //Optional. The passphrase for GPG signing'
 //      }
-        mavenCentralSync {
-          sync = false //Optional (true by default). Determines whether to sync the version to Maven Central.
-          user = 'userToken' //OSS user token
-          password = 'paasword' //OSS user password
-          close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+                mavenCentralSync {
+                    sync = false //Optional (true by default). Determines whether to sync the version to Maven Central.
+                    user = 'userToken' //OSS user token
+                    password = 'paasword' //OSS user password
+                    close = '1'
+                    //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+                }
+            }
         }
-      }
     }
-  }
 }
 
 project('muon-core') {
-	description = 'Core Muon for Java'
-	dependencies {
-		// Reactive Streams
-		compile "org.reactivestreams:reactive-streams:$reactiveStreamsVersion"
-    compile 'com.google.guava:guava:18.0'
-		
-		//Gson codec (the default)
-		compile 'com.google.code.gson:gson:2.3.1'
-    testCompile "org.spockframework:spock-core:1.0-groovy-2.3"
-    testCompile "io.projectreactor:reactor-stream:$reactorVersion"
-    testCompile 'org.slf4j:slf4j-jdk14:1.7.12'
-	}
+    description = 'Core Muon for Java'
+    dependencies {
+        // Reactive Streams
+        compile "org.reactivestreams:reactive-streams:$reactiveStreamsVersion"
+        compile 'com.google.guava:guava:18.0'
+
+        //Gson codec (the default)
+        compile 'com.google.code.gson:gson:2.3.1'
+        testCompile "org.spockframework:spock-core:1.0-groovy-2.3"
+        testCompile "io.projectreactor:reactor-stream:$reactorVersion"
+        testCompile 'org.slf4j:slf4j-jdk14:1.7.12'
+    }
 }
 
 project('muon-tck') {
-	description = 'Muon TCK Implementation for testing the validity of this Muon library'
-  repositories {
-    maven { url 'http://repo.spring.io/libs-milestone' }
-  }
-	dependencies {
-		compile project(":muon-core")
-		compile project(":muon-transport-amqp")
-		compile project(":muon-discovery-amqp")
-		compile project(":muon-codec-kryo")
-		compile project(":muon-spring")
-    compile "io.projectreactor:reactor-stream:$reactorVersion"
-    compile 'org.slf4j:slf4j-jdk14:1.7.12'
-	}
+    apply plugin: 'application'
+
+    description = 'Muon TCK Implementation for testing the validity of this Muon library'
+
+    mainClassName = "com.simplicity.services.TCKService"
+
+    repositories {
+        maven { url 'http://repo.spring.io/libs-milestone' }
+    }
+    dependencies {
+        compile project(":muon-core")
+        compile project(":muon-transport-amqp")
+        compile project(":muon-discovery-amqp")
+        compile project(":muon-codec-kryo")
+        compile project(":muon-spring")
+        compile "io.projectreactor:reactor-stream:$reactorVersion"
+        compile 'org.slf4j:slf4j-jdk14:1.7.12'
+    }
 }
 
 project('muon-transport-amqp') {
-	description = 'Core Muon for Java'
-	dependencies {
-		compile project(":muon-core")
-		compile "com.rabbitmq:amqp-client:3.3.2"
-	}
+    description = 'Core Muon for Java'
+    dependencies {
+        compile project(":muon-core")
+        compile "com.rabbitmq:amqp-client:3.3.2"
+    }
 }
 
 project('muon-discovery-amqp') {
-  description = 'A discovery system running on AMQP'
-  dependencies {
-    compile project(":muon-transport-amqp")
-  }
+    description = 'A discovery system running on AMQP'
+    dependencies {
+        compile project(":muon-transport-amqp")
+    }
 }
 
 project('muon-codec-kryo') {
-  description = 'Codec implementation using Kryo (for communication with other JVMs only)'
-  dependencies {
-    compile project(":muon-core")
-    compile 'com.esotericsoftware:kryo-shaded:3.0.0'
-  }
+    description = 'Codec implementation using Kryo (for communication with other JVMs only)'
+    dependencies {
+        compile project(":muon-core")
+        compile 'com.esotericsoftware:kryo-shaded:3.0.0'
+    }
 }
 
 project('muon-spring') {
-  description = 'Spring integration for Muon'
-  dependencies {
-    compile project(":muon-core")
-    compile("io.projectreactor:reactor-stream:$reactorVersion")
-    compile('org.springframework:spring-context:4.1.6.RELEASE')
-    testCompile('junit:junit:4.12')
-    testCompile('org.springframework:spring-test:4.1.6.RELEASE')
-    testCompile('org.mockito:mockito-core:1.10.19')
-    //TODO remove these when MuonBuilder hardcoded forClass is removed
-    testCompile project(":muon-transport-amqp")
-    testCompile project(":muon-discovery-amqp")
-  }
+    description = 'Spring integration for Muon'
+    dependencies {
+        compile project(":muon-core")
+        compile("io.projectreactor:reactor-stream:$reactorVersion")
+        compile('org.springframework:spring-context:4.1.6.RELEASE')
+        testCompile('junit:junit:4.12')
+        testCompile('org.mockito:mockito-core:1.10.19')
+        //TODO remove these when MuonBuilder hardcoded forClass is removed
+        testCompile project(":muon-transport-amqp")
+        testCompile project(":muon-discovery-amqp")
+    }
 }
 
 task wrapper(type: Wrapper) {
@@ -174,64 +179,64 @@ task wrapper(type: Wrapper) {
 }
 
 subprojects {
-  apply plugin: 'maven'
+    apply plugin: 'maven'
 
-  if (project.plugins.hasPlugin('java')) {
-    // manifest.mainAttributes(provider: 'gradle')
-    configurations {
-      published
-    }
-    dependencies {
-      testCompile 'junit:junit:4.7'
-    }
+    if (project.plugins.hasPlugin('java')) {
+        // manifest.mainAttributes(provider: 'gradle')
+        configurations {
+            published
+        }
+        dependencies {
+            testCompile 'junit:junit:4.7'
+        }
 
-    task sourceJar(type: Jar) {
-      from sourceSets.main.allSource
-      classifier = 'sources'
-    }
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-      classifier = 'javadoc'
-      from javadoc.destinationDir
-    }
+        task sourceJar(type: Jar) {
+            from sourceSets.main.allSource
+            classifier = 'sources'
+        }
+        task javadocJar(type: Jar, dependsOn: javadoc) {
+            classifier = 'javadoc'
+            from javadoc.destinationDir
+        }
 
-    // Add the sourceJars to non-extractor modules
-    artifacts {
-      published sourceJar
-      published javadocJar
+        // Add the sourceJars to non-extractor modules
+        artifacts {
+            published sourceJar
+            published javadocJar
+        }
     }
-  }
 }
 
 configurations {
-  published
+    published
 }
 
 class Version {
-  String originalVersion
-  String thisVersion
-  String status
-  Date buildTime
+    String originalVersion
+    String thisVersion
+    String status
+    Date buildTime
 
-  Version(String versionValue) {
-    buildTime = new Date()
-    originalVersion = versionValue
-    if (originalVersion.endsWith('-SNAPSHOT')) {
-      status = 'integration'
-      thisVersion = originalVersion.substring(0, originalVersion.length() - 'SNAPSHOT'.length()) + getTimestamp()
-    } else {
-      status = 'release'
-      thisVersion = versionValue
+    Version(String versionValue) {
+        buildTime = new Date()
+        originalVersion = versionValue
+        if (originalVersion.endsWith('-SNAPSHOT')) {
+            status = 'integration'
+            thisVersion = originalVersion.substring(0, originalVersion.length() - 'SNAPSHOT'.length()) + getTimestamp()
+        } else {
+            status = 'release'
+            thisVersion = versionValue
+        }
     }
-  }
 
-  String getTimestamp() {
-    // Convert local file timestamp to UTC
-    def format = new SimpleDateFormat('yyyyMMddHHmmss')
-    format.setCalendar(Calendar.getInstance(TimeZone.getTimeZone('UTC')));
-    return format.format(buildTime)
-  }
+    String getTimestamp() {
+        // Convert local file timestamp to UTC
+        def format = new SimpleDateFormat('yyyyMMddHHmmss')
+        format.setCalendar(Calendar.getInstance(TimeZone.getTimeZone('UTC')));
+        return format.format(buildTime)
+    }
 
-  String toString() {
-    thisVersion
-  }
+    String toString() {
+        thisVersion
+    }
 }
