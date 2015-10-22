@@ -1,38 +1,38 @@
 package io.muoncore.transport;
 
-public class TransportOutboundMessage {
+import java.util.Map;
 
-    private String id;
-    private String serviceName;
-    private String protocol;
+public class TransportOutboundMessage extends TransportMessage {
+
     private boolean closeChannel = false;
 
-    public TransportOutboundMessage(String id, String serviceName, String protocol) {
-        this.id = id;
-        this.serviceName = serviceName;
-        this.protocol = protocol;
+    public TransportOutboundMessage(String id,
+                                    String sourceServiceName,
+                                    String protocol,
+                                    Map<String, String> metadata,
+                                    String contentType,
+                                    byte[] payload) {
+        super(id, sourceServiceName, protocol, metadata, contentType, payload);
     }
 
-    public TransportOutboundMessage(String id, String serviceName, String protocol, boolean closeChannel) {
-        this.id = id;
-        this.serviceName = serviceName;
-        this.protocol = protocol;
+    public TransportOutboundMessage(String id,
+                                    String sourceServiceName,
+                                    String protocol,
+                                    Map<String, String> metadata,
+                                    String contentType,
+                                    byte[] payload,
+                                    boolean closeChannel) {
+        super(id, sourceServiceName, protocol, metadata, contentType, payload);
         this.closeChannel = closeChannel;
     }
 
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public String getId() {
-        return id;
-    }
-
     public TransportOutboundMessage cloneWithProtocol(String protocol) {
-        return new TransportOutboundMessage(id, serviceName, protocol, closeChannel);
+        return new TransportOutboundMessage(getId(),
+                getSourceServiceName(),
+                protocol,
+                getMetadata(),
+                getContentType(),
+                getPayload(),
+                closeChannel);
     }
 }

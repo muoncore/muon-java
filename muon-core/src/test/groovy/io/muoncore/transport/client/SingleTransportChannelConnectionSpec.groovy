@@ -1,6 +1,7 @@
 package io.muoncore.transport.client
 
 import io.muoncore.channel.ChannelConnection
+import io.muoncore.codec.GsonCodec
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.transport.MuonTransport
 import io.muoncore.transport.TransportInboundMessage
@@ -16,7 +17,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
         def connection = new SingleTransportChannelConnection(transport)
 
         when:
-        connection.send(new TransportOutboundMessage("mymessage", "myService1", "requestresponse"))
+        connection.send(outbound("mymessage", "myService1", "requestresponse"))
 
         then:
         thrown(IllegalStateException)
@@ -30,14 +31,14 @@ class SingleTransportChannelConnectionSpec extends Specification {
         connection.receive({})
 
         when:
-        connection.send(new TransportOutboundMessage("mymessage", "myService1", "requestresponse"))
-        connection.send(new TransportOutboundMessage("mymessage", "myService2", "requestresponse"))
-        connection.send(new TransportOutboundMessage("mymessage", "myService3", "requestresponse"))
-        connection.send(new TransportOutboundMessage("mymessage", "myService1", "wibble"))
-        connection.send(new TransportOutboundMessage("mymessage", "myService2", "simple"))
+        connection.send(outbound("mymessage", "myService1", "requestresponse"))
+        connection.send(outbound("mymessage", "myService2", "requestresponse"))
+        connection.send(outbound("mymessage", "myService3", "requestresponse"))
+        connection.send(outbound("mymessage", "myService1", "wibble"))
+        connection.send(outbound("mymessage", "myService2", "simple"))
 
         and: "a message that is the same combo as previously seen on this channel"
-        connection.send(new TransportOutboundMessage("mymessage", "myService2", "simple"))
+        connection.send(outbound("mymessage", "myService2", "simple"))
 
         then:
 
@@ -73,21 +74,41 @@ class SingleTransportChannelConnectionSpec extends Specification {
         connection.receive(receive)
 
         when:
-        connection.send(new TransportOutboundMessage("mymessage", "myService1", "requestresponse"))
-        connection.send(new TransportOutboundMessage("mymessage", "myService2", "requestresponse"))
-        connection.send(new TransportOutboundMessage("mymessage", "myService3", "requestresponse"))
+        connection.send(outbound("mymessage", "myService1", "requestresponse"))
+        connection.send(outbound("mymessage", "myService2", "requestresponse"))
+        connection.send(outbound("mymessage", "myService3", "requestresponse"))
 
         and: "Messages sent down all functions"
-        channelFunctions[0].call(new TransportInboundMessage("id", "source", "requestresponse"))
-        channelFunctions[1].call(new TransportInboundMessage("id", "source", "requestresponse"))
-        channelFunctions[2].call(new TransportInboundMessage("id", "source", "requestresponse"))
-        channelFunctions[2].call(new TransportInboundMessage("id", "source", "requestresponse"))
-        channelFunctions[1].call(new TransportInboundMessage("id", "source", "requestresponse"))
-        channelFunctions[0].call(new TransportInboundMessage("id", "source", "requestresponse"))
-        channelFunctions[1].call(new TransportInboundMessage("id", "source", "requestresponse"))
+        channelFunctions[0].call(inbound("id", "source", "requestresponse"))
+        channelFunctions[1].call(inbound("id", "source", "requestresponse"))
+        channelFunctions[2].call(inbound("id", "source", "requestresponse"))
+        channelFunctions[2].call(inbound("id", "source", "requestresponse"))
+        channelFunctions[1].call(inbound("id", "source", "requestresponse"))
+        channelFunctions[0].call(inbound("id", "source", "requestresponse"))
+        channelFunctions[1].call(inbound("id", "source", "requestresponse"))
 
         then:
         channelFunctions.size() == 3
         7 * receive.apply(_)
+    }
+
+    def inbound(id, service, protocol) {
+        new TransportInboundMessage(
+                id,
+                service,
+                protocol,
+                [:],
+                "application/json",
+                new GsonCodec().encode([:]))
+    }
+
+    def outbound(id, service, protocol) {
+        new TransportOutboundMessage(
+                id,
+                service,
+                protocol,
+                [:],
+                "application/json",
+                new GsonCodec().encode([:]))
     }
 }

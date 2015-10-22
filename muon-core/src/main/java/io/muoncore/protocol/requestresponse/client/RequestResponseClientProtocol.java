@@ -14,22 +14,26 @@ import io.muoncore.transport.TransportOutboundMessage;
  * Add reliability, timeout etc.
  *
  */
-public class RequestResponseClientProtocol<X> {
+public class RequestResponseClientProtocol<X,R> {
 
     private Codecs codecs;
 
     public RequestResponseClientProtocol(
-            final ChannelConnection<Response, Request<X>> leftChannelConnection,
+            String serviceName,
+            final ChannelConnection<Response<R>, Request<X>> leftChannelConnection,
             final ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection,
+            final Class<R> type,
             final Codecs codecs) {
 
         rightChannelConnection.receive( message -> {
             leftChannelConnection.send(
-                RRPTransformers.toResponse(message, codecs));
+                RRPTransformers.toResponse(message, codecs, type));
         });
 
         leftChannelConnection.receive(request -> {
-            rightChannelConnection.send(RRPTransformers.toOutbound(request, codecs));
+            rightChannelConnection.send(RRPTransformers.toOutbound(
+                    serviceName,
+                    request, codecs, new String[] { "application/json" }));
         });
 
         /**

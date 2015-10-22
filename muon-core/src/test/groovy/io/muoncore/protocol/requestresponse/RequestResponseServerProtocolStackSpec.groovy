@@ -1,5 +1,6 @@
 package io.muoncore.protocol.requestresponse
 
+import io.muoncore.codec.GsonCodec
 import io.muoncore.codec.JsonOnlyCodecs
 import io.muoncore.protocol.requestresponse.server.RequestResponseHandlers
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandler
@@ -20,7 +21,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
 
         when:
         def channel = stack.createChannel()
-        channel.send(new TransportInboundMessage("123", "FAKESERVICE", "requestresponse"))
+        channel.send(inbound("123", "FAKESERVICE", "requestresponse"))
         Thread.sleep(50)
 
         then:
@@ -29,15 +30,18 @@ class RequestResponseServerProtocolStackSpec extends Specification {
 
     def "handler can be invoked via the external channel"() {
 
-        def handler = Mock(RequestResponseServerHandler)
+        def handler = Mock(RequestResponseServerHandler) {
+            getRequestType() >> Map
+        }
         def handlers = Mock(RequestResponseHandlers) {
             findHandler(_) >> handler
+
         }
         def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs())
 
         when:
         def channel = stack.createChannel()
-        channel.send(new TransportInboundMessage("123", "FAKESERVICE", "requestresponse"))
+        channel.send(inbound("123", "FAKESERVICE", "requestresponse"))
         Thread.sleep(50)
 
         then:
@@ -47,8 +51,9 @@ class RequestResponseServerProtocolStackSpec extends Specification {
 
         def handler = Mock(RequestResponseServerHandler) {
             handle(_) >> { RequestWrapper wrapper ->
-                wrapper.answer(new Response(wrapper.request.id, "simples"))
+                wrapper.answer(new Response(200, "hello"))
             }
+            getRequestType() >> Map
         }
 
         def handlers = Mock(RequestResponseHandlers) {
@@ -64,13 +69,23 @@ class RequestResponseServerProtocolStackSpec extends Specification {
             responseReceived = it
         })
 
-        channel.send(new TransportInboundMessage("123", "FAKESERVICE", "requestresponse"))
+        channel.send(inbound("123", "FAKESERVICE", "requestresponse"))
         Thread.sleep(50)
 
         then:
         new PollingConditions().eventually {
             responseReceived != null
         }
+    }
+
+    def inbound(id, service, protocol) {
+        new TransportInboundMessage(
+                id,
+                service,
+                protocol,
+                [:],
+                "application/json",
+                new GsonCodec().encode([:]))
     }
 }
 

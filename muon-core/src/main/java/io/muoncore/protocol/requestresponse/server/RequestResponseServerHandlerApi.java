@@ -1,6 +1,7 @@
 package io.muoncore.protocol.requestresponse.server;
 
 import io.muoncore.protocol.requestresponse.Request;
+import io.muoncore.protocol.requestresponse.RequestMetaData;
 import io.muoncore.transport.TransportClientSource;
 import org.reactivestreams.Publisher;
 
@@ -15,23 +16,29 @@ public interface RequestResponseServerHandlerApi extends
      *
      * The predicate is used to match requests.
      */
-    default void handleRequest(
-            final Predicate<Request> request,
-            final Handler handler) {
-        getRequestResponseHandlers().addHandler(new RequestResponseServerHandler() {
+    default <T> void handleRequest(
+            final Predicate<RequestMetaData> request,
+            final Handler<T> handler,
+            final Class<T> requestType) {
+        getRequestResponseHandlers().addHandler(new RequestResponseServerHandler<T, Object>() {
             @Override
-            public Predicate<Request> getPredicate() {
+            public Predicate<RequestMetaData> getPredicate() {
                 return request;
             }
 
             @Override
-            public void handle(RequestWrapper request) {
+            public void handle(RequestWrapper<T, Object> request) {
                 handler.handle(request);
+            }
+
+            @Override
+            public Class getRequestType() {
+                return requestType;
             }
         });
     }
 
-    interface Handler {
-        void handle(RequestWrapper wrapper);
+    interface Handler<RequestType> {
+        void handle(RequestWrapper<RequestType, ?> wrapper);
     }
 }

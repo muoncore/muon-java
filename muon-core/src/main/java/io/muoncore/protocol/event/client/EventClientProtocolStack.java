@@ -19,24 +19,25 @@ public interface EventClientProtocolStack extends
 
     default <X> MuonFuture<Response> event(Event<X> event) {
 
-        StandardAsyncChannel<Event<X>, Response> api2eventproto = new StandardAsyncChannel<>();
-        StandardAsyncChannel<Request<X>, Response> event2rrp = new StandardAsyncChannel<>();
-        StandardAsyncChannel<TransportOutboundMessage, TransportInboundMessage> rrp2transport = new StandardAsyncChannel<>();
-
-        ChannelFutureAdapter<Response, Event<X>> adapter =
-                new ChannelFutureAdapter<>(api2eventproto.left());
-
-        new EventClientProtocol<>(
-                getDiscovery(),
-                api2eventproto.right(),
-                event2rrp.left());
-
-        new RequestResponseClientProtocol<>(event2rrp.right(), rrp2transport.left(), getCodecs());
-
-        Channels.connectAndTransform(rrp2transport.right(), getTransportClient().openClientChannel(),
-                transportOutboundMessage -> transportOutboundMessage.cloneWithProtocol("event"),
-                transportInboundMessage -> transportInboundMessage);
-
-        return adapter.request(event);
+//        StandardAsyncChannel<Event<X>, Response> api2eventproto = new StandardAsyncChannel<>();
+//        StandardAsyncChannel<Request<X>, Response> event2rrp = new StandardAsyncChannel<>();
+//        StandardAsyncChannel<TransportOutboundMessage, TransportInboundMessage> rrp2transport = new StandardAsyncChannel<>();
+//
+//        ChannelFutureAdapter<Response, Event<X>> adapter =
+//                new ChannelFutureAdapter<>(api2eventproto.left());
+//
+//        new EventClientProtocol<>(
+//                getDiscovery(),
+//                api2eventproto.right(),
+//                event2rrp.left());
+//
+//        new RequestResponseClientProtocol<>(event2rrp.right(), rrp2transport.left(), getCodecs());
+//
+//        Channels.connectAndTransform(rrp2transport.right(), getTransportClient().openClientChannel(),
+//                transportOutboundMessage -> transportOutboundMessage.cloneWithProtocol("event"),
+//                transportInboundMessage -> transportInboundMessage);
+//
+//        return adapter.request(event);
+        return null;
     }
 }

@@ -28,7 +28,7 @@ class DynamicRequestResponseHandlersSpec extends Specification {
         }))
 
         expect:
-        registry.findHandler(new Request(id:"simples")).id == 3
+        registry.findHandler(new RequestMetaData("hello", "sourceservice")).id == 3
 
     }
 
@@ -44,7 +44,7 @@ class DynamicRequestResponseHandlersSpec extends Specification {
         }))
 
         expect:
-        registry.findHandler(new Request(id:"simples")).id == 8
+        registry.findHandler(new RequestMetaData("hello","sourceservice")).id == 8
 
     }
 }
@@ -56,5 +56,10 @@ class StubRequestResponseServerHandler implements RequestResponseServerHandler {
     @Override
     void handle(RequestWrapper request) {
         throw new IllegalStateException("Not implemented in stub!")
+    }
+
+    @Override
+    Class getRequestType() {
+        return Object.class;
     }
 }

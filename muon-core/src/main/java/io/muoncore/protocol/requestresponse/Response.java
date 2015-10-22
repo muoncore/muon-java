@@ -1,20 +1,30 @@
 package io.muoncore.protocol.requestresponse;
 
+import java.util.UUID;
+
 public class Response<X> {
 
-    private String id;
-    private String url;
+    public final static String STATUS = "status";
 
-    public Response(String id, String url) {
-        this.id = id;
-        this.url = url;
+    private String id;
+    private X payload;
+    private int status;
+
+    public Response(int status, X payload) {
+        this.id = UUID.randomUUID().toString();
+        this.payload = payload;
+        this.status = status;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public X getPayload() {
+        return payload;
     }
 
     public String getId() {
         return id;
-    }
-
-    public String getUrl() {
-        return url;
     }
 }

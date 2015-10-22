@@ -21,17 +21,19 @@ class RequestResponseClientProtocolSpec extends Specification {
         })
 
         def proto = new RequestResponseClientProtocol(
+                "tombola",
                 leftChannel.right(),
                 rightChannel.left(),
+                Map,
                 new JsonOnlyCodecs())
 
         when:
-        leftChannel.left().send(new Request(id:"simples"))
+        leftChannel.left().send(new Request(new RequestMetaData("url","service"),[:]))
 
         then:
         new PollingConditions().eventually {
             ret instanceof TransportOutboundMessage
-            ret.id == "simples"
+            ret.protocol == RRPTransformers.REQUEST_RESPONSE_PROTOCOL
         }
     }
 }

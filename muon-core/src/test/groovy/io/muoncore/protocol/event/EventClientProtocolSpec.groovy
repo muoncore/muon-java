@@ -11,31 +11,33 @@ class EventClientProtocolSpec extends Specification {
 
     def "protocol sends a Request on for event Event"() {
 
-        def leftChannel = new StandardAsyncChannel()
-        def rightChannel = new StandardAsyncChannel()
-
-        def ret
-
-        rightChannel.right().receive({
-            ret = it
-        })
-
-        def proto = new EventClientProtocol(
-                Mock(Discovery),
-                leftChannel.right(), rightChannel.left())
-
-        when:
-        leftChannel.left().send(new Event(
-                "awesome",
-                "parentId",
-                "serviceId",
-                ["1":2, "payload":true]
-        ))
-
-        then:
-        new PollingConditions().eventually {
-            ret instanceof Request
-            ret.id == "awesome"
-        }
+//        def leftChannel = new StandardAsyncChannel()
+//        def rightChannel = new StandardAsyncChannel()
+//
+//        def ret
+//
+//        rightChannel.right().receive({
+//            ret = it
+//        })
+//
+//        def proto = new EventClientProtocol(
+//                Mock(Discovery),
+//                leftChannel.right(), rightChannel.left())
+//
+//        when:
+//        leftChannel.left().send(new Event(
+//                "awesome",
+//                "parentId",
+//                "serviceId",
+//                ["1":2, "payload":true]
+//        ))
+//
+//        then:
+//        new PollingConditions().eventually {
+//            ret instanceof Request
+//            ret.id == "awesome"
+//        }
+        expect:
+        throw new IllegalStateException("Failed")
     }
 }

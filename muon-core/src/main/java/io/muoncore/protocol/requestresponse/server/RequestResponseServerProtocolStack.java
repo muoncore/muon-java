@@ -6,6 +6,7 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.protocol.ServerProtocolStack;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
+import io.muoncore.protocol.requestresponse.RequestMetaData;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
@@ -28,13 +29,17 @@ public class RequestResponseServerProtocolStack implements
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
 
         StandardAsyncChannel<TransportOutboundMessage, TransportInboundMessage> api2 = new StandardAsyncChannel<>();
 
         api2.left().receive( message -> {
-            Request request = RRPTransformers.toRequest(message, codecs);
-            RequestResponseServerHandler handler = handlers.findHandler(request);
+            RequestMetaData meta = RRPTransformers.toRequestMetaData(message);
+            RequestResponseServerHandler handler = handlers.findHandler(meta);
+
+            Request request = RRPTransformers.toRequest(message, codecs, handler.getRequestType());
+
             handler.handle(new RequestWrapper() {
                 @Override
                 public Request getRequest() {
@@ -43,7 +48,7 @@ public class RequestResponseServerProtocolStack implements
 
                 @Override
                 public void answer(Response response) {
-                    TransportOutboundMessage msg = RRPTransformers.toOutbound(response, codecs);
+                    TransportOutboundMessage msg = RRPTransformers.toOutbound("thiservice",response, codecs, new String[] { "application/json" });
                     api2.left().send(msg);
                 }
             });

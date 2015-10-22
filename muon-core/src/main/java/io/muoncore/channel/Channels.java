@@ -4,6 +4,8 @@ import java.util.function.Function;
 
 public class Channels {
     public static <X,Y> void connect(ChannelConnection<X, Y> right, ChannelConnection<Y, X> left) {
+        assert right != null;
+        assert left != null;
         left.receive(right::send);
         right.receive(left::send);
     }

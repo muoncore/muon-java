@@ -22,7 +22,7 @@ class RequestResponseServerHandlerApiSpec extends Specification {
         }
 
         when:
-        requestResponseServerHandlerApi.handleRequest(predicate, handler)
+        requestResponseServerHandlerApi.handleRequest(predicate, handler, Map)
 
         then:
         1 * requestResponseHandlers.addHandler(_)

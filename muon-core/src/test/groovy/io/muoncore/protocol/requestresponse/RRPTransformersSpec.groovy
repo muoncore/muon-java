@@ -1,61 +1,88 @@
 package io.muoncore.protocol.requestresponse
 
 import io.muoncore.codec.Codecs
+import io.muoncore.codec.GsonCodec
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportOutboundMessage
 import spock.lang.Specification
 
 class RRPTransformersSpec extends Specification {
 
-    Codecs codecs = Mock(Codecs)
+    Codecs codecs = Mock(Codecs) {
+        encode(_,_) >> new Codecs.EncodingResult(new byte[0], "text/plain")
+    }
 
     def "TransportInboundMessage to Request "() {
 
 
         when:
-        def ret = RRPTransformers.toRequest(inbound(), codecs)
+        def ret = RRPTransformers.toRequest(inboundRequest(), codecs, Map)
 
         then:
-        ret.id == request().id
+        ret.metaData[(Request.URL)] == "hello"
     }
 
     def "TransportInboundMessage to response"() {
         when:
-        def ret = RRPTransformers.toResponse(inbound(), codecs)
+        def ret = RRPTransformers.toResponse(inbound(), codecs, Map)
 
         then:
-        ret.id == response().id
+        ret.status == 200
 
     }
 
     def "Request to TransportOutboundMessage"() {
         when:
-        def ret = RRPTransformers.toOutbound(request(), codecs)
+        def ret = RRPTransformers.toOutbound("myservice", request(), codecs, ["application/json"] as String[])
 
         then:
-        ret.id == outbound().id
+        ret.contentType == "text/plain"
+        ret.metadata[(Request.URL)] == "simples"
     }
 
     def "Response to TransportOutboundMessage"() {
         when:
-        def ret = RRPTransformers.toOutbound(response(), codecs)
+        def ret = RRPTransformers.toOutbound("myservice", response(), codecs, ["application/json"] as String[])
 
         then:
-        ret.id == outbound().id
+        ret.metadata[(Response.STATUS)] == "200"
     }
 
     Request request() {
-        new Request(id: "1234")
+        new Request(new RequestMetaData("simples", "myservice"), [:])
     }
     Response response() {
-        new Response("1234", "helloworld")
+        new Response(200, [message:"hello"])
     }
 
     TransportInboundMessage inbound() {
-        new TransportInboundMessage("1234", "myservice", "requestresponse")
+        new TransportInboundMessage(
+                "1234",
+                "myservice",
+                RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
+                [(Response.STATUS):"200"],
+                "application/json",
+                new GsonCodec().encode([:]))
     }
 
-    TransportOutboundMessage outbound() {
-        new TransportOutboundMessage("1234", "myservice", "requestresponse")
+    TransportInboundMessage inboundRequest() {
+        new TransportInboundMessage(
+                "1234",
+                "myservice",
+                RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
+                [(Request.URL):"hello"],
+                "application/json",
+                new GsonCodec().encode([:]))
     }
+
+
+    TransportOutboundMessage outbound() {
+        new TransportOutboundMessage("1234",
+                "myservice",
+                RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
+                [:],
+                "application/json",
+                new GsonCodec().encode([:]))
+    }
+
 }

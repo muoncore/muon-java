@@ -11,26 +11,26 @@ import io.muoncore.protocol.requestresponse.Response;
  */
 public class EventClientProtocol<X> {
 
-    public EventClientProtocol(
-            Discovery discovery,
-            ChannelConnection<Response, Event<X>> leftChannelConnection,
-            ChannelConnection<Request<X>, Response> rightChannelConnection) {
-
-        rightChannelConnection.receive( message -> {
-            leftChannelConnection.send(message);
-        });
-
-        leftChannelConnection.receive(event -> {
-            //TODO, do a lookup of where to send the request!
-            Request<X> msg = new Request<X>();
-            msg.setId(event.getId());
-            rightChannelConnection.send(msg);
-        });
-
-        /**
-         * lookup event store
-         *
-         * if no store, send 404 back.
-         */
-    }
+//    public EventClientProtocol(
+//            Discovery discovery,
+//            ChannelConnection<Response, Event<X>> leftChannelConnection,
+//            ChannelConnection<Request<X>, Response> rightChannelConnection) {
+//
+//        rightChannelConnection.receive( message -> {
+//            leftChannelConnection.send(message);
+//        });
+//
+//        leftChannelConnection.receive(event -> {
+//            //TODO, do a lookup of where to send the request!
+//            Request<X> msg = new Request<X>();
+//            msg.setId(event.getId());
+//            rightChannelConnection.send(msg);
+//        });
+//
+//        /**
+//         * lookup event store
+//         *
+//         * if no store, send 404 back.
+//         */
+//    }
 }

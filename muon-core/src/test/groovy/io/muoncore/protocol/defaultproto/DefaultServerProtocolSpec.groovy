@@ -7,7 +7,7 @@ import spock.lang.Specification
 
 class DefaultServerProtocolSpec extends Specification {
 
-    def "default proto not tested .."() {
+    def "default proto sends bounce messages"() {
 
         def proto = new DefaultServerProtocol()
         def channel = proto.createChannel()
@@ -16,7 +16,13 @@ class DefaultServerProtocolSpec extends Specification {
         channel.receive(receive)
 
         when:
-        channel.send(new TransportInboundMessage("id", "myservice", "requestresponse"))
+        channel.send(new TransportInboundMessage(
+                "id",
+                "sourceServiceName",
+                "fakeproto",
+                [:],
+                "text/plain",
+                new byte[0]))
 
         then:
         1 * receive.apply(_ as TransportOutboundMessage)

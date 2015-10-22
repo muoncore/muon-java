@@ -1,8 +1,8 @@
 package io.muoncore.protocol.requestresponse.server;
 
-import io.muoncore.protocol.requestresponse.Request;
+import io.muoncore.protocol.requestresponse.RequestMetaData;
 
 public interface RequestResponseHandlers {
     void addHandler(RequestResponseServerHandler handler);
-    RequestResponseServerHandler findHandler(Request inbound);
+    RequestResponseServerHandler findHandler(RequestMetaData inbound);
 }

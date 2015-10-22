@@ -40,7 +40,7 @@ class SingleTransportChannelConnection implements ChannelConnection<TransportOut
     }
 
     private ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connectChannel(TransportOutboundMessage message) {
-        ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connection = transport.openClientChannel(message.getServiceName(), message.getProtocol());
+        ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connection = transport.openClientChannel(message.getSourceServiceName(), message.getProtocol());
 
         connection.receive(inbound);
 
@@ -48,6 +48,6 @@ class SingleTransportChannelConnection implements ChannelConnection<TransportOut
     }
 
     private static String key(TransportOutboundMessage key) {
-        return key.getServiceName() + "_" + key.getProtocol();
+        return key.getSourceServiceName() + "_" + key.getProtocol();
     }
 }

@@ -2,19 +2,22 @@ package io.muoncore;
 
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.JsonOnlyCodecs;
+import io.muoncore.config.AutoConfiguration;
 import io.muoncore.protocol.DynamicRegistrationServerStacks;
+import io.muoncore.protocol.ServerRegistrar;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.protocol.defaultproto.DefaultServerProtocol;
+import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
+import io.muoncore.protocol.requestresponse.RequestMetaData;
 import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.protocol.requestresponse.server.DynamicRequestResponseHandlers;
-import io.muoncore.protocol.requestresponse.server.RequestResponseHandlers;
-import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandler;
-import io.muoncore.protocol.requestresponse.server.RequestWrapper;
+import io.muoncore.protocol.requestresponse.server.*;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.client.SingleTransportClient;
 import io.muoncore.transport.client.TransportClient;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Predicate;
 
 /**
@@ -26,25 +29,48 @@ public class SingleTransportMuon implements Muon
     private TransportClient transportClient;
     private Discovery discovery;
     private ServerStacks protocols;
+    private ServerRegistrar registrar;
     private RequestResponseHandlers requestResponseHandlers;
     private Codecs codecs;
+    private AutoConfiguration configuration;
 
     public SingleTransportMuon(
+            AutoConfiguration configuration,
             Discovery discovery,
             MuonTransport transport) {
+        this.configuration = configuration;
         this.transportClient = new SingleTransportClient(transport);
         this.discovery = discovery;
-        this.protocols = new DynamicRegistrationServerStacks(new DefaultServerProtocol());
+        DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(new DefaultServerProtocol());
+        this.protocols = stacks;
+        this.registrar = stacks;
         this.codecs = new JsonOnlyCodecs();
-        this.requestResponseHandlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler() {
+
+        initServerStacks(stacks);
+        initDefaultRequestHandler();
+    }
+
+    private void initServerStacks(DynamicRegistrationServerStacks stacks) {
+        stacks.registerServerProtocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
+                new RequestResponseServerProtocolStack(
+                        requestResponseHandlers, codecs));
+    }
+
+    private void initDefaultRequestHandler() {
+        this.requestResponseHandlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler<Map, Map>() {
             @Override
-            public Predicate<Request> getPredicate() {
+            public Predicate<RequestMetaData> getPredicate() {
                 return request -> false;
             }
 
             @Override
-            public void handle(RequestWrapper request) {
-                request.answer(new Response(request.getRequest().getId(),request.getRequest().getUrl()));
+            public void handle(RequestWrapper<Map, Map> request) {
+                request.answer(new Response<>(404, new HashMap<>()));
+            }
+
+            @Override
+            public Class<Map> getRequestType() {
+                return Map.class;
             }
         });
     }
@@ -68,7 +94,13 @@ public class SingleTransportMuon implements Muon
     public TransportClient getTransportClient() {
         return transportClient;
     }
-//
+
+    @Override
+    public AutoConfiguration getConfiguration() {
+        return configuration;
+    }
+
+    //
 //    public static void main(String[] args) {
 //        SingleTransportMuon muon = new SingleTransportMuon(discover, amqpTransport);
 //
