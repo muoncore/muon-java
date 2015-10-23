@@ -29,6 +29,7 @@ class EstablishChannelSpec extends Specification {
         def channel = svc1.openClientChannel("tombola", "requestresponse")
 
         channel.send(new TransportOutboundMessage(
+                "somethingHappened",
                 "1",
                 "tombola",
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
