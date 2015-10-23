@@ -25,6 +25,7 @@ class AmqpMessageTransformersSpec extends Specification {
 
     TransportOutboundMessage outbound() {
         new TransportOutboundMessage(
+                "somethingHappened",
                 "123",
                 "myService",
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
@@ -34,6 +35,7 @@ class AmqpMessageTransformersSpec extends Specification {
     }
     TransportInboundMessage inbound() {
         new TransportInboundMessage(
+                "somethingHappened",
                 "123",
                 "myService",
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
