@@ -57,6 +57,7 @@ class RRPTransformersSpec extends Specification {
 
     TransportInboundMessage inbound() {
         new TransportInboundMessage(
+                "somethingHappened",
                 "1234",
                 "myservice",
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
@@ -67,6 +68,7 @@ class RRPTransformersSpec extends Specification {
 
     TransportInboundMessage inboundRequest() {
         new TransportInboundMessage(
+                "somethingHappened",
                 "1234",
                 "myservice",
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
@@ -77,7 +79,7 @@ class RRPTransformersSpec extends Specification {
 
 
     TransportOutboundMessage outbound() {
-        new TransportOutboundMessage("1234",
+        new TransportOutboundMessage("somethingHappened","1234",
                 "myservice",
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [:],

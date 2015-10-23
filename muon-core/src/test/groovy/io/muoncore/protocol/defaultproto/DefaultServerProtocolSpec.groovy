@@ -17,6 +17,7 @@ class DefaultServerProtocolSpec extends Specification {
 
         when:
         channel.send(new TransportInboundMessage(
+                "somethingHappened",
                 "id",
                 "sourceServiceName",
                 "fakeproto",

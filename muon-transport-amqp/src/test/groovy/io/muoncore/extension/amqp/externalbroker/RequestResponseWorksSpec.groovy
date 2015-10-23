@@ -36,7 +36,7 @@ class RequestResponseWorksSpec extends Specification {
 
         svc2.handleRequest({ true }, {
             it.request.id
-            it.answer(new Response(200, it.request.url, [hi:"there"]))
+            it.answer(new Response(200, [hi:"there"]))
         }, Map)
 
         when:
@@ -44,6 +44,7 @@ class RequestResponseWorksSpec extends Specification {
 
         then:
         response != null
+        response.status == 200
         response.payload.hi == "there"
     }
 

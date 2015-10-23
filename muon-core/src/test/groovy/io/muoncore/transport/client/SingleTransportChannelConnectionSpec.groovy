@@ -94,6 +94,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
     def inbound(id, service, protocol) {
         new TransportInboundMessage(
+                "somethingHappened",
                 id,
                 service,
                 protocol,
@@ -104,6 +105,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
     def outbound(id, service, protocol) {
         new TransportOutboundMessage(
+                "somethingHappened",
                 id,
                 service,
                 protocol,

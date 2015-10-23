@@ -13,7 +13,6 @@ import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportOutboundMessage
 import io.muoncore.transport.client.TransportClient
 import spock.lang.Specification
-import spock.lang.Timeout
 
 import java.util.function.Predicate
 
@@ -68,6 +67,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                 channel.left(),
                 { TransportOutboundMessage msg ->
                     new TransportInboundMessage(
+                            msg.type,
                             msg.id,
                             msg.sourceServiceName,
                             msg.protocol,
@@ -76,7 +76,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                             msg.payload)
                 },
                 { TransportOutboundMessage msg ->
-                    new TransportInboundMessage(msg.id,
+                    new TransportInboundMessage(msg.type, msg.id,
                             msg.sourceServiceName,
                             msg.protocol,
                             msg.metadata,

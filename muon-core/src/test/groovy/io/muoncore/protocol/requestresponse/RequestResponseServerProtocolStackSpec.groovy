@@ -80,6 +80,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
 
     def inbound(id, service, protocol) {
         new TransportInboundMessage(
+                "somethingHappened",
                 id,
                 service,
                 protocol,
