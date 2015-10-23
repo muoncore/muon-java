@@ -6,9 +6,6 @@ import io.muoncore.transport.TransportOutboundMessage;
 
 import java.io.IOException;
 
-/**
- * Created by david on 16/10/15.
- */
 public interface AmqpChannel extends ChannelConnection<TransportOutboundMessage, TransportInboundMessage> {
     void initiateHandshake(String serviceName, String protocol);
 

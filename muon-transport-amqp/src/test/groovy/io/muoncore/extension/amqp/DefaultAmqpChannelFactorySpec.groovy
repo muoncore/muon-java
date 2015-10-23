@@ -4,9 +4,15 @@ import spock.lang.Specification
 
 class DefaultAmqpChannelFactorySpec extends Specification {
 
-    def "broken"() {
-        expect:
-        throw new IllegalStateException("Not tested!")
+    def "factory makes channels"() {
+        def factory = new DefaultAmqpChannelFactory("simpleservice", Mock(QueueListenerFactory), Mock(AmqpConnection))
+
+        when:
+        def channel = factory.createChannel()
+
+        then:
+        channel != null
+        channel instanceof DefaultAmqpChannel
     }
 
 }

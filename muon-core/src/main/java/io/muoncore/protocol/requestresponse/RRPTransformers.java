@@ -5,7 +5,6 @@ import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +45,7 @@ public class RRPTransformers {
         }
 
         return new TransportOutboundMessage(
+                "requestMade",
                 request.getId(),
                 thisService,
                 REQUEST_RESPONSE_PROTOCOL,
@@ -67,6 +67,7 @@ public class RRPTransformers {
         }
 
         return new TransportOutboundMessage(
+                "responseSent",
                 response.getId(),
                 thisService,
                 REQUEST_RESPONSE_PROTOCOL,

@@ -30,6 +30,7 @@ public class DefaultServerProtocol implements ServerProtocolStack {
                 metadata.put("status", "404");
                 metadata.put("message", "Protocol unknown :" + message.getProtocol());
                 func.apply(new TransportOutboundMessage(
+                        "errorSent",
                         message.getId() + "REPLY",
                         message.getSourceServiceName(),
                         message.getProtocol(),

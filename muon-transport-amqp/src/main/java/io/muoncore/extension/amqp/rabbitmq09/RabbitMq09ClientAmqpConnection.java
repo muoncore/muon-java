@@ -10,6 +10,7 @@ import java.net.ConnectException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -75,9 +76,14 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
     @Override
     public void send(QueueListener.QueueMessage message) throws IOException {
 
+        log.info("Sending message on " + message.getQueueName() + " of type " + message.getEventType());
+
+        Map<String, Object> headers = new HashMap<>(message.getHeaders());
+        headers.put("eventType", message.getEventType());
+
         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
                 .contentType(message.getContentType())
-                .headers(message.getHeaders()).build();
+                .headers(headers).build();
 
         channel.basicPublish("", message.getQueueName(), props, message.getBody());
     }

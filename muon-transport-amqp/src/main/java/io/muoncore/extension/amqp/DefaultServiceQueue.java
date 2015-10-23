@@ -22,8 +22,11 @@ public class DefaultServiceQueue implements ServiceQueue {
             AmqpHandshakeMessage handshake = new AmqpHandshakeMessage(
                     fun.getHeaders().get(AMQPMuonTransport.HEADER_PROTOCOL).toString(),
                     fun.getHeaders().get(AMQPMuonTransport.HEADER_SOURCE_SERVICE).toString(),
-                    fun.getHeaders().get(AMQPMuonTransport.HEADER_REPLY_TO).toString());
+                    fun.getHeaders().get(AMQPMuonTransport.HEADER_REPLY_TO).toString(),
+                    fun.getHeaders().get(AMQPMuonTransport.HEADER_RECEIVE_QUEUE).toString());
             channelFunction.apply(handshake);
         });
+        listener.start();
+        listener.blockUntilReady();
     }
 }

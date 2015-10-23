@@ -13,14 +13,25 @@ public interface QueueListener {
     class QueueMessage {
         private String queueName;
         private byte[] body;
-        private Map<String, Object> headers;
+        private Map<String, String> headers;
         private String contentType;
+        private String eventType;
 
-        public QueueMessage(String queueName, byte[] body, Map<String, Object> headers, String contentType) {
+        public QueueMessage(String eventType, String queueName, byte[] body, Map<String, String> headers, String contentType) {
+
+            assert queueName != null;
+            assert body != null;
+            assert headers != null;
+            assert contentType != null;
+            this.eventType = eventType;
             this.queueName = queueName;
             this.body = body;
             this.headers = headers;
             this.contentType = contentType;
+        }
+
+        public String getEventType() {
+            return eventType;
         }
 
         public String getQueueName() {
@@ -31,7 +42,7 @@ public interface QueueListener {
             return body;
         }
 
-        public Map<String, Object> getHeaders() {
+        public Map<String, String> getHeaders() {
             return headers;
         }
 

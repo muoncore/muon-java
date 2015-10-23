@@ -11,18 +11,17 @@ class AmqpChannelSpec extends Specification {
         given:
         def listenerfactory = Mock(QueueListenerFactory)
         def connection = Mock(AmqpConnection)
-        def channel = new DefaultAmqpChannel(connection, listenerfactory)
+        def channel = new DefaultAmqpChannel(connection, listenerfactory, "myawesomeservice")
         def localQueue
 
         when:
-        channel.respondToHandshake(new AmqpHandshakeMessage("fakeproto", "remoteservice", "my-reply-queue"))
+        channel.respondToHandshake(new AmqpHandshakeMessage("fakeproto", "remoteservice", "my-reply-queue", "receive-queue"))
 
         then:
         1 * listenerfactory.listenOnQueue(_, _ as QueueFunction) >> { args -> localQueue = args[0]; return null}
         1 * connection.send({ QueueMessage message ->
             message.queueName == "my-reply-queue" &&
-                    message.headers[AMQPMuonTransport.HEADER_PROTOCOL] == "fakeproto" &&
-                    message.headers[AMQPMuonTransport.HEADER_REPLY_TO] == localQueue
+                    message.headers[AMQPMuonTransport.HEADER_PROTOCOL] == "fakeproto"
 
         } as QueueMessage)
     }
@@ -42,15 +41,8 @@ class AmqpChannelSpec extends Specification {
             message.queueName == "service.remoteservice" &&
                     message.headers[AMQPMuonTransport.HEADER_PROTOCOL] == "fakeproto" &&
                     message.headers[AMQPMuonTransport.HEADER_SOURCE_SERVICE] == "awesomeservice" &&
-                    message.headers[AMQPMuonTransport.HEADER_REPLY_TO] != null
+                    message.headers[AMQPMuonTransport.HEADER_REPLY_TO] != null &&
+                    message.headers[AMQPMuonTransport.HEADER_RECEIVE_QUEUE] != null
         })
-    }
-
-    def "Channel "() {
-
-
-
-        expect:
-        throw new IllegalStateException("Not tested")
     }
 }

@@ -41,7 +41,7 @@ class AMQPMuonTransportSpec extends Specification {
 
         when:
         transport.start()
-        func(new AmqpHandshakeMessage("myfakeproto", "", ""))
+        func(new AmqpHandshakeMessage("myfakeproto", "", "", ""))
 
         then:
         1 * channelFactory.createChannel() >> mockChannel
