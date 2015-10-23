@@ -32,6 +32,7 @@ public class DefaultServerProtocol implements ServerProtocolStack {
                 func.apply(new TransportOutboundMessage(
                         "errorSent",
                         message.getId() + "REPLY",
+                        message.getTargetServiceName(),
                         message.getSourceServiceName(),
                         message.getProtocol(),
                         metadata,

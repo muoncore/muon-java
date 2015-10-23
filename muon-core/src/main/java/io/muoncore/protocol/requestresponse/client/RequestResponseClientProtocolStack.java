@@ -19,7 +19,7 @@ public interface RequestResponseClientProtocolStack extends
                 new ChannelFutureAdapter<>(api2rrp.left());
 
         new RequestResponseClientProtocol<>(
-                getConfiguration().getServiceName(),
+                event.getMetaData().getTargetService(),
                 api2rrp.right(),
                 getTransportClient().openClientChannel(),
                 responseType,

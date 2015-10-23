@@ -8,23 +8,25 @@ public class TransportOutboundMessage extends TransportMessage {
 
     public TransportOutboundMessage(String type,
                                     String id,
+                                    String targetServiceName,
                                     String sourceServiceName,
                                     String protocol,
                                     Map<String, String> metadata,
                                     String contentType,
                                     byte[] payload) {
-        super(type, id, sourceServiceName, protocol, metadata, contentType, payload);
+        super(type, id, targetServiceName, sourceServiceName, protocol, metadata, contentType, payload);
     }
 
     public TransportOutboundMessage(String type,
                                     String id,
+                                    String targetServiceName,
                                     String sourceServiceName,
                                     String protocol,
                                     Map<String, String> metadata,
                                     String contentType,
                                     byte[] payload,
                                     boolean closeChannel) {
-        super(type, id, sourceServiceName, protocol, metadata, contentType, payload);
+        super(type, id, targetServiceName, sourceServiceName, protocol, metadata, contentType, payload);
         this.closeChannel = closeChannel;
     }
 
@@ -32,6 +34,7 @@ public class TransportOutboundMessage extends TransportMessage {
         return new TransportOutboundMessage(
                 getType(),
                 getId(),
+                getTargetServiceName(),
                 getSourceServiceName(),
                 protocol,
                 getMetadata(),

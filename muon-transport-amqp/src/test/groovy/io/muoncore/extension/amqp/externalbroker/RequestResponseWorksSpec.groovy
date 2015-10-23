@@ -30,7 +30,7 @@ class RequestResponseWorksSpec extends Specification {
         }, Map)
 
         when:
-        def response = svc1.request(new Request(new RequestMetaData("hello","simples","tombola"), [hello:"world"]), Map).get(1000, TimeUnit.MILLISECONDS)
+        def response = svc1.request(new Request(new RequestMetaData("hello","simples","tombola"), [hello:"world"]), Map).get(200, TimeUnit.MILLISECONDS)
 
         then:
         response != null

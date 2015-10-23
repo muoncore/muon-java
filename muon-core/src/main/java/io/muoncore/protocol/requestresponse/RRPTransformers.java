@@ -13,12 +13,18 @@ public class RRPTransformers {
     public final static String REQUEST_RESPONSE_PROTOCOL = "requestresponse";
 
     public static <T> RequestMetaData toRequestMetaData(TransportInboundMessage msg) {
-        return new RequestMetaData(msg.getMetadata().get(Request.URL), msg.getSourceServiceName());
+        return new RequestMetaData(
+                msg.getMetadata().get(Request.URL),
+                msg.getSourceServiceName(),
+                msg.getTargetServiceName());
     }
 
     public static <T> Request toRequest(TransportInboundMessage msg, Codecs codecs, Class<T> type) {
         Request ret = new Request<>(
-                new RequestMetaData(msg.getMetadata().get(Request.URL), msg.getSourceServiceName()),
+                new RequestMetaData(
+                        msg.getMetadata().get(Request.URL),
+                        msg.getSourceServiceName(),
+                        msg.getTargetServiceName()),
                 codecs.decode(msg.getPayload(), msg.getContentType(), type)
         );
         ret.setId(msg.getId());
@@ -47,6 +53,7 @@ public class RRPTransformers {
         return new TransportOutboundMessage(
                 "requestMade",
                 request.getId(),
+                request.getMetaData().getTargetService(),
                 thisService,
                 REQUEST_RESPONSE_PROTOCOL,
                 metadata,
@@ -69,6 +76,7 @@ public class RRPTransformers {
         return new TransportOutboundMessage(
                 "responseSent",
                 response.getId(),
+                "FAKEDTODO",
                 thisService,
                 REQUEST_RESPONSE_PROTOCOL,
                 metadata,

@@ -5,6 +5,7 @@ import java.util.Map;
 public class TransportMessage {
     private String eventType;
     private String id;
+    private String targetServiceName;
     private String sourceServiceName;
     private String protocol;
     private Map<String, String> metadata;
@@ -13,11 +14,13 @@ public class TransportMessage {
 
     public TransportMessage(String type,
                             String id,
+                            String targetServiceName,
                             String sourceServiceName,
                             String protocol,
                             Map<String, String> metadata,
                             String contentType,
                             byte[] payload) {
+        this.targetServiceName = targetServiceName;
         this.eventType = type;
         this.id = id;
         this.sourceServiceName = sourceServiceName;
@@ -25,6 +28,10 @@ public class TransportMessage {
         this.metadata = metadata;
         this.payload = payload;
         this.contentType = contentType;
+    }
+
+    public String getTargetServiceName() {
+        return targetServiceName;
     }
 
     public String getType() {

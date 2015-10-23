@@ -6,11 +6,12 @@ public class TransportInboundMessage extends TransportMessage {
     public TransportInboundMessage(
             String type,
             String id,
+            String targetServiceName,
             String sourceServiceName,
             String protocol,
             Map<String, String> metadata,
             String contentType,
             byte[] payload) {
-        super(type, id, sourceServiceName, protocol, metadata, contentType, payload);
+        super(type, id, targetServiceName, sourceServiceName, protocol, metadata, contentType, payload);
     }
 }

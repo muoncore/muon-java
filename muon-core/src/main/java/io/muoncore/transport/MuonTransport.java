@@ -3,6 +3,7 @@ package io.muoncore.transport;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.exception.NoSuchServiceException;
+import io.muoncore.protocol.ServerStacks;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,7 +12,7 @@ public interface MuonTransport {
 
     void shutdown();
 
-    void start() throws MuonTransportFailureException;
+    void start(ServerStacks serverStacks) throws MuonTransportFailureException;
 
     String getUrlScheme();
 

@@ -8,7 +8,6 @@ import io.muoncore.protocol.ServerRegistrar;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.protocol.defaultproto.DefaultServerProtocol;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
-import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.RequestMetaData;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.protocol.requestresponse.server.*;
@@ -46,8 +45,11 @@ public class SingleTransportMuon implements Muon
         this.registrar = stacks;
         this.codecs = new JsonOnlyCodecs();
 
-        initServerStacks(stacks);
         initDefaultRequestHandler();
+
+        initServerStacks(stacks);
+
+        transport.start(stacks);
     }
 
     private void initServerStacks(DynamicRegistrationServerStacks stacks) {
