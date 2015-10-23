@@ -17,6 +17,7 @@ public class AmqpMessageTransformers {
         Map<String, String> headers = new HashMap<>();
         headers.put("id", message.getId());
         headers.put("sourceService", message.getSourceServiceName());
+        headers.put("targetService", message.getTargetServiceName());
         headers.put("protocol", message.getProtocol());
         headers.putAll(message.getMetadata());
 
@@ -30,6 +31,7 @@ public class AmqpMessageTransformers {
         return new TransportInboundMessage(
                 message.getEventType(),
                 message.getHeaders().get("id").toString(),
+                message.getHeaders().get("targetService").toString(),
                 message.getHeaders().get("sourceService").toString(),
                 message.getHeaders().get("protocol").toString(),
                 metadata,

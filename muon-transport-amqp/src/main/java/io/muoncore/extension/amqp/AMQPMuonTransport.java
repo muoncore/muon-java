@@ -32,14 +32,12 @@ public class AMQPMuonTransport implements MuonTransport {
     public AMQPMuonTransport(
             String url,
             String localServiceName,
-            ServerStacks stacks,
             ServiceQueue serviceQueue,
             AmqpChannelFactory channelFactory) {
         channels = new ArrayList<>();
         this.channelFactory = channelFactory;
         this.rabbitUrl = url;
         this.localServiceName = localServiceName;
-        this.serverStacks = stacks;
         this.serviceQueue = serviceQueue;
 
         log.info("Connecting to AMQP host at " + rabbitUrl);
@@ -58,7 +56,8 @@ public class AMQPMuonTransport implements MuonTransport {
         return channel;
     }
 
-    public void start() {
+    public void start(ServerStacks serverStacks) {
+        this.serverStacks = serverStacks;
         serviceQueue.onHandshake( handshake -> {
             AmqpChannel channel = channelFactory.createChannel();
             channel.respondToHandshake(handshake);
