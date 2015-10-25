@@ -3,6 +3,7 @@ package io.muoncore.spring.integration.setup;
 import io.muoncore.spring.annotations.MuonCommandListener;
 import io.muoncore.spring.annotations.MuonController;
 import io.muoncore.spring.annotations.MuonQueryListener;
+import io.muoncore.spring.annotations.MuonStreamListener;
 import io.muoncore.spring.annotations.parameterhandlers.Parameter;
 
 @MuonController
@@ -11,6 +12,7 @@ public class MuonTestController {
     private String expectedPersonName;
     private Person responsePerson;
     private Person addedPerson;
+    private Person receivedStreamEvent;
 
     @MuonQueryListener(path = "/queryName")
     public Person getPerson(@Parameter("personName") String personName) {
@@ -25,6 +27,11 @@ public class MuonTestController {
     @MuonCommandListener(path = "/commandName")
     public void addPerson(Person person) {
         addedPerson = person;
+    }
+
+    @MuonStreamListener(url = "muon://streamService/stream")
+    public void streamUpdate(Person personStreamEvent) {
+        receivedStreamEvent = personStreamEvent;
     }
 
     public Person getResponsePerson() {
@@ -49,5 +56,9 @@ public class MuonTestController {
 
     public void setAddedPerson(Person addedPerson) {
         this.addedPerson = addedPerson;
+    }
+
+    public Person getReceivedStreamEvent() {
+        return receivedStreamEvent;
     }
 }

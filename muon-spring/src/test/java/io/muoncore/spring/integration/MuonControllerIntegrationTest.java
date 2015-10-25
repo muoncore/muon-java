@@ -18,8 +18,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import reactor.rx.broadcast.Broadcaster;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -50,6 +52,7 @@ public class MuonControllerIntegrationTest {
     private ArgumentCaptor<Class> typeCaptor;
     private ArgumentCaptor<MuonService.MuonQuery> muonQueryListenerCaptor;
     private ArgumentCaptor<MuonService.MuonCommand> muonCommandListenerCaptor;
+    private ArgumentCaptor<Broadcaster> streamBroadcaster;
 
     @Before
     public void setUp() throws Exception {
@@ -57,11 +60,13 @@ public class MuonControllerIntegrationTest {
         typeCaptor = ArgumentCaptor.forClass(Class.class);
         muonQueryListenerCaptor = ArgumentCaptor.forClass(MuonService.MuonQuery.class);
         muonCommandListenerCaptor = ArgumentCaptor.forClass(MuonService.MuonCommand.class);
+        streamBroadcaster = ArgumentCaptor.forClass(Broadcaster.class);
     }
 
     @Test
     public void processesMuonQueries() throws ExecutionException, InterruptedException {
-        verify(muon, times(1)).onQuery(resourceNameCaptor.capture(), typeCaptor.capture(), muonQueryListenerCaptor.capture());
+
+        verifyMuonQuerySetupProcess();
         assertThat(resourceNameCaptor.getValue(), is("/queryName"));
         assertThat(typeCaptor.getValue(), equalTo(Object.class));
 
@@ -74,15 +79,38 @@ public class MuonControllerIntegrationTest {
         assertThat(personFuture.get(), is(PETER));
     }
 
+    private void verifyMuonQuerySetupProcess() {
+        verify(muon, times(1)).onQuery(resourceNameCaptor.capture(), typeCaptor.capture(), muonQueryListenerCaptor.capture());
+    }
+
     @Test
     public void processesMuonCommands() throws ExecutionException, InterruptedException {
-        verify(muon, times(1)).onCommand(resourceNameCaptor.capture(), typeCaptor.capture(), muonCommandListenerCaptor.capture());
+        verifyMuonCommandSetupProcess();
         assertThat(resourceNameCaptor.getValue(), is("/commandName"));
         assertThat(typeCaptor.getValue(), equalTo(Person.class));
 
         muonCommandListenerCaptor.getValue().onCommand(sampleCommandEvent());
 
         assertThat(testController.getAddedPerson(), is(MIKE));
+    }
+
+    private void verifyMuonCommandSetupProcess() {
+        verify(muon, times(1)).onCommand(resourceNameCaptor.capture(), typeCaptor.capture(), muonCommandListenerCaptor.capture());
+    }
+
+    @Test
+    public void processesMuonStreams() throws URISyntaxException {
+        verifyMuonStreamSetupProcess();
+        assertThat(resourceNameCaptor.getValue(), is("muon://streamService/stream"));
+        assertThat(typeCaptor.getValue(), equalTo(Person.class));
+
+        streamBroadcaster.getValue().onNext(MIKE);
+
+        assertThat(testController.getReceivedStreamEvent(), is(MIKE));
+    }
+
+    private void verifyMuonStreamSetupProcess() throws URISyntaxException {
+        verify(muon, times(1)).subscribe(resourceNameCaptor.capture(), typeCaptor.capture(), streamBroadcaster.capture());
     }
 
     private MuonResourceEvent<Map> sampleQueryEvent() {

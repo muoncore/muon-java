@@ -1,6 +1,5 @@
 package io.muoncore.spring.methodinvocation;
 
-import io.muoncore.spring.methodinvocation.parameterhandlers.MethodArgumentTransformer;
 import io.muoncore.spring.methodinvocation.parameterhandlers.PassThroughArgumentTransformer;
 
 import java.lang.reflect.Method;
@@ -14,6 +13,7 @@ public class MuonStreamMethodInvocation extends AbstractMuonMethodInvocation<Obj
     }
 
     private void initArgumentTransformers() {
+        //TODO Shall we support invocations with parameterCount == 0?
         if (method.getParameterCount() > 1) {
             throw new IllegalStateException("Streaming subscription handles should have only one parameter, event object");
         }
