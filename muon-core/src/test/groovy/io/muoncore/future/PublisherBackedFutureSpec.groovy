@@ -1,4 +1,4 @@
-package io.muoncore.crud.internal
+package io.muoncore.future
 
 import io.muoncore.future.MuonFuture
 import io.muoncore.future.PublisherBackedFuture
@@ -7,7 +7,7 @@ import reactor.rx.broadcast.Broadcaster
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
-class PublisherBackedPromiseSpec extends Specification {
+class PublisherBackedFutureSpec extends Specification {
 
   def "promise can be used in a stream"() {
     given:
