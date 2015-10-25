@@ -22,12 +22,12 @@ public class RequestResponseClientProtocol<X,R> {
             String serviceName,
             final ChannelConnection<Response<R>, Request<X>> leftChannelConnection,
             final ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection,
-            final Class<R> type,
+            final Class<R> responseType,
             final Codecs codecs) {
 
         rightChannelConnection.receive( message -> {
             leftChannelConnection.send(
-                RRPTransformers.toResponse(message, codecs, type));
+                RRPTransformers.toResponse(message, codecs, responseType));
         });
 
         leftChannelConnection.receive(request -> {
