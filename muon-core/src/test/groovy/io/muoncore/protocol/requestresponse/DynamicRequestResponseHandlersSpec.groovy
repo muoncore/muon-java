@@ -28,7 +28,7 @@ class DynamicRequestResponseHandlersSpec extends Specification {
         }))
 
         expect:
-        registry.findHandler(new RequestMetaData("hello", "sourceservice")).id == 3
+        registry.findHandler(new RequestMetaData("hello", "sourceservice", "target")).id == 3
 
     }
 
@@ -44,7 +44,7 @@ class DynamicRequestResponseHandlersSpec extends Specification {
         }))
 
         expect:
-        registry.findHandler(new RequestMetaData("hello","sourceservice")).id == 8
+        registry.findHandler(new RequestMetaData("hello","sourceservice", "target")).id == 8
 
     }
 }

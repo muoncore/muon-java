@@ -51,7 +51,15 @@ class EventClientProtocolStackSpec extends Specification {
 
         Thread.start {
             Thread.sleep(100)
-            capturedFunction(new TransportInboundMessage("myId", "simples", "myChannel"))
+            capturedFunction(new TransportInboundMessage(
+                    "somethingHappened",
+                    "id",
+                    "targetService",
+                    "sourceServiceName",
+                    "fakeproto",
+                    [:],
+                    "text/plain",
+                    new byte[0]))
         }
 
         sleep(50)

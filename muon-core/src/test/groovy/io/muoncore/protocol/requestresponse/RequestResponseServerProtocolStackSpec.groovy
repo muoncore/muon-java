@@ -83,6 +83,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
                 "somethingHappened",
                 id,
                 service,
+                "local",
                 protocol,
                 [:],
                 "application/json",

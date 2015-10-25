@@ -32,6 +32,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
         when:
         connection.send(outbound("mymessage", "myService1", "requestresponse"))
+        connection.send(outbound("mymessage", "myService1", "requestresponse"))
         connection.send(outbound("mymessage", "myService2", "requestresponse"))
         connection.send(outbound("mymessage", "myService3", "requestresponse"))
         connection.send(outbound("mymessage", "myService1", "wibble"))
@@ -97,6 +98,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
                 "somethingHappened",
                 id,
                 service,
+                "localservice",
                 protocol,
                 [:],
                 "application/json",
@@ -108,6 +110,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
                 "somethingHappened",
                 id,
                 service,
+                "localservice",
                 protocol,
                 [:],
                 "application/json",

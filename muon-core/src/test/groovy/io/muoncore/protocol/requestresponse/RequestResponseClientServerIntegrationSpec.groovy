@@ -13,12 +13,13 @@ import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportOutboundMessage
 import io.muoncore.transport.client.TransportClient
 import spock.lang.Specification
+import spock.lang.Timeout
 
 import java.util.function.Predicate
 
 class RequestResponseClientServerIntegrationSpec extends Specification {
 
-//    @Timeout(2)
+    @Timeout(2)
     def "client and server can communicate"() {
         given:
 
@@ -42,7 +43,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
             @Override
             Predicate<RequestMetaData> getPredicate() {
                 return {
-                    it.sourceService == "tombola"
+                    it.targetService == "remote"
                 }
             }
 
@@ -69,6 +70,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                     new TransportInboundMessage(
                             msg.type,
                             msg.id,
+                            msg.targetServiceName,
                             msg.sourceServiceName,
                             msg.protocol,
                             msg.metadata,
@@ -77,6 +79,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                 },
                 { TransportOutboundMessage msg ->
                     new TransportInboundMessage(msg.type, msg.id,
+                            msg.targetServiceName,
                             msg.sourceServiceName,
                             msg.protocol,
                             msg.metadata,
@@ -102,13 +105,13 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
 
             @Override
             AutoConfiguration getConfiguration() {
-                return new AutoConfiguration(serviceName: "tombola")
+                return new AutoConfiguration(serviceName: "remote")
             }
         }
 
         when:
         Response response = client.request(
-                new Request(new RequestMetaData("myapp", "someservice"), [message:"yoyo"]), Map).get()
+                new Request(new RequestMetaData("myapp", "someservice", "remote"), [message:"yoyo"]), Map).get()
 
         then:
         response.status == 200

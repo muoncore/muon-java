@@ -28,7 +28,7 @@ class RequestResponseClientProtocolSpec extends Specification {
                 new JsonOnlyCodecs())
 
         when:
-        leftChannel.left().send(new Request(new RequestMetaData("url","service"),[:]))
+        leftChannel.left().send(new Request(new RequestMetaData("url","service", "remote"),[:]))
 
         then:
         new PollingConditions().eventually {

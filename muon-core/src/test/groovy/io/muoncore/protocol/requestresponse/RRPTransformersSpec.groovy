@@ -49,7 +49,7 @@ class RRPTransformersSpec extends Specification {
     }
 
     Request request() {
-        new Request(new RequestMetaData("simples", "myservice"), [:])
+        new Request(new RequestMetaData("simples", "myservice", "remote"), [:])
     }
     Response response() {
         new Response(200, [message:"hello"])
@@ -59,6 +59,7 @@ class RRPTransformersSpec extends Specification {
         new TransportInboundMessage(
                 "somethingHappened",
                 "1234",
+                "remoteService",
                 "myservice",
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [(Response.STATUS):"200"],
@@ -70,6 +71,7 @@ class RRPTransformersSpec extends Specification {
         new TransportInboundMessage(
                 "somethingHappened",
                 "1234",
+                "remoteService",
                 "myservice",
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [(Request.URL):"hello"],
@@ -80,6 +82,7 @@ class RRPTransformersSpec extends Specification {
 
     TransportOutboundMessage outbound() {
         new TransportOutboundMessage("somethingHappened","1234",
+                "remoteService",
                 "myservice",
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [:],

@@ -22,8 +22,8 @@ class EstablishChannelSpec extends Specification {
         AMQPMuonTransport svc1 = createTransport("service1", serverStacks1)
         AMQPMuonTransport svc2 = createTransport("tombola", serverStacks2)
 
-        svc2.start()
-        svc1.start()
+        svc2.start(serverStacks2)
+        svc1.start(serverStacks1)
 
         when:
         def channel = svc1.openClientChannel("tombola", "requestresponse")
@@ -31,6 +31,7 @@ class EstablishChannelSpec extends Specification {
         channel.send(new TransportOutboundMessage(
                 "somethingHappened",
                 "1",
+                "remoteService",
                 "tombola",
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [:],
@@ -50,7 +51,7 @@ class EstablishChannelSpec extends Specification {
         def channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection)
 
         def svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceName, serverStacks, serviceQueue, channelFactory)
+                "amqp://muon:microservices@localhost", serviceName, serviceQueue, channelFactory)
         svc1
     }
 }

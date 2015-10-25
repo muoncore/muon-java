@@ -12,11 +12,11 @@ class AMQPMuonTransportSpec extends Specification {
         def serviceQueue = Mock(ServiceQueue)
         def channelFactory = Mock(AmqpChannelFactory)
         def transport = new AMQPMuonTransport(
-            "url", "myService", serverStacks, serviceQueue, channelFactory
+            "url", "myService", serviceQueue, channelFactory
         )
 
         when:
-        transport.start()
+        transport.start(serverStacks)
 
         then:
         1 * serviceQueue.onHandshake(_)
@@ -35,12 +35,12 @@ class AMQPMuonTransportSpec extends Specification {
         }
         def channelFactory = Mock(AmqpChannelFactory)
         def transport = new AMQPMuonTransport(
-                "url", "myService", serverStacks, serviceQueue, channelFactory
+                "url", "myService", serviceQueue, channelFactory
         )
         Thread.sleep(50)
 
         when:
-        transport.start()
+        transport.start(serverStacks)
         func(new AmqpHandshakeMessage("myfakeproto", "", "", ""))
 
         then:
@@ -55,12 +55,12 @@ class AMQPMuonTransportSpec extends Specification {
         def serviceQueue = Mock(ServiceQueue)
         def channelFactory = Mock(AmqpChannelFactory)
         def transport = new AMQPMuonTransport(
-                "url", "myService", serverStacks, serviceQueue, channelFactory
+                "url", "myService", serviceQueue, channelFactory
         )
         Thread.sleep(50)
 
         when:
-        transport.start()
+        transport.start(serverStacks)
         transport.openClientChannel("someRemoteService", "fakeproto")
 
         then:

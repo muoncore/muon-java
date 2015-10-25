@@ -15,7 +15,6 @@ class AmqpMessageTransformersSpec extends Specification {
         queueMessage != null
         queueMessage.queueName == "myQueue"
         queueMessage.contentType == outbound().contentType
-        queueMessage.headers == outbound().contentType
 
     }
 
@@ -27,6 +26,7 @@ class AmqpMessageTransformersSpec extends Specification {
         new TransportOutboundMessage(
                 "somethingHappened",
                 "123",
+                "theirService",
                 "myService",
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [:],
@@ -37,6 +37,7 @@ class AmqpMessageTransformersSpec extends Specification {
         new TransportInboundMessage(
                 "somethingHappened",
                 "123",
+                "theirService",
                 "myService",
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [:],
