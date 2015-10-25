@@ -19,8 +19,8 @@ class EstablishChannelSpec extends Specification {
 
     def "two transports can establish an AMQP channel between them"() {
 
-        AMQPMuonTransport svc1 = createTransport("service1", serverStacks1)
-        AMQPMuonTransport svc2 = createTransport("tombola", serverStacks2)
+        AMQPMuonTransport svc1 = createTransport("service1")
+        AMQPMuonTransport svc2 = createTransport("tombola")
 
         svc2.start(serverStacks2)
         svc1.start(serverStacks1)
@@ -41,9 +41,13 @@ class EstablishChannelSpec extends Specification {
 
         then:
         1 * serverStacks2.openServerChannel("requestresponse") >> Mock(ChannelConnection)
+
+        cleanup:
+        svc1.shutdown()
+        svc2.shutdown()
     }
 
-    private AMQPMuonTransport createTransport(serviceName, serverStacks) {
+    private AMQPMuonTransport createTransport(serviceName) {
 
         def connection = new RabbitMq09ClientAmqpConnection("amqp://muon:microservices@localhost")
         def queueFactory = new RabbitMq09QueueListenerFactory(connection.channel)
@@ -51,7 +55,7 @@ class EstablishChannelSpec extends Specification {
         def channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection)
 
         def svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceName, serviceQueue, channelFactory)
+                "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
         svc1
     }
 }

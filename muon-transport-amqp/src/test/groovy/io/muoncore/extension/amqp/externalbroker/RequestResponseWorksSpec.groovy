@@ -36,6 +36,10 @@ class RequestResponseWorksSpec extends Specification {
         response != null
         response.status == 200
         response.payload.hi == "there"
+
+        cleanup:
+        svc1.shutdown()
+        svc2.shutdown()
     }
 
     private Muon createMuon(serviceName) {
@@ -46,7 +50,7 @@ class RequestResponseWorksSpec extends Specification {
         def channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection)
 
         def svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceName, serviceQueue, channelFactory)
+                "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
 
         def config = new AutoConfiguration(serviceName:serviceName)
         def muon = new SingleTransportMuon(config, discovery, svc1)

@@ -15,6 +15,11 @@ public class DefaultServiceQueue implements ServiceQueue {
     }
 
     @Override
+    public void shutdown() {
+        listener.cancel();
+    }
+
+    @Override
     public void onHandshake(ChannelConnection.ChannelFunction<AmqpHandshakeMessage> channelFunction) {
         if (listener != null) throw new IllegalStateException("QueueListener already has a handshake.");
 

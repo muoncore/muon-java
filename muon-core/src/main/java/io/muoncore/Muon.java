@@ -14,4 +14,5 @@ public interface Muon extends
         RequestResponseClientProtocolStack,
         RequestResponseServerHandlerApi {
 
+        void shutdown();
 }

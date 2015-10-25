@@ -12,7 +12,7 @@ class AMQPMuonTransportSpec extends Specification {
         def serviceQueue = Mock(ServiceQueue)
         def channelFactory = Mock(AmqpChannelFactory)
         def transport = new AMQPMuonTransport(
-            "url", "myService", serviceQueue, channelFactory
+            "url", serviceQueue, channelFactory
         )
 
         when:
@@ -35,7 +35,7 @@ class AMQPMuonTransportSpec extends Specification {
         }
         def channelFactory = Mock(AmqpChannelFactory)
         def transport = new AMQPMuonTransport(
-                "url", "myService", serviceQueue, channelFactory
+                "url", serviceQueue, channelFactory
         )
         Thread.sleep(50)
 
@@ -55,7 +55,7 @@ class AMQPMuonTransportSpec extends Specification {
         def serviceQueue = Mock(ServiceQueue)
         def channelFactory = Mock(AmqpChannelFactory)
         def transport = new AMQPMuonTransport(
-                "url", "myService", serviceQueue, channelFactory
+                "url", serviceQueue, channelFactory
         )
         Thread.sleep(50)
 
@@ -67,11 +67,4 @@ class AMQPMuonTransportSpec extends Specification {
         1 * channelFactory.createChannel() >> mockChannel
         1 * mockChannel.initiateHandshake("someRemoteService", "fakeproto")
     }
-
-    def "on shutdown, closes all channels with poison pills in both directions"() {
-
-        expect:
-        throw new IllegalStateException("Not implemented")
-    }
-
 }

@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 public class SingleTransportMuon implements Muon
 {
 
-    private TransportClient transportClient;
+    private SingleTransportClient transportClient;
     private Discovery discovery;
     private ServerStacks protocols;
     private ServerRegistrar registrar;
@@ -102,14 +102,8 @@ public class SingleTransportMuon implements Muon
         return configuration;
     }
 
-    //
-//    public static void main(String[] args) {
-//        SingleTransportMuon muon = new SingleTransportMuon(discover, amqpTransport);
-//
-//        muon.handleRequest(
-//                request -> request.getUrl().startsWith("/hello"),
-//                requestWrapper -> {
-//            requestWrapper.answer(new Response(requestWrapper.getRequest().getId(), "hello"));
-//        });
-//    }
+    @Override
+    public void shutdown() {
+        transportClient.shutdown();
+    }
 }

@@ -86,6 +86,11 @@ public class DefaultAmqpChannel implements AmqpChannel {
     }
 
     @Override
+    public void shutdown() {
+        connection.close();
+    }
+
+    @Override
     public void receive(ChannelFunction<TransportInboundMessage> function) {
         this.function = function;
     }

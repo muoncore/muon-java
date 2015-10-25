@@ -4,4 +4,5 @@ import io.muoncore.channel.ChannelConnection;
 
 public interface ServiceQueue {
     void onHandshake(ChannelConnection.ChannelFunction<AmqpHandshakeMessage> channelFunction);
+    void shutdown();
 }
