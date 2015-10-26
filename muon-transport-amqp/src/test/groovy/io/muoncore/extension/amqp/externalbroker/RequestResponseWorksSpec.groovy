@@ -8,8 +8,6 @@ import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
-import io.muoncore.protocol.requestresponse.Request
-import io.muoncore.protocol.requestresponse.RequestMetaData
 import io.muoncore.protocol.requestresponse.Response
 import spock.lang.Specification
 
@@ -30,7 +28,7 @@ class RequestResponseWorksSpec extends Specification {
         }, Map)
 
         when:
-        def response = svc1.request(new Request(new RequestMetaData("hello","simples","tombola"), [hello:"world"]), Map).get(500, TimeUnit.MILLISECONDS)
+        def response = svc1.request("muon://tombola/hello", [hello:"world"], Map).get(500, TimeUnit.MILLISECONDS)
 
         then:
         response != null
