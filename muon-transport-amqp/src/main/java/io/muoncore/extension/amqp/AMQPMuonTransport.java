@@ -2,6 +2,7 @@ package io.muoncore.extension.amqp;
 
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
+import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.TransportInboundMessage;
@@ -70,7 +71,11 @@ public class AMQPMuonTransport implements MuonTransport {
     }
 
     @Override
-    public URI getLocalConnectionURI() throws URISyntaxException {
-        return new URI(rabbitUrl);
+    public URI getLocalConnectionURI() {
+        try {
+            return new URI(rabbitUrl);
+        } catch (URISyntaxException e) {
+            throw new MuonTransportFailureException("Invalid URI is provided: " + rabbitUrl, e);
+        }
     }
 }

@@ -13,11 +13,11 @@ public class ServiceDescriptor {
     public ServiceDescriptor(String identifier,
                              List<String> tags,
                              List<String> codecs,
-                             List<URI> streamConnectionUrls) {
+                             List<URI> connectionUrls) {
         this.identifier = identifier;
         this.tags = tags;
         this.codecs = codecs;
-        this.connectionUrls = streamConnectionUrls;
+        this.connectionUrls = connectionUrls;
     }
 
     public List<String> getCodecs() {

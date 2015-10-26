@@ -6,7 +6,6 @@ import io.muoncore.exception.NoSuchServiceException;
 import io.muoncore.protocol.ServerStacks;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 public interface MuonTransport {
 
@@ -16,7 +15,7 @@ public interface MuonTransport {
 
     String getUrlScheme();
 
-    URI getLocalConnectionURI() throws URISyntaxException;
+    URI getLocalConnectionURI();
 
     ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel(
             String serviceName,

@@ -15,6 +15,7 @@ import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.client.SingleTransportClient;
 import io.muoncore.transport.client.TransportClient;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -50,6 +51,13 @@ public class SingleTransportMuon implements Muon
         initServerStacks(stacks);
 
         transport.start(stacks);
+
+        discovery.advertiseLocalService(new ServiceDescriptor(
+                configuration.getServiceName(),
+                configuration.getTags(),
+                codecs.getAvailableCodecs(),
+                Collections.singletonList(transport.getLocalConnectionURI()
+                )));
     }
 
     private void initServerStacks(DynamicRegistrationServerStacks stacks) {
