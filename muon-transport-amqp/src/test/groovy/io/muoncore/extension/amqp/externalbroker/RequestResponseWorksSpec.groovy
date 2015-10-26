@@ -13,6 +13,8 @@ import spock.lang.Specification
 
 import java.util.concurrent.TimeUnit
 
+import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
+
 class RequestResponseWorksSpec extends Specification {
 
     def discovery = Mock(Discovery)
@@ -22,7 +24,7 @@ class RequestResponseWorksSpec extends Specification {
         def svc1 = createMuon("simples")
         def svc2 = createMuon("tombola")
 
-        svc2.handleRequest({ true }, {
+        svc2.handleRequest(all(), {
             it.request.id
             it.answer(new Response(200, [hi:"there"]))
         }, Map)
