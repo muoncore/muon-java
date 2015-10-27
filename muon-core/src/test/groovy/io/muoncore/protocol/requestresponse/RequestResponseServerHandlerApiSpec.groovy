@@ -1,7 +1,5 @@
 package io.muoncore.protocol.requestresponse
-
 import io.muoncore.protocol.requestresponse.server.RequestResponseHandlers
-import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandler
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandlerApi
 import spock.lang.Specification
 
@@ -22,7 +20,7 @@ class RequestResponseServerHandlerApiSpec extends Specification {
         }
 
         when:
-        requestResponseServerHandlerApi.handleRequest(predicate, handler, Map)
+        requestResponseServerHandlerApi.handleRequest(predicate, Map, handler)
 
         then:
         1 * requestResponseHandlers.addHandler(_)
