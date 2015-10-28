@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MuonControllerIntegrationTest.class, loader = AnnotationConfigContextLoader.class)
 @Configuration
-@EnableMuonControllers
+@EnableMuonControllers(streamKeepAliveTimeout = 500)
 @Import(MockedMuonConfiguration.class)
 @ComponentScan(basePackages = "io.muoncore.spring.integration.setup")
 public class MuonControllerIntegrationTest {
@@ -100,7 +100,7 @@ public class MuonControllerIntegrationTest {
 
     @Test
     public void processesMuonStreams() throws URISyntaxException {
-        verifyMuonStreamSetupProcess();
+        verifyMuonStreamSetupProcess(1);
         assertThat(resourceNameCaptor.getValue(), is("muon://streamService/stream"));
         assertThat(typeCaptor.getValue(), equalTo(Person.class));
 
@@ -109,8 +109,21 @@ public class MuonControllerIntegrationTest {
         assertThat(testController.getReceivedStreamEvent(), is(MIKE));
     }
 
-    private void verifyMuonStreamSetupProcess() throws URISyntaxException {
-        verify(muon, times(1)).subscribe(resourceNameCaptor.capture(), typeCaptor.capture(), streamBroadcaster.capture());
+    private void verifyMuonStreamSetupProcess(int streamSubscriptions) throws URISyntaxException {
+        verify(muon, times(streamSubscriptions)).subscribe(resourceNameCaptor.capture(), typeCaptor.capture(), streamBroadcaster.capture());
+    }
+
+    @Test
+    public void reconnectsStreamOnError() throws URISyntaxException, InterruptedException {
+        verifyMuonStreamSetupProcess(1);
+        streamBroadcaster.getValue().onError(new Exception());
+
+        Thread.sleep(1000);
+
+        verifyMuonStreamSetupProcess(2);
+        assertThat(resourceNameCaptor.getValue(), is("muon://streamService/stream"));
+        assertThat(typeCaptor.getValue(), equalTo(Person.class));
+
     }
 
     private MuonResourceEvent<Map> sampleQueryEvent() {

@@ -10,9 +10,9 @@ import org.springframework.core.type.AnnotationMetadata;
 
 import java.util.Map;
 
-public class MuonBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
+public class MuonConfigurationHolderBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
-    public static final String MUON_BEAN_NAME = "muon";
+    public static final String MUON_CONFIGURATION_HOLDER_BEAN_NAME = "muonConfigurationHolder";
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
@@ -21,12 +21,12 @@ public class MuonBeanDefinitionRegistrar implements ImportBeanDefinitionRegistra
         if (serviceNameCandidate != null && String.class == serviceNameCandidate.getClass()) {
             String serviceName = (String) serviceNameCandidate;
             BeanDefinitionBuilder definition = BeanDefinitionBuilder
-                    .genericBeanDefinition(MuonFactoryBean.class);
+                    .genericBeanDefinition(MuonConfigurationHolderFactoryBean.class);
             definition.addPropertyValue("serviceName", serviceName);
             definition.addPropertyValue("tags", annotationAttributes.get("tags"));
             definition.addPropertyValue("discoveryUrl", annotationAttributes.get("discoveryUrl"));
             BeanDefinitionReaderUtils.registerBeanDefinition(
-                    new BeanDefinitionHolder(definition.getBeanDefinition(), MUON_BEAN_NAME), registry);
+                    new BeanDefinitionHolder(definition.getBeanDefinition(), MUON_CONFIGURATION_HOLDER_BEAN_NAME), registry);
         }
 
     }

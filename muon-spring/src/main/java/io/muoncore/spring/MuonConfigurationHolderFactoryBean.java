@@ -1,13 +1,11 @@
 package io.muoncore.spring;
 
-import io.muoncore.Muon;
-import io.muoncore.config.MuonBuilder;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.util.StringValueResolver;
 import reactor.core.support.Assert;
 
-public class MuonFactoryBean implements FactoryBean<Muon>, EmbeddedValueResolverAware {
+public class MuonConfigurationHolderFactoryBean implements FactoryBean<MuonConfigurationHolder>, EmbeddedValueResolverAware {
     private StringValueResolver embeddedValueResolver;
 
     private String serviceName;
@@ -20,26 +18,13 @@ public class MuonFactoryBean implements FactoryBean<Muon>, EmbeddedValueResolver
     }
 
     @Override
-    public Muon getObject() throws Exception {
+    public MuonConfigurationHolder getObject() throws Exception {
         Assert.notNull(serviceName);
         String resolvedServiceName = embeddedValueResolver.resolveStringValue(serviceName);
         String resolvedTags[] = resolveTags(tags);
         String resolvedDiscoveryUrl = embeddedValueResolver.resolveStringValue(discoveryUrl);
-        MuonBuilder.addWriter(new SpringBasedConfigurationWriter(resolvedDiscoveryUrl));
-        MuonBuilder muonBuilder = new MuonBuilder()
-                .withServiceIdentifier(resolvedServiceName);
-        if (resolvedTags != null) {
-            muonBuilder.withTags(resolvedTags);
-        }
-        final Muon muon = muonBuilder
-                .build();
 
-        muon.start();
-
-        //TODO Move this to a lifecycle event
-        Thread.sleep(6000);
-
-        return muon;
+        return new MuonConfigurationHolder(resolvedServiceName, resolvedTags, resolvedDiscoveryUrl);
     }
 
     private String[] resolveTags(String[] tags) {
@@ -55,7 +40,7 @@ public class MuonFactoryBean implements FactoryBean<Muon>, EmbeddedValueResolver
 
     @Override
     public Class<?> getObjectType() {
-        return Muon.class;
+        return MuonConfigurationHolder.class;
     }
 
 

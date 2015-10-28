@@ -1,6 +1,7 @@
 package io.muoncore.spring.mapping;
 
 import io.muoncore.Muon;
+import io.muoncore.spring.controllers.MuonControllersConfigurationHolder;
 import io.muoncore.spring.methodinvocation.MuonStreamMethodInvocation;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -10,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class MuonStreamSubscriptionService {
 
@@ -19,6 +19,9 @@ public class MuonStreamSubscriptionService {
 
     @Autowired
     private Muon muon;
+
+    @Autowired
+    private MuonControllersConfigurationHolder muonControllersConfigurationHolder;
 
     @PostConstruct
     public void startMonitoring() {
@@ -35,7 +38,9 @@ public class MuonStreamSubscriptionService {
                     }
                 }
             }
-        }, 10, 10, TimeUnit.SECONDS);
+        }, muonControllersConfigurationHolder.getStreamKeepAliveTimeout(),
+                muonControllersConfigurationHolder.getStreamKeepAliveTimeout(),
+                muonControllersConfigurationHolder.getTimeUnit());
     }
 
     public void setupMuonMapping(String streamUrl, final MuonStreamMethodInvocation muonStreamMethodInvocation) {
