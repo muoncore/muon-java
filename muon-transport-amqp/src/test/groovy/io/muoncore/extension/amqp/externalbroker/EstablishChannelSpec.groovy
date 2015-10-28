@@ -10,8 +10,10 @@ import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import io.muoncore.protocol.ServerStacks
 import io.muoncore.protocol.requestresponse.RRPTransformers
 import io.muoncore.transport.TransportOutboundMessage
+import spock.lang.IgnoreIf
 import spock.lang.Specification
 
+@IgnoreIf({ System.getenv("BUILD_NUMBER") })
 class EstablishChannelSpec extends Specification {
 
     def serverStacks1 = Mock(ServerStacks)

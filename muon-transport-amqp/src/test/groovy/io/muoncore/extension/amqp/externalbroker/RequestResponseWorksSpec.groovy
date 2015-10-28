@@ -10,12 +10,14 @@ import io.muoncore.extension.amqp.DefaultServiceQueue
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import io.muoncore.protocol.requestresponse.Response
+import spock.lang.IgnoreIf
 import spock.lang.Specification
 
 import java.util.concurrent.TimeUnit
 
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
+@IgnoreIf({ System.getenv("BUILD_NUMBER") })
 class RequestResponseWorksSpec extends Specification {
 
     def discovery = Mock(Discovery) {
