@@ -1,7 +1,6 @@
 package io.muoncore.extension.amqp
 
 import io.muoncore.channel.ChannelConnection
-import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.ServerStacks
 import spock.lang.Specification
 
