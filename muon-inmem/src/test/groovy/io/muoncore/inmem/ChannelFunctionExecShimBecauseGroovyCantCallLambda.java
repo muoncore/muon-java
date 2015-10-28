@@ -1,4 +1,4 @@
-package io.muoncore.protocol.reactivestream.server;
+package io.muoncore.inmem;
 
 import io.muoncore.channel.ChannelConnection;
 
