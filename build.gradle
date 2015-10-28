@@ -103,15 +103,6 @@ project('muon-core') {
         compile 'com.google.code.gson:gson:2.3.1'
         testCompile "io.projectreactor:reactor-stream:$reactorVersion"
         testCompile 'org.slf4j:slf4j-jdk14:1.7.12'
-
-    }
-}
-
-project('muon-inmem') {
-    description = 'In memory transport and discovery, for testing'
-    dependencies {
-        compile project(":muon-core")
-        compile 'com.google.guava:guava:18.0'
     }
 }
 
