@@ -1,4 +1,7 @@
-package io.muoncore.codec;
+package io.muoncore.codec.json;
+
+import io.muoncore.codec.Codecs;
+import io.muoncore.codec.MuonCodec;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;

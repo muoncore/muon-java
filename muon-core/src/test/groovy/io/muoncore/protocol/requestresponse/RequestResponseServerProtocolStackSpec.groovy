@@ -1,6 +1,6 @@
 package io.muoncore.protocol.requestresponse
-import io.muoncore.codec.GsonCodec
-import io.muoncore.codec.JsonOnlyCodecs
+import io.muoncore.codec.json.GsonCodec
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.protocol.requestresponse.server.RequestResponseHandlers
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandler
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerProtocolStack

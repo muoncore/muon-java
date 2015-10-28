@@ -1,6 +1,7 @@
-package io.muoncore.codec;
+package io.muoncore.codec.json;
 
 import com.google.gson.Gson;
+import io.muoncore.codec.MuonCodec;
 import io.muoncore.exception.MuonException;
 
 import java.io.UnsupportedEncodingException;

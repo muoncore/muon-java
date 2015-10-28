@@ -1,7 +1,7 @@
 package io.muoncore.protocol.requestresponse
 
 import io.muoncore.codec.Codecs
-import io.muoncore.codec.GsonCodec
+import io.muoncore.codec.json.GsonCodec
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportOutboundMessage
 import spock.lang.Specification

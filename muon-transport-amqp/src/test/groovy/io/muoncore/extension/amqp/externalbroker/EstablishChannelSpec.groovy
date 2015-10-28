@@ -1,7 +1,7 @@
 package io.muoncore.extension.amqp.externalbroker
 
 import io.muoncore.channel.ChannelConnection
-import io.muoncore.codec.GsonCodec
+import io.muoncore.codec.json.GsonCodec
 import io.muoncore.extension.amqp.AMQPMuonTransport
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue

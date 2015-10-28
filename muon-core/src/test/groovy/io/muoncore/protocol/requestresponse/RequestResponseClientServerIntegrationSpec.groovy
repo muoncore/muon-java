@@ -2,7 +2,7 @@ package io.muoncore.protocol.requestresponse
 import io.muoncore.channel.Channels
 import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.codec.Codecs
-import io.muoncore.codec.JsonOnlyCodecs
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocolStack
 import io.muoncore.protocol.requestresponse.server.DynamicRequestResponseHandlers

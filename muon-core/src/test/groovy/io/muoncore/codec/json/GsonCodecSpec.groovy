@@ -1,5 +1,5 @@
-package io.muoncore.codec
-
+package io.muoncore.codec.json
+import io.muoncore.codec.MyTestClass
 import spock.lang.Specification
 
 class GsonCodecSpec extends Specification {

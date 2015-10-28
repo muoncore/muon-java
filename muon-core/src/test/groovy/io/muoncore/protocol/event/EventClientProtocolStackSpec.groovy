@@ -3,7 +3,7 @@ import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.Codecs
-import io.muoncore.codec.JsonOnlyCodecs
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.event.client.EventClientProtocolStack

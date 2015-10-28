@@ -1,7 +1,9 @@
 package io.muoncore;
 
 import io.muoncore.codec.Codecs;
-import io.muoncore.codec.JsonOnlyCodecs;
+import io.muoncore.codec.crypt.EncryptingCodecs;
+import io.muoncore.codec.crypt.SymmetricAESEncryptionAlgorithm;
+import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.protocol.DynamicRegistrationServerStacks;
 import io.muoncore.protocol.ServerRegistrar;
@@ -44,7 +46,10 @@ public class SingleTransportMuon implements Muon
         DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(new DefaultServerProtocol());
         this.protocols = stacks;
         this.registrar = stacks;
-        this.codecs = new JsonOnlyCodecs();
+
+        this.codecs = new EncryptingCodecs(
+                new JsonOnlyCodecs(),
+                new SymmetricAESEncryptionAlgorithm(configuration.getAesEncryptionKey()));
 
         initDefaultRequestHandler();
 

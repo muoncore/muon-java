@@ -1,7 +1,7 @@
 package io.muoncore.transport.client
 
 import io.muoncore.channel.ChannelConnection
-import io.muoncore.codec.GsonCodec
+import io.muoncore.codec.json.GsonCodec
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.transport.MuonTransport
 import io.muoncore.transport.TransportInboundMessage
