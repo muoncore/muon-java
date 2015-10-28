@@ -3,7 +3,8 @@ package io.muoncore.codec.crypt;
 import io.muoncore.codec.Codecs;
 
 import java.io.UnsupportedEncodingException;
-import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Codecs that wraps another and encrypts/ decrypts on the way past.
@@ -34,11 +35,12 @@ public class EncryptingCodecs implements Codecs {
 
     @Override
     public String getBestAvailableCodec(String[] acceptableContentTypes) {
-        return null;
+        return delegate.getBestAvailableCodec(acceptableContentTypes) + "+" + algorithm.getAlgorithmName();
     }
 
     @Override
-    public List<String> getAvailableCodecs() {
-        return null;
+    public String[] getAvailableCodecs() {
+        return Arrays.stream(delegate.getAvailableCodecs()).map(
+                codec -> codec + "+" + algorithm.getAlgorithmName()).collect(Collectors.toList()).toArray(new String[0]);
     }
 }

@@ -52,7 +52,7 @@ class RequestResponseWorksSpec extends Specification {
         def svc1 = new AMQPMuonTransport(
                 "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
 
-        def config = new AutoConfiguration(serviceName:serviceName)
+        def config = new AutoConfiguration(serviceName:serviceName, aesEncryptionKey: "abcde12345678906")
         def muon = new SingleTransportMuon(config, discovery, svc1)
 
         muon

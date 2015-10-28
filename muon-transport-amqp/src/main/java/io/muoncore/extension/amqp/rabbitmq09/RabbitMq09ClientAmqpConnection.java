@@ -80,6 +80,7 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
 
         Map<String, Object> headers = new HashMap<>(message.getHeaders());
         headers.put("eventType", message.getEventType());
+        headers.put("Content-Type", message.getContentType());
 
         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
                 .contentType(message.getContentType())

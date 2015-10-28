@@ -4,8 +4,6 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.codec.MuonCodec;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Collections;
-import java.util.List;
 
 public class JsonOnlyCodecs implements Codecs {
 
@@ -16,8 +14,8 @@ public class JsonOnlyCodecs implements Codecs {
     }
 
     @Override
-    public List<String> getAvailableCodecs() {
-        return Collections.singletonList(defaultCodec.getContentType());
+    public String[] getAvailableCodecs() {
+        return new String[] { defaultCodec.getContentType() };
     }
 
     @Override

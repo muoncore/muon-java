@@ -48,7 +48,7 @@ public class RequestResponseServerProtocolStack implements
 
                 @Override
                 public void answer(Response response) {
-                    TransportOutboundMessage msg = RRPTransformers.toOutbound("thiservice",response, codecs, new String[] { "application/json" });
+                    TransportOutboundMessage msg = RRPTransformers.toOutbound("thiservice",response, codecs, codecs.getAvailableCodecs());
                     api2.left().send(msg);
                 }
             });

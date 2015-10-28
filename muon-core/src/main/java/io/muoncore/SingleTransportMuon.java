@@ -17,6 +17,7 @@ import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.client.SingleTransportClient;
 import io.muoncore.transport.client.TransportClient;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class SingleTransportMuon implements Muon
         discovery.advertiseLocalService(new ServiceDescriptor(
                 configuration.getServiceName(),
                 configuration.getTags(),
-                codecs.getAvailableCodecs(),
+                Arrays.asList(codecs.getAvailableCodecs()),
                 Collections.singletonList(transport.getLocalConnectionURI()
                 )));
     }

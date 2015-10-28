@@ -33,7 +33,7 @@ public class RequestResponseClientProtocol<X,R> {
         leftChannelConnection.receive(request -> {
             rightChannelConnection.send(RRPTransformers.toOutbound(
                     serviceName,
-                    request, codecs, new String[] { "application/json" }));
+                    request, codecs, codecs.getAvailableCodecs()));
         });
 
         /**

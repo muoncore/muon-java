@@ -70,7 +70,7 @@ class ExampleSimulationSpec extends Specification {
     }
 
     Muon createService(ident, discovery) {
-        def config = new AutoConfiguration(serviceName: "service-${ident}")
+        def config = new AutoConfiguration(serviceName: "service-${ident}", aesEncryptionKey: "abcde12345678906")
         def transport = new InMemTransport(config, eventbus)
 
         new SingleTransportMuon(config, discovery, transport)
