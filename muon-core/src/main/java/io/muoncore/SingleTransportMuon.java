@@ -9,6 +9,7 @@ import io.muoncore.protocol.DynamicRegistrationServerStacks;
 import io.muoncore.protocol.ServerRegistrar;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.protocol.defaultproto.DefaultServerProtocol;
+import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.RequestMetaData;
 import io.muoncore.protocol.requestresponse.Response;
@@ -70,6 +71,9 @@ public class SingleTransportMuon implements Muon
         stacks.registerServerProtocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 new RequestResponseServerProtocolStack(
                         requestResponseHandlers, codecs, discovery));
+
+        stacks.registerServerProtocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
+                new ReactiveStreamServerStack());
     }
 
     private void initDefaultRequestHandler() {
