@@ -1,6 +1,7 @@
 package io.muoncore.protocol.channelfuture
 
 import io.muoncore.channel.ChannelConnection
+import io.muoncore.channel.ChannelFutureAdapter
 import io.muoncore.channel.async.StandardAsyncChannelConnection
 import spock.lang.Specification
 

@@ -10,9 +10,9 @@ public class Event<X> {
     private String parentId;
     private String serviceId;
 
-    private Object payload;
+    private X payload;
 
-    public Event(String id, String parentId, String serviceId, Object payload) {
+    public Event(String id, String parentId, String serviceId, X payload) {
         this.id = id;
         this.parentId = parentId;
         this.serviceId = serviceId;
@@ -31,7 +31,7 @@ public class Event<X> {
         return serviceId;
     }
 
-    public Object getPayload() {
+    public X getPayload() {
         return payload;
     }
 }

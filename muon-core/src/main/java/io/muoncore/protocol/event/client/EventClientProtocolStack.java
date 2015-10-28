@@ -6,7 +6,7 @@ import io.muoncore.channel.async.StandardAsyncChannel;
 import io.muoncore.codec.CodecsSource;
 import io.muoncore.config.MuonConfigurationSource;
 import io.muoncore.future.MuonFuture;
-import io.muoncore.protocol.channelfuture.ChannelFutureAdapter;
+import io.muoncore.channel.ChannelFutureAdapter;
 import io.muoncore.protocol.event.Event;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.Response;

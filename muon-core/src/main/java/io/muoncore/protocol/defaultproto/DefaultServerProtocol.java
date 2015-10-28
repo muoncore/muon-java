@@ -8,6 +8,11 @@ import io.muoncore.transport.TransportOutboundMessage;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A default protocol intended to be the fallback if not other protocol is capable of processing an incoming message
+ *
+ * Responds back with a 404 message.
+ */
 public class DefaultServerProtocol implements ServerProtocolStack {
     @Override
     public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {

@@ -1,8 +1,8 @@
-package io.muoncore.protocol.channelfuture;
+package io.muoncore.channel;
 
 import io.muoncore.future.MuonFuture;
-import io.muoncore.channel.ChannelConnection;
 import org.reactivestreams.Publisher;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
