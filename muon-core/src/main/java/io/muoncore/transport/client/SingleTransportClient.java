@@ -19,7 +19,7 @@ public class SingleTransportClient implements TransportClient, TransportControl 
 
     @Override
     public ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel() {
-        return new SingleTransportChannelConnection(transport);
+        return new SingleTransportClientChannelConnection(transport);
     }
 
     @Override

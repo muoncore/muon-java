@@ -42,4 +42,16 @@ public class TransportOutboundMessage extends TransportMessage {
                 getPayload(),
                 closeChannel);
     }
+
+    public TransportInboundMessage toInbound() {
+        return new TransportInboundMessage(
+                getType(),
+                getId(),
+                getTargetServiceName(),
+                getSourceServiceName(),
+                getProtocol(),
+                getMetadata(),
+                getContentType(),
+                getPayload());
+    }
 }

@@ -10,7 +10,7 @@ class SingleTransportClientSpec extends Specification {
         def cl = new SingleTransportClient(transport)
 
         expect:
-        cl.openClientChannel() instanceof SingleTransportChannelConnection
+        cl.openClientChannel() instanceof SingleTransportClientChannelConnection
     }
 
 }

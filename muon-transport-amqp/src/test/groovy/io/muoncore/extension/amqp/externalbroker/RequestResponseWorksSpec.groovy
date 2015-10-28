@@ -24,10 +24,10 @@ class RequestResponseWorksSpec extends Specification {
         def svc1 = createMuon("simples")
         def svc2 = createMuon("tombola")
 
-        svc2.handleRequest(all(), {
+        svc2.handleRequest(all(), Map) {
             it.request.id
             it.answer(new Response(200, [hi:"there"]))
-        }, Map)
+        }
 
         when:
         def response = svc1.request("muon://tombola/hello", [hello:"world"], Map).get(500, TimeUnit.MILLISECONDS)

@@ -14,7 +14,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
         def transport = Mock(MuonTransport)
 
-        def connection = new SingleTransportChannelConnection(transport)
+        def connection = new SingleTransportClientChannelConnection(transport)
 
         when:
         connection.send(outbound("mymessage", "myService1", "requestresponse"))
@@ -27,7 +27,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
         def transport = Mock(MuonTransport)
 
-        def connection = new SingleTransportChannelConnection(transport)
+        def connection = new SingleTransportClientChannelConnection(transport)
         connection.receive({})
 
         when:
@@ -71,7 +71,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
         def receive = Mock(ChannelConnection.ChannelFunction)
 
-        def connection = new SingleTransportChannelConnection(transport)
+        def connection = new SingleTransportClientChannelConnection(transport)
         connection.receive(receive)
 
         when:

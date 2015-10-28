@@ -12,16 +12,6 @@ buildscript {
 def globalVersion = new Version(currentVersion)
 def hasbintray = hasProperty("bintrayUsername")
 
-//compileJava {
-//  sourceCompatibility = 1.7
-//  targetCompatibility = 1.7
-//}
-//
-//compileTestJava {
-//  sourceCompatibility = 1.7
-//  targetCompatibility = 1.7
-//}
-
 ext {
     gradleVersion = '2.4'
 
@@ -121,6 +111,7 @@ project('muon-inmem') {
     description = 'In memory transport and discovery, for testing'
     dependencies {
         compile project(":muon-core")
+        compile 'com.google.guava:guava:18.0'
     }
 }
 

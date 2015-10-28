@@ -4,7 +4,7 @@ import spock.lang.Specification
 
 import static io.muoncore.extension.amqp.QueueListener.*
 
-class AmqpChannelSpec extends Specification {
+class DefaultAmqpChannelSpec extends Specification {
 
 
     def "respondToHandshake opens a new queue and sends a handshak response"() {

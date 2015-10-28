@@ -8,14 +8,14 @@ import io.muoncore.transport.TransportOutboundMessage;
 import java.util.HashMap;
 import java.util.Map;
 
-class SingleTransportChannelConnection implements ChannelConnection<TransportOutboundMessage, TransportInboundMessage> {
+class SingleTransportClientChannelConnection implements ChannelConnection<TransportOutboundMessage, TransportInboundMessage> {
 
     private MuonTransport transport;
     private ChannelFunction<TransportInboundMessage> inbound;
 
     private Map<String, ChannelConnection<TransportOutboundMessage, TransportInboundMessage>> channelConnectionMap = new HashMap<>();
 
-    public SingleTransportChannelConnection(MuonTransport transport) {
+    public SingleTransportClientChannelConnection(MuonTransport transport) {
         this.transport = transport;
     }
 
