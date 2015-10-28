@@ -1,4 +1,7 @@
 package io.muoncore.protocol.requestresponse
+
+import io.muoncore.Discovery
+import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.Channels
 import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.codec.Codecs
@@ -18,6 +21,10 @@ import spock.lang.Timeout
 import java.util.function.Predicate
 
 class RequestResponseClientServerIntegrationSpec extends Specification {
+
+    def discovery = Mock(Discovery) {
+        findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], []))
+    }
 
     @Timeout(2)
     def "client and server can communicate"() {
@@ -58,7 +65,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
             }
         })
 
-        def server = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs())
+        def server = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery)
 
         def channel = new StandardAsyncChannel()
 

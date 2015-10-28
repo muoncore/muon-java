@@ -69,7 +69,7 @@ public class SingleTransportMuon implements Muon
     private void initServerStacks(DynamicRegistrationServerStacks stacks) {
         stacks.registerServerProtocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 new RequestResponseServerProtocolStack(
-                        requestResponseHandlers, codecs));
+                        requestResponseHandlers, codecs, discovery));
     }
 
     private void initDefaultRequestHandler() {

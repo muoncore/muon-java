@@ -1,5 +1,6 @@
 package io.muoncore.protocol.requestresponse.server;
 
+import io.muoncore.Discovery;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.async.StandardAsyncChannel;
 import io.muoncore.codec.Codecs;
@@ -22,10 +23,14 @@ public class RequestResponseServerProtocolStack implements
 
     private final RequestResponseHandlers handlers;
     private Codecs codecs;
+    private Discovery discovery;
 
-    public RequestResponseServerProtocolStack(RequestResponseHandlers handlers, Codecs codecs) {
+    public RequestResponseServerProtocolStack(RequestResponseHandlers handlers,
+                                              Codecs codecs,
+                                              Discovery discover) {
         this.codecs = codecs;
         this.handlers = handlers;
+        this.discovery = discover;
     }
 
     @Override
@@ -48,7 +53,10 @@ public class RequestResponseServerProtocolStack implements
 
                 @Override
                 public void answer(Response response) {
-                    TransportOutboundMessage msg = RRPTransformers.toOutbound("thiservice",response, codecs, codecs.getAvailableCodecs());
+                    TransportOutboundMessage msg = RRPTransformers.toOutbound("thiservice",response, codecs,
+                            discovery.findService( svc ->
+                                    svc.getIdentifier().equals(
+                                            request.getMetaData().getTargetService())).get().getCodecs());
                     api2.left().send(msg);
                 }
             });

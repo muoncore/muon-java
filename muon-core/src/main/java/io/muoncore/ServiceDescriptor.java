@@ -20,8 +20,8 @@ public class ServiceDescriptor {
         this.connectionUrls = connectionUrls;
     }
 
-    public List<String> getCodecs() {
-        return codecs;
+    public String[] getCodecs() {
+        return codecs.toArray(new String[0]);
     }
     public List<String> getTags() {
         return tags;

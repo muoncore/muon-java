@@ -1,4 +1,7 @@
 package io.muoncore.protocol.requestresponse
+
+import io.muoncore.Discovery
+import io.muoncore.ServiceDescriptor
 import io.muoncore.codec.json.GsonCodec
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.protocol.requestresponse.server.RequestResponseHandlers
@@ -11,9 +14,13 @@ import spock.util.concurrent.PollingConditions
 
 class RequestResponseServerProtocolStackSpec extends Specification {
 
+    def discovery = Mock(Discovery) {
+        findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], []))
+    }
+
     def "createChannel gives a channel that calls findHandler on a message received"() {
         def handlers = Mock(RequestResponseHandlers)
-        def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs())
+        def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery)
 
         when:
         def channel = stack.createChannel()
@@ -33,7 +40,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
             findHandler(_) >> handler
 
         }
-        def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs())
+        def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery)
 
         when:
         def channel = stack.createChannel()
@@ -55,7 +62,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
         def handlers = Mock(RequestResponseHandlers) {
             findHandler(_) >> handler
         }
-        def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs())
+        def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery)
 
         def responseReceived
 

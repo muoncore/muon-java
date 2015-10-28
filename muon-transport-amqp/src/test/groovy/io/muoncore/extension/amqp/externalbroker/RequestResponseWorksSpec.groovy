@@ -1,6 +1,7 @@
 package io.muoncore.extension.amqp.externalbroker
 import io.muoncore.Discovery
 import io.muoncore.Muon
+import io.muoncore.ServiceDescriptor
 import io.muoncore.SingleTransportMuon
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.extension.amqp.AMQPMuonTransport
@@ -17,7 +18,9 @@ import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
 class RequestResponseWorksSpec extends Specification {
 
-    def discovery = Mock(Discovery)
+    def discovery = Mock(Discovery) {
+        findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], []))
+    }
 
     def "high level request response protocol works"() {
 
