@@ -1,5 +1,4 @@
-package io.muoncore.protocol.introspection
-
+package io.muoncore.protocol.introspection.server
 import io.muoncore.codec.Codecs
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.descriptors.ServiceExtendedDescriptor

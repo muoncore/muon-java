@@ -1,6 +1,7 @@
 package io.muoncore;
 
 import io.muoncore.protocol.event.client.EventClientProtocolStack;
+import io.muoncore.protocol.introspection.client.IntrospectionClientProtocolStack;
 import io.muoncore.protocol.reactivestream.client.ReactiveStreamClientProtocolStack;
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerHandlerApi;
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocolStack;
@@ -16,7 +17,8 @@ public interface Muon extends
         RequestResponseClientProtocolStack,
         RequestResponseServerHandlerApi,
         ReactiveStreamClientProtocolStack,
-        ReactiveStreamServerHandlerApi {
+        ReactiveStreamServerHandlerApi,
+        IntrospectionClientProtocolStack {
 
         void shutdown();
 }

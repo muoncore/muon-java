@@ -1,10 +1,12 @@
 package io.muoncore.protocol.requestresponse.client;
 
+import io.muoncore.channel.ChannelFutureAdapter;
 import io.muoncore.channel.async.StandardAsyncChannel;
 import io.muoncore.codec.CodecsSource;
+import io.muoncore.exception.MuonException;
 import io.muoncore.future.MuonFuture;
 import io.muoncore.protocol.ServiceConfigurationSource;
-import io.muoncore.channel.ChannelFutureAdapter;
+import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.RequestMetaData;
 import io.muoncore.protocol.requestresponse.Response;
@@ -21,6 +23,9 @@ public interface RequestResponseClientProtocolStack extends
     }
 
     default <X,R> MuonFuture<Response<R>> request(URI uri, X payload, Class<R> responseType) {
+        if (!uri.getScheme().equals(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)) {
+            throw new MuonException("Scheme is invalid: " + uri.getScheme() + ", requires scheme: " + RRPTransformers.REQUEST_RESPONSE_PROTOCOL);
+        }
         return request(new Request<>(new RequestMetaData(uri.getPath(), "", uri.getHost()), payload), responseType);
     }
 

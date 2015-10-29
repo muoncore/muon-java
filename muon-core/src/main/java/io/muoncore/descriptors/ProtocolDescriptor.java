@@ -31,4 +31,13 @@ public class ProtocolDescriptor {
     public List<OperationDescriptor> getOperations() {
         return operations;
     }
+
+    @Override
+    public String toString() {
+        return "ProtocolDescriptor{" +
+                "protocolScheme='" + protocolScheme + '\'' +
+                ", protocolName='" + protocolName + '\'' +
+                ", operations=" + operations.size() +
+                '}';
+    }
 }

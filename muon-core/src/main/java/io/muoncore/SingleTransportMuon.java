@@ -5,10 +5,12 @@ import io.muoncore.codec.crypt.EncryptingCodecs;
 import io.muoncore.codec.crypt.SymmetricAESEncryptionAlgorithm;
 import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.config.AutoConfiguration;
+import io.muoncore.descriptors.ServiceExtendedDescriptor;
 import io.muoncore.protocol.DynamicRegistrationServerStacks;
 import io.muoncore.protocol.ServerRegistrar;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.protocol.defaultproto.DefaultServerProtocol;
+import io.muoncore.protocol.introspection.server.IntrospectionServerProtocolStack;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.protocol.requestresponse.server.*;
 import io.muoncore.transport.MuonTransport;
@@ -68,7 +70,10 @@ public class SingleTransportMuon implements Muon
                         requestResponseHandlers, codecs, discovery));
 
 //        stacks.registerServerProtocol(new ReactiveStreamServerStack());
-//        stacks.registerServerProtocol(new IntrospectionServerProtocolStack(registrar));
+
+        stacks.registerServerProtocol(new IntrospectionServerProtocolStack(
+                () -> new ServiceExtendedDescriptor(configuration.getServiceName(), registrar.getProtocolDescriptors()),
+                codecs));
     }
 
     private void initDefaultRequestHandler() {

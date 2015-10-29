@@ -1,4 +1,4 @@
-package io.muoncore.protocol.introspection;
+package io.muoncore.protocol.introspection.server;
 
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
