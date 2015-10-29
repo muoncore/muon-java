@@ -3,7 +3,7 @@ package io.muoncore.spring.methodinvocation;
 import io.muoncore.spring.annotations.parameterhandlers.DecodedContent;
 import io.muoncore.spring.annotations.parameterhandlers.MuonHeader;
 import io.muoncore.spring.annotations.parameterhandlers.MuonHeaders;
-import io.muoncore.transport.resource.MuonResourceEvent;
+import io.muoncore.transport.crud.requestresponse.MuonResourceEvent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

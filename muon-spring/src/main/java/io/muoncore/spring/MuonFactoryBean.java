@@ -1,13 +1,13 @@
 package io.muoncore.spring;
 
-import io.muoncore.Muon;
+import io.muoncore.crud.OldMuon;
 import io.muoncore.config.MuonBuilder;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.util.StringValueResolver;
 import reactor.core.support.Assert;
 
-public class MuonFactoryBean implements FactoryBean<Muon>, EmbeddedValueResolverAware {
+public class MuonFactoryBean implements FactoryBean<OldMuon>, EmbeddedValueResolverAware {
     private StringValueResolver embeddedValueResolver;
 
     private String serviceName;
@@ -20,7 +20,7 @@ public class MuonFactoryBean implements FactoryBean<Muon>, EmbeddedValueResolver
     }
 
     @Override
-    public Muon getObject() throws Exception {
+    public OldMuon getObject() throws Exception {
         Assert.notNull(serviceName);
         String resolvedServiceName = embeddedValueResolver.resolveStringValue(serviceName);
         String resolvedTags[] = resolveTags(tags);
@@ -31,7 +31,7 @@ public class MuonFactoryBean implements FactoryBean<Muon>, EmbeddedValueResolver
         if (resolvedTags != null) {
             muonBuilder.withTags(resolvedTags);
         }
-        final Muon muon = muonBuilder
+        final OldMuon muon = muonBuilder
                 .build();
 
         muon.start();
@@ -52,7 +52,7 @@ public class MuonFactoryBean implements FactoryBean<Muon>, EmbeddedValueResolver
 
     @Override
     public Class<?> getObjectType() {
-        return Muon.class;
+        return OldMuon.class;
     }
 
 

@@ -1,8 +1,7 @@
 package io.muoncore.config;
 
 import io.muoncore.Discovery;
-import io.muoncore.Muon;
-import io.muoncore.MuonExtension;
+import io.muoncore.SingleTransportMuon;
 import io.muoncore.config.writers.ConfigFileConfigurationWriter;
 import io.muoncore.config.writers.DockerConfigurationWriter;
 
@@ -12,7 +11,7 @@ import java.util.List;
 public class MuonBuilder {
 
     static List<AutoConfigurationWriter> writers = new ArrayList<>();
-    static List<ExtensionBuilder> extensions = new ArrayList<>();
+//    static List<ExtensionBuilder> extensions = new ArrayList<>();
     static DiscoveryBuilder discovery;
 
     private String[] tags = new String[0];
@@ -29,33 +28,34 @@ public class MuonBuilder {
         return this;
     }
 
-    public Muon build() {
-        writers.forEach(writer -> writer.writeConfiguration(config));
+    public SingleTransportMuon build() {
+        throw new IllegalArgumentException("Not implemented!");
+//        writers.forEach(writer -> writer.writeConfiguration(config));
 
-        Muon muon = new Muon(discovery.create(config));
-        muon.setServiceIdentifer(serviceIdentifier);
-        muon.addTags(tags);
+////        OldMuon muon = new OldMuon(discovery.create(config));
+////        muon.setServiceIdentifer(serviceIdentifier);
+////        muon.addTags(tags);
+//
+//        extensions.forEach(extension -> extension.create(config).extend(muon));
 
-        extensions.forEach(extension -> extension.create(config).extend(muon));
-
-        return muon;
+//        return muon;
     }
 
     public interface DiscoveryBuilder {
         Discovery create(AutoConfiguration config);
     }
-
-    public interface ExtensionBuilder {
-        MuonExtension create(AutoConfiguration config);
-    }
+//
+//    public interface ExtensionBuilder {
+//        MuonExtension create(AutoConfiguration config);
+//    }
 
     public static void registerDiscovery(DiscoveryBuilder builder) {
         discovery = builder;
     }
 
-    public static void registerExtension(ExtensionBuilder builder) {
-        extensions.add(builder);
-    }
+//    public static void registerExtension(ExtensionBuilder builder) {
+//        extensions.add(builder);
+//    }
 
     public static void addWriter(AutoConfigurationWriter writer) {
         writers.add(writer);
@@ -64,10 +64,10 @@ public class MuonBuilder {
     public static void clearDiscovery() {
         discovery = null;
     }
-
-    public static void clearExtensions() {
-        extensions.clear();
-    }
+//
+//    public static void clearExtensions() {
+//        extensions.clear();
+//    }
 
     public static void clearWriters() {
         writers.clear();

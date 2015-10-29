@@ -1,6 +1,6 @@
 package com.simplicity.services;
 
-import io.muoncore.Muon;
+import io.muoncore.crud.OldMuon;
 import io.muoncore.extension.amqp.AmqpTransportExtension;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import org.reactivestreams.Subscriber;
@@ -20,7 +20,7 @@ public class ServiceStreamConsumerReconnect {
 
     public static void main(String[] args) throws URISyntaxException, InterruptedException, NoSuchAlgorithmException, KeyManagementException, IOException {
 
-        final Muon muon = new Muon(
+        final OldMuon muon = new OldMuon(
                 new AmqpDiscovery("amqp://localhost:5672"));
 
         muon.setServiceIdentifer("consumer-" + UUID.randomUUID().toString());
@@ -38,7 +38,7 @@ public class ServiceStreamConsumerReconnect {
 //        connect(muon, counter++);
     }
 
-    private static void connect(final Muon muon, final int rand) throws URISyntaxException {
+    private static void connect(final OldMuon muon, final int rand) throws URISyntaxException {
         final Broadcaster<Map> sub = Broadcaster.create();
         Map<String,String> params  = new HashMap<String, String>();
 

@@ -1,6 +1,6 @@
 package io.muoncore.spring.mapping;
 
-import io.muoncore.Muon;
+import io.muoncore.crud.OldMuon;
 import io.muoncore.spring.methodinvocation.MuonStreamMethodInvocation;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -18,7 +18,7 @@ public class MuonStreamSubscriptionService {
     ScheduledExecutorService monitor = Executors.newScheduledThreadPool(1);
 
     @Autowired
-    private Muon muon;
+    private OldMuon muon;
 
     @PostConstruct
     public void startMonitoring() {

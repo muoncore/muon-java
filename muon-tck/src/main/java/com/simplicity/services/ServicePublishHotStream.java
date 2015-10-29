@@ -1,9 +1,8 @@
 package com.simplicity.services;
 
-import io.muoncore.Muon;
+import io.muoncore.crud.OldMuon;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.extension.amqp.AmqpTransportExtension;
-import reactor.rx.Streams;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.io.IOException;
@@ -16,7 +15,7 @@ public class ServicePublishHotStream {
 
     public static void main(String[] args) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException {
 
-        final Muon muon = new Muon(
+        final OldMuon muon = new OldMuon(
                 new AmqpDiscovery("amqp://muon:microservices@localhost:5672"));
 
         muon.setServiceIdentifer("cl");

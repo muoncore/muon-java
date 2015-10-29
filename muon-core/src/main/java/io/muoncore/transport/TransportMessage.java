@@ -1,0 +1,72 @@
+package io.muoncore.transport;
+
+import java.util.List;
+import java.util.Map;
+
+public class TransportMessage {
+    private String eventType;
+    private String id;
+    private String targetServiceName;
+    private String sourceServiceName;
+    private String protocol;
+    private Map<String, String> metadata;
+    private byte[] payload;
+    private String contentType;
+    private List<String> sourceAvailableContentTypes;
+
+    public TransportMessage(String type,
+                            String id,
+                            String targetServiceName,
+                            String sourceServiceName,
+                            String protocol,
+                            Map<String, String> metadata,
+                            String contentType,
+                            byte[] payload,
+                            List<String> sourceAvailableContentTypes) {
+        this.targetServiceName = targetServiceName;
+        this.eventType = type;
+        this.id = id;
+        this.sourceServiceName = sourceServiceName;
+        this.protocol = protocol;
+        this.metadata = metadata;
+        this.payload = payload;
+        this.contentType = contentType;
+        this.sourceAvailableContentTypes = sourceAvailableContentTypes;
+    }
+
+    public List<String> getSourceAvailableContentTypes() {
+        return sourceAvailableContentTypes;
+    }
+
+    public String getTargetServiceName() {
+        return targetServiceName;
+    }
+
+    public String getType() {
+        return eventType;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public byte[] getPayload() {
+        return payload;
+    }
+
+    public Map<String, String> getMetadata() {
+        return metadata;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getSourceServiceName() {
+        return sourceServiceName;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+}

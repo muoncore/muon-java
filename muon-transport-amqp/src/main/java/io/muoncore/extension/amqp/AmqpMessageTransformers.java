@@ -1,0 +1,48 @@
+package io.muoncore.extension.amqp;
+
+import io.muoncore.transport.TransportInboundMessage;
+import io.muoncore.transport.TransportOutboundMessage;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class AmqpMessageTransformers {
+
+
+//    these are utterly broken and need to be fixed for the greater good.
+
+
+    public static QueueListener.QueueMessage outboundToQueue(String queue, TransportOutboundMessage message) {
+
+        Map<String, String> headers = new HashMap<>();
+        headers.putAll(message.getMetadata());
+        headers.put("id", message.getId());
+        headers.put("sourceService", message.getSourceServiceName());
+        headers.put("targetService", message.getTargetServiceName());
+        headers.put("protocol", message.getProtocol());
+
+        String delimitedContentTypes = message.getSourceAvailableContentTypes().stream()
+                .collect(Collectors.joining("|"));
+        headers.put("sourceAvailableContentTypes", delimitedContentTypes);
+
+        return new QueueListener.QueueMessage(message.getType(), queue, message.getPayload(), headers, message.getContentType());
+    }
+
+    public static TransportInboundMessage queueToInbound(QueueListener.QueueMessage message) {
+        Map metadata = new HashMap<>();
+        metadata.putAll(message.getHeaders());
+
+        return new TransportInboundMessage(
+                message.getEventType(),
+                message.getHeaders().get("id").toString(),
+                message.getHeaders().get("targetService").toString(),
+                message.getHeaders().get("sourceService").toString(),
+                message.getHeaders().get("protocol").toString(),
+                metadata,
+                message.getContentType(), message.getBody(),
+                Arrays.asList(message.getHeaders().get("sourceAvailableContentTypes").split("|")));
+    }
+
+}

@@ -3,16 +3,16 @@ package io.muoncore.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import io.muoncore.Discovery;
-import io.muoncore.Muon;
-import io.muoncore.MuonClient.MuonResult;
-import io.muoncore.MuonService;
+import io.muoncore.crud.OldMuon;
+import io.muoncore.crud.MuonClient.MuonResult;
+import io.muoncore.crud.MuonService;
 import io.muoncore.MuonStreamGenerator;
 import io.muoncore.extension.amqp.AmqpTransportExtension;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.future.MuonFuture;
 import io.muoncore.future.MuonFutures;
-import io.muoncore.transport.resource.MuonResourceEvent;
-import io.muoncore.transport.resource.MuonResourceEventBuilder;
+import io.muoncore.transport.crud.requestresponse.MuonResourceEvent;
+import io.muoncore.transport.crud.requestresponse.MuonResourceEventBuilder;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ import org.reactivestreams.Subscription;
  *
  */
 public class MuonTestCase {
-	private Muon 			m, c;
+	private OldMuon m, c;
 	private String			uuid;
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -42,14 +42,14 @@ public class MuonTestCase {
 		uuid = UUID.randomUUID().toString();
 		Discovery d = new AmqpDiscovery("amqp://muon:microservices@localhost");
 		AmqpTransportExtension ate = new AmqpTransportExtension("amqp://muon:microservices@localhost");
-		m = new Muon(d);
+		m = new OldMuon(d);
 		m.setServiceIdentifer("test-" + uuid);
 		m.addTag("server");
 		ate.extend(m);
 		m.start();
 		
 		m.onCommand("/post-endpoint", Map.class,
-				new MuonService.MuonCommand() {
+				new MuonService.MuonCommandListener() {
 					@Override
 					public MuonFuture onCommand(MuonResourceEvent queryEvent) {
 						System.out.println("onCommand");
@@ -85,7 +85,7 @@ public class MuonTestCase {
 		
 		d = new AmqpDiscovery("amqp://muon:microservices@localhost");
 		ate = new AmqpTransportExtension("amqp://muon:microservices@localhost");
-		c = new Muon(d);
+		c = new OldMuon(d);
 		c.setServiceIdentifer("test-" + uuid + "-client");
 		c.addTag("client");
 		ate.extend(c);

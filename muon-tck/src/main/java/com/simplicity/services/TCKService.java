@@ -2,13 +2,13 @@ package com.simplicity.services;
 
 import io.muoncore.*;
 import io.muoncore.config.MuonBuilder;
+import io.muoncore.crud.MuonClient;
+import io.muoncore.crud.MuonService;
+import io.muoncore.crud.OldMuon;
 import io.muoncore.future.MuonFuture;
 import io.muoncore.future.MuonFutures;
-import io.muoncore.transport.MuonMessageEvent;
-import io.muoncore.transport.MuonMessageEventBuilder;
-import io.muoncore.transport.resource.MuonResourceEvent;
+import io.muoncore.transport.crud.requestresponse.MuonResourceEvent;
 import org.reactivestreams.Publisher;
-import reactor.fn.Function;
 import reactor.rx.Streams;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class TCKService {
 
     public static void main(String[] args) throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, IOException {
 
-        final Muon muon = new MuonBuilder()
+        final OldMuon muon = new MuonBuilder()
                 .withServiceIdentifier("tck")
                 .withTags("my-tag", "tck-service")
                 .build();
@@ -41,7 +41,7 @@ public class TCKService {
 
     }
 
-    private static void outboundResourcesSetup(final Muon muon) {
+    private static void outboundResourcesSetup(final OldMuon muon) {
 
         final Map storedata = new HashMap();
 
@@ -66,13 +66,13 @@ public class TCKService {
         );
     }
 
-    private static void streamPublisher(Muon muon) {
+    private static void streamPublisher(OldMuon muon) {
         Publisher<Long> pub = Streams.range(1, 10);
         muon.streamSource("/myStream", Long.class, pub);
     }
 
-    private static void inboundResourcesSetup(final Muon muon) {
-        muon.onQuery("/echo", Map.class, new MuonService.MuonQuery<Map>() {
+    private static void inboundResourcesSetup(final OldMuon muon) {
+        muon.onQuery("/echo", Map.class, new MuonService.MuonQueryListener<Map>() {
             @Override
             public MuonFuture onQuery(MuonResourceEvent<Map> queryEvent) {
                 Map obj = queryEvent.getDecodedContent();
@@ -83,7 +83,7 @@ public class TCKService {
             }
         });
 
-        muon.onCommand("/echo", Map.class, new MuonService.MuonCommand<Map>() {
+        muon.onCommand("/echo", Map.class, new MuonService.MuonCommandListener<Map>() {
             @Override
             public MuonFuture<Map> onCommand(MuonResourceEvent<Map> queryEvent) {
                 String method = queryEvent.getHeaders().get("METHOD");
@@ -96,7 +96,7 @@ public class TCKService {
             }
         });
 
-        muon.onQuery("/discover", Map.class, new MuonService.MuonQuery<Map>() {
+        muon.onQuery("/discover", Map.class, new MuonService.MuonQueryListener<Map>() {
             @Override
             public MuonFuture<List<String>> onQuery(MuonResourceEvent<Map> queryEvent) {
                 List<String> ids = new ArrayList<String>();
