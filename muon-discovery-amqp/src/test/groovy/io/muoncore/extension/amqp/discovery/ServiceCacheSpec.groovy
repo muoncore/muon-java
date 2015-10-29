@@ -1,5 +1,6 @@
 package io.muoncore.extension.amqp.discovery
 
+import io.muoncore.ServiceDescriptor
 import spock.lang.Specification
 
 class ServiceCacheSpec extends Specification {
@@ -8,9 +9,9 @@ class ServiceCacheSpec extends Specification {
 
     when:
     def cache = new ServiceCache()
-    cache.addService([identifier:"simpleservice"])
-    cache.addService([identifier:"simpleservice2"])
-    cache.addService([identifier:"simpleservice3"])
+    cache.addService(service("simpleservice"))
+    cache.addService(service("simpleservice2"))
+    cache.addService(service("simpleservice3"))
 
     then:
     cache.services.size() == 3
@@ -23,14 +24,18 @@ class ServiceCacheSpec extends Specification {
   def "service cache expires"() {
     given:
     def cache = new ServiceCache()
-    cache.addService([identifier:"simpleservice"])
-    cache.addService([identifier:"simpleservice2"])
-    cache.addService([identifier:"simpleservice3"])
+    cache.addService(service("simpleservice"))
+    cache.addService(service("simpleservice2"))
+    cache.addService(service("simpleservice3"))
 
     when:
     Thread.sleep(5100)
 
     then:
     cache.services.size() == 0
+  }
+
+  def service(name) {
+    new ServiceDescriptor(name, ["tag"], ["application/json"], [new URI("some://hello")])
   }
 }

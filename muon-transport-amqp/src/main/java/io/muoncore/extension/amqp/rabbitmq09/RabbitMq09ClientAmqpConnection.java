@@ -90,6 +90,20 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
     }
 
     @Override
+    public void broadcast(QueueListener.QueueMessage message) throws IOException {
+        byte[] messageBytes = message.getBody();
+
+        Map<String, Object> headers = new HashMap<>(message.getHeaders());
+        headers.put("Content-Type", message.getContentType());
+
+        AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
+                .contentType(message.getContentType())
+                .headers(headers).build();
+
+        channel.basicPublish("muon-broadcast", message.getQueueName(), props, messageBytes);
+    }
+
+    @Override
     public boolean isAvailable() {
         return connection != null;
     }

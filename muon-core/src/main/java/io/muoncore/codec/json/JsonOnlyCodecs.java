@@ -2,6 +2,7 @@ package io.muoncore.codec.json;
 
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.MuonCodec;
+import io.muoncore.exception.MuonException;
 
 import java.io.UnsupportedEncodingException;
 
@@ -24,8 +25,12 @@ public class JsonOnlyCodecs implements Codecs {
     }
 
     @Override
-    public EncodingResult encode(Object object, String[] acceptableContentTypes) throws UnsupportedEncodingException {
-        return new EncodingResult(defaultCodec.encode(object), defaultCodec.getContentType());
+    public EncodingResult encode(Object object, String[] acceptableContentTypes) {
+        try {
+            return new EncodingResult(defaultCodec.encode(object), defaultCodec.getContentType());
+        } catch (UnsupportedEncodingException e) {
+            return new EncodingResult(new MuonException("Unable to encode object " + object.getClass().getSimpleName(), e));
+        }
     }
 
     @Override
