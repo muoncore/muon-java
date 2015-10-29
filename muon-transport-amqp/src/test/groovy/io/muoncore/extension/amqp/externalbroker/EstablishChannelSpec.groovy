@@ -38,7 +38,7 @@ class EstablishChannelSpec extends Specification {
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [:],
                 "applicaton/json",
-                new GsonCodec().encode([:])))
+                new GsonCodec().encode([:]), ["application/json"]))
         sleep(50)
 
         then:

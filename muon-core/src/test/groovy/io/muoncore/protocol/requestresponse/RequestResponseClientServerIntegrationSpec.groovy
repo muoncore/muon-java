@@ -1,5 +1,4 @@
 package io.muoncore.protocol.requestresponse
-
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.Channels
@@ -8,10 +7,7 @@ import io.muoncore.codec.Codecs
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocolStack
-import io.muoncore.protocol.requestresponse.server.DynamicRequestResponseHandlers
-import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandler
-import io.muoncore.protocol.requestresponse.server.RequestResponseServerProtocolStack
-import io.muoncore.protocol.requestresponse.server.RequestWrapper
+import io.muoncore.protocol.requestresponse.server.*
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportOutboundMessage
 import io.muoncore.transport.client.TransportClient
@@ -32,8 +28,8 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
 
         def handlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler() {
             @Override
-            Predicate<RequestMetaData> getPredicate() {
-                return { false } as Predicate
+            HandlerPredicate getPredicate() {
+                return HandlerPredicates.none()
             }
 
             @Override
@@ -48,9 +44,17 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
         })
         handlers.addHandler(new RequestResponseServerHandler() {
             @Override
-            Predicate<RequestMetaData> getPredicate() {
-                return {
-                    it.targetService == "remote"
+            HandlerPredicate getPredicate() {
+                return new HandlerPredicate() {
+                    @Override
+                    String resourceString() {
+                        return ""
+                    }
+
+                    @Override
+                    Predicate<RequestMetaData> matcher() {
+                        return { it.targetService == "remote" }
+                    }
                 }
             }
 
@@ -82,7 +86,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                             msg.protocol,
                             msg.metadata,
                             msg.contentType,
-                            msg.payload)
+                            msg.payload, msg.sourceAvailableContentTypes)
                 },
                 { TransportOutboundMessage msg ->
                     new TransportInboundMessage(msg.type, msg.id,
@@ -91,7 +95,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                             msg.protocol,
                             msg.metadata,
                             msg.contentType,
-                            msg.payload)
+                            msg.payload, msg.sourceAvailableContentTypes)
                 }
         )
 

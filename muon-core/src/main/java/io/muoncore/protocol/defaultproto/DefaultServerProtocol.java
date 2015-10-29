@@ -1,10 +1,14 @@
 package io.muoncore.protocol.defaultproto;
 
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.codec.Codecs;
+import io.muoncore.descriptors.ProtocolDescriptor;
 import io.muoncore.protocol.ServerProtocolStack;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,12 +18,19 @@ import java.util.Map;
  * Responds back with a 404 message.
  */
 public class DefaultServerProtocol implements ServerProtocolStack {
+
+    private Codecs codecs;
+
+    public DefaultServerProtocol(Codecs codecs) {
+        this.codecs = codecs;
+    }
+
     @Override
     public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
         return new DefaultServerChannelConnection();
     }
 
-    private static class DefaultServerChannelConnection implements ChannelConnection<TransportInboundMessage, TransportOutboundMessage> {
+    private class DefaultServerChannelConnection implements ChannelConnection<TransportInboundMessage, TransportOutboundMessage> {
 
         private ChannelFunction<TransportOutboundMessage> func;
 
@@ -43,8 +54,13 @@ public class DefaultServerProtocol implements ServerProtocolStack {
                         metadata,
                         "text/plain",
                         new byte[0],
-                        true));
+                        Arrays.asList(codecs.getAvailableCodecs())));
             }
         }
+    }
+
+    @Override
+    public ProtocolDescriptor getProtocolDescriptor() {
+        return new ProtocolDescriptor("default", "Default Protocol", "Returns 404 for all messages that match no other protocol", Collections.emptyList());
     }
 }

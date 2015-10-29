@@ -1,9 +1,5 @@
 package io.muoncore.protocol.requestresponse.server;
 
-import io.muoncore.protocol.requestresponse.RequestMetaData;
-
-import java.util.function.Predicate;
-
 public interface RequestResponseServerHandlerApi extends
         RequestResponseHandlersSource {
 
@@ -14,13 +10,13 @@ public interface RequestResponseServerHandlerApi extends
      * The predicate is used to match requests.
      */
     default <T> void handleRequest(
-            final Predicate<RequestMetaData> request,
+            final HandlerPredicate predicate,
             final Class<T> requestType,
             final Handler<T> handler) {
         getRequestResponseHandlers().addHandler(new RequestResponseServerHandler<T, Object>() {
             @Override
-            public Predicate<RequestMetaData> getPredicate() {
-                return request;
+            public HandlerPredicate getPredicate() {
+                return predicate;
             }
 
             @Override

@@ -4,6 +4,7 @@ import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.codec.json.GsonCodec
 import io.muoncore.codec.json.JsonOnlyCodecs
+import io.muoncore.protocol.requestresponse.server.HandlerPredicates
 import io.muoncore.protocol.requestresponse.server.RequestResponseHandlers
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandler
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerProtocolStack
@@ -81,6 +82,39 @@ class RequestResponseServerProtocolStackSpec extends Specification {
         }
     }
 
+    def "returns protocol descriptor"() {
+        def handler = Mock(RequestResponseServerHandler) {
+            handle(_) >> { RequestWrapper wrapper ->
+                wrapper.answer(new Response(200, "hello"))
+            }
+            getRequestType() >> Map
+        }
+
+        def handlers = Mock(RequestResponseHandlers) {
+            findHandler(_) >> handler
+            getHandlers() >> [
+                    mockHandler(),
+                    mockHandler(),
+                    mockHandler(),
+            ]
+        }
+        def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery)
+
+        when:
+        def protocolDescriptor = stack.protocolDescriptor
+
+        then:
+        protocolDescriptor.protocolScheme == "request"
+        protocolDescriptor.operations.size() == 3
+
+    }
+
+    def mockHandler() {
+        Mock(RequestResponseServerHandler) {
+            getPredicate() >> HandlerPredicates.path("simples")
+        }
+    }
+
     def inbound(id, service, protocol) {
         new TransportInboundMessage(
                 "somethingHappened",
@@ -90,7 +124,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
                 protocol,
                 [:],
                 "application/json",
-                new GsonCodec().encode([:]))
+                new GsonCodec().encode([:]), ["application/json"])
     }
 }
 

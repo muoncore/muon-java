@@ -35,7 +35,7 @@ class RequestResponseWorksSpec extends Specification {
         }
 
         when:
-        def response = svc1.request("muon://tombola/hello", [hello:"world"], Map).get(500, TimeUnit.MILLISECONDS)
+        def response = svc1.request("request://tombola/hello", [hello:"world"], Map).get(500, TimeUnit.MILLISECONDS)
 
         then:
         response != null

@@ -16,6 +16,7 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
          * subscribe
          * request
          * close
+         * validate << remote is checking if the stream exists during handshake.
          */
     }
 }

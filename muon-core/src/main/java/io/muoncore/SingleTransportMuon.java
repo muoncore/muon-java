@@ -9,9 +9,6 @@ import io.muoncore.protocol.DynamicRegistrationServerStacks;
 import io.muoncore.protocol.ServerRegistrar;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.protocol.defaultproto.DefaultServerProtocol;
-import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack;
-import io.muoncore.protocol.requestresponse.RRPTransformers;
-import io.muoncore.protocol.requestresponse.RequestMetaData;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.protocol.requestresponse.server.*;
 import io.muoncore.transport.MuonTransport;
@@ -22,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Predicate;
 
 /**
  * Simple bundle of default Muon protocol stacks based on a single transport.
@@ -45,7 +41,7 @@ public class SingleTransportMuon implements Muon
         this.configuration = configuration;
         this.transportClient = new SingleTransportClient(transport);
         this.discovery = discovery;
-        DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(new DefaultServerProtocol());
+        DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(new DefaultServerProtocol(codecs));
         this.protocols = stacks;
         this.registrar = stacks;
 
@@ -68,19 +64,18 @@ public class SingleTransportMuon implements Muon
     }
 
     private void initServerStacks(DynamicRegistrationServerStacks stacks) {
-        stacks.registerServerProtocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
-                new RequestResponseServerProtocolStack(
+        stacks.registerServerProtocol(new RequestResponseServerProtocolStack(
                         requestResponseHandlers, codecs, discovery));
 
-        stacks.registerServerProtocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                new ReactiveStreamServerStack());
+//        stacks.registerServerProtocol(new ReactiveStreamServerStack());
+//        stacks.registerServerProtocol(new IntrospectionServerProtocolStack(registrar));
     }
 
     private void initDefaultRequestHandler() {
         this.requestResponseHandlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler<Map, Map>() {
             @Override
-            public Predicate<RequestMetaData> getPredicate() {
-                return request -> false;
+            public HandlerPredicate getPredicate() {
+                return HandlerPredicates.none();
             }
 
             @Override

@@ -1,5 +1,6 @@
 package io.muoncore.transport;
 
+import java.util.List;
 import java.util.Map;
 
 public class TransportInboundMessage extends TransportMessage {
@@ -11,7 +12,8 @@ public class TransportInboundMessage extends TransportMessage {
             String protocol,
             Map<String, String> metadata,
             String contentType,
-            byte[] payload) {
-        super(type, id, targetServiceName, sourceServiceName, protocol, metadata, contentType, payload);
+            byte[] payload,
+            List<String> sourceAvailableContentTypes) {
+        super(type, id, targetServiceName, sourceServiceName, protocol, metadata, contentType, payload, sourceAvailableContentTypes);
     }
 }

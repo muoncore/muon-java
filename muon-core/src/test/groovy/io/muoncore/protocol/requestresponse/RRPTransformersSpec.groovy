@@ -10,6 +10,7 @@ class RRPTransformersSpec extends Specification {
 
     Codecs codecs = Mock(Codecs) {
         encode(_,_) >> new Codecs.EncodingResult(new byte[0], "text/plain")
+        getAvailableCodecs() >> []
     }
 
     def "TransportInboundMessage to Request "() {
@@ -64,7 +65,7 @@ class RRPTransformersSpec extends Specification {
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [(Response.STATUS):"200"],
                 "application/json",
-                new GsonCodec().encode([:]))
+                new GsonCodec().encode([:]), ["application/json"])
     }
 
     TransportInboundMessage inboundRequest() {
@@ -76,7 +77,7 @@ class RRPTransformersSpec extends Specification {
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [(Request.URL):"hello"],
                 "application/json",
-                new GsonCodec().encode([:]))
+                new GsonCodec().encode([:]), ["application/json"])
     }
 
 
@@ -87,7 +88,7 @@ class RRPTransformersSpec extends Specification {
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [:],
                 "application/json",
-                new GsonCodec().encode([:]))
+                new GsonCodec().encode([:]), ["application/json"])
     }
 
 }

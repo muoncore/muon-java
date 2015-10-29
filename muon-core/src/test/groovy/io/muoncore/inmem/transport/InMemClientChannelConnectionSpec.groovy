@@ -41,7 +41,7 @@ class InMemClientChannelConnectionSpec extends Specification {
                 "fakeproto",
                 [:],
                 "application/json",
-                new byte[0])
+                new byte[0], ["application/json"])
 
         when:
         Thread.start {
@@ -81,7 +81,7 @@ class InMemClientChannelConnectionSpec extends Specification {
                 "fakeproto",
                 [:],
                 "application/json",
-                new byte[0]))
+                new byte[0], ["applicaton/json"]))
 
         then:
         1 * localFunction.apply({ TransportInboundMessage msg ->

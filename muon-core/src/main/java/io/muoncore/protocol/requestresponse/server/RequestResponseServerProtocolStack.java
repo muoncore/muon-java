@@ -4,6 +4,8 @@ import io.muoncore.Discovery;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.async.StandardAsyncChannel;
 import io.muoncore.codec.Codecs;
+import io.muoncore.descriptors.OperationDescriptor;
+import io.muoncore.descriptors.ProtocolDescriptor;
 import io.muoncore.protocol.ServerProtocolStack;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
@@ -11,6 +13,9 @@ import io.muoncore.protocol.requestresponse.RequestMetaData;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Server side of the Requestr Response protocol.
@@ -63,5 +68,21 @@ public class RequestResponseServerProtocolStack implements
         });
 
         return api2.right();
+    }
+
+    @Override
+    public ProtocolDescriptor getProtocolDescriptor() {
+
+        List<OperationDescriptor> ops =
+                handlers.getHandlers().stream()
+                        .map(
+                handler -> new OperationDescriptor(handler.getPredicate().resourceString()))
+                .collect(Collectors.toList());
+
+        return new ProtocolDescriptor(
+                RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
+                "Request/ Response Protocol",
+                "Make a single request, get a single response",
+                ops);
     }
 }

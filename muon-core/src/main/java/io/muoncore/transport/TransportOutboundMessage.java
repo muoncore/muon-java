@@ -1,21 +1,9 @@
 package io.muoncore.transport;
 
+import java.util.List;
 import java.util.Map;
 
 public class TransportOutboundMessage extends TransportMessage {
-
-    private boolean closeChannel = false;
-
-    public TransportOutboundMessage(String type,
-                                    String id,
-                                    String targetServiceName,
-                                    String sourceServiceName,
-                                    String protocol,
-                                    Map<String, String> metadata,
-                                    String contentType,
-                                    byte[] payload) {
-        super(type, id, targetServiceName, sourceServiceName, protocol, metadata, contentType, payload);
-    }
 
     public TransportOutboundMessage(String type,
                                     String id,
@@ -25,9 +13,8 @@ public class TransportOutboundMessage extends TransportMessage {
                                     Map<String, String> metadata,
                                     String contentType,
                                     byte[] payload,
-                                    boolean closeChannel) {
-        super(type, id, targetServiceName, sourceServiceName, protocol, metadata, contentType, payload);
-        this.closeChannel = closeChannel;
+                                    List<String> sourceAvailableContentTypes) {
+        super(type, id, targetServiceName, sourceServiceName, protocol, metadata, contentType, payload, sourceAvailableContentTypes);
     }
 
     public TransportOutboundMessage cloneWithProtocol(String protocol) {
@@ -40,7 +27,7 @@ public class TransportOutboundMessage extends TransportMessage {
                 getMetadata(),
                 getContentType(),
                 getPayload(),
-                closeChannel);
+                getSourceAvailableContentTypes());
     }
 
     public TransportInboundMessage toInbound() {
@@ -52,6 +39,7 @@ public class TransportOutboundMessage extends TransportMessage {
                 getProtocol(),
                 getMetadata(),
                 getContentType(),
-                getPayload());
+                getPayload(),
+                getSourceAvailableContentTypes());
     }
 }

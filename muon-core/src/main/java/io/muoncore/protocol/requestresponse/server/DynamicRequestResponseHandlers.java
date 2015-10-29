@@ -24,7 +24,12 @@ public class DynamicRequestResponseHandlers implements RequestResponseHandlers {
     public RequestResponseServerHandler findHandler(RequestMetaData inbound) {
         assert inbound != null;
         return handlers.stream().filter( handler -> {
-            return handler.getPredicate().test(inbound);
+            return handler.getPredicate().matcher().test(inbound);
         }).findFirst().orElse(defaultHandler);
+    }
+
+    @Override
+    public List<RequestResponseServerHandler> getHandlers() {
+        return handlers;
     }
 }

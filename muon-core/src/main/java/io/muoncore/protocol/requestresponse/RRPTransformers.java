@@ -5,12 +5,13 @@ import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class RRPTransformers {
 
-    public final static String REQUEST_RESPONSE_PROTOCOL = "requestresponse";
+    public final static String REQUEST_RESPONSE_PROTOCOL = "request";
 
     public static <T> RequestMetaData toRequestMetaData(TransportInboundMessage msg) {
         return new RequestMetaData(
@@ -58,7 +59,7 @@ public class RRPTransformers {
                 REQUEST_RESPONSE_PROTOCOL,
                 metadata,
                 payload.getContentType(),
-                payload.getPayload());
+                payload.getPayload(), Arrays.asList(codecs.getAvailableCodecs()));
     }
 
     public static TransportOutboundMessage toOutbound(String thisService, Response response, Codecs codecs, String[] acceptEncodings) {
@@ -81,6 +82,6 @@ public class RRPTransformers {
                 REQUEST_RESPONSE_PROTOCOL,
                 metadata,
                 payload.getContentType(),
-                payload.getPayload());
+                payload.getPayload(), Arrays.asList(codecs.getAvailableCodecs()));
     }
 }

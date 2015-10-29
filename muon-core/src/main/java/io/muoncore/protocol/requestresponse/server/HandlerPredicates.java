@@ -15,8 +15,32 @@ public class HandlerPredicates {
      * default Handler.
      *
      */
-    public static Predicate<RequestMetaData> all() {
-        return msg -> true;
+    public static HandlerPredicate all() {
+        return new HandlerPredicate() {
+            @Override
+            public String resourceString() {
+                return "/*";
+            }
+
+            @Override
+            public Predicate<RequestMetaData> matcher() {
+                return meta -> true;
+            }
+        };
+    }
+
+    public static HandlerPredicate none() {
+        return new HandlerPredicate() {
+            @Override
+            public String resourceString() {
+                return "-";
+            }
+
+            @Override
+            public Predicate<RequestMetaData> matcher() {
+                return meta -> false;
+            }
+        };
     }
 
     /**
@@ -26,7 +50,17 @@ public class HandlerPredicates {
      *
      * @param path The path to match exactly on the request.
      */
-    public static Predicate<RequestMetaData> path(String path) {
-        return msg -> msg.getUrl().equals(path);
+    public static HandlerPredicate path(String path) {
+        return new HandlerPredicate() {
+            @Override
+            public String resourceString() {
+                return path;
+            }
+
+            @Override
+            public Predicate<RequestMetaData> matcher() {
+                return msg -> msg.getUrl().equals(path);
+            }
+        };
     }
 }

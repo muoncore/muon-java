@@ -31,7 +31,7 @@ class AmqpMessageTransformersSpec extends Specification {
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [:],
                 "application/json",
-                [] as byte[])
+                [] as byte[], [])
     }
     TransportInboundMessage inbound() {
         new TransportInboundMessage(
@@ -42,7 +42,7 @@ class AmqpMessageTransformersSpec extends Specification {
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [:],
                 "application/json",
-                [] as byte[]
+                [] as byte[], []
         )
     }
 }

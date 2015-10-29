@@ -102,7 +102,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
                 protocol,
                 [:],
                 "application/json",
-                new GsonCodec().encode([:]))
+                new GsonCodec().encode([:]), ["application/json"])
     }
 
     def outbound(id, service, protocol) {
@@ -114,6 +114,6 @@ class SingleTransportChannelConnectionSpec extends Specification {
                 protocol,
                 [:],
                 "application/json",
-                new GsonCodec().encode([:]))
+                new GsonCodec().encode([:]), ["application/json"])
     }
 }

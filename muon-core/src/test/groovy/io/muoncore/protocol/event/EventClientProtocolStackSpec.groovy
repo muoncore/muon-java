@@ -69,7 +69,7 @@ class EventClientProtocolStackSpec extends Specification {
                     "fakeproto",
                     ["status":"200"],
                     "text/plain",
-                    new byte[0]))
+                    new byte[0], []))
         }
 
         sleep(50)

@@ -1,6 +1,7 @@
 package io.muoncore.protocol.defaultproto
 
 import io.muoncore.channel.ChannelConnection
+import io.muoncore.codec.Codecs
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportOutboundMessage
 import spock.lang.Specification
@@ -9,7 +10,10 @@ class DefaultServerProtocolSpec extends Specification {
 
     def "default proto sends bounce messages"() {
 
-        def proto = new DefaultServerProtocol()
+        def codecs = Mock(Codecs) {
+            getAvailableCodecs() >> []
+        }
+        def proto = new DefaultServerProtocol(codecs)
         def channel = proto.createChannel()
         def receive = Mock(ChannelConnection.ChannelFunction)
 
@@ -24,7 +28,7 @@ class DefaultServerProtocolSpec extends Specification {
                 "fakeproto",
                 [:],
                 "text/plain",
-                new byte[0]))
+                new byte[0], ["application/json"]))
 
         then:
         1 * receive.apply(_ as TransportOutboundMessage)
