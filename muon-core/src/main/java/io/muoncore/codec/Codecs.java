@@ -1,9 +1,7 @@
 package io.muoncore.codec;
 
-import java.io.UnsupportedEncodingException;
-
 public interface Codecs {
-    EncodingResult encode(Object object, String[] acceptableContentTypes) throws UnsupportedEncodingException;
+    EncodingResult encode(Object object, String[] acceptableContentTypes);
     <T> T decode(byte[] source, String contentType, Class<T> type);
 
     String getBestAvailableCodec(String[] acceptableContentTypes);
@@ -13,6 +11,19 @@ public interface Codecs {
     class EncodingResult {
         private byte[] payload;
         private String contentType;
+        private Exception failureMessage;
+
+        public EncodingResult(Exception failure) {
+            this.failureMessage = failure;
+        }
+
+        public boolean isFailed() {
+            return failureMessage != null;
+        }
+
+        public Exception getFailureMessage() {
+            return failureMessage;
+        }
 
         public EncodingResult(byte[] payload, String contentType) {
             this.payload = payload;

@@ -4,12 +4,10 @@ import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
 import io.muoncore.descriptors.ProtocolDescriptor;
 import io.muoncore.descriptors.ServiceExtendedDescriptorSource;
-import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.protocol.ServerProtocolStack;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,12 +40,7 @@ public class IntrospectionServerProtocolStack implements ServerProtocolStack {
 
         @Override
         public void send(TransportInboundMessage message) {
-            Codecs.EncodingResult result;
-            try {
-                result = codecs.encode(descriptorSource.getServiceExtendedDescriptor(), message.getSourceAvailableContentTypes().toArray(new String[0]));
-            } catch (UnsupportedEncodingException e) {
-                throw new MuonTransportFailureException("Unable to decode the available content types", e);
-            }
+            Codecs.EncodingResult result = codecs.encode(descriptorSource.getServiceExtendedDescriptor(), message.getSourceAvailableContentTypes().toArray(new String[0]));
 
             TransportOutboundMessage msg = new TransportOutboundMessage(
                     "introspectionReport",

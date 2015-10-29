@@ -8,6 +8,7 @@ public interface AmqpConnection {
     Channel getChannel();
 
     void send(QueueListener.QueueMessage message) throws IOException;
+    void broadcast(QueueListener.QueueMessage message) throws IOException;
 
     boolean isAvailable();
 

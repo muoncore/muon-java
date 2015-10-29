@@ -125,7 +125,7 @@ project('muon-core') {
 //        compile 'org.slf4j:slf4j-jdk14:1.7.12'
 //    }
 //}
-//
+
 project('muon-transport-amqp') {
     description = 'Core Muon for Java'
     dependencies {
@@ -133,14 +133,14 @@ project('muon-transport-amqp') {
         compile "com.rabbitmq:amqp-client:3.3.2"
     }
 }
-//
-//project('muon-discovery-amqp') {
-//    description = 'A discovery system running on AMQP'
-//    dependencies {
-//        compile project(":muon-transport-amqp")
-//    }
-//}
-//
+
+project('muon-discovery-amqp') {
+    description = 'A discovery system running on AMQP'
+    dependencies {
+        compile project(":muon-transport-amqp")
+    }
+}
+
 //project('muon-codec-kryo') {
 //    description = 'Codec implementation using Kryo (for communication with other JVMs only)'
 //    dependencies {

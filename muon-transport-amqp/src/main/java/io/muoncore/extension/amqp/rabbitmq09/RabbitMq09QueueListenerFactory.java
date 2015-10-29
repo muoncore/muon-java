@@ -19,4 +19,12 @@ public class RabbitMq09QueueListenerFactory implements QueueListenerFactory {
         listener.blockUntilReady();
         return listener;
     }
+
+    @Override
+    public QueueListener listenOnBroadcast(String topicName, QueueListener.QueueFunction function) {
+        RabbitMq09BroadcastListener listener = new RabbitMq09BroadcastListener(channel, topicName, function);
+        listener.start();
+        listener.blockUntilReady();
+        return listener;
+    }
 }

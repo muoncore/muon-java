@@ -2,7 +2,6 @@ package io.muoncore.codec.crypt;
 
 import io.muoncore.codec.Codecs;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -20,7 +19,7 @@ public class EncryptingCodecs implements Codecs {
     }
 
     @Override
-    public EncodingResult encode(Object object, String[] acceptableContentTypes) throws UnsupportedEncodingException {
+    public EncodingResult encode(Object object, String[] acceptableContentTypes) {
         EncodingResult result = delegate.encode(object, acceptableContentTypes);
         return new EncodingResult(algorithm.encrypt(result.getPayload()),
                 result.getContentType() + "+" + algorithm.getAlgorithmName());

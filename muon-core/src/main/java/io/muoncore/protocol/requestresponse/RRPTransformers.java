@@ -4,7 +4,6 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,12 +43,7 @@ public class RRPTransformers {
         Map<String, String> metadata = new HashMap<>();
         metadata.put(Request.URL, request.getMetaData().getUrl());
 
-        Codecs.EncodingResult payload = null;
-        try {
-            payload = codecs.encode(request.getPayload(), acceptEncodings);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        Codecs.EncodingResult payload = codecs.encode(request.getPayload(), acceptEncodings);
 
         return new TransportOutboundMessage(
                 "requestMade",
@@ -67,12 +61,7 @@ public class RRPTransformers {
         Map<String, String> metadata = new HashMap<>();
         metadata.put(Response.STATUS, String.valueOf(response.getStatus()));
 
-        Codecs.EncodingResult payload = null;
-        try {
-            payload = codecs.encode(response.getPayload(), acceptEncodings);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        Codecs.EncodingResult payload = codecs.encode(response.getPayload(), acceptEncodings);
 
         return new TransportOutboundMessage(
                 "responseSent",
