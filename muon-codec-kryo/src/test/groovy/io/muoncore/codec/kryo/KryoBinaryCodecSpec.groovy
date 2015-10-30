@@ -1,4 +1,4 @@
-package io.muoncore.crud.codec
+package io.muoncore.codec.kryo
 
 import spock.lang.Specification
 

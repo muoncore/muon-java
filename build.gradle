@@ -141,14 +141,14 @@ project('muon-discovery-amqp') {
     }
 }
 
-//project('muon-codec-kryo') {
-//    description = 'Codec implementation using Kryo (for communication with other JVMs only)'
-//    dependencies {
-//        compile project(":muon-core")
-//        compile 'com.esotericsoftware:kryo-shaded:3.0.0'
-//    }
-//}
-//
+project('muon-codec-kryo') {
+    description = 'Codec implementation using Kryo (for communication with other JVMs only)'
+    dependencies {
+        compile project(":muon-core")
+        compile 'com.esotericsoftware:kryo-shaded:3.0.0'
+    }
+}
+
 //project('muon-spring') {
 //    description = 'Spring integration for Muon'
 //    dependencies {

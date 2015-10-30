@@ -2,7 +2,7 @@ rootProject.name = "muon"
 
 include 'muon-core',
         'muon-transport-amqp',
-        'muon-discovery-amqp'//,
-//        'muon-codec-kryo',
+        'muon-discovery-amqp',
+        'muon-codec-kryo'//,
 //        'muon-tck',
 //        'muon-spring'
