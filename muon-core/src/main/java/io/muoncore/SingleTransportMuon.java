@@ -14,6 +14,8 @@ import io.muoncore.protocol.introspection.server.IntrospectionServerProtocolStac
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.protocol.requestresponse.server.*;
 import io.muoncore.transport.MuonTransport;
+import io.muoncore.transport.TransportControl;
+import io.muoncore.transport.client.SimpleTransportMessageDispatcher;
 import io.muoncore.transport.client.SingleTransportClient;
 import io.muoncore.transport.client.TransportClient;
 
@@ -29,6 +31,7 @@ public class SingleTransportMuon implements Muon
 {
 
     private SingleTransportClient transportClient;
+    private TransportControl transportControl;
     private Discovery discovery;
     private ServerStacks protocols;
     private ServerRegistrar registrar;
@@ -41,7 +44,10 @@ public class SingleTransportMuon implements Muon
             Discovery discovery,
             MuonTransport transport) {
         this.configuration = configuration;
-        this.transportClient = new SingleTransportClient(transport);
+        SingleTransportClient client = new SingleTransportClient(
+                transport, new SimpleTransportMessageDispatcher());
+        this.transportClient = client;
+        this.transportControl = client;
         this.discovery = discovery;
         DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(new DefaultServerProtocol(codecs));
         this.protocols = stacks;
@@ -123,5 +129,10 @@ public class SingleTransportMuon implements Muon
     @Override
     public void shutdown() {
         transportClient.shutdown();
+    }
+
+    @Override
+    public TransportControl getTransportControl() {
+        return transportControl;
     }
 }

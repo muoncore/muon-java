@@ -24,6 +24,8 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     private CountDownLatch handshakeControl = new CountDownLatch(1);
 
+    private QueueListener listener;
+
     public DefaultAmqpChannel(AmqpConnection connection,
                               QueueListenerFactory queueListenerFactory,
                               String localServiceName) {
@@ -37,7 +39,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
         receiveQueue = localServiceName + "-receive-" + UUID.randomUUID().toString();
         sendQueue = serviceName + "-receive-" + UUID.randomUUID().toString();
 
-        listenerFactory.listenOnQueue(receiveQueue, msg -> {
+        listener = listenerFactory.listenOnQueue(receiveQueue, msg -> {
             log.info("Received a message on the receive queue " + msg.getQueueName() + " of type " + msg.getEventType());
             if (msg.getEventType().equals("handshakeAccepted")) {
                 log.info("Handshake completed");
@@ -68,7 +70,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
         receiveQueue = message.getReceiveQueue();
         sendQueue = message.getReplyQueue();
         log.info("Opening queue to listen " + receiveQueue);
-        listenerFactory.listenOnQueue(receiveQueue, msg -> {
+        listener = listenerFactory.listenOnQueue(receiveQueue, msg -> {
             log.info("Received inbound channel message of type " + message.getProtocol());
             if (function != null) {
                 function.apply(AmqpMessageTransformers.queueToInbound(msg));
@@ -87,7 +89,8 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     @Override
     public void shutdown() {
-        connection.close();
+        try { listener.cancel(); } catch(Exception e){}
+        try { connection.close(); } catch(Exception e){}
     }
 
     @Override

@@ -7,10 +7,11 @@ class SingleTransportClientSpec extends Specification {
 
     def "client creates a SingleTransportChannelConnection for every request"() {
         def transport = Mock(MuonTransport)
-        def cl = new SingleTransportClient(transport)
+        def dispatcher = Mock(TransportMessageDispatcher)
+
+        def cl = new SingleTransportClient(transport, dispatcher)
 
         expect:
         cl.openClientChannel() instanceof SingleTransportClientChannelConnection
     }
-
 }

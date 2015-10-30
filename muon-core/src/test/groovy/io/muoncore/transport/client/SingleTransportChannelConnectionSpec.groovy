@@ -13,8 +13,9 @@ class SingleTransportChannelConnectionSpec extends Specification {
     def "transport channel requires full connection before sending"() {
 
         def transport = Mock(MuonTransport)
+        def dispatcher = Mock(TransportMessageDispatcher)
 
-        def connection = new SingleTransportClientChannelConnection(transport)
+        def connection = new SingleTransportClientChannelConnection(transport, dispatcher)
 
         when:
         connection.send(outbound("mymessage", "myService1", "requestresponse"))
@@ -26,8 +27,9 @@ class SingleTransportChannelConnectionSpec extends Specification {
     def "transport channel to a service is opened for every new service/proto combo seen"() {
 
         def transport = Mock(MuonTransport)
+        def dispatcher = Mock(TransportMessageDispatcher)
 
-        def connection = new SingleTransportClientChannelConnection(transport)
+        def connection = new SingleTransportClientChannelConnection(transport, dispatcher)
         connection.receive({})
 
         when:
@@ -70,8 +72,9 @@ class SingleTransportChannelConnectionSpec extends Specification {
         }
 
         def receive = Mock(ChannelConnection.ChannelFunction)
+        def dispatcher = Mock(TransportMessageDispatcher)
 
-        def connection = new SingleTransportClientChannelConnection(transport)
+        def connection = new SingleTransportClientChannelConnection(transport, dispatcher)
         connection.receive(receive)
 
         when:

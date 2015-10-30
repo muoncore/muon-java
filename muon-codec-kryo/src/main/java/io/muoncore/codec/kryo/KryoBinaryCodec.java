@@ -1,12 +1,13 @@
-package io.muoncore.crud.codec;
+package io.muoncore.codec.kryo;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import io.muoncore.codec.MuonCodec;
 
 import java.util.Map;
 
-public class KryoBinaryCodec implements BinaryCodec {
+public class KryoBinaryCodec implements MuonCodec {
 
     @Override
     public <T> T decode(byte[] encodedData, Class<T> type) {
