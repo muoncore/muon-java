@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 
 public class SimpleTransportMessageDispatcher implements TransportMessageDispatcher {
 
-    private List<Queue<TransportMessage>> queues = new ArrayList<>();
+    private List<QueuePredicate> queues = new ArrayList<>();
     private Executor exec = Executors.newFixedThreadPool(20);
 
     @Override
@@ -25,8 +25,11 @@ public class SimpleTransportMessageDispatcher implements TransportMessageDispatc
     @Override
     public Publisher<TransportMessage> observe(Predicate<TransportMessage> filter) {
 
+
         LinkedBlockingQueue<TransportMessage> queue = new LinkedBlockingQueue<>();
-        queues.add(queue);
+
+        QueuePredicate wrapper = new QueuePredicate(queue, filter);
+        queues.add(wrapper);
 
         return s -> s.onSubscribe(new Subscription() {
             @Override
@@ -44,9 +47,25 @@ public class SimpleTransportMessageDispatcher implements TransportMessageDispatc
 
             @Override
             public void cancel() {
-                queues.remove(queue);
+                queues.remove(wrapper);
                 queue.clear();
             }
         });
+    }
+
+    static class QueuePredicate {
+        private Queue<TransportMessage> queue;
+        private Predicate<TransportMessage> predicate;
+
+        public QueuePredicate(Queue<TransportMessage> queue, Predicate<TransportMessage> predicate) {
+            this.queue = queue;
+            this.predicate = predicate;
+        }
+
+        public void add(TransportMessage msg) {
+            if (predicate.test(msg)) {
+                queue.add(msg);
+            }
+        }
     }
 }
