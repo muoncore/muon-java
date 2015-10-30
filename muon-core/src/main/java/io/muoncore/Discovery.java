@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public interface Discovery {
     /**
@@ -38,4 +37,6 @@ public interface Discovery {
     void advertiseLocalService(ServiceDescriptor descriptor);
 
     void onReady(Runnable onReady);
+
+    void shutdown();
 }

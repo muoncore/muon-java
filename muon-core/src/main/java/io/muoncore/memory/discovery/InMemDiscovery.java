@@ -28,4 +28,9 @@ public class InMemDiscovery implements Discovery {
     public void onReady(Runnable onReady) {
         new Thread(onReady).start();
     }
+
+    @Override
+    public void shutdown() {
+
+    }
 }

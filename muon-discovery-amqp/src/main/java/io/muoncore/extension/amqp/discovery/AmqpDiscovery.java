@@ -96,4 +96,10 @@ public class AmqpDiscovery implements Discovery {
             }
         }
     }
+
+    @Override
+    public void shutdown() {
+        spinner.shutdownNow();
+        listener.cancel();
+    }
 }

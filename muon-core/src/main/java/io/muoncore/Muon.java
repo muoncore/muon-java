@@ -7,6 +7,7 @@ import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerHandlerApi
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocolStack;
 import io.muoncore.protocol.requestresponse.server.RequestResponseHandlersSource;
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandlerApi;
+import io.muoncore.transport.TransportControl;
 
 /**
  * Default set of protocol stacks.
@@ -21,4 +22,5 @@ public interface Muon extends
         IntrospectionClientProtocolStack {
 
         void shutdown();
+        TransportControl getTransportControl();
 }

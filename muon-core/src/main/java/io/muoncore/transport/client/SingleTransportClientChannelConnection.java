@@ -10,18 +10,25 @@ import java.util.Map;
 
 class SingleTransportClientChannelConnection implements ChannelConnection<TransportOutboundMessage, TransportInboundMessage> {
 
+    private TransportMessageDispatcher taps;
     private MuonTransport transport;
     private ChannelFunction<TransportInboundMessage> inbound;
 
     private Map<String, ChannelConnection<TransportOutboundMessage, TransportInboundMessage>> channelConnectionMap = new HashMap<>();
 
-    public SingleTransportClientChannelConnection(MuonTransport transport) {
+    public SingleTransportClientChannelConnection(
+            MuonTransport transport,
+            TransportMessageDispatcher taps) {
         this.transport = transport;
+        this.taps = taps;
     }
 
     @Override
     public void receive(ChannelFunction<TransportInboundMessage> function) {
-        inbound = function;
+        inbound = arg -> {
+            taps.dispatch(arg);
+            function.apply(arg);
+        };
     }
 
     @Override
@@ -36,6 +43,7 @@ class SingleTransportClientChannelConnection implements ChannelConnection<Transp
             connection = connectChannel(message);
             channelConnectionMap.put(key(message), connection);
         }
+        taps.dispatch(message);
         connection.send(message);
     }
 

@@ -12,20 +12,22 @@ import io.muoncore.extension.amqp.discovery.ServiceCache;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory;
 import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.protocol.requestresponse.server.HandlerPredicates;
 import io.muoncore.transport.MuonTransport;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
-public class ServiceAsapConsumer {
+public class ServiceQuery {
 
-    public static void main(String[] args) throws URISyntaxException, InterruptedException, NoSuchAlgorithmException, KeyManagementException, IOException {
+    public static void main(String[] args) throws URISyntaxException, InterruptedException, NoSuchAlgorithmException, KeyManagementException, IOException, ExecutionException {
 
-        String serviceName = "awesomeService";
+        String serviceName = "awesomeServiceQuery";
 
         AmqpConnection connection = new RabbitMq09ClientAmqpConnection("amqp://muon:microservices@localhost");
         QueueListenerFactory queueFactory = new RabbitMq09QueueListenerFactory(connection.getChannel());
@@ -44,9 +46,12 @@ public class ServiceAsapConsumer {
         //allow discovery settle time.
         Thread.sleep(5000);
 
-        muon.handleRequest(HandlerPredicates.all(), Map.class, request -> {
-            request.answer(new Response(200, new String[]{"Hello World, this be awesome"}));
-        });
+        Map data = new HashMap<>();
+
+        Response<List> ret = muon.request("request://awesomeService", data, List.class).get();
+
+        System.out.println("Server responds " + ret.getPayload().get(0));
+        muon.shutdown();
     }
 
     private static Discovery createDiscovery() throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, IOException {
