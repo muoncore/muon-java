@@ -69,6 +69,8 @@ public class SingleTransportMuon implements Muon
                 Arrays.asList(codecs.getAvailableCodecs()),
                 Collections.singletonList(transport.getLocalConnectionURI()
                 )));
+
+        discovery.blockUntilReady();
     }
 
     private void initServerStacks(DynamicRegistrationServerStacks stacks) {
