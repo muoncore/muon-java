@@ -3,6 +3,7 @@ package io.muoncore;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Predicate;
 
 public interface Discovery {
@@ -39,4 +40,16 @@ public interface Discovery {
     void onReady(Runnable onReady);
 
     void shutdown();
+
+    default void blockUntilReady() {
+        CountDownLatch latch = new CountDownLatch(1);
+        onReady(latch::countDown);
+        synchronized (this) {
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
