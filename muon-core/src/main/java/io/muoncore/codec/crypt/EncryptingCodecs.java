@@ -35,11 +35,6 @@ public class EncryptingCodecs implements Codecs {
     }
 
     @Override
-    public String getBestAvailableCodec(String[] acceptableContentTypes) {
-        return delegate.getBestAvailableCodec(acceptableContentTypes) + "+" + algorithm.getAlgorithmName();
-    }
-
-    @Override
     public String[] getAvailableCodecs() {
         List<String> codecs = new ArrayList<>();
         codecs.addAll(Arrays.asList(delegate.getAvailableCodecs()));
