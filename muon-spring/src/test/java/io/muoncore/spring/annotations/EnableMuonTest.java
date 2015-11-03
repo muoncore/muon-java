@@ -1,7 +1,7 @@
 package io.muoncore.spring.annotations;
 
 import io.muoncore.Discovery;
-import io.muoncore.Muon;
+import io.muoncore.crud.OldMuon;
 import io.muoncore.MuonExtension;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonBuilder;
@@ -74,7 +74,7 @@ public class EnableMuonTest {
     public void shouldCreateMuonBeans() throws Exception {
         ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(
                 SampleEnableMuonConfiguration.class);
-        final Muon muon = ctx.getBean(Muon.class);
+        final OldMuon muon = ctx.getBean(OldMuon.class);
         assertThat(muon, notNullValue());
         assertThat(muon.getServiceIdentifer(), is("muon-test"));
         assertThat(muon.getTags(), equalTo(Arrays.asList("tag1Value", "tag2Value")));

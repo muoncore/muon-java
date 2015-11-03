@@ -1,21 +1,24 @@
 package io.muoncore.extension.amqp.discovery;
 
-import java.util.*;
+import io.muoncore.ServiceDescriptor;
 
-class ServiceCache {
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class ServiceCache {
 
     static final int EXPIRY = 5000;
 
-    private Map<String, Entry> serviceCache = new HashMap<String, Entry>();
+    private Map<String, Entry> serviceCache = new HashMap<>();
 
-    public void addService(Map service) {
-        String id = (String) service.get("identifier");
-
-        serviceCache.put(id, new Entry(service, System.currentTimeMillis()));
+    public void addService(ServiceDescriptor service) {
+        serviceCache.put(
+                service.getIdentifier(),
+                new Entry(service, System.currentTimeMillis()));
     }
 
     private synchronized void expire() {
-        Map<String, Entry> entries = new HashMap<String, Entry>();
+        Map<String, Entry> entries = new HashMap<>();
         for (Map.Entry<String, Entry> entry: serviceCache.entrySet()) {
             long val = entry.getValue().createdAt + EXPIRY - System.currentTimeMillis();
             if (val > 0) {
@@ -25,21 +28,16 @@ class ServiceCache {
         serviceCache = entries;
     }
 
-    public List<Map> getServices() {
+    public List<ServiceDescriptor> getServices() {
         expire();
-        List<Map> services = new ArrayList<Map>();
-
-        for(Entry entry: serviceCache.values()) {
-            services.add(entry.data);
-        }
-        return services;
+        return this.serviceCache.values().stream().map( val -> val.data).collect(Collectors.toList());
     }
 
     static class Entry {
-        Map data;
+        ServiceDescriptor data;
         long createdAt;
 
-        public Entry(Map data, long createdAt) {
+        public Entry(ServiceDescriptor data, long createdAt) {
             this.data = data;
             this.createdAt = createdAt;
         }

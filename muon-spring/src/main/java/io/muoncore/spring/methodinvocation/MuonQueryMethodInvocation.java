@@ -3,7 +3,7 @@ package io.muoncore.spring.methodinvocation;
 import io.muoncore.spring.methodinvocation.parameterhandlers.DecodedContentEventArgumentTransformer;
 import io.muoncore.spring.methodinvocation.parameterhandlers.MethodArgumentTransformer;
 import io.muoncore.spring.methodinvocation.parameterhandlers.ResourceMethodArgumentTransformerFactory;
-import io.muoncore.transport.resource.MuonResourceEvent;
+import io.muoncore.transport.crud.requestresponse.MuonResourceEvent;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;

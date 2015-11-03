@@ -2,12 +2,27 @@ package io.muoncore;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.Predicate;
 
 public interface Discovery {
     /**
-     * Lookup a remote service via the muon:// url scheme
+     * Lookup a remote service in the cache via the muon:// url scheme
      */
-    ServiceDescriptor getService(URI uri);
+    default Optional<ServiceDescriptor> getService(URI uri) {
+        if (!uri.getScheme().equals("muon")) {
+            throw new IllegalArgumentException("Discovery requires muon://XXX scheme urls for lookup");
+        }
+        return findService(serviceDescriptor -> uri.getHost().equals(serviceDescriptor.getIdentifier()));
+    }
+
+    /**
+     * Lookup a remote service in the cache via some predicate
+     */
+    default Optional<ServiceDescriptor> findService(Predicate<ServiceDescriptor> predicate) {
+        return getKnownServices().stream().filter(predicate).findFirst();
+    }
 
     /**
      * Return all of the services that are currently visible by this discovery mechanism
@@ -23,4 +38,18 @@ public interface Discovery {
     void advertiseLocalService(ServiceDescriptor descriptor);
 
     void onReady(Runnable onReady);
+
+    void shutdown();
+
+    default void blockUntilReady() {
+        CountDownLatch latch = new CountDownLatch(1);
+        onReady(latch::countDown);
+        synchronized (this) {
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
