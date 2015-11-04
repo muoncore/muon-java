@@ -13,6 +13,7 @@ public class TransportMessage {
     private byte[] payload;
     private String contentType;
     private List<String> sourceAvailableContentTypes;
+    private ChannelOperation channelOperation = ChannelOperation.NORMAL;
 
     public TransportMessage(String type,
                             String id,
@@ -32,6 +33,32 @@ public class TransportMessage {
         this.payload = payload;
         this.contentType = contentType;
         this.sourceAvailableContentTypes = sourceAvailableContentTypes;
+    }
+
+    public TransportMessage(String type,
+                            String id,
+                            String targetServiceName,
+                            String sourceServiceName,
+                            String protocol,
+                            Map<String, String> metadata,
+                            String contentType,
+                            byte[] payload,
+                            List<String> sourceAvailableContentTypes,
+                            ChannelOperation channelOperation) {
+        this.targetServiceName = targetServiceName;
+        this.eventType = type;
+        this.id = id;
+        this.sourceServiceName = sourceServiceName;
+        this.protocol = protocol;
+        this.metadata = metadata;
+        this.payload = payload;
+        this.contentType = contentType;
+        this.sourceAvailableContentTypes = sourceAvailableContentTypes;
+        this.channelOperation = channelOperation;
+    }
+
+    public ChannelOperation getChannelOperation() {
+        return channelOperation;
     }
 
     public List<String> getSourceAvailableContentTypes() {
@@ -68,5 +95,11 @@ public class TransportMessage {
 
     public String getProtocol() {
         return protocol;
+    }
+
+    public enum ChannelOperation {
+        /** Cause the channel to be closed after propogating this message **/
+        CLOSE_CHANNEL,
+        NORMAL
     }
 }

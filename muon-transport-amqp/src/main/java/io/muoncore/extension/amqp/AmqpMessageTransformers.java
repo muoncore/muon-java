@@ -1,6 +1,7 @@
 package io.muoncore.extension.amqp;
 
 import io.muoncore.transport.TransportInboundMessage;
+import io.muoncore.transport.TransportMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
 import java.util.Arrays;
@@ -9,10 +10,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AmqpMessageTransformers {
-
-
-//    these are utterly broken and need to be fixed for the greater good.
-
 
     public static QueueListener.QueueMessage outboundToQueue(String queue, TransportOutboundMessage message) {
 
@@ -26,6 +23,7 @@ public class AmqpMessageTransformers {
         String delimitedContentTypes = message.getSourceAvailableContentTypes().stream()
                 .collect(Collectors.joining("|"));
         headers.put("sourceAvailableContentTypes", delimitedContentTypes);
+        headers.put("channelOperation", message.getChannelOperation().toString());
 
         return new QueueListener.QueueMessage(message.getType(), queue, message.getPayload(), headers, message.getContentType());
     }
@@ -42,7 +40,8 @@ public class AmqpMessageTransformers {
                 message.getHeaders().get("protocol").toString(),
                 metadata,
                 message.getContentType(), message.getBody(),
-                Arrays.asList(message.getHeaders().get("sourceAvailableContentTypes").split("|")));
+                Arrays.asList(message.getHeaders().get("sourceAvailableContentTypes").split("|")),
+                TransportMessage.ChannelOperation.valueOf(message.getHeaders().get("channelOperation")));
     }
 
 }
