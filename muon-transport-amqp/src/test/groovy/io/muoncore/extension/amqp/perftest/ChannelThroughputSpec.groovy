@@ -10,6 +10,7 @@ import io.muoncore.protocol.ServerStacks
 import io.muoncore.protocol.requestresponse.RRPTransformers
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportOutboundMessage
+import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -17,6 +18,7 @@ import spock.util.concurrent.PollingConditions
 
 import java.util.concurrent.Executors
 
+@Ignore
 @IgnoreIf({ System.getenv("BUILD_NUMBER") })
 class ChannelThroughputSpec extends Specification {
 
@@ -89,10 +91,8 @@ class ChannelThroughputSpec extends Specification {
         numservices | numRequests
         5   | 5
         10  | 5
-        20  | 5
         20  | 100
-        100 | 100
-        100 | 200
+        20  | 1000
     }
 
     private AMQPMuonTransport createTransport(serviceName) {
