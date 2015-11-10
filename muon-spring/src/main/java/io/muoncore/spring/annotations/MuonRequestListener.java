@@ -1,16 +1,19 @@
 package io.muoncore.spring.annotations;
 
+import io.muoncore.spring.annotations.parameterhandlers.DecodedContent;
+import io.muoncore.spring.annotations.parameterhandlers.Parameter;
+
 import java.lang.annotation.*;
 
 /**
- * Adds a query listener for Muon Resource queries
- * @see io.muoncore.spring.annotations.parameterhandlers.DecodedContent
- * @see io.muoncore.spring.annotations.parameterhandlers.MuonHeaders
+ * Adds a request listener for Muon Resource queries
+ * @see DecodedContent
+ * @see Parameter
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface MuonQueryListener {
+public @interface MuonRequestListener {
     /**
      * Query path, should start with /.
      * For example, /resource will map all queries to muon://[serviceName]/resource

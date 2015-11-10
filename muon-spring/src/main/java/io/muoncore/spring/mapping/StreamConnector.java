@@ -1,16 +1,8 @@
 package io.muoncore.spring.mapping;
 
-import io.muoncore.crud.OldMuon;
-import io.muoncore.spring.methodinvocation.MuonStreamMethodInvocation;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-import reactor.fn.Consumer;
-import reactor.rx.broadcast.Broadcaster;
-
-import java.net.URISyntaxException;
-
 public class StreamConnector {
 
+/*
     private OldMuon muon;
     private MuonStreamMethodInvocation muonStreamMethodInvocation;
     private String muonUrl;
@@ -73,4 +65,5 @@ public class StreamConnector {
     private enum ConnectionState {
         DISCONNECTED, CONNECTING, CONNECTED
     }
+*/
 }

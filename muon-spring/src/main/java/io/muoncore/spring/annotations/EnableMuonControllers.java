@@ -10,9 +10,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * Triggers processing of muon listener annotations:
  * <ul>
- * <li>{@link io.muoncore.spring.annotations.MuonController}</li>
- * <li>{@link io.muoncore.spring.annotations.MuonQueryListener}</li>
- * <li>{@link io.muoncore.spring.annotations.MuonStreamListener}</li>
+ * <li>{@link MuonController}</li>
+ * <li>{@link MuonRequestListener}</li>
+ * <li>{@link MuonStreamListener}</li>
  * </ul>
  */
 @Target(ElementType.TYPE)

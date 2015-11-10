@@ -1,8 +1,7 @@
 package io.muoncore.spring.repository;
 
 import io.muoncore.Muon;
-import io.muoncore.spring.annotations.Command;
-import io.muoncore.spring.annotations.Query;
+import io.muoncore.spring.annotations.Request;
 import org.springframework.util.StringValueResolver;
 
 import java.lang.reflect.InvocationHandler;
@@ -15,18 +14,13 @@ public class MuonRepositoryInvocationHandler implements InvocationHandler {
 
     private Class<?> type;
 
-    private Muon muon;
-
     private Map<Method, RepositoryMethodHandler> methodHandlers = new HashMap<>();
 
     public MuonRepositoryInvocationHandler(Class<?> type, Muon muon, StringValueResolver resolver) {
         this.type = type;
-        this.muon = muon;
         for (Method method : type.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(Query.class)) {
-                methodHandlers.put(method, new QueryRepositoryMethodHandler(method, muon, resolver));
-            } else if (method.isAnnotationPresent(Command.class)){
-                methodHandlers.put(method, new CommandRepositoryMethodHandler(method, muon, resolver));
+            if (method.isAnnotationPresent(Request.class)) {
+                methodHandlers.put(method, new RequestRepositoryMethodHandler(method, muon, resolver));
             }
         }
     }

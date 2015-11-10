@@ -1,6 +1,6 @@
 package io.muoncore.spring;
 
-import io.muoncore.spring.mapping.MuonResourceService;
+import io.muoncore.spring.mapping.MuonRequestListenerService;
 import io.muoncore.spring.mapping.MuonStreamSubscriptionService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +19,8 @@ public class MuonControllersConfiguration {
     }
 
     @Bean
-    public MuonResourceService muonResourceService() {
-        return new MuonResourceService();
+    public MuonRequestListenerService muonRequestListenerService() {
+        return new MuonRequestListenerService();
     }
 }
 

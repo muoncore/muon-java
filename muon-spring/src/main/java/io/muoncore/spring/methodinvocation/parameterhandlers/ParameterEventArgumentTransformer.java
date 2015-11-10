@@ -1,6 +1,7 @@
 package io.muoncore.spring.methodinvocation.parameterhandlers;
 
-import io.muoncore.transport.resource.MuonResourceEvent;
+
+import io.muoncore.protocol.requestresponse.server.RequestWrapper;
 
 import java.lang.reflect.Parameter;
 import java.util.Map;
@@ -22,9 +23,9 @@ public class ParameterEventArgumentTransformer implements MethodArgumentTransfor
     }
 
     @Override
-    public Object extractArgument(Object muonResourceEvent) {
-        if (muonResourceEvent instanceof MuonResourceEvent) {
-            Object decodedContent = ((MuonResourceEvent) muonResourceEvent).getDecodedContent();
+    public Object extractArgument(Object request) {
+        if (request instanceof RequestWrapper) {
+            Object decodedContent = ((RequestWrapper) request).getRequest().getPayload();
             if (decodedContent instanceof Map) {
                 Object result = ((Map) decodedContent).get(parameterName);
                 return castNumericTypes(result);

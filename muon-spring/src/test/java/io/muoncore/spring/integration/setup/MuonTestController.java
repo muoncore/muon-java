@@ -2,7 +2,7 @@ package io.muoncore.spring.integration.setup;
 
 import io.muoncore.spring.annotations.MuonCommandListener;
 import io.muoncore.spring.annotations.MuonController;
-import io.muoncore.spring.annotations.MuonQueryListener;
+import io.muoncore.spring.annotations.MuonRequestListener;
 import io.muoncore.spring.annotations.MuonStreamListener;
 import io.muoncore.spring.annotations.parameterhandlers.Parameter;
 
@@ -14,7 +14,7 @@ public class MuonTestController {
     private Person addedPerson;
     private Person receivedStreamEvent;
 
-    @MuonQueryListener(path = "/queryName")
+    @MuonRequestListener(path = "/queryName")
     public Person getPerson(@Parameter("personName") String personName) {
         if (expectedPersonName.equals(personName)) {
             return responsePerson;

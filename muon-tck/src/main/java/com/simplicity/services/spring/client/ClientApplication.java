@@ -38,7 +38,8 @@ public class ClientApplication {
     public void run() {
         remoteServiceRepository.addPerson(aDefaultPerson().withId(100L).build());
 
-        System.out.println(remoteServiceRepository.getPersonById(100L));
+        final Person personById = remoteServiceRepository.getPersonById(100L);
+        System.out.println(personById);
 
         List<Person> list = remoteServiceRepository.getPeople();
         System.out.println(list);

@@ -3,7 +3,7 @@ package com.simplicity.services.spring.server;
 import com.simplicity.services.spring.Person;
 import io.muoncore.spring.annotations.MuonCommandListener;
 import io.muoncore.spring.annotations.MuonController;
-import io.muoncore.spring.annotations.MuonQueryListener;
+import io.muoncore.spring.annotations.MuonRequestListener;
 import io.muoncore.spring.annotations.parameterhandlers.Parameter;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public class Controller {
 
     private static final Logger LOG = Logger.getLogger(Controller.class.getCanonicalName());
 
-    @MuonQueryListener(path = "/getPerson")
+    @MuonRequestListener(path = "/getPerson")
     public Person getPersonById(@Parameter("id") long id) {
         LOG.info("Got request to find PersonById[" + id + "]");
         Person person = PERSON_DB.get(id);
@@ -25,14 +25,14 @@ public class Controller {
         return person;
     }
 
-    @MuonQueryListener(path = "/getPeople")
+    @MuonRequestListener(path = "/getPeople")
     //TODO Implement type propagation to get correct list elements type
     public List<Person> getPeople() {
         LOG.info("Got request to get people list");
         return new ArrayList<>(PERSON_DB.values());
     }
 
-    @MuonCommandListener(path = "/addPerson")
+    @MuonRequestListener(path = "/addPerson")
     public void addPerson(Person person) {
         PERSON_DB.put(person.getId(), person);
     }

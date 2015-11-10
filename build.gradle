@@ -159,9 +159,9 @@ project('muon-spring') {
         testCompile('junit:junit:4.12')
         testCompile('org.mockito:mockito-core:1.10.19')
         testCompile('org.springframework:spring-test:4.1.6.RELEASE')
-        //TODO remove these when MuonBuilder hardcoded forClass is removed
-        testCompile project(":muon-transport-amqp")
-        testCompile project(":muon-discovery-amqp")
+        //TODO remove these when MuonBuilder returns back
+        compile project(":muon-transport-amqp")
+        compile project(":muon-discovery-amqp")
     }
 }
 

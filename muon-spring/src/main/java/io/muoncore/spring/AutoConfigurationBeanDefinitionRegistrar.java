@@ -10,9 +10,9 @@ import org.springframework.core.type.AnnotationMetadata;
 
 import java.util.Map;
 
-public class MuonConfigurationHolderBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
+public class AutoConfigurationBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
-    public static final String MUON_CONFIGURATION_HOLDER_BEAN_NAME = "muonConfigurationHolder";
+    public static final String AUTO_CONFIGURATION_BEAN_NAME = "muonAutoConfiguration";
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
@@ -21,12 +21,12 @@ public class MuonConfigurationHolderBeanDefinitionRegistrar implements ImportBea
         if (serviceNameCandidate != null && String.class == serviceNameCandidate.getClass()) {
             String serviceName = (String) serviceNameCandidate;
             BeanDefinitionBuilder definition = BeanDefinitionBuilder
-                    .genericBeanDefinition(MuonConfigurationHolderFactoryBean.class);
+                    .genericBeanDefinition(AutoConfigurationFactoryBean.class);
             definition.addPropertyValue("serviceName", serviceName);
             definition.addPropertyValue("tags", annotationAttributes.get("tags"));
-            definition.addPropertyValue("discoveryUrl", annotationAttributes.get("discoveryUrl"));
+            definition.addPropertyValue("aesEncryptionKey", annotationAttributes.get("aesEncryptionKey"));
             BeanDefinitionReaderUtils.registerBeanDefinition(
-                    new BeanDefinitionHolder(definition.getBeanDefinition(), MUON_CONFIGURATION_HOLDER_BEAN_NAME), registry);
+                    new BeanDefinitionHolder(definition.getBeanDefinition(), AUTO_CONFIGURATION_BEAN_NAME), registry);
         }
 
     }

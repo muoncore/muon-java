@@ -1,29 +1,24 @@
 package io.muoncore.spring.repository;
 
 import io.muoncore.Muon;
-import io.muoncore.MuonClient;
 import io.muoncore.exception.MuonException;
 import io.muoncore.future.MuonFuture;
-import io.muoncore.transport.resource.MuonResourceEvent;
-import io.muoncore.transport.resource.MuonResourceEventBuilder;
+import io.muoncore.protocol.requestresponse.Response;
+import io.muoncore.spring.annotations.Request;
 import org.springframework.util.StringValueResolver;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.net.URISyntaxException;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public abstract class AbstractRepositoryMethodHandler implements RepositoryMethodHandler {
+public class RequestRepositoryMethodHandler implements RepositoryMethodHandler {
 
     public static final String CONFIGURATION_EXCEPTION_TEXT = "Repository method should contain either multiple @Parameter annotated methods, or single object method";
-    protected final Class<?> returnType;
+    protected final Class returnType;
     protected final Muon muon;
 
     protected String muonUrl;
@@ -35,20 +30,30 @@ public abstract class AbstractRepositoryMethodHandler implements RepositoryMetho
     private QueryMethodParameterCombinationType queryMethodParameterCombinationType;
     protected int queryTimeout;
     protected TimeUnit timeoutUnit;
-    protected StringValueResolver valueResolver;
 
-    public AbstractRepositoryMethodHandler(Method method, Muon muon) {
+    public RequestRepositoryMethodHandler(Method method, Muon muon, StringValueResolver resolver) {
         this.method = method;
         this.muon = muon;
         initParameterHandlers();
         returnType = initReturnType(method);
+        Request queryAnnotation = method.getAnnotation(Request.class);
+        this.queryTimeout = queryAnnotation.timeout();
+        this.timeoutUnit = queryAnnotation.timeUnit();
+        this.muonUrl = resolver.resolveStringValue(queryAnnotation.value());
+
     }
 
-    private Class<?> initReturnType(Method method) {
-        Class<?> returnType = method.getReturnType();
+
+    private Class initReturnType(Method method) {
+        Class returnType = method.getReturnType();
+        if (returnType == void.class) {
+            returnType =  Object.class;
+        }
+//TODO Implement MuonFuture pass-through here
+/*
         if (MuonFuture.class.isAssignableFrom(returnType)) {
             keepMuonFuture = true;
-            returnType = Object.class;
+            returnType = method.getReturnType();
             Type returnGenericType = method.getGenericReturnType();
             if (returnGenericType instanceof ParameterizedType) {
                 Type[] returnTypes = ((ParameterizedType) returnGenericType).getActualTypeArguments();
@@ -57,6 +62,7 @@ public abstract class AbstractRepositoryMethodHandler implements RepositoryMetho
                 }
             }
         }
+*/
         return returnType;
     }
 
@@ -96,40 +102,35 @@ public abstract class AbstractRepositoryMethodHandler implements RepositoryMetho
             case OBJECT:
                 return processObjectQuery(args);
             case EMPTY:
-                return processEmptyQuery(args);
+                return processEmptyQuery();
         }
         throw new IllegalStateException("Wrong Query method type");
     }
 
-    private Object processEmptyQuery(Object[] args) {
-        MuonResourceEvent event = MuonResourceEventBuilder
-                .event(null)
-                .withUri(muonUrl)
-                .build();
-        return processMuonOperation(event);
+    private Object processEmptyQuery() {
+        return processMuonOperation(null);
     }
 
-    private Object processMuonOperation(MuonResourceEvent event) {
-        MuonFuture<MuonClient.MuonResult> future = executeMuonOperation(event, returnType);
+    private Object processMuonOperation(Object payload) {
         try {
+            MuonFuture<Response> future = executeMuonOperation(payload);
             if (keepMuonFuture) {
                 return future;
             } else {
-                return future.get(queryTimeout, timeoutUnit).getResponseEvent().getDecodedContent();
+                return future.get(queryTimeout, timeoutUnit).getPayload();
             }
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new MuonException("Error performing query " + event, e);
+        } catch (InterruptedException | ExecutionException | TimeoutException | URISyntaxException e) {
+            throw new MuonException("Error performing query " + muonUrl + "\nParameters: " + payload
+                    , e);
         }
     }
 
-    protected abstract MuonFuture executeMuonOperation(MuonResourceEvent event, Class<?> returnType);
+    protected MuonFuture<Response> executeMuonOperation(Object payload) throws URISyntaxException {
+        return muon.request(muonUrl, payload, returnType);
+    }
 
     private Object processObjectQuery(Object[] args) {
-        MuonResourceEvent event = MuonResourceEventBuilder
-                .event(args[0])
-                .withUri(muonUrl)
-                .build();
-        return processMuonOperation(event);
+        return processMuonOperation(args[0]);
     }
 
     private Object processParametersQuery(Object[] args) {
@@ -137,12 +138,9 @@ public abstract class AbstractRepositoryMethodHandler implements RepositoryMetho
         for (int i = 0; i < parameterNames.size(); i++) {
             parametersMap.put(parameterNames.get(i), args[i]);
         }
-        MuonResourceEvent event = MuonResourceEventBuilder
-                .event(parametersMap)
-                .withUri(muonUrl)
-                .build();
-        return processMuonOperation(event);
+        return processMuonOperation(parametersMap);
     }
 
     private enum QueryMethodParameterCombinationType {PARAMETERS, OBJECT, EMPTY}
+
 }

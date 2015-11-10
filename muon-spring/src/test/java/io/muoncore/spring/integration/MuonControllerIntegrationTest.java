@@ -1,12 +1,10 @@
 package io.muoncore.spring.integration;
 
 import io.muoncore.Muon;
-import io.muoncore.MuonService;
 import io.muoncore.future.MuonFuture;
 import io.muoncore.spring.annotations.EnableMuonControllers;
 import io.muoncore.spring.integration.setup.MuonTestController;
 import io.muoncore.spring.integration.setup.Person;
-import io.muoncore.transport.resource.MuonResourceEvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,6 +38,7 @@ import static org.mockito.Mockito.verify;
 @ComponentScan(basePackages = "io.muoncore.spring.integration.setup")
 public class MuonControllerIntegrationTest {
 
+/*
     public static final Person PETER = new Person(123l, "Peter", 23);
     public static final Person MIKE = new Person(234l, "Mike", 30);
     public static final String QUERY_EXPECTED_PERSON_NAME = "personName";
@@ -143,5 +142,6 @@ public class MuonControllerIntegrationTest {
         sampleParametersMap.put("personName", QUERY_EXPECTED_PERSON_NAME);
         return sampleParametersMap;
     }
+*/
 
 }

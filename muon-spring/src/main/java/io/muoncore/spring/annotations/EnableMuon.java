@@ -1,7 +1,7 @@
 package io.muoncore.spring.annotations;
 
 import io.muoncore.spring.MuonConfiguration;
-import io.muoncore.spring.MuonConfigurationHolderBeanDefinitionRegistrar;
+import io.muoncore.spring.AutoConfigurationBeanDefinitionRegistrar;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({MuonConfiguration.class, MuonConfigurationHolderBeanDefinitionRegistrar.class})
+@Import({MuonConfiguration.class, AutoConfigurationBeanDefinitionRegistrar.class})
 @EnableMuonControllers
 public @interface EnableMuon {
 

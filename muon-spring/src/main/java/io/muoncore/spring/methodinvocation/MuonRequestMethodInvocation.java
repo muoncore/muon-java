@@ -1,16 +1,16 @@
 package io.muoncore.spring.methodinvocation;
 
+import io.muoncore.protocol.requestresponse.server.RequestWrapper;
 import io.muoncore.spring.methodinvocation.parameterhandlers.DecodedContentEventArgumentTransformer;
 import io.muoncore.spring.methodinvocation.parameterhandlers.MethodArgumentTransformer;
 import io.muoncore.spring.methodinvocation.parameterhandlers.ResourceMethodArgumentTransformerFactory;
-import io.muoncore.transport.crud.requestresponse.MuonResourceEvent;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-public class MuonQueryMethodInvocation extends AbstractMuonMethodInvocation<MuonResourceEvent> {
+public class MuonRequestMethodInvocation extends AbstractMuonMethodInvocation<RequestWrapper> {
 
-    public MuonQueryMethodInvocation(Method method, Object bean) {
+    public MuonRequestMethodInvocation(Method method, Object bean) {
         super(bean, method);
         initArgumentTransformers();
     }

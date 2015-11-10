@@ -22,8 +22,8 @@ import java.lang.annotation.*;
 
 /**
  * Marker interface to trigger Muon repositories processing
- * @see MuonQueryListener
- * @see MuonStreamListener
+ * @see Request
+ *
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
