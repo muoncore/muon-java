@@ -10,8 +10,11 @@ public class ReactiveStreamServerStack implements ServerProtocolStack {
 
     public static String REACTIVE_STREAM_PROTOCOL = "reactive-stream";
 
+    private PublisherLookup publisherLookup;
+
     @Override
     public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
+
         return new ReactiveStreamServerChannel();
     }
 
