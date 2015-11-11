@@ -11,7 +11,6 @@ import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.extension.amqp.discovery.ServiceCache;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory;
-import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.protocol.requestresponse.server.HandlerPredicates;
 import io.muoncore.transport.MuonTransport;
 
@@ -44,8 +43,8 @@ public class ServiceAsapConsumer {
         //allow discovery settle time.
         Thread.sleep(5000);
 
-        muon.handleRequest(HandlerPredicates.all(), Map.class, request -> {
-            request.answer(new Response(200, new String[]{"Hello World, this be awesome"}));
+        muon.handleRequest(HandlerPredicates.all(), Map.class, response -> {
+            response.ok("Hellow");
         });
     }
 

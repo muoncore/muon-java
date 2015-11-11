@@ -11,7 +11,8 @@ import io.muoncore.protocol.ServerRegistrar;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.protocol.defaultproto.DefaultServerProtocol;
 import io.muoncore.protocol.introspection.server.IntrospectionServerProtocolStack;
-import io.muoncore.protocol.requestresponse.Response;
+import io.muoncore.protocol.reactivestream.server.DefaultPublisherLookup;
+import io.muoncore.protocol.reactivestream.server.PublisherLookup;
 import io.muoncore.protocol.requestresponse.server.*;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.TransportControl;
@@ -21,7 +22,6 @@ import io.muoncore.transport.client.TransportClient;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -38,6 +38,7 @@ public class SingleTransportMuon implements Muon
     private RequestResponseHandlers requestResponseHandlers;
     private Codecs codecs;
     private AutoConfiguration configuration;
+    private PublisherLookup publisherLookup;
 
     public SingleTransportMuon(
             AutoConfiguration configuration,
@@ -52,6 +53,8 @@ public class SingleTransportMuon implements Muon
         DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(new DefaultServerProtocol(codecs));
         this.protocols = stacks;
         this.registrar = stacks;
+
+        this.publisherLookup = new DefaultPublisherLookup();
 
         this.codecs = new EncryptingCodecs(
                 new JsonOnlyCodecs(),
@@ -92,8 +95,8 @@ public class SingleTransportMuon implements Muon
             }
 
             @Override
-            public void handle(RequestWrapper<Map, Map> request) {
-                request.answer(new Response<>(404, new HashMap<>()));
+            public void handle(RequestWrapper<Map> request) {
+                request.notFound();
             }
 
             @Override
@@ -136,5 +139,10 @@ public class SingleTransportMuon implements Muon
     @Override
     public TransportControl getTransportControl() {
         return transportControl;
+    }
+
+    @Override
+    public PublisherLookup getPublisherLookup() {
+        return publisherLookup;
     }
 }

@@ -1,11 +1,10 @@
-package io.muoncore.protocol.reactivestream
-
+package io.muoncore.protocol.reactivestream.client
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.exception.MuonException
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
-import io.muoncore.protocol.reactivestream.client.ReactiveStreamClientProtocol
+import io.muoncore.protocol.reactivestream.ProtocolMessages
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportMessage

@@ -12,10 +12,13 @@ public class ReactiveStreamServerStack implements ServerProtocolStack {
 
     private PublisherLookup publisherLookup;
 
+    public ReactiveStreamServerStack(PublisherLookup publisherLookup) {
+        this.publisherLookup = publisherLookup;
+    }
+
     @Override
     public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
-
-        return new ReactiveStreamServerChannel();
+        return new ReactiveStreamServerChannel(publisherLookup);
     }
 
     @Override

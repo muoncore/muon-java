@@ -3,12 +3,18 @@ package io.muoncore.protocol.reactivestream.server;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
+import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-public class ReactiveStreamServerChannel<T> implements ChannelConnection<TransportInboundMessage, TransportOutboundMessage> {
+public class ReactiveStreamServerChannel implements ChannelConnection<TransportInboundMessage, TransportOutboundMessage> {
 
     private PublisherLookup publisherLookup;
+    private Publisher publisher;
+
+    public ReactiveStreamServerChannel(PublisherLookup publisherLookup) {
+        this.publisherLookup = publisherLookup;
+    }
 
     @Override
     public void receive(ChannelFunction<TransportOutboundMessage> function) {

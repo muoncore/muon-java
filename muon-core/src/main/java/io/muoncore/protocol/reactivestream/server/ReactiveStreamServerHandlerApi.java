@@ -6,4 +6,5 @@ public interface ReactiveStreamServerHandlerApi {
     default <T> void publishSource(String name, Publisher<T> publisher) {
 
     }
+    PublisherLookup getPublisherLookup();
 }
