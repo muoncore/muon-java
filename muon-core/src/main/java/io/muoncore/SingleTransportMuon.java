@@ -89,6 +89,7 @@ public class SingleTransportMuon implements Muon
 
     private void initDefaultRequestHandler() {
         this.requestResponseHandlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler<Map, Map>() {
+
             @Override
             public HandlerPredicate getPredicate() {
                 return HandlerPredicates.none();

@@ -11,7 +11,6 @@ import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.extension.amqp.discovery.ServiceCache;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory;
-import io.muoncore.protocol.requestresponse.server.HandlerPredicates;
 import io.muoncore.transport.MuonTransport;
 
 import java.io.IOException;
@@ -19,6 +18,8 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+
+import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all;
 
 public class ServiceAsapConsumer {
 
@@ -43,7 +44,7 @@ public class ServiceAsapConsumer {
         //allow discovery settle time.
         Thread.sleep(5000);
 
-        muon.handleRequest(HandlerPredicates.all(), Map.class, response -> {
+        muon.handleRequest(all(), Map.class, response -> {
             response.ok("Hellow");
         });
     }
