@@ -9,6 +9,7 @@ public class ProtocolMessages {
     public final static String REQUEST = "DataRequested";
     public final static String CANCEL = "Cancelled";
     public final static String DATA= "Data";
-
+    public final static String COMPLETE= "Completed";
+    public final static String ERROR= "Errored";
 
 }

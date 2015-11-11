@@ -238,32 +238,156 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 ["application/json"],
                 TransportMessage.ChannelOperation.NORMAL))
 
-        and: "the subscription is cancelled"
+        and: "more data is requested off the subscription"
         subscription.request(100)
 
         then:
         1 * connection.send({ TransportOutboundMessage msg ->
-            msg.type == ProtocolMessages.DATA &&
+            msg.type == ProtocolMessages.REQUEST &&
                     msg.metadata.request == "100"
         } as TransportOutboundMessage)
     }
 
     def "on DATA, calls subscriber onNext"() {
+        def function
+        Subscription subscription
 
+        def uri = new URI("")
+        def connection = Mock(ChannelConnection) {
+            receive(_) >> { args ->
+                function = new ChannelFunctionExecShimBecauseGroovyCantCallLambda(args[0])
+            }
+        }
+        def sub = Mock(Subscriber)
 
+        def codecs = Mock(Codecs) {
+            encode(_, _) >> new Codecs.EncodingResult([0] as byte[], "application/json")
+            getAvailableCodecs() >> []
+            decode(_, _, Map) >> [helloworld:"awesome"]
+        }
+        def config = new AutoConfiguration(serviceName: "awesome")
+
+        def client = new ReactiveStreamClientProtocol(
+                uri,
+                connection,
+                sub,
+                Map,
+                codecs,
+                config)
+
+        when:
+        client.start()
+
+        and: "data arrives from the remote"
+        function(new TransportInboundMessage(
+                ProtocolMessages.DATA,
+                UUID.randomUUID().toString(),
+                "awesome",
+                "tombola",
+                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
+                [:],
+                "application/json",
+                [] as byte[],
+                ["application/json"],
+                TransportMessage.ChannelOperation.NORMAL))
+
+        then:
+        1 * sub.onNext([helloworld:"awesome"])
 
     }
 
     def "on COMPLETE, calls sub onComplete"() {
+        def function
+        Subscription subscription
 
+        def uri = new URI("")
+        def connection = Mock(ChannelConnection) {
+            receive(_) >> { args ->
+                function = new ChannelFunctionExecShimBecauseGroovyCantCallLambda(args[0])
+            }
+        }
+        def sub = Mock(Subscriber)
 
+        def codecs = Mock(Codecs) {
+            encode(_, _) >> new Codecs.EncodingResult([0] as byte[], "application/json")
+            getAvailableCodecs() >> []
+            decode(_, _, Map) >> [helloworld:"awesome"]
+        }
+        def config = new AutoConfiguration(serviceName: "awesome")
 
+        def client = new ReactiveStreamClientProtocol(
+                uri,
+                connection,
+                sub,
+                Map,
+                codecs,
+                config)
+
+        when:
+        client.start()
+
+        and: "data arrives from the remote"
+        function(new TransportInboundMessage(
+                ProtocolMessages.COMPLETE,
+                UUID.randomUUID().toString(),
+                "awesome",
+                "tombola",
+                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
+                [:],
+                "application/json",
+                [] as byte[],
+                ["application/json"],
+                TransportMessage.ChannelOperation.CLOSE_CHANNEL))
+
+        then:
+        1 * sub.onComplete()
     }
 
     def "on ERROR, calls sub onError"() {
+        def function
+        Subscription subscription
 
+        def uri = new URI("")
+        def connection = Mock(ChannelConnection) {
+            receive(_) >> { args ->
+                function = new ChannelFunctionExecShimBecauseGroovyCantCallLambda(args[0])
+            }
+        }
+        def sub = Mock(Subscriber)
 
+        def codecs = Mock(Codecs) {
+            encode(_, _) >> new Codecs.EncodingResult([0] as byte[], "application/json")
+            getAvailableCodecs() >> []
+            decode(_, _, Map) >> [helloworld:"awesome"]
+        }
+        def config = new AutoConfiguration(serviceName: "awesome")
 
+        def client = new ReactiveStreamClientProtocol(
+                uri,
+                connection,
+                sub,
+                Map,
+                codecs,
+                config)
+
+        when:
+        client.start()
+
+        and: "data arrives from the remote"
+        function(new TransportInboundMessage(
+                ProtocolMessages.ERROR,
+                UUID.randomUUID().toString(),
+                "awesome",
+                "tombola",
+                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
+                [:],
+                "application/json",
+                [] as byte[],
+                ["application/json"],
+                TransportMessage.ChannelOperation.CLOSE_CHANNEL))
+
+        then:
+        1 * sub.onError(_ as MuonException)
     }
 }
 

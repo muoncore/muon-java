@@ -44,7 +44,6 @@ public class ReactiveStreamClientProtocol<T> {
 
     public void start() {
         transportConnection.receive( msg -> handleMessage(msg));
-
         sendSubscribe();
     }
 
@@ -77,10 +76,14 @@ public class ReactiveStreamClientProtocol<T> {
                 });
                 subscriber.onError(new MuonException("Stream does not exist"));
                 break;
-            case ProtocolMessages.REQUEST:
-                break;
             case ProtocolMessages.DATA:
+                subscriber.onNext(codecs.decode(msg.getPayload(), msg.getContentType(), type));
                 break;
+            case ProtocolMessages.ERROR:
+                subscriber.onError(new MuonException());
+                break;
+            case ProtocolMessages.COMPLETE:
+                subscriber.onComplete();
         }
     }
 

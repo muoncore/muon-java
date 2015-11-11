@@ -102,4 +102,16 @@ public class TransportMessage {
         CLOSE_CHANNEL,
         NORMAL
     }
+
+    @Override
+    public String toString() {
+        return "TransportMessage{" +
+                "eventType='" + eventType + '\'' +
+                ", targetServiceName='" + targetServiceName + '\'' +
+                ", sourceServiceName='" + sourceServiceName + '\'' +
+                ", protocol='" + protocol + '\'' +
+                ", metadata=" + metadata +
+                ", channelOperation=" + channelOperation +
+                '}';
+    }
 }
