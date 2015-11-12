@@ -13,6 +13,7 @@ import io.muoncore.protocol.defaultproto.DefaultServerProtocol;
 import io.muoncore.protocol.introspection.server.IntrospectionServerProtocolStack;
 import io.muoncore.protocol.reactivestream.server.DefaultPublisherLookup;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
+import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack;
 import io.muoncore.protocol.requestresponse.server.*;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.TransportControl;
@@ -80,8 +81,7 @@ public class SingleTransportMuon implements Muon
         stacks.registerServerProtocol(new RequestResponseServerProtocolStack(
                         requestResponseHandlers, codecs, discovery));
 
-//        stacks.registerServerProtocol(new ReactiveStreamServerStack());
-
+        stacks.registerServerProtocol(new ReactiveStreamServerStack(getPublisherLookup(), getCodecs(), configuration));
         stacks.registerServerProtocol(new IntrospectionServerProtocolStack(
                 () -> new ServiceExtendedDescriptor(configuration.getServiceName(), registrar.getProtocolDescriptors()),
                 codecs));

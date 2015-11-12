@@ -2,6 +2,7 @@ package io.muoncore.protocol.reactivestream.server
 
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.Codecs
+import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.reactivestream.ProtocolMessages
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportMessage
@@ -26,6 +27,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 args[0].onSubscribe(subscription)
             }
         }
+        def config = new AutoConfiguration(serviceName: "awesome")
 
         def publookup = Mock(PublisherLookup) {
             lookupPublisher("simpleStream") >> Optional.of(pub)
@@ -36,7 +38,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
             getAvailableCodecs() >> []
         }
 
-        def channel = new ReactiveStreamServerChannel(publookup, codecs)
+        def channel = new ReactiveStreamServerChannel(publookup, codecs, config)
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
@@ -65,11 +67,12 @@ class ReactiveStreamServerChannelSpec extends Specification {
             lookupPublisher(_) >> Optional.empty()
         }
         def function = Mock(ChannelConnection.ChannelFunction)
+        def config = new AutoConfiguration(serviceName: "awesome")
         def codecs = Mock(Codecs) {
             getAvailableCodecs() >> []
         }
 
-        def channel = new ReactiveStreamServerChannel(publookup, codecs)
+        def channel = new ReactiveStreamServerChannel(publookup, codecs, config)
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
@@ -98,6 +101,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 args[0].onSubscribe(subscription)
             }
         }
+        def config = new AutoConfiguration(serviceName: "awesome")
 
         def publookup = Mock(PublisherLookup) {
             lookupPublisher("simpleStream") >> Optional.of(pub)
@@ -108,7 +112,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
             getAvailableCodecs() >> []
         }
 
-        def channel = new ReactiveStreamServerChannel(publookup, codecs)
+        def channel = new ReactiveStreamServerChannel(publookup, codecs, config)
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
@@ -147,6 +151,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 args[0].onSubscribe(subscription)
             }
         }
+        def config = new AutoConfiguration(serviceName: "awesome")
 
         def publookup = Mock(PublisherLookup) {
             lookupPublisher("simpleStream") >> Optional.of(pub)
@@ -157,7 +162,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
             getAvailableCodecs() >> []
         }
 
-        def channel = new ReactiveStreamServerChannel(publookup, codecs)
+        def channel = new ReactiveStreamServerChannel(publookup, codecs, config)
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
@@ -196,6 +201,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 subscriber = args[0]
             }
         }
+        def config = new AutoConfiguration(serviceName: "awesome")
 
         def publookup = Mock(PublisherLookup) {
             lookupPublisher("simpleStream") >> Optional.of(pub)
@@ -207,7 +213,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
             encode(_, _) >> new Codecs.EncodingResult([] as byte[], "application/json")
         }
 
-        def channel = new ReactiveStreamServerChannel(publookup, codecs)
+        def channel = new ReactiveStreamServerChannel(publookup, codecs, config)
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
@@ -228,7 +234,9 @@ class ReactiveStreamServerChannelSpec extends Specification {
 
         then:
         1 * function.apply({ TransportMessage msg ->
-            msg.type == ProtocolMessages.DATA
+            msg.type == ProtocolMessages.DATA &&
+                    msg.channelOperation == TransportMessage.ChannelOperation.NORMAL &&
+                    msg.targetServiceName == "tombola"
         })
         //TODO, verify data/ codec usage
     }
@@ -240,6 +248,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 subscriber = args[0]
             }
         }
+        def config = new AutoConfiguration(serviceName: "awesome")
 
         def publookup = Mock(PublisherLookup) {
             lookupPublisher("simpleStream") >> Optional.of(pub)
@@ -251,7 +260,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
             encode(_, _) >> new Codecs.EncodingResult([] as byte[], "application/json")
         }
 
-        def channel = new ReactiveStreamServerChannel(publookup, codecs)
+        def channel = new ReactiveStreamServerChannel(publookup, codecs, config)
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
@@ -272,7 +281,9 @@ class ReactiveStreamServerChannelSpec extends Specification {
 
         then:
         1 * function.apply({ TransportMessage msg ->
-            msg.type == ProtocolMessages.COMPLETE
+            msg.type == ProtocolMessages.COMPLETE &&
+                    msg.channelOperation == TransportMessage.ChannelOperation.CLOSE_CHANNEL &&
+                    msg.targetServiceName == "tombola"
         })
     }
 
@@ -283,6 +294,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 subscriber = args[0]
             }
         }
+        def config = new AutoConfiguration(serviceName: "awesome")
 
         def publookup = Mock(PublisherLookup) {
             lookupPublisher("simpleStream") >> Optional.of(pub)
@@ -294,7 +306,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
             encode(_, _) >> new Codecs.EncodingResult([] as byte[], "application/json")
         }
 
-        def channel = new ReactiveStreamServerChannel(publookup, codecs)
+        def channel = new ReactiveStreamServerChannel(publookup, codecs, config)
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
@@ -315,13 +327,10 @@ class ReactiveStreamServerChannelSpec extends Specification {
 
         then:
         1 * function.apply({ TransportMessage msg ->
-            msg.type == ProtocolMessages.ERROR
+            msg.type == ProtocolMessages.ERROR &&
+            msg.channelOperation == TransportMessage.ChannelOperation.CLOSE_CHANNEL &&
+                    msg.targetServiceName == "tombola"
         })
     }
-
-    the service names aren't set correctly.' +
-
-    need to ensure the exception is correctly broken down somehow and propogated in a portable way.
-
 
 }

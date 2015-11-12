@@ -2,6 +2,7 @@ package io.muoncore.protocol.reactivestream.server;
 
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
+import io.muoncore.config.AutoConfiguration;
 import io.muoncore.protocol.reactivestream.ProtocolMessages;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportMessage;
@@ -16,14 +17,20 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
 
     private PublisherLookup publisherLookup;
     private Subscription subscription;
+    private String subscribingServiceName;
     private ChannelFunction<TransportOutboundMessage> function;
     private Codecs codecs;
+    private AutoConfiguration configuration;
 
     private List<String> acceptedContentTypes;
 
-    public ReactiveStreamServerChannel(PublisherLookup publisherLookup, Codecs codecs) {
+    public ReactiveStreamServerChannel(
+            PublisherLookup publisherLookup,
+            Codecs codecs,
+            AutoConfiguration configuration) {
         this.publisherLookup = publisherLookup;
         this.codecs = codecs;
+        this.configuration = configuration;
     }
 
     @Override
@@ -85,6 +92,7 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
             sendNack();
         } else {
             acceptedContentTypes = msg.getSourceAvailableContentTypes();
+            subscribingServiceName = msg.getSourceServiceName();
             pub.get().subscribe(new Subscriber() {
                 @Override
                 public void onSubscribe(Subscription s) {
@@ -100,8 +108,8 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
                         new TransportOutboundMessage(
                             ProtocolMessages.DATA,
                             UUID.randomUUID().toString(),
-                            "awesome",
-                            "tombola",
+                            subscribingServiceName,
+                            configuration.getServiceName(),
                             ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
                             Collections.emptyMap(),
                             result.getContentType(),
@@ -116,14 +124,14 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
                             new TransportOutboundMessage(
                                     ProtocolMessages.ERROR,
                                     UUID.randomUUID().toString(),
-                                    "awesome",
-                                    "tombola",
+                                    subscribingServiceName,
+                                    configuration.getServiceName(),
                                     ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
                                     Collections.emptyMap(),
                                     "text/plain",
                                     new byte[0],
                                     Arrays.asList(codecs.getAvailableCodecs()),
-                                    TransportMessage.ChannelOperation.NORMAL));
+                                    TransportMessage.ChannelOperation.CLOSE_CHANNEL));
                 }
 
                 @Override
@@ -132,14 +140,14 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
                             new TransportOutboundMessage(
                                     ProtocolMessages.COMPLETE,
                                     UUID.randomUUID().toString(),
-                                    "awesome",
-                                    "tombola",
+                                    subscribingServiceName,
+                                    configuration.getServiceName(),
                                     ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
                                     Collections.emptyMap(),
                                     "text/plain",
                                     new byte[0],
                                     Arrays.asList(codecs.getAvailableCodecs()),
-                                    TransportMessage.ChannelOperation.NORMAL));
+                                    TransportMessage.ChannelOperation.CLOSE_CHANNEL));
                 }
             });
         }
