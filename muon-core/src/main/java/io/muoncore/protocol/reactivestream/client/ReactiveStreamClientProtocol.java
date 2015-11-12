@@ -63,20 +63,7 @@ public class ReactiveStreamClientProtocol<T> {
                 });
                 break;
             case ProtocolMessages.NACK:
-//                subscriber.onError(new MuonException("Stream does not exist"));
-                subscriber.onSubscribe(new Subscription() {
-                    @Override
-                    public void request(long n) {
-//                        sendRequest(n);
-                        subscriber.onError(new MuonException("Stream does not exist"));
-                    }
-
-                    @Override
-                    public void cancel() {
-//                        sendCancel();
-                        subscriber.onError(new MuonException("Stream does not exist"));
-                    }
-                });
+                subscriber.onError(new MuonException("Stream does not exist"));
                 break;
             case ProtocolMessages.DATA:
                 subscriber.onNext(codecs.decode(msg.getPayload(), msg.getContentType(), type));

@@ -91,8 +91,8 @@ class ChannelThroughputSpec extends Specification {
         numservices | numRequests
         5   | 5
         10  | 5
-        20  | 100
-        20  | 1000
+//        20  | 100
+//        20  | 1000
     }
 
     private AMQPMuonTransport createTransport(serviceName) {

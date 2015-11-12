@@ -48,6 +48,10 @@ class ReactiveStreamIntegrationSpec extends Specification {
         new PollingConditions(timeout: 5).eventually {
             data.size() == 20
         }
+
+        cleanup:
+        muon1.shutdown()
+        muon2.shutdown()
     }
 
     @Ignore
