@@ -134,7 +134,6 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 TransportMessage.ChannelOperation.NORMAL))
 
         then:
-        1 * sub.onSubscribe(_)
         1 * sub.onError(_ as MuonException)
     }
 

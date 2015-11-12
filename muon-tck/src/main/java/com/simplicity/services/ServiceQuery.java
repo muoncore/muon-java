@@ -48,9 +48,9 @@ public class ServiceQuery {
 
         Map data = new HashMap<>();
 
-        Response<List> ret = muon.request("request://awesomeService", data, List.class).get();
+        Response ret = muon.request("request://tckservice/discover", data, List.class).get();
 
-        System.out.println("Server responds " + ret.getPayload().get(0));
+        System.out.println("Server responds " + ret.getPayload());
         muon.shutdown();
     }
 

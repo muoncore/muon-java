@@ -9,7 +9,6 @@ import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
-import io.muoncore.protocol.requestresponse.Response
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 
@@ -31,7 +30,7 @@ class RequestResponseWorksSpec extends Specification {
 
         svc2.handleRequest(all(), Map) {
             it.request.id
-            it.answer(new Response(200, [hi:"there"]))
+            it.ok([hi:"there"])
         }
 
         when:
