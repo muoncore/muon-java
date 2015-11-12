@@ -9,9 +9,12 @@ import io.muoncore.descriptors.ServiceExtendedDescriptor
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.introspection.server.IntrospectionServerProtocolStack
 import io.muoncore.transport.TransportInboundMessage
+import io.muoncore.transport.TransportMessage
 import io.muoncore.transport.client.TransportClient
 import spock.lang.Specification
+import spock.lang.Timeout
 
+@Timeout(1)
 class IntrospectionClientProtocolStackSpec extends Specification {
 
     def "introspection client"() {
@@ -57,7 +60,7 @@ class IntrospectionClientProtocolStackSpec extends Specification {
                     new HashMap<>(),
                     "application/json",
                     codecs.encode(new ServiceExtendedDescriptor("tombola", [new ProtocolDescriptor("rrp", "Crazy Proto", "B happy", [])]), ["application/json"] as String[]).payload,
-                    ["application/json"]
+                    ["application/json"], TransportMessage.ChannelOperation.NORMAL
             ))
         }
         ServiceExtendedDescriptor descriptor = stack.introspect("simples").get()

@@ -9,6 +9,7 @@ import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocolStack
 import io.muoncore.protocol.requestresponse.server.*
 import io.muoncore.transport.TransportInboundMessage
+import io.muoncore.transport.TransportMessage
 import io.muoncore.transport.TransportOutboundMessage
 import io.muoncore.transport.client.TransportClient
 import spock.lang.Specification
@@ -86,7 +87,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                             msg.protocol,
                             msg.metadata,
                             msg.contentType,
-                            msg.payload, msg.sourceAvailableContentTypes)
+                            msg.payload, msg.sourceAvailableContentTypes, TransportMessage.ChannelOperation.NORMAL)
                 },
                 { TransportOutboundMessage msg ->
                     new TransportInboundMessage(msg.type, msg.id,
@@ -95,7 +96,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                             msg.protocol,
                             msg.metadata,
                             msg.contentType,
-                            msg.payload, msg.sourceAvailableContentTypes)
+                            msg.payload, msg.sourceAvailableContentTypes, TransportMessage.ChannelOperation.NORMAL)
                 }
         )
 

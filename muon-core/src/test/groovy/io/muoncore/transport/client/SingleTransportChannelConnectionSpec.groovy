@@ -5,6 +5,7 @@ import io.muoncore.codec.json.GsonCodec
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.transport.MuonTransport
 import io.muoncore.transport.TransportInboundMessage
+import io.muoncore.transport.TransportMessage
 import io.muoncore.transport.TransportOutboundMessage
 import spock.lang.Specification
 
@@ -105,7 +106,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
                 protocol,
                 [:],
                 "application/json",
-                new GsonCodec().encode([:]), ["application/json"])
+                new GsonCodec().encode([:]), ["application/json"], TransportMessage.ChannelOperation.NORMAL)
     }
 
     def outbound(id, service, protocol) {
