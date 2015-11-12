@@ -17,6 +17,9 @@ public class DefaultPublisherLookup implements PublisherLookup {
 
     @Override
     public void addPublisher(String name, Publisher publisher) {
+        if (!name.startsWith("/")) {
+            name = "/" + name;
+        }
         publishers.put(name, publisher);
     }
 }

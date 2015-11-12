@@ -63,18 +63,20 @@ public class ReactiveStreamClientProtocol<T> {
                 });
                 break;
             case ProtocolMessages.NACK:
+//                subscriber.onError(new MuonException("Stream does not exist"));
                 subscriber.onSubscribe(new Subscription() {
                     @Override
                     public void request(long n) {
-                        sendRequest(n);
+//                        sendRequest(n);
+                        subscriber.onError(new MuonException("Stream does not exist"));
                     }
 
                     @Override
                     public void cancel() {
-                        sendCancel();
+//                        sendCancel();
+                        subscriber.onError(new MuonException("Stream does not exist"));
                     }
                 });
-                subscriber.onError(new MuonException("Stream does not exist"));
                 break;
             case ProtocolMessages.DATA:
                 subscriber.onNext(codecs.decode(msg.getPayload(), msg.getContentType(), type));
@@ -125,13 +127,16 @@ public class ReactiveStreamClientProtocol<T> {
     private void sendSubscribe() {
         Codecs.EncodingResult result = codecs.encode(new Object(), new String[]{"application/json"});
 
+        Map<String, String> meta = new HashMap<>();
+        meta.put("streamName", uri.getPath());
+
         transportConnection.send(new TransportOutboundMessage(
                 ProtocolMessages.SUBSCRIBE,
                 UUID.randomUUID().toString(),
                 uri.getHost(),
                 configuration.getServiceName(),
                 ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                new HashMap<>(),
+                meta,
                 result.getContentType(),
                 result.getPayload(),
                 Arrays.asList(codecs.getAvailableCodecs())

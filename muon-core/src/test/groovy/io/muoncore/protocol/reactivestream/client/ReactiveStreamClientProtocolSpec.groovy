@@ -17,7 +17,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
 
     def "sends SUBSCRIBE when the proto is started"() {
 
-        def uri = new URI("")
+        def uri = new URI("stream://targetService/streamname")
         def connection = Mock(ChannelConnection)
         def sub = Mock(Subscriber)
         def codecs = Mock(Codecs) {
@@ -41,7 +41,9 @@ class ReactiveStreamClientProtocolSpec extends Specification {
         1 * connection.send({ TransportOutboundMessage msg ->
             msg.channelOperation == TransportMessage.ChannelOperation.NORMAL &&
                     msg.protocol == ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL &&
-                    msg.type == ProtocolMessages.SUBSCRIBE
+                    msg.type == ProtocolMessages.SUBSCRIBE &&
+                    msg.metadata.streamName == "/streamname" &&
+                    msg.targetServiceName == "targetService"
         })
 
         and: "Subscriber is unused"

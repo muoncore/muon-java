@@ -3,6 +3,7 @@ package io.muoncore.protocol.reactivestream.server;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
+import io.muoncore.exception.MuonException;
 import io.muoncore.protocol.reactivestream.ProtocolMessages;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportMessage;
@@ -59,8 +60,8 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
         function.apply(new TransportOutboundMessage(
                 ProtocolMessages.NACK,
                 UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
+                subscribingServiceName,
+                configuration.getServiceName(),
                 ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
                 meta,
                 "application/json",
@@ -74,8 +75,8 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
         function.apply(new TransportOutboundMessage(
                 ProtocolMessages.ACK,
                 UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
+                subscribingServiceName,
+                configuration.getServiceName(),
                 ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
                 meta,
                 "application/json",
@@ -154,6 +155,9 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
     }
 
     private void handleRequest(TransportInboundMessage msg) {
+        if (subscription == null) {
+            throw new MuonException("Unable to handle, subscription is not yet set");
+        }
         subscription.request(Long.parseLong(msg.getMetadata().get("request")));
     }
 

@@ -8,6 +8,8 @@ import io.muoncore.protocol.ServerProtocolStack;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
+import java.util.ArrayList;
+
 public class ReactiveStreamServerStack implements ServerProtocolStack {
 
     public static String REACTIVE_STREAM_PROTOCOL = "reactive-stream";
@@ -32,6 +34,8 @@ public class ReactiveStreamServerStack implements ServerProtocolStack {
 
     @Override
     public ProtocolDescriptor getProtocolDescriptor() {
-        return null;
+
+        return new ProtocolDescriptor(REACTIVE_STREAM_PROTOCOL, "Reactive Streaming", "",
+                new ArrayList<>());
     }
 }

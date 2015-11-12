@@ -332,5 +332,4 @@ class ReactiveStreamServerChannelSpec extends Specification {
                     msg.targetServiceName == "tombola"
         })
     }
-
 }
