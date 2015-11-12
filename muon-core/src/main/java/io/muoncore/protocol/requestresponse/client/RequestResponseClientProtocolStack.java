@@ -18,8 +18,16 @@ import java.net.URISyntaxException;
 public interface RequestResponseClientProtocolStack extends
         TransportClientSource, CodecsSource, ServiceConfigurationSource {
 
-    default <X,R> MuonFuture<Response<R>> request(String uri, X payload, Class<R> responseType) throws URISyntaxException {
-        return request(new URI(uri), payload, responseType);
+    default <R> MuonFuture<Response<R>> request(String uri, Class<R> responseType) {
+        return request(uri, new Object(), responseType);
+    }
+
+    default <X,R> MuonFuture<Response<R>> request(String uri, X payload, Class<R> responseType) {
+        try {
+            return request(new URI(uri), payload, responseType);
+        } catch (URISyntaxException ex) {
+            throw new MuonException("URI is incorrect", ex);
+        }
     }
 
     default <X,R> MuonFuture<Response<R>> request(URI uri, X payload, Class<R> responseType) {
