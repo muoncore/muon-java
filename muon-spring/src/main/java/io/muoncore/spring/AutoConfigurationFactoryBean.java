@@ -26,7 +26,7 @@ public class AutoConfigurationFactoryBean implements FactoryBean<AutoConfigurati
         Assert.notNull(serviceName);
         String resolvedServiceName = embeddedValueResolver.resolveStringValue(serviceName);
         List<String> resolvedTags = resolveTags(tags);
-        String resolvedAesEncryptionKey = embeddedValueResolver.resolveStringValue(discoveryUrl);
+        String resolvedAesEncryptionKey = embeddedValueResolver.resolveStringValue(aesEncryptionKey);
 
         AutoConfiguration autoConfiguration = new AutoConfiguration();
         autoConfiguration.setServiceName(resolvedServiceName);

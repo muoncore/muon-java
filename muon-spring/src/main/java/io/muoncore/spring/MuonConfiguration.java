@@ -13,13 +13,17 @@ import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory;
 import io.muoncore.transport.MuonTransport;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Properties;
 
 @Configuration
 public class MuonConfiguration {
@@ -27,19 +31,29 @@ public class MuonConfiguration {
     @Autowired
     private AutoConfiguration muonAutoConfiguration;
 
-    @Bean
-    public MuonTransport muonTransport() throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, IOException {
-        AmqpConnection connection = new RabbitMq09ClientAmqpConnection(muonAutoConfiguration.getDiscoveryUrl());
-        QueueListenerFactory queueFactory = new RabbitMq09QueueListenerFactory(connection.getChannel());
-        ServiceQueue serviceQueue = new DefaultServiceQueue(muonAutoConfiguration.getServiceName(), connection);
-        AmqpChannelFactory channelFactory = new DefaultAmqpChannelFactory(muonAutoConfiguration.getServiceName(), queueFactory, connection);
+    @Autowired
+    Environment env;
 
-        return new AMQPMuonTransport(muonAutoConfiguration.getDiscoveryUrl(), serviceQueue, channelFactory);
-    }
+    @Autowired
+    private MuonTransport[] muonTransports;
+
+//    @Autowired
+//    private MuonTransport muonTransport;
 
     @Bean
     public Muon muon() throws URISyntaxException, InterruptedException, NoSuchAlgorithmException, KeyManagementException, IOException {
-        return new SingleTransportMuon(muonAutoConfiguration, muonDiscovery(), muonTransport());
+        return new SingleTransportMuon(muonAutoConfiguration, muonDiscovery(), getValidMuonTransport(muonTransports));
+
+    }
+
+    //TODO Remove this method when muon multiple transports is implemented
+    private MuonTransport getValidMuonTransport(MuonTransport[] muonTransports) {
+        for (MuonTransport muonTransport : muonTransports) {
+            if (muonTransport != null) {
+                return muonTransport;
+            }
+        }
+        throw new IllegalStateException("No muon transports found");
     }
 
     @Bean
