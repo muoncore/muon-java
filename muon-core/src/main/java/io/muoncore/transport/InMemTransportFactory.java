@@ -13,19 +13,23 @@ public class InMemTransportFactory implements MuonTransportFactory {
     private static final String IN_MEM_TRANSPORT_ENABLED_PROPERTY_NAME = "transport.inmem.enabled";
 
     private static Logger LOG = Logger.getLogger(InMemTransportFactory.class.getName());
+    private AutoConfiguration autoConfiguration;
 
     @Override
     public MuonTransport build(Properties properties) {
         MuonTransport transport = null;
         try {
             if (Boolean.valueOf(properties.getProperty(IN_MEM_TRANSPORT_ENABLED_PROPERTY_NAME))) {
-                final AutoConfiguration configuration = new AutoConfiguration();
-                configuration.setServiceName(properties.getProperty(SERVICE_NAME_PROPERTY_NAME));
-                transport = new InMemTransport(configuration, new EventBus());
+                transport = new InMemTransport(autoConfiguration, new EventBus());
             }
         } catch (Exception e) {
             LOG.log(Level.INFO, "Error creating InMemTransport", e);
         }
         return transport;
+    }
+
+    @Override
+    public void setAutoConfiguration(AutoConfiguration autoConfiguration) {
+        this.autoConfiguration = autoConfiguration;
     }
 }

@@ -1,10 +1,11 @@
-package io.muoncore.spring.transport;
+package io.muoncore.spring.discovery;
 
+import io.muoncore.discovery.DiscoveryFactory;
 import io.muoncore.spring.PropertiesHelper;
-import io.muoncore.transport.MuonTransportFactory;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
-import org.springframework.beans.factory.support.*;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
@@ -14,7 +15,7 @@ import org.springframework.core.type.filter.AssignableTypeFilter;
 
 import java.util.Properties;
 
-public class MuonTransportFactoryBeanRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
+public class MuonDiscoveryFactoryBeanRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
 
     public static final String MUON_PREFIX = "muon.";
     private Environment environment;
@@ -23,16 +24,16 @@ public class MuonTransportFactoryBeanRegistrar implements ImportBeanDefinitionRe
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
-        scanner.addIncludeFilter(new AssignableTypeFilter(MuonTransportFactory.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(DiscoveryFactory.class));
         Properties properties = PropertiesHelper.populateConnectionProperties(environment, MUON_PREFIX);
         scanner
-                .findCandidateComponents("io.muoncore.transport")
+                .findCandidateComponents("io.muoncore.discovery")
                 .stream()
                 .forEach(candidateComponent -> {
                     final String beanClassName = candidateComponent.getBeanClassName();
 
                     BeanDefinitionBuilder definition = BeanDefinitionBuilder
-                            .genericBeanDefinition(MuonTransportFactoryBean.class);
+                            .genericBeanDefinition(MuonDiscoveryFactoryBean.class);
                     definition.addPropertyValue("type", beanClassName);
                     definition.addPropertyValue("properties", properties);
 

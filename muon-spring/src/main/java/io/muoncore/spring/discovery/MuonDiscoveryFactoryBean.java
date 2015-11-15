@@ -1,6 +1,8 @@
-package io.muoncore.spring.transport;
+package io.muoncore.spring.discovery;
 
+import io.muoncore.Discovery;
 import io.muoncore.config.AutoConfiguration;
+import io.muoncore.discovery.DiscoveryFactory;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.MuonTransportFactory;
 import org.springframework.beans.factory.FactoryBean;
@@ -8,24 +10,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Properties;
 
-public class MuonTransportFactoryBean implements FactoryBean<MuonTransport> {
+public class MuonDiscoveryFactoryBean implements FactoryBean<Discovery> {
 
-    private Class<? extends MuonTransportFactory> type;
+    private Class<? extends DiscoveryFactory> type;
     private Properties properties;
 
     @Autowired
     private AutoConfiguration autoConfiguration;
 
     @Override
-    public MuonTransport getObject() throws Exception {
-        MuonTransportFactory factory = type.newInstance();
+    public Discovery getObject() throws Exception {
+        DiscoveryFactory factory = type.newInstance();
         factory.setAutoConfiguration(autoConfiguration);
         return factory.build(properties);
     }
 
     @Override
     public Class<?> getObjectType() {
-        return MuonTransport.class;
+        return Discovery.class;
     }
 
     @Override
@@ -33,7 +35,7 @@ public class MuonTransportFactoryBean implements FactoryBean<MuonTransport> {
         return true;
     }
 
-    public void setType(Class<? extends MuonTransportFactory> type) {
+    public void setType(Class<? extends DiscoveryFactory> type) {
         this.type = type;
     }
 

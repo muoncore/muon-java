@@ -83,7 +83,7 @@ public class EnableMuonTest {
     }
 
     @Configuration
-    @EnableMuon(serviceName = "${muon.service.name}", tags = {"${muon.service.tag1}", "${muon.service.tag2}"}, discoveryUrl = "${muon.service.discoveryUrl}")
+    @EnableMuon(serviceName = "${muon.service.name}", tags = {"${muon.service.tag1}", "${muon.service.tag2}"}, aesEncryptionKey = "${muon.service.aesEncryptionKey}")
     @PropertySource("classpath:application.properties")
     static class SampleEnableMuonConfiguration {
         @Bean

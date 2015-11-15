@@ -7,7 +7,9 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @Configuration
 @ComponentScan(basePackages = {"com.simplicity.services.spring.server"})
-@EnableMuon(serviceName = "${muon.server.name}", tags = {"${muon.server.tag1}", "${muon.server.tag2}"}, discoveryUrl = "${muon.discoveryUrl}")
+@EnableMuon(serviceName = "${muon.server.name}",
+        tags = {"${muon.server.tag1}", "${muon.server.tag2}"},
+        aesEncryptionKey = "${muon.aesEncryptionKey}")
 @PropertySource("classpath:application.properties")
 public class ServerApplication {
     @Bean

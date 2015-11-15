@@ -2,6 +2,7 @@ package io.muoncore.spring.annotations;
 
 import io.muoncore.spring.MuonConfiguration;
 import io.muoncore.spring.AutoConfigurationBeanDefinitionRegistrar;
+import io.muoncore.spring.discovery.MuonDiscoveryFactoryBeanRegistrar;
 import io.muoncore.spring.transport.MuonTransportFactoryBeanRegistrar;
 import org.springframework.context.annotation.Import;
 
@@ -14,7 +15,8 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({MuonTransportFactoryBeanRegistrar.class,  MuonConfiguration.class, AutoConfigurationBeanDefinitionRegistrar.class})
+@Import({MuonTransportFactoryBeanRegistrar.class,  MuonDiscoveryFactoryBeanRegistrar.class,
+        MuonConfiguration.class, AutoConfigurationBeanDefinitionRegistrar.class})
 @EnableMuonControllers
 public @interface EnableMuon {
 
@@ -29,8 +31,8 @@ public @interface EnableMuon {
     String[] tags() default {};
 
     /**
-     * Discovery url, currently only amqp://... supported
+     * AES encryption key, a string of 16/24/32 bytes
      */
-    String discoveryUrl();
+    String aesEncryptionKey();
 
 }
