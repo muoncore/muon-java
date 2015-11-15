@@ -20,11 +20,6 @@ public class JsonOnlyCodecs implements Codecs {
     }
 
     @Override
-    public String getBestAvailableCodec(String[] acceptableContentTypes) {
-        return defaultCodec.getContentType();
-    }
-
-    @Override
     public EncodingResult encode(Object object, String[] acceptableContentTypes) {
         try {
             return new EncodingResult(defaultCodec.encode(object), defaultCodec.getContentType());

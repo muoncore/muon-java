@@ -3,6 +3,7 @@ package io.muoncore.transport.client;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.TransportInboundMessage;
+import io.muoncore.transport.TransportMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
 import java.util.HashMap;
@@ -45,6 +46,11 @@ class SingleTransportClientChannelConnection implements ChannelConnection<Transp
         }
         taps.dispatch(message);
         connection.send(message);
+        if (message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL) {
+            inbound = null;
+            this.transport = null;
+            this.taps = null;
+        }
     }
 
     private ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connectChannel(TransportOutboundMessage message) {

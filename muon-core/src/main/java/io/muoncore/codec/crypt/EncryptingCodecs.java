@@ -2,7 +2,9 @@ package io.muoncore.codec.crypt;
 
 import io.muoncore.codec.Codecs;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -33,13 +35,13 @@ public class EncryptingCodecs implements Codecs {
     }
 
     @Override
-    public String getBestAvailableCodec(String[] acceptableContentTypes) {
-        return delegate.getBestAvailableCodec(acceptableContentTypes) + "+" + algorithm.getAlgorithmName();
-    }
-
-    @Override
     public String[] getAvailableCodecs() {
-        return Arrays.stream(delegate.getAvailableCodecs()).map(
-                codec -> codec + "+" + algorithm.getAlgorithmName()).collect(Collectors.toList()).toArray(new String[0]);
+        List<String> codecs = new ArrayList<>();
+        codecs.addAll(Arrays.asList(delegate.getAvailableCodecs()));
+
+        codecs.addAll(Arrays.stream(delegate.getAvailableCodecs()).map(
+                codec -> codec + "+" + algorithm.getAlgorithmName()).collect(Collectors.toList()));
+
+        return codecs.toArray(new String[codecs.size()]);
     }
 }

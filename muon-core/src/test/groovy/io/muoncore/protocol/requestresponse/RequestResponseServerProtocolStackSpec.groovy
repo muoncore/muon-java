@@ -10,6 +10,7 @@ import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandler
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerProtocolStack
 import io.muoncore.protocol.requestresponse.server.RequestWrapper
 import io.muoncore.transport.TransportInboundMessage
+import io.muoncore.transport.TransportMessage
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
@@ -124,7 +125,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
                 protocol,
                 [:],
                 "application/json",
-                new GsonCodec().encode([:]), ["application/json"])
+                new GsonCodec().encode([:]), ["application/json"], TransportMessage.ChannelOperation.NORMAL)
     }
 }
 

@@ -3,6 +3,7 @@ package io.muoncore.protocol.requestresponse
 import io.muoncore.codec.Codecs
 import io.muoncore.codec.json.GsonCodec
 import io.muoncore.transport.TransportInboundMessage
+import io.muoncore.transport.TransportMessage
 import io.muoncore.transport.TransportOutboundMessage
 import spock.lang.Specification
 
@@ -65,7 +66,7 @@ class RRPTransformersSpec extends Specification {
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [(Response.STATUS):"200"],
                 "application/json",
-                new GsonCodec().encode([:]), ["application/json"])
+                new GsonCodec().encode([:]), ["application/json"], TransportMessage.ChannelOperation.NORMAL)
     }
 
     TransportInboundMessage inboundRequest() {
@@ -77,7 +78,7 @@ class RRPTransformersSpec extends Specification {
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [(Request.URL):"hello"],
                 "application/json",
-                new GsonCodec().encode([:]), ["application/json"])
+                new GsonCodec().encode([:]), ["application/json"], TransportMessage.ChannelOperation.NORMAL)
     }
 
 

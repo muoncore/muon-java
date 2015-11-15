@@ -132,6 +132,7 @@ project('muon-transport-amqp') {
     dependencies {
         compile project(":muon-core")
         compile "com.rabbitmq:amqp-client:3.3.2"
+        testCompile "io.projectreactor:reactor-stream:$reactorVersion"
     }
 }
 

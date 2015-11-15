@@ -20,7 +20,7 @@ public interface RequestResponseServerHandlerApi extends
             }
 
             @Override
-            public void handle(RequestWrapper<T, Object> request) {
+            public void handle(RequestWrapper<T> request) {
                 handler.handle(request);
             }
 
@@ -32,6 +32,6 @@ public interface RequestResponseServerHandlerApi extends
     }
 
     interface Handler<RequestType> {
-        void handle(RequestWrapper<RequestType, ?> wrapper);
+        void handle(RequestWrapper<RequestType> wrapper);
     }
 }

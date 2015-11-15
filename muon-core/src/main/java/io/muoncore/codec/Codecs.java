@@ -4,8 +4,6 @@ public interface Codecs {
     EncodingResult encode(Object object, String[] acceptableContentTypes);
     <T> T decode(byte[] source, String contentType, Class<T> type);
 
-    String getBestAvailableCodec(String[] acceptableContentTypes);
-
     String[] getAvailableCodecs();
 
     class EncodingResult {

@@ -9,10 +9,13 @@ import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.event.client.EventClientProtocolStack
 import io.muoncore.protocol.requestresponse.Response
 import io.muoncore.transport.TransportInboundMessage
+import io.muoncore.transport.TransportMessage
 import io.muoncore.transport.client.TransportClient
 import spock.lang.Specification
+import spock.lang.Timeout
 import spock.util.concurrent.PollingConditions
 
+@Timeout(5)
 class EventClientProtocolStackSpec extends Specification {
 
     def "Stack converts events to transport messages"() {
@@ -69,7 +72,7 @@ class EventClientProtocolStackSpec extends Specification {
                     "fakeproto",
                     ["status":"200"],
                     "text/plain",
-                    new byte[0], []))
+                    new byte[0], [], TransportMessage.ChannelOperation.NORMAL))
         }
 
         sleep(50)

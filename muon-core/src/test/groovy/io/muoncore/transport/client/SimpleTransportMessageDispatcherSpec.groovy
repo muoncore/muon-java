@@ -132,7 +132,7 @@ class SimpleTransportMessageDispatcherSpec extends Specification {
                 [:],
                 "application/json+AES",
                 [] as byte[],
-                []
+                [], TransportMessage.ChannelOperation.NORMAL
         )
     }
 }

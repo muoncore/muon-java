@@ -76,7 +76,7 @@ public class RabbitMq09BroadcastListener implements QueueListener {
                     if (newHeaders.get("Content-Type") != null) {
                         contentType = newHeaders.get("Content-Type");
                     }
-                    log.info("Receiving broadcast on " + broadcastMessageType + " of type " + newHeaders.get("eventType"));
+//                    log.info("Receiving broadcast on " + broadcastMessageType + " of type " + newHeaders.get("eventType"));
 
                     listener.exec(new QueueMessage(newHeaders.get("eventType"), broadcastMessageType, content, newHeaders, contentType));
 
@@ -94,7 +94,7 @@ public class RabbitMq09BroadcastListener implements QueueListener {
     }
 
     public void cancel() {
-        log.info("Broadcast listener is cancelled:" + broadcastMessageType);
+//        log.info("Broadcast listener is cancelled:" + broadcastMessageType);
         running = false;
         try {
             consumer.handleCancel("Muon-Cancel");

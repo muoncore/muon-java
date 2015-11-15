@@ -17,6 +17,19 @@ public class TransportOutboundMessage extends TransportMessage {
         super(type, id, targetServiceName, sourceServiceName, protocol, metadata, contentType, payload, sourceAvailableContentTypes);
     }
 
+    public TransportOutboundMessage(String type,
+                                    String id,
+                                    String targetServiceName,
+                                    String sourceServiceName,
+                                    String protocol,
+                                    Map<String, String> metadata,
+                                    String contentType,
+                                    byte[] payload,
+                                    List<String> sourceAvailableContentTypes,
+                                    ChannelOperation channelOperation) {
+        super(type, id, targetServiceName, sourceServiceName, protocol, metadata, contentType, payload, sourceAvailableContentTypes, channelOperation);
+    }
+
     public TransportOutboundMessage cloneWithProtocol(String protocol) {
         return new TransportOutboundMessage(
                 getType(),
@@ -27,7 +40,8 @@ public class TransportOutboundMessage extends TransportMessage {
                 getMetadata(),
                 getContentType(),
                 getPayload(),
-                getSourceAvailableContentTypes());
+                getSourceAvailableContentTypes(),
+                getChannelOperation());
     }
 
     public TransportInboundMessage toInbound() {
@@ -40,6 +54,6 @@ public class TransportOutboundMessage extends TransportMessage {
                 getMetadata(),
                 getContentType(),
                 getPayload(),
-                getSourceAvailableContentTypes());
+                getSourceAvailableContentTypes(), getChannelOperation());
     }
 }

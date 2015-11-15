@@ -13,7 +13,8 @@ public class TransportInboundMessage extends TransportMessage {
             Map<String, String> metadata,
             String contentType,
             byte[] payload,
-            List<String> sourceAvailableContentTypes) {
-        super(type, id, targetServiceName, sourceServiceName, protocol, metadata, contentType, payload, sourceAvailableContentTypes);
+            List<String> sourceAvailableContentTypes,
+            ChannelOperation channelOperation) {
+        super(type, id, targetServiceName, sourceServiceName, protocol, metadata, contentType, payload, sourceAvailableContentTypes, channelOperation);
     }
 }
