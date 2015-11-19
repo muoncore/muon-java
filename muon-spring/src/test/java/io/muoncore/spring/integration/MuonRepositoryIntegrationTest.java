@@ -1,30 +1,16 @@
 package io.muoncore.spring.integration;
 
-import io.muoncore.Muon;
-import io.muoncore.future.ImmediateReturnFuture;
 import io.muoncore.spring.annotations.EnableMuonRepositories;
-import io.muoncore.spring.integration.setup.MuonTestRepository;
-import io.muoncore.spring.integration.setup.Person;
-import org.junit.Before;
-import org.junit.Test;
+import io.muoncore.spring.Person;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MuonRepositoryIntegrationTest.class, loader = AnnotationConfigContextLoader.class)
@@ -68,7 +54,7 @@ public class MuonRepositoryIntegrationTest {
         final ImmediateReturnFuture result = createReturnFuture(PETER);
         when(muon.query(eventCaptor.capture(), any())).thenReturn(result, (ImmediateReturnFuture) null);
 
-        Person person = muonTestRepository.getPersonById(PETER.getId());
+        Person person = muonTestRepository.findPerson(PETER.getId());
         assertThat(person, is(PETER));
 
         final MuonResourceEvent<Person> value = eventCaptor.getValue();

@@ -1,4 +1,4 @@
-package io.muoncore.spring.integration.setup;
+package io.muoncore.spring;
 
 public class Person {
     private long id;

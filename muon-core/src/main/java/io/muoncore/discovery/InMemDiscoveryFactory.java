@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 public class InMemDiscoveryFactory implements DiscoveryFactory {
 
     private static final String IN_MEM_DISCOVERY_ENABLED_PROPERTY_NAME = "discovery.inmem.enabled";
+    public static InMemDiscovery INSTANCE;
 
     private static Logger LOG = Logger.getLogger(InMemDiscoveryFactory.class.getName());
 
@@ -19,12 +20,23 @@ public class InMemDiscoveryFactory implements DiscoveryFactory {
         Discovery discovery = null;
         try {
             if (Boolean.valueOf(properties.getProperty(IN_MEM_DISCOVERY_ENABLED_PROPERTY_NAME))) {
-                discovery = new InMemDiscovery();
+                discovery = getSharedDiscovery();
             }
         } catch (Exception e) {
             LOG.log(Level.INFO, "Error creating InMemDiscovery", e);
         }
         return discovery;
+    }
+
+    private InMemDiscovery getSharedDiscovery() {
+        if (INSTANCE == null) {
+            synchronized (InMemDiscoveryFactory.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new InMemDiscovery();
+                }
+            }
+        }
+        return INSTANCE;
     }
 
     @Override

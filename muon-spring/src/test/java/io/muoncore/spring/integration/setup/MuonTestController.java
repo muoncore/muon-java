@@ -1,5 +1,6 @@
 package io.muoncore.spring.integration.setup;
 
+import io.muoncore.spring.Person;
 import io.muoncore.spring.annotations.MuonCommandListener;
 import io.muoncore.spring.annotations.MuonController;
 import io.muoncore.spring.annotations.MuonRequestListener;

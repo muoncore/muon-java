@@ -1,5 +1,6 @@
 package io.muoncore.spring.integration.setup;
 
+import io.muoncore.spring.Person;
 import io.muoncore.spring.annotations.Command;
 import io.muoncore.spring.annotations.MuonRepository;
 import io.muoncore.spring.annotations.Query;

@@ -27,7 +27,6 @@ public class MuonRepositoryRegistrar implements ImportBeanDefinitionRegistrar {
         Set<String> basePackages = getBasePackages(importingClassMetadata);
         ClassPathScanningCandidateComponentProvider scanner = getScanner();
         scanner.addIncludeFilter(new AnnotationTypeFilter(MuonRepository.class));
-//        scanner.setResourceLoader(this.resourceLoader);
         for (String basePackage : basePackages) {
             Set<BeanDefinition> candidateComponents = scanner
                     .findCandidateComponents(basePackage);
@@ -43,7 +42,6 @@ public class MuonRepositoryRegistrar implements ImportBeanDefinitionRegistrar {
                     BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
                 }
             }
-            System.out.println(candidateComponents);
         }
 
     }
@@ -56,9 +54,6 @@ public class MuonRepositoryRegistrar implements ImportBeanDefinitionRegistrar {
         String className = annotationMetadata.getClassName();
         BeanDefinitionBuilder definition = BeanDefinitionBuilder
                 .genericBeanDefinition(MuonRepositoryFactoryBean.class);
-//        validate(attributes);
-//        definition.addPropertyValue("url", "testUrl");
-//        definition.addPropertyValue("name", getServiceId(attributes));
         definition.addPropertyValue("type", className);
 
         String beanName = StringUtils.uncapitalize(className.substring(className
