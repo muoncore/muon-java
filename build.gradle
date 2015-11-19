@@ -101,7 +101,7 @@ project('muon-core') {
 
         //Gson codec (the default)
         compile 'com.google.code.gson:gson:2.3.1'
-        testCompile "io.projectreactor:reactor-stream:$reactorVersion"
+        compile "io.projectreactor:reactor-stream:$reactorVersion"
         testCompile 'org.slf4j:slf4j-jdk14:1.7.12'
     }
 }
