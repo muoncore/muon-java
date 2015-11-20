@@ -8,7 +8,6 @@ import io.muoncore.protocol.reactivestream.ProtocolMessages;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportMessage;
 import io.muoncore.transport.TransportOutboundMessage;
-import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -85,16 +84,17 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
                 TransportMessage.ChannelOperation.NORMAL));
     }
 
+    @SuppressWarnings("unchecked")
     private void handleSubscribe(TransportInboundMessage msg) {
 
-        Optional<Publisher> pub = publisherLookup.lookupPublisher(msg.getMetadata().get("streamName"));
+        Optional<PublisherLookup.PublisherRecord> pub = publisherLookup.lookupPublisher(msg.getMetadata().get("streamName"));
 
         if (!pub.isPresent()) {
             sendNack();
         } else {
             acceptedContentTypes = msg.getSourceAvailableContentTypes();
             subscribingServiceName = msg.getSourceServiceName();
-            pub.get().subscribe(new Subscriber() {
+            pub.get().getPublisher().subscribe(new Subscriber() {
                 @Override
                 public void onSubscribe(Subscription s) {
                     subscription = s;
@@ -106,17 +106,17 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
                     Codecs.EncodingResult result = codecs.encode(o, acceptedContentTypes.toArray(new String[0]));
 
                     function.apply(
-                        new TransportOutboundMessage(
-                            ProtocolMessages.DATA,
-                            UUID.randomUUID().toString(),
-                            subscribingServiceName,
-                            configuration.getServiceName(),
-                            ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                            Collections.emptyMap(),
-                            result.getContentType(),
-                            result.getPayload(),
-                            Arrays.asList(codecs.getAvailableCodecs()),
-                            TransportMessage.ChannelOperation.NORMAL));
+                            new TransportOutboundMessage(
+                                    ProtocolMessages.DATA,
+                                    UUID.randomUUID().toString(),
+                                    subscribingServiceName,
+                                    configuration.getServiceName(),
+                                    ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
+                                    Collections.emptyMap(),
+                                    result.getContentType(),
+                                    result.getPayload(),
+                                    Arrays.asList(codecs.getAvailableCodecs()),
+                                    TransportMessage.ChannelOperation.NORMAL));
                 }
 
                 @Override

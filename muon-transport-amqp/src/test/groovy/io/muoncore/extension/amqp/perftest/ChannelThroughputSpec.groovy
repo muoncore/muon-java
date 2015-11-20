@@ -10,15 +10,13 @@ import io.muoncore.protocol.ServerStacks
 import io.muoncore.protocol.requestresponse.RRPTransformers
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportOutboundMessage
-import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.concurrent.PollingConditions
 
 import java.util.concurrent.Executors
-
-@Ignore
+//@Ignore
 @IgnoreIf({ System.getenv("BUILD_NUMBER") })
 class ChannelThroughputSpec extends Specification {
 
@@ -42,6 +40,7 @@ class ChannelThroughputSpec extends Specification {
 
                     @Override
                     void send(TransportInboundMessage message) {
+                        println "Received ... "
                         received << message
                     }
                 }
@@ -77,7 +76,7 @@ class ChannelThroughputSpec extends Specification {
         pool.shutdown()
 
         then:
-        new PollingConditions(timeout: 120).eventually {
+        new PollingConditions(timeout: 20).eventually {
             received.size() == numRequests * numservices
         }
         def now = System.currentTimeMillis()
@@ -92,7 +91,7 @@ class ChannelThroughputSpec extends Specification {
         5   | 5
         10  | 5
         2  | 200
-//        20  | 100
+        1  | 10000
 //        20  | 1000
     }
 

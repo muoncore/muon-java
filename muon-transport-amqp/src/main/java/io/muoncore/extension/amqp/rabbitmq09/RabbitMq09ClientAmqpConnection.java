@@ -76,7 +76,7 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
     @Override
     public void send(QueueListener.QueueMessage message) throws IOException {
 
-        log.info("Sending message on " + message.getQueueName() + " of type " + message.getEventType());
+        log.log(Level.FINER, "Sending message on " + message.getQueueName() + " of type " + message.getEventType());
 
         Map<String, Object> headers = new HashMap<>(message.getHeaders());
         headers.put("eventType", message.getEventType());

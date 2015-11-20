@@ -39,7 +39,7 @@ public class RabbitMq09QueueListener implements QueueListener {
 
     public void run() {
         try {
-            log.info("Opening Queue: " + queueName);
+            log.log(Level.FINE, "Opening Queue: " + queueName);
             channel.queueDeclare(queueName, false, false, true, null);
 
             synchronized (this) {
@@ -48,7 +48,7 @@ public class RabbitMq09QueueListener implements QueueListener {
 
             consumer = new QueueingConsumer(channel);
             channel.basicConsume(queueName, false, consumer);
-            log.info("Queue ready: " + queueName);
+            log.log(Level.FINE, "Queue ready: " + queueName);
 
             running = true;
             while (running) {
@@ -70,7 +70,7 @@ public class RabbitMq09QueueListener implements QueueListener {
                     if (newHeaders.get("Content-Type") != null) {
                         contentType = newHeaders.get("Content-Type");
                     }
-                    log.info("Receiving message on " + queueName + " of type " + newHeaders.get("eventType"));
+                    log.log(Level.FINER, "Receiving message on " + queueName + " of type " + newHeaders.get("eventType"));
 
                     listener.exec(new QueueListener.QueueMessage(newHeaders.get("eventType"), queueName, content, newHeaders, contentType));
 
@@ -84,11 +84,11 @@ public class RabbitMq09QueueListener implements QueueListener {
         } catch (Exception e) {
             log.log(Level.WARNING, e.getMessage(), e);
         }
-        log.warning("Queue Listener exits: " + queueName);
+        log.log(Level.FINE, "Queue Listener exits: " + queueName);
     }
 
     public void cancel() {
-        log.info("Queue listener is cancelled:" + queueName);
+        log.log(Level.FINE, "Queue listener is cancelled:" + queueName);
         running = false;
         try {
             consumer.handleCancel("Muon-Cancel");

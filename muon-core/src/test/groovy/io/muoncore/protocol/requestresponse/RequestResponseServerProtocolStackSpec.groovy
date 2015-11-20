@@ -1,16 +1,12 @@
 package io.muoncore.protocol.requestresponse
-
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.codec.json.GsonCodec
 import io.muoncore.codec.json.JsonOnlyCodecs
-import io.muoncore.protocol.requestresponse.server.HandlerPredicates
-import io.muoncore.protocol.requestresponse.server.RequestResponseHandlers
-import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandler
-import io.muoncore.protocol.requestresponse.server.RequestResponseServerProtocolStack
-import io.muoncore.protocol.requestresponse.server.RequestWrapper
+import io.muoncore.protocol.requestresponse.server.*
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportMessage
+import reactor.Environment
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
@@ -21,6 +17,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
     }
 
     def "createChannel gives a channel that calls findHandler on a message received"() {
+        Environment.initializeIfEmpty()
         def handlers = Mock(RequestResponseHandlers)
         def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery)
 
@@ -34,7 +31,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
     }
 
     def "handler can be invoked via the external channel"() {
-
+        Environment.initializeIfEmpty()
         def handler = Mock(RequestResponseServerHandler) {
             getRequestType() >> Map
         }
@@ -53,7 +50,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
         1 * handler.handle(_)
     }
     def "handler can reply down the channel"() {
-
+        Environment.initializeIfEmpty()
         def handler = Mock(RequestResponseServerHandler) {
             handle(_) >> { RequestWrapper wrapper ->
                 wrapper.answer(new Response(200, "hello"))

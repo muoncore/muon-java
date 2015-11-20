@@ -5,6 +5,7 @@ import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportMessage;
 import io.muoncore.transport.TransportOutboundMessage;
+import reactor.core.Dispatcher;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,21 +15,25 @@ class SingleTransportClientChannelConnection implements ChannelConnection<Transp
     private TransportMessageDispatcher taps;
     private MuonTransport transport;
     private ChannelFunction<TransportInboundMessage> inbound;
+    private Dispatcher dispatcher;
 
     private Map<String, ChannelConnection<TransportOutboundMessage, TransportInboundMessage>> channelConnectionMap = new HashMap<>();
 
     public SingleTransportClientChannelConnection(
             MuonTransport transport,
-            TransportMessageDispatcher taps) {
+            TransportMessageDispatcher taps, Dispatcher dispatcher) {
         this.transport = transport;
         this.taps = taps;
+        this.dispatcher = dispatcher;
     }
 
     @Override
     public void receive(ChannelFunction<TransportInboundMessage> function) {
         inbound = arg -> {
-            taps.dispatch(arg);
-            function.apply(arg);
+            dispatcher.tryDispatch(arg, ev -> {
+                taps.dispatch(arg);
+                function.apply(arg);
+            }, Throwable::printStackTrace);
         };
     }
 
@@ -37,20 +42,22 @@ class SingleTransportClientChannelConnection implements ChannelConnection<Transp
         if (inbound == null) {
             throw new IllegalStateException("Transport connection is not in a complete state can cannot send data. The receive function has not been set");
         }
-        ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connection = channelConnectionMap.get(
-                key(message)
-        );
-        if (connection == null) {
-            connection = connectChannel(message);
-            channelConnectionMap.put(key(message), connection);
-        }
-        taps.dispatch(message);
-        connection.send(message);
-        if (message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL) {
-            inbound = null;
-            this.transport = null;
-            this.taps = null;
-        }
+        dispatcher.dispatch(message, msg -> {
+            ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connection = channelConnectionMap.get(
+                    key(message)
+            );
+            if (connection == null) {
+                connection = connectChannel(message);
+                channelConnectionMap.put(key(message), connection);
+            }
+            taps.dispatch(message);
+            connection.send(message);
+            if (message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL) {
+                inbound = null;
+                this.transport = null;
+                this.taps = null;
+            }
+        }, Throwable::printStackTrace);
     }
 
     private ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connectChannel(TransportOutboundMessage message) {

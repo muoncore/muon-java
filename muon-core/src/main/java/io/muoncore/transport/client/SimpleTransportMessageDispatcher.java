@@ -25,7 +25,6 @@ public class SimpleTransportMessageDispatcher implements TransportMessageDispatc
     @Override
     public Publisher<TransportMessage> observe(Predicate<TransportMessage> filter) {
 
-
         LinkedBlockingQueue<TransportMessage> queue = new LinkedBlockingQueue<>();
 
         QueuePredicate wrapper = new QueuePredicate(queue, filter);

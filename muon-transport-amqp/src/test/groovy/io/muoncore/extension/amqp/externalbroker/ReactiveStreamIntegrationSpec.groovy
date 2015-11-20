@@ -9,6 +9,7 @@ import io.muoncore.extension.amqp.DefaultServiceQueue
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import io.muoncore.memory.discovery.InMemDiscovery
+import io.muoncore.protocol.reactivestream.server.PublisherLookup
 import reactor.Environment
 import reactor.rx.broadcast.Broadcaster
 import spock.lang.Ignore
@@ -34,7 +35,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
         def muon1 = muon("simples")
         def muon2 = muon("tombola")
 
-        muon1.publishSource("somedata", b)
+        muon1.publishSource("somedata", PublisherLookup.PublisherType.HOT, b)
 
         when:
         muon2.subscribe(new URI("stream://simples/somedata"), Map, sub2)

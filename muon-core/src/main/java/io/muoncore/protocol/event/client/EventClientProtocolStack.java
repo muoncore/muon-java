@@ -1,12 +1,12 @@
 package io.muoncore.protocol.event.client;
 
 import io.muoncore.DiscoverySource;
+import io.muoncore.channel.Channel;
+import io.muoncore.channel.ChannelFutureAdapter;
 import io.muoncore.channel.Channels;
-import io.muoncore.channel.async.StandardAsyncChannel;
 import io.muoncore.codec.CodecsSource;
 import io.muoncore.config.MuonConfigurationSource;
 import io.muoncore.future.MuonFuture;
-import io.muoncore.channel.ChannelFutureAdapter;
 import io.muoncore.protocol.event.Event;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.Response;
@@ -22,9 +22,9 @@ public interface EventClientProtocolStack extends
 
     default <X> MuonFuture<Response<Map>> event(Event<X> event) {
 
-        StandardAsyncChannel<Event<X>, Response<Map>> api2eventproto = new StandardAsyncChannel<>();
-        StandardAsyncChannel<Request<Event<X>>, Response<Map>> event2rrp = new StandardAsyncChannel<>();
-        StandardAsyncChannel<TransportOutboundMessage, TransportInboundMessage> rrp2transport = new StandardAsyncChannel<>();
+        Channel<Event<X>, Response<Map>> api2eventproto = Channels.channel("eventapi", "eventproto");
+        Channel<Request<Event<X>>, Response<Map>> event2rrp = Channels.channel("eventproto", "rrpproto");
+        Channel<TransportOutboundMessage, TransportInboundMessage> rrp2transport = Channels.channel("rrpproto", "transport");
 
         ChannelFutureAdapter<Response<Map>, Event<X>> adapter =
                 new ChannelFutureAdapter<>(api2eventproto.left());

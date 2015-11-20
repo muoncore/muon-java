@@ -7,16 +7,19 @@ import io.muoncore.transport.MuonTransport
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportMessage
 import io.muoncore.transport.TransportOutboundMessage
+import reactor.Environment
 import spock.lang.Specification
 
 class SingleTransportChannelConnectionSpec extends Specification {
 
     def "transport channel requires full connection before sending"() {
 
+        Environment.initializeIfEmpty()
+
         def transport = Mock(MuonTransport)
         def dispatcher = Mock(TransportMessageDispatcher)
 
-        def connection = new SingleTransportClientChannelConnection(transport, dispatcher)
+        def connection = new SingleTransportClientChannelConnection(transport, dispatcher, Environment.sharedDispatcher())
 
         when:
         connection.send(outbound("mymessage", "myService1", "requestresponse"))
@@ -27,10 +30,12 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
     def "transport channel to a service is opened for every new service/proto combo seen"() {
 
+        Environment.initializeIfEmpty()
+
         def transport = Mock(MuonTransport)
         def dispatcher = Mock(TransportMessageDispatcher)
 
-        def connection = new SingleTransportClientChannelConnection(transport, dispatcher)
+        def connection = new SingleTransportClientChannelConnection(transport, dispatcher, Environment.sharedDispatcher())
         connection.receive({})
 
         when:
@@ -57,6 +62,8 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
     def "all inbound messages on the channels are pushed into the function for back propogation along the channel"() {
 
+        Environment.initializeIfEmpty()
+
         def channelFunctions = []
 
         //capture the receive functions being generated and passed to our mock functions.
@@ -75,7 +82,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
         def receive = Mock(ChannelConnection.ChannelFunction)
         def dispatcher = Mock(TransportMessageDispatcher)
 
-        def connection = new SingleTransportClientChannelConnection(transport, dispatcher)
+        def connection = new SingleTransportClientChannelConnection(transport, dispatcher, Environment.sharedDispatcher())
         connection.receive(receive)
 
         when:

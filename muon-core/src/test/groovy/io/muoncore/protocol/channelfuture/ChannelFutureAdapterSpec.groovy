@@ -1,6 +1,7 @@
 package io.muoncore.protocol.channelfuture
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.channel.ChannelFutureAdapter
+import io.muoncore.channel.Channels
 import io.muoncore.channel.async.StandardAsyncChannel
 import reactor.Environment
 import spock.lang.Specification
@@ -42,7 +43,8 @@ class ChannelFutureAdapterSpec extends Specification {
 
     def "adapter returns a future that the receive function can cause to return"() {
 
-        def channel = new StandardAsyncChannel()
+        StandardAsyncChannel.echoOut = true
+        def channel = Channels.channel("left", "right")
 
         ChannelFutureAdapter adapter = new ChannelFutureAdapter(channel.left())
         def future = adapter.request("simples")
@@ -54,5 +56,8 @@ class ChannelFutureAdapterSpec extends Specification {
 
         expect:
         future.get(500, TimeUnit.MILLISECONDS) == "wibble"
+
+        cleanup:
+        StandardAsyncChannel.echoOut = false
     }
 }
