@@ -1,7 +1,9 @@
-package io.muoncore.spring.e2e.model;
+package io.muoncore.spring.e2e;
 
 import com.google.gson.JsonObject;
 import io.muoncore.spring.Person;
+import io.muoncore.spring.e2e.model.request.ClientServiceConfiguration;
+import io.muoncore.spring.e2e.model.request.ServerServiceConfiguration;
 import io.muoncore.spring.e2e.model.request.TestRequestController;
 import io.muoncore.spring.e2e.model.request.TestRequestRepository;
 import org.junit.Before;

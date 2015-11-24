@@ -1,6 +1,7 @@
-package io.muoncore.spring.e2e.model;
+package io.muoncore.spring.e2e.model.request;
 
 import io.muoncore.spring.annotations.EnableMuon;
+import io.muoncore.spring.annotations.EnableMuonControllers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
         tags = {"${muon.server.tag1}", "${muon.server.tag2}"},
         aesEncryptionKey = "${muon.aesEncryptionKey}")
 @PropertySource("classpath:application.properties")
+@EnableMuonControllers
 public class ServerServiceConfiguration {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {

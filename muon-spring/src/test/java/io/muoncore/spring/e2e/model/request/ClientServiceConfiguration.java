@@ -1,4 +1,4 @@
-package io.muoncore.spring.e2e.model;
+package io.muoncore.spring.e2e.model.request;
 
 import io.muoncore.spring.annotations.EnableMuon;
 import io.muoncore.spring.annotations.EnableMuonRepositories;

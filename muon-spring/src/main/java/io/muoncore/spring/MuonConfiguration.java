@@ -5,7 +5,10 @@ import io.muoncore.Muon;
 import io.muoncore.SingleTransportMuon;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.transport.MuonTransport;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -16,7 +19,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
 @Configuration
-public class MuonConfiguration {
+public class MuonConfiguration implements ApplicationContextAware{
 
     @Autowired
     private AutoConfiguration muonAutoConfiguration;
@@ -29,6 +32,7 @@ public class MuonConfiguration {
 
     @Autowired
     private Discovery[] muonDiscoveries;
+    private ApplicationContext applicationContext;
 
     @Bean
     public Muon muon() throws URISyntaxException, InterruptedException, NoSuchAlgorithmException, KeyManagementException, IOException {
@@ -56,4 +60,8 @@ public class MuonConfiguration {
         throw new IllegalStateException("No muon discoveries found");
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 }

@@ -17,7 +17,6 @@ import java.lang.annotation.*;
 @Documented
 @Import({MuonTransportFactoryBeanRegistrar.class,  MuonDiscoveryFactoryBeanRegistrar.class,
         MuonConfiguration.class, AutoConfigurationBeanDefinitionRegistrar.class})
-@EnableMuonControllers
 public @interface EnableMuon {
 
     /**
