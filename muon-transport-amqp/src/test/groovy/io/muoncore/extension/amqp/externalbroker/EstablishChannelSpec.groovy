@@ -10,6 +10,7 @@ import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import io.muoncore.protocol.ServerStacks
 import io.muoncore.protocol.requestresponse.RRPTransformers
 import io.muoncore.transport.TransportOutboundMessage
+import reactor.Environment
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 
@@ -20,6 +21,8 @@ class EstablishChannelSpec extends Specification {
     def serverStacks2 = Mock(ServerStacks)
 
     def "two transports can establish an AMQP channel between them"() {
+
+        Environment.initializeIfEmpty()
 
         AMQPMuonTransport svc1 = createTransport("service1")
         AMQPMuonTransport svc2 = createTransport("tombola")

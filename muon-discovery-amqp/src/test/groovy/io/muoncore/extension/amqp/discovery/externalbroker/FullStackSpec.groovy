@@ -1,8 +1,8 @@
 package io.muoncore.extension.amqp.discovery.externalbroker
-
 import io.muoncore.Discovery
 import io.muoncore.Muon
 import io.muoncore.SingleTransportMuon
+import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.extension.amqp.AMQPMuonTransport
@@ -13,6 +13,10 @@ import io.muoncore.extension.amqp.discovery.ServiceCache
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import io.muoncore.protocol.requestresponse.Response
+import io.muoncore.transport.TransportMessage
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
+import reactor.Environment
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 
@@ -25,6 +29,9 @@ class FullStackSpec extends Specification {
 
     def "full amqp based stack works"() {
 
+        Environment.initializeIfEmpty()
+        StandardAsyncChannel.echoOut = true
+
         def svc1 = createMuon("simples")
         def svc2 = createMuon("tombola1")
         def svc3 = createMuon("tombola2")
@@ -36,19 +43,30 @@ class FullStackSpec extends Specification {
             it.request.id
             it.answer(new Response(200, [hi:"there"]))
         }
+        testTap(svc1) {
+            println "Simples Tap ${it}"
+        }
+        testTap(svc2) {
+            println "Tombola Tap ${it}"
+        }
 
         when:
-        Thread.sleep(4500)
-        def response = svc1.request("request://tombola1/hello", [hello:"world"], Map).get(500, TimeUnit.MILLISECONDS)
-        def discoveredServices = svc3.discovery.knownServices
+        Thread.sleep(3500)
+        def then = System.currentTimeMillis()
+        def response = svc1.request("request://tombola1/hello", [hello:"world"], Map).get(1500, TimeUnit.MILLISECONDS)
+        def now = System.currentTimeMillis()
+
+        println "Latency = ${now - then}"
+//        def discoveredServices = svc3.discovery.knownServices
 
         then:
-        discoveredServices.size() == 6
+//        discoveredServices.size() == 6
         response != null
         response.status == 200
         response.payload.hi == "there"
 
         cleanup:
+        StandardAsyncChannel.echoOut = false
         svc1.shutdown()
         svc2.shutdown()
         svc3.shutdown()
@@ -83,5 +101,29 @@ class FullStackSpec extends Specification {
         def discovery = new AmqpDiscovery(queueFactory, connection, new ServiceCache(), codecs)
         discovery.start()
         discovery
+    }
+
+    def testTap(muon, Closure output) {
+        muon.transportControl.tap({ true }).subscribe(new Subscriber<TransportMessage>() {
+            @Override
+            void onSubscribe(Subscription s) {
+                s.request(500)
+            }
+
+            @Override
+            void onNext(TransportMessage transportMessage) {
+                output(transportMessage)
+            }
+
+            @Override
+            void onError(Throwable t) {
+                t.printStackTrace()
+            }
+
+            @Override
+            void onComplete() {
+                println "Tap complete"
+            }
+        })
     }
 }

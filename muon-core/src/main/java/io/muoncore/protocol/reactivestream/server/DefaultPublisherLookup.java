@@ -1,25 +1,27 @@
 package io.muoncore.protocol.reactivestream.server;
 
-import org.reactivestreams.Publisher;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class DefaultPublisherLookup implements PublisherLookup {
 
-    private Map<String, Publisher> publishers = new HashMap<>();
+    private Map<String, PublisherRecord> publishers = new HashMap<>();
 
     @Override
-    public Optional<Publisher> lookupPublisher(String name) {
+    public Optional<PublisherRecord> lookupPublisher(String name) {
         return Optional.ofNullable(publishers.get(name));
     }
 
     @Override
-    public void addPublisher(String name, Publisher publisher) {
+    public List<PublisherRecord> getPublishers() {
+        return new ArrayList<>(publishers.values());
+    }
+
+    @Override
+    public void addPublisher(PublisherRecord publisherRecord) {
+        String name = publisherRecord.getName();
         if (!name.startsWith("/")) {
             name = "/" + name;
         }
-        publishers.put(name, publisher);
+        publishers.put(name, publisherRecord);
     }
 }

@@ -1,8 +1,7 @@
 package io.muoncore.protocol.event
-
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
-import io.muoncore.channel.async.StandardAsyncChannel
+import io.muoncore.channel.Channels
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.event.client.EventClientProtocol
 import io.muoncore.protocol.requestresponse.Request
@@ -17,8 +16,8 @@ class EventClientProtocolSpec extends Specification {
             findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], [], []))
         }
 
-        def leftChannel = new StandardAsyncChannel()
-        def rightChannel = new StandardAsyncChannel()
+        def leftChannel = Channels.channel("left", "right")
+        def rightChannel = Channels.channel("left", "right")
 
         def ret
 

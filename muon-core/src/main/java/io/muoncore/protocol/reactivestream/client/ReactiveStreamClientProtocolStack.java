@@ -5,11 +5,12 @@ import io.muoncore.config.MuonConfigurationSource;
 import io.muoncore.transport.TransportClientSource;
 import org.reactivestreams.Subscriber;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 public interface ReactiveStreamClientProtocolStack extends TransportClientSource, CodecsSource, MuonConfigurationSource {
 
-    default <R> void subscribe(URI uri, Class<R> eventType, Subscriber<R> subscriber) {
+    default <R> void subscribe(URI uri, Class<R> eventType, Subscriber<R> subscriber) throws UnsupportedEncodingException {
         ReactiveStreamClientProtocol<R> proto = new ReactiveStreamClientProtocol<>(
                 uri,
                 getTransportClient().openClientChannel(),

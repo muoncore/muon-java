@@ -1,7 +1,8 @@
 package io.muoncore.protocol.requestresponse.client;
 
+import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelFutureAdapter;
-import io.muoncore.channel.async.StandardAsyncChannel;
+import io.muoncore.channel.Channels;
 import io.muoncore.codec.CodecsSource;
 import io.muoncore.exception.MuonException;
 import io.muoncore.future.MuonFuture;
@@ -34,17 +35,18 @@ public interface RequestResponseClientProtocolStack extends
         if (!uri.getScheme().equals(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)) {
             throw new MuonException("Scheme is invalid: " + uri.getScheme() + ", requires scheme: " + RRPTransformers.REQUEST_RESPONSE_PROTOCOL);
         }
-        return request(new Request<>(new RequestMetaData(uri.getPath(), "", uri.getHost()), payload), responseType);
+        return request(new Request<>(new RequestMetaData(uri.getPath(), getConfiguration().getServiceName(), uri.getHost()), payload), responseType);
     }
 
     default <X,R> MuonFuture<Response<R>> request(Request<X> event, Class<R> responseType) {
-        StandardAsyncChannel<Request<X>, Response<R>> api2rrp = new StandardAsyncChannel<>();
+
+        Channel<Request<X>, Response<R>> api2rrp = Channels.channel("rrpclientapi", "rrpclientproto");
 
         ChannelFutureAdapter<Response<R>, Request<X>> adapter =
                 new ChannelFutureAdapter<>(api2rrp.left());
 
         new RequestResponseClientProtocol<>(
-                event.getMetaData().getTargetService(),
+                getConfiguration().getServiceName(),
                 api2rrp.right(),
                 getTransportClient().openClientChannel(),
                 responseType,

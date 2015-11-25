@@ -2,7 +2,6 @@ package io.muoncore.protocol.requestresponse
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.Channels
-import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.codec.Codecs
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
@@ -12,6 +11,7 @@ import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportMessage
 import io.muoncore.transport.TransportOutboundMessage
 import io.muoncore.transport.client.TransportClient
+import reactor.Environment
 import spock.lang.Specification
 import spock.lang.Timeout
 
@@ -26,7 +26,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
     @Timeout(2)
     def "client and server can communicate"() {
         given:
-
+        Environment.initializeIfEmpty()
         def handlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler() {
             @Override
             HandlerPredicate getPredicate() {
@@ -72,7 +72,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
 
         def server = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery)
 
-        def channel = new StandardAsyncChannel()
+        def channel = Channels.channel("left", "right")
 
         //does the conversion from outbound<=>inbound that the transport pair would ordinarily do.
         Channels.connectAndTransform(

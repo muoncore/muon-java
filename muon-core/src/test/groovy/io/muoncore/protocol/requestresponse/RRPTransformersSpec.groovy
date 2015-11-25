@@ -44,7 +44,7 @@ class RRPTransformersSpec extends Specification {
 
     def "Response to TransportOutboundMessage"() {
         when:
-        def ret = RRPTransformers.toOutbound("myservice", response(), codecs, ["application/json"] as String[])
+        def ret = RRPTransformers.toOutbound("myservice", "targetService", response(), codecs, ["application/json"] as String[])
 
         then:
         ret.metadata[(Response.STATUS)] == "200"

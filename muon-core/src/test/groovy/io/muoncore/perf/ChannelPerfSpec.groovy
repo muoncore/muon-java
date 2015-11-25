@@ -56,7 +56,7 @@ class ChannelPerfSpec extends Specification {
         service2.shutdown()
 
         where:
-        numTimes << [500, 2000, 5000, 10000, 50000]
+        numTimes << [500, 2000, 5000, 10000]
     }
 
     @Unroll

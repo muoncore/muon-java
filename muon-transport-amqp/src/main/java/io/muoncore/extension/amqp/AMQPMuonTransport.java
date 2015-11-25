@@ -1,5 +1,6 @@
 package io.muoncore.extension.amqp;
 
+import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
 import io.muoncore.exception.MuonTransportFailureException;
@@ -50,7 +51,11 @@ public class AMQPMuonTransport implements MuonTransport {
         AmqpChannel channel = channelFactory.createChannel();
         channel.initiateHandshake(serviceName, protocol);
         channels.add(channel);
-        return channel;
+        Channel<TransportOutboundMessage, TransportInboundMessage> intermediate = Channels.channel("leftName", "rightName");
+
+        Channels.connect(intermediate.right(), channel);
+
+        return intermediate.left();
     }
 
     public void start(ServerStacks serverStacks) {

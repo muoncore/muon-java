@@ -56,7 +56,7 @@ public class RRPTransformers {
                 payload.getPayload(), Arrays.asList(codecs.getAvailableCodecs()));
     }
 
-    public static TransportOutboundMessage toOutbound(String thisService, Response response, Codecs codecs, String[] acceptEncodings) {
+    public static TransportOutboundMessage toOutbound(String thisService, String targetService, Response response, Codecs codecs, String[] acceptEncodings) {
 
         Map<String, String> metadata = new HashMap<>();
         metadata.put(Response.STATUS, String.valueOf(response.getStatus()));
@@ -66,7 +66,7 @@ public class RRPTransformers {
         return new TransportOutboundMessage(
                 "responseSent",
                 response.getId(),
-                "FAKEDTODO",
+                targetService,
                 thisService,
                 REQUEST_RESPONSE_PROTOCOL,
                 metadata,

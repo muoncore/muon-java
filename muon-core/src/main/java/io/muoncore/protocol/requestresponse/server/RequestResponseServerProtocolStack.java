@@ -1,8 +1,10 @@
 package io.muoncore.protocol.requestresponse.server;
 
 import io.muoncore.Discovery;
+import io.muoncore.ServiceDescriptor;
+import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
-import io.muoncore.channel.async.StandardAsyncChannel;
+import io.muoncore.channel.Channels;
 import io.muoncore.codec.Codecs;
 import io.muoncore.descriptors.OperationDescriptor;
 import io.muoncore.descriptors.ProtocolDescriptor;
@@ -42,7 +44,7 @@ public class RequestResponseServerProtocolStack implements
     @SuppressWarnings("unchecked")
     public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
 
-        StandardAsyncChannel<TransportOutboundMessage, TransportInboundMessage> api2 = new StandardAsyncChannel<>();
+        Channel<TransportOutboundMessage, TransportInboundMessage> api2 = Channels.channel("rrpserver", "transport");
 
         api2.left().receive( message -> {
             RequestMetaData meta = RRPTransformers.toRequestMetaData(message);
@@ -58,10 +60,13 @@ public class RequestResponseServerProtocolStack implements
 
                 @Override
                 public void answer(Response response) {
-                    TransportOutboundMessage msg = RRPTransformers.toOutbound("thiservice",response, codecs,
-                            discovery.findService( svc ->
-                                    svc.getIdentifier().equals(
-                                            request.getMetaData().getTargetService())).get().getCodecs());
+                    ServiceDescriptor target = discovery.findService(svc ->
+                            svc.getIdentifier().equals(
+                                    request.getMetaData().getSourceService())).get();
+
+                    TransportOutboundMessage msg = RRPTransformers.toOutbound(request.getMetaData().getTargetService(), request.getMetaData().getSourceService(), response, codecs,
+                            target.getCodecs());
+
                     api2.left().send(msg);
                 }
             });
