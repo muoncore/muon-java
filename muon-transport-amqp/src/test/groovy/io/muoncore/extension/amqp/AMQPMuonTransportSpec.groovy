@@ -2,11 +2,14 @@ package io.muoncore.extension.amqp
 
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.protocol.ServerStacks
+import reactor.Environment
 import spock.lang.Specification
 
 class AMQPMuonTransportSpec extends Specification {
 
     def "Opens listen service queue for handshake. For every handshake, create a new channel"() {
+        Environment.initializeIfEmpty()
+
         def serverStacks = Mock(ServerStacks)
         def serviceQueue = Mock(ServiceQueue)
         def channelFactory = Mock(AmqpChannelFactory)
@@ -23,6 +26,8 @@ class AMQPMuonTransportSpec extends Specification {
 
 
     def "handshake processing causes a channel to be created"() {
+        Environment.initializeIfEmpty()
+
         def mockChannel = Mock(AmqpChannel)
         def mockServerChannelConnection = Mock(ChannelConnection)
         def func
@@ -49,6 +54,8 @@ class AMQPMuonTransportSpec extends Specification {
     }
 
     def "open channel will cause a channel to be created with handshake initiated"() {
+        Environment.initializeIfEmpty()
+
         def mockChannel = Mock(AmqpChannel)
         def serverStacks = Mock(ServerStacks)
         def serviceQueue = Mock(ServiceQueue)

@@ -38,6 +38,8 @@ class ReactiveStreamIntegrationSpec extends Specification {
         when:
         muon2.subscribe(new URI("stream://simples/somedata"), Map, sub2)
 
+        sleep(100)
+
         and:
         50000.times {
             b.accept(["hello": "world"])
@@ -55,7 +57,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
         def data = []
         def errorReceived = false
 
-        Environment env = Environment.initialize()
+        Environment env = Environment.initializeIfEmpty()
 
         def sub2 = Broadcaster.create(env)
         sub2.observeError(Exception, {

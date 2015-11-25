@@ -16,6 +16,8 @@ import spock.lang.Unroll
 import spock.util.concurrent.PollingConditions
 
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
+
 //@Ignore
 @IgnoreIf({ System.getenv("BUILD_NUMBER") })
 class ChannelThroughputSpec extends Specification {
@@ -40,7 +42,6 @@ class ChannelThroughputSpec extends Specification {
 
                     @Override
                     void send(TransportInboundMessage message) {
-                        println "Received ... "
                         received << message
                     }
                 }
@@ -53,9 +54,10 @@ class ChannelThroughputSpec extends Specification {
         svc1.start(serverStacks1)
 
         when:
-        def pool = Executors.newFixedThreadPool(200)
+        def pool = Executors.newFixedThreadPool(20)
 
-        def then = System.currentTimeMillis()
+        def id = new AtomicInteger()
+
         numservices.times {
             pool.submit {
                 def channel = svc1.openClientChannel("tombola", "requestresponse")
@@ -63,24 +65,23 @@ class ChannelThroughputSpec extends Specification {
                 numRequests.times {
                     channel.send(new TransportOutboundMessage(
                             "somethingHappened",
-                            "1",
+                            "${id.addAndGet(1)}",
                             "remoteService",
                             "tombola",
                             RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                             [:],
-                            "applicaton/json",
+                            "application/json",
                             new GsonCodec().encode([:]), ["application/json"]))
                 }
             }
         }
         pool.shutdown()
+        sleep(5000)
 
         then:
         new PollingConditions(timeout: 20).eventually {
-            received.size() == numRequests * numservices
+            received.metadata.id.size() == numRequests * numservices
         }
-        def now = System.currentTimeMillis()
-        println "Established ${numservices} connections in ${(now - then) / 1000}s"
 
         cleanup:
         svc1.shutdown()
@@ -89,10 +90,10 @@ class ChannelThroughputSpec extends Specification {
         where:
         numservices | numRequests
         5   | 5
-        10  | 5
+        5  | 30
         2  | 200
         1  | 10000
-//        20  | 1000
+        20  | 1000
     }
 
     private AMQPMuonTransport createTransport(serviceName) {

@@ -1,5 +1,4 @@
 package io.muoncore.transport.client
-
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.json.GsonCodec
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
@@ -48,8 +47,10 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
         and: "a message that is the same combo as previously seen on this channel"
         connection.send(outbound("mymessage", "myService2", "simple"))
+        sleep(100)
 
         then:
+
 
         1 * transport.openClientChannel("myService1", "requestresponse") >> Stub(ChannelConnection)
         1 * transport.openClientChannel("myService2", "requestresponse") >> Stub(ChannelConnection)
@@ -91,6 +92,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
         connection.send(outbound("mymessage", "myService3", "requestresponse"))
 
         and: "Messages sent down all functions"
+        sleep(100)
         channelFunctions[0].call(inbound("id", "source", "requestresponse"))
         channelFunctions[1].call(inbound("id", "source", "requestresponse"))
         channelFunctions[2].call(inbound("id", "source", "requestresponse"))
@@ -98,6 +100,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
         channelFunctions[1].call(inbound("id", "source", "requestresponse"))
         channelFunctions[0].call(inbound("id", "source", "requestresponse"))
         channelFunctions[1].call(inbound("id", "source", "requestresponse"))
+        sleep(100)
 
         then:
         channelFunctions.size() == 3

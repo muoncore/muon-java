@@ -1,7 +1,7 @@
 package io.muoncore.extension.amqp.externalbroker
-import com.google.common.eventbus.EventBus
 import io.muoncore.Muon
 import io.muoncore.SingleTransportMuon
+import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.extension.amqp.AMQPMuonTransport
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
@@ -13,44 +13,57 @@ import io.muoncore.protocol.reactivestream.server.PublisherLookup
 import reactor.Environment
 import reactor.rx.broadcast.Broadcaster
 import spock.lang.Ignore
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
 class ReactiveStreamIntegrationSpec extends Specification {
 
-    def discovery = new InMemDiscovery()
-    def eventbus = new EventBus()
+    @Shared def discovery = new InMemDiscovery()
+
+    @Shared def muon1 = muon("simples")
+    @Shared def muon2 = muon("tombola")
 
     def "can create a publisher and subscribe to it remotely"() {
 
+        StandardAsyncChannel.echoOut = true
+        def env = Environment.initializeIfEmpty()
+
         def data = []
 
-        def b = Broadcaster.create()
-        def sub2 = Broadcaster.create()
+        def b = Broadcaster.create(env)
+        def sub2 = Broadcaster.create(env)
 
         sub2.consume {
             data << it
         }
 
-        def muon1 = muon("simples")
-        def muon2 = muon("tombola")
-
         muon1.publishSource("somedata", PublisherLookup.PublisherType.HOT, b)
 
+        sleep(4000)
         when:
         muon2.subscribe(new URI("stream://simples/somedata"), Map, sub2)
 
+        sleep(1000)
+
         and:
         20.times {
+            println "Publish"
             b.accept(["hello": "world"])
         }
+        sleep(5000)
 
         then:
-        new PollingConditions(timeout: 5).eventually {
+
+//        new PollingConditions(timeout: 20).eventually {
             data.size() == 20
-        }
+//        }
 
         cleanup:
+        StandardAsyncChannel.echoOut = false
+    }
+
+    def cleanupSpec() {
         muon1.shutdown()
         muon2.shutdown()
     }

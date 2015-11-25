@@ -52,6 +52,15 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
                 break;
         }
     }
+//
+//    The SUBSCRIBE message doesn't appear to have made it this far.
+//
+//    check if a channel is being correctly established. Then check if the data is correctly propogating along the channel
+//            to the serverstack
+//
+
+
+
 
     private void sendNack() {
         Map<String, String> meta = new HashMap<>();
