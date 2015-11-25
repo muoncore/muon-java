@@ -13,13 +13,6 @@ import spock.lang.Specification
 
 class ReactiveStreamServerChannelSpec extends Specification {
 
-
-    //if publisher exists, send ACK and connect the channel to it.
-
-    //if publisher doesn't exist, send NACK down the channel and close it.
-
-    //once ACK established.
-
     def "sends ACK if the publisher does exist on SUBSCRIBE"() {
         def subscription = Mock(Subscription)
         def pub = Mock(Publisher) {
@@ -30,7 +23,8 @@ class ReactiveStreamServerChannelSpec extends Specification {
         def config = new AutoConfiguration(serviceName: "awesome")
 
         def publookup = Mock(PublisherLookup) {
-            lookupPublisher("simpleStream") >> Optional.of(new PublisherLookup.PublisherRecord("simpleStream", PublisherLookup.PublisherType.HOT, pub))
+            lookupPublisher("simpleStream") >> Optional.of(
+                    new PublisherLookup.PublisherRecord("simpleStream", PublisherLookup.PublisherType.HOT, new ImmediatePublisherGenerator(pub)))
             lookupPublisher(_) >> Optional.empty()
         }
         def function = Mock(ChannelConnection.ChannelFunction)
@@ -104,7 +98,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
         def config = new AutoConfiguration(serviceName: "awesome")
 
         def publookup = Mock(PublisherLookup) {
-            lookupPublisher("simpleStream") >> Optional.of(new PublisherLookup.PublisherRecord("simpleStream", PublisherLookup.PublisherType.HOT, pub))
+            lookupPublisher("simpleStream") >> Optional.of(new PublisherLookup.PublisherRecord("simpleStream", PublisherLookup.PublisherType.HOT, new ImmediatePublisherGenerator(pub)))
             lookupPublisher(_) >> Optional.empty()
         }
         def function = Mock(ChannelConnection.ChannelFunction)
@@ -154,7 +148,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
         def config = new AutoConfiguration(serviceName: "awesome")
 
         def publookup = Mock(PublisherLookup) {
-            lookupPublisher("simpleStream") >> Optional.of(new PublisherLookup.PublisherRecord("simpleStream", PublisherLookup.PublisherType.HOT, pub))
+            lookupPublisher("simpleStream") >> Optional.of(new PublisherLookup.PublisherRecord("simpleStream", PublisherLookup.PublisherType.HOT, new ImmediatePublisherGenerator(pub)))
             lookupPublisher(_) >> Optional.empty()
         }
         def function = Mock(ChannelConnection.ChannelFunction)
@@ -204,7 +198,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
         def config = new AutoConfiguration(serviceName: "awesome")
 
         def publookup = Mock(PublisherLookup) {
-            lookupPublisher("simpleStream") >> Optional.of(new PublisherLookup.PublisherRecord("simpleStream", PublisherLookup.PublisherType.HOT, pub))
+            lookupPublisher("simpleStream") >> Optional.of(new PublisherLookup.PublisherRecord("simpleStream", PublisherLookup.PublisherType.HOT, new ImmediatePublisherGenerator(pub)))
             lookupPublisher(_) >> Optional.empty()
         }
         def function = Mock(ChannelConnection.ChannelFunction)
@@ -251,7 +245,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
         def config = new AutoConfiguration(serviceName: "awesome")
 
         def publookup = Mock(PublisherLookup) {
-            lookupPublisher("simpleStream") >> Optional.of(new PublisherLookup.PublisherRecord("simpleStream", PublisherLookup.PublisherType.HOT, pub))
+            lookupPublisher("simpleStream") >> Optional.of(new PublisherLookup.PublisherRecord("simpleStream", PublisherLookup.PublisherType.HOT, new ImmediatePublisherGenerator(pub)))
             lookupPublisher(_) >> Optional.empty()
         }
         def function = Mock(ChannelConnection.ChannelFunction)
@@ -297,7 +291,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
         def config = new AutoConfiguration(serviceName: "awesome")
 
         def publookup = Mock(PublisherLookup) {
-            lookupPublisher("simpleStream") >> Optional.of(new PublisherLookup.PublisherRecord("simpleStream", PublisherLookup.PublisherType.HOT, pub))
+            lookupPublisher("simpleStream") >> Optional.of(new PublisherLookup.PublisherRecord("simpleStream", PublisherLookup.PublisherType.HOT, new ImmediatePublisherGenerator(pub)))
             lookupPublisher(_) >> Optional.empty()
         }
         def function = Mock(ChannelConnection.ChannelFunction)

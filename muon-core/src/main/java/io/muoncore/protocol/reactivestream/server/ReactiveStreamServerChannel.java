@@ -5,6 +5,7 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.exception.MuonException;
 import io.muoncore.protocol.reactivestream.ProtocolMessages;
+import io.muoncore.protocol.reactivestream.ReactiveStreamSubscriptionRequest;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportMessage;
 import io.muoncore.transport.TransportOutboundMessage;
@@ -52,15 +53,6 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
                 break;
         }
     }
-//
-//    The SUBSCRIBE message doesn't appear to have made it this far.
-//
-//    check if a channel is being correctly established. Then check if the data is correctly propogating along the channel
-//            to the serverstack
-//
-
-
-
 
     private void sendNack() {
         Map<String, String> meta = new HashMap<>();
@@ -103,7 +95,9 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
         } else {
             acceptedContentTypes = msg.getSourceAvailableContentTypes();
             subscribingServiceName = msg.getSourceServiceName();
-            pub.get().getPublisher().subscribe(new Subscriber() {
+            ReactiveStreamSubscriptionRequest request = codecs.decode(msg.getPayload(), msg.getContentType(), ReactiveStreamSubscriptionRequest.class);
+
+            pub.get().getPublisher().generatePublisher(request).subscribe(new Subscriber() {
                 @Override
                 public void onSubscribe(Subscription s) {
                     subscription = s;

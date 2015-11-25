@@ -1,7 +1,5 @@
 package io.muoncore.protocol.reactivestream.server;
 
-import org.reactivestreams.Publisher;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -13,9 +11,9 @@ public interface PublisherLookup {
     class PublisherRecord {
         private String name;
         private PublisherType publisherType;
-        private Publisher publisher;
+        private ReactiveStreamServerHandlerApi.PublisherGenerator publisher;
 
-        public PublisherRecord(String name, PublisherType publisherType, Publisher publisher) {
+        public PublisherRecord(String name, PublisherType publisherType, ReactiveStreamServerHandlerApi.PublisherGenerator publisher) {
             this.name = name;
             this.publisherType = publisherType;
             this.publisher = publisher;
@@ -29,7 +27,7 @@ public interface PublisherLookup {
             return publisherType;
         }
 
-        public Publisher getPublisher() {
+        public ReactiveStreamServerHandlerApi.PublisherGenerator getPublisher() {
             return publisher;
         }
     }

@@ -13,8 +13,8 @@ class ReactiveStreamServerStackSpec extends Specification {
 
         def lookup = Mock(PublisherLookup) {
             getPublishers() >> [
-                    new PublisherLookup.PublisherRecord("simple", PublisherLookup.PublisherType.HOT, pub1),
-                    new PublisherLookup.PublisherRecord("tombola", PublisherLookup.PublisherType.COLD, pub1)
+                    new PublisherLookup.PublisherRecord("simple", PublisherLookup.PublisherType.HOT, new ImmediatePublisherGenerator(pub1)),
+                    new PublisherLookup.PublisherRecord("tombola", PublisherLookup.PublisherType.COLD, new ImmediatePublisherGenerator(pub1))
             ]
         }
         def codecs = Mock(Codecs)

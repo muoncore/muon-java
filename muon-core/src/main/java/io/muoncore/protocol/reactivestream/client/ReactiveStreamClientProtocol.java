@@ -6,17 +6,17 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.exception.MuonException;
 import io.muoncore.protocol.reactivestream.ProtocolMessages;
+import io.muoncore.protocol.reactivestream.ReactiveStreamSubscriptionRequest;
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.net.URLDecoder;
+import java.util.*;
 
 public class ReactiveStreamClientProtocol<T> {
 
@@ -42,9 +42,27 @@ public class ReactiveStreamClientProtocol<T> {
         this.configuration = configuration;
     }
 
-    public void start() {
+    public void start() throws UnsupportedEncodingException  {
         transportConnection.receive( msg -> handleMessage(msg));
-        sendSubscribe();
+
+        ReactiveStreamSubscriptionRequest request = new ReactiveStreamSubscriptionRequest();
+
+        splitQuery(uri).forEach(request::arg);
+
+        sendSubscribe(request);
+    }
+
+    public static Map<String, String> splitQuery(URI url) throws UnsupportedEncodingException {
+        Map<String, String> query_pairs = new LinkedHashMap<>();
+        String query = url.getQuery();
+        if (query == null || query.trim().length() == 0) return query_pairs;
+
+        String[] pairs = query.split("&");
+        for (String pair : pairs) {
+            int idx = pair.indexOf("=");
+            query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+        }
+        return query_pairs;
     }
 
     private void handleMessage(TransportInboundMessage msg) {
@@ -111,8 +129,8 @@ public class ReactiveStreamClientProtocol<T> {
         ));
     }
 
-    private void sendSubscribe() {
-        Codecs.EncodingResult result = codecs.encode(new Object(), new String[]{"application/json"});
+    private void sendSubscribe(ReactiveStreamSubscriptionRequest subscriptionRequest) {
+        Codecs.EncodingResult result = codecs.encode(subscriptionRequest, new String[]{"application/json"});
 
         Map<String, String> meta = new HashMap<>();
         meta.put("streamName", uri.getPath());
