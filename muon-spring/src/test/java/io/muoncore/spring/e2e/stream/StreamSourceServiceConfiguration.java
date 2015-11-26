@@ -1,4 +1,4 @@
-package io.muoncore.spring.e2e.model.stream;
+package io.muoncore.spring.e2e.stream;
 
 import io.muoncore.spring.annotations.EnableMuon;
 import org.springframework.context.annotation.Bean;

@@ -1,4 +1,4 @@
-package io.muoncore.spring.e2e.model.stream;
+package io.muoncore.spring.model.stream;
 
 import io.muoncore.spring.Person;
 import io.muoncore.spring.annotations.MuonController;

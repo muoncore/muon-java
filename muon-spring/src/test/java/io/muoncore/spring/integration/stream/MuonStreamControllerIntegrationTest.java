@@ -1,25 +1,45 @@
-package io.muoncore.spring.integration;
+package io.muoncore.spring.integration.stream;
 
+import io.muoncore.Muon;
+import io.muoncore.future.MuonFuture;
+import io.muoncore.spring.Person;
 import io.muoncore.spring.annotations.EnableMuonControllers;
+import io.muoncore.spring.integration.MockedMuonConfiguration;
+import io.muoncore.spring.model.stream.TestStreamController;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import reactor.rx.broadcast.Broadcaster;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = MuonControllerIntegrationTest.class, loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = MuonStreamControllerIntegrationTest.class, loader = AnnotationConfigContextLoader.class)
 @Configuration
 @EnableMuonControllers(streamKeepAliveTimeout = 500)
 @Import(MockedMuonConfiguration.class)
-@ComponentScan(basePackages = "io.muoncore.spring.integration.setup")
-public class MuonControllerIntegrationTest {
+@ComponentScan(basePackages = "io.muoncore.spring.model.stream")
+public class MuonStreamControllerIntegrationTest {
 
 /*
     public static final Person PETER = new Person(123l, "Peter", 23);
@@ -28,20 +48,24 @@ public class MuonControllerIntegrationTest {
     @Autowired
     private Muon muon;
     @Autowired
-    private MuonTestController testController;
+    private TestStreamController testController;
+
+    @Mock
+    TestStreamController mockedTestStreamController;
 
     private ArgumentCaptor<String> resourceNameCaptor;
     private ArgumentCaptor<Class> typeCaptor;
-    private ArgumentCaptor<MuonService.MuonQuery> muonQueryListenerCaptor;
-    private ArgumentCaptor<MuonService.MuonCommand> muonCommandListenerCaptor;
+//    private ArgumentCaptor<MuonService.MuonQuery> muonQueryListenerCaptor;
+//    private ArgumentCaptor<MuonService.MuonCommand> muonCommandListenerCaptor;
     private ArgumentCaptor<Broadcaster> streamBroadcaster;
 
     @Before
     public void setUp() throws Exception {
+        initMocks(this);
         resourceNameCaptor = ArgumentCaptor.forClass(String.class);
         typeCaptor = ArgumentCaptor.forClass(Class.class);
-        muonQueryListenerCaptor = ArgumentCaptor.forClass(MuonService.MuonQuery.class);
-        muonCommandListenerCaptor = ArgumentCaptor.forClass(MuonService.MuonCommand.class);
+//        muonQueryListenerCaptor = ArgumentCaptor.forClass(MuonService.MuonQuery.class);
+//        muonCommandListenerCaptor = ArgumentCaptor.forClass(MuonService.MuonCommand.class);
         streamBroadcaster = ArgumentCaptor.forClass(Broadcaster.class);
     }
 
@@ -62,7 +86,7 @@ public class MuonControllerIntegrationTest {
     }
 
     private void verifyMuonQuerySetupProcess() {
-        verify(muon, times(1)).onQuery(resourceNameCaptor.capture(), typeCaptor.capture(), muonQueryListenerCaptor.capture());
+        verify(muon, times(1)).handleRequest(resourceNameCaptor.capture(), typeCaptor.capture(), muonQueryListenerCaptor.capture());
     }
 
     @Test
@@ -125,6 +149,6 @@ public class MuonControllerIntegrationTest {
         sampleParametersMap.put("personName", QUERY_EXPECTED_PERSON_NAME);
         return sampleParametersMap;
     }
-*/
 
+*/
 }

@@ -2,10 +2,9 @@ package io.muoncore.spring.e2e;
 
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerHandlerApi;
 import io.muoncore.spring.Person;
-import io.muoncore.spring.e2e.model.request.TestRequestRepository;
-import io.muoncore.spring.e2e.model.stream.StreamListenerServiceConfiguration;
-import io.muoncore.spring.e2e.model.stream.StreamSourceServiceConfiguration;
-import io.muoncore.spring.e2e.model.stream.TestStreamController;
+import io.muoncore.spring.e2e.stream.StreamListenerServiceConfiguration;
+import io.muoncore.spring.e2e.stream.StreamSourceServiceConfiguration;
+import io.muoncore.spring.model.stream.TestStreamController;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

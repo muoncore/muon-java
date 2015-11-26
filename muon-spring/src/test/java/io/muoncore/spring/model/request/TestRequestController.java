@@ -1,4 +1,4 @@
-package io.muoncore.spring.e2e.model.request;
+package io.muoncore.spring.model.request;
 
 import io.muoncore.spring.Person;
 import io.muoncore.spring.annotations.MuonController;

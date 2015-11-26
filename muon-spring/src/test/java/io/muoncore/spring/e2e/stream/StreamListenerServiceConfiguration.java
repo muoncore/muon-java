@@ -1,4 +1,4 @@
-package io.muoncore.spring.e2e.model.stream;
+package io.muoncore.spring.e2e.stream;
 
 import io.muoncore.spring.annotations.EnableMuon;
 import io.muoncore.spring.annotations.EnableMuonControllers;
@@ -12,7 +12,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 @Configuration
 @EnableMuon(serviceName = "${muon.streamListener.name}",
         aesEncryptionKey = "${muon.aesEncryptionKey}")
-@ComponentScan(basePackages = {"io.muoncore.spring.e2e.model.stream"})
+@ComponentScan(basePackages = {"io.muoncore.spring.model.stream"})
 @PropertySource("classpath:application.properties")
 @EnableMuonControllers(streamKeepAliveTimeout = 100)
 public class StreamListenerServiceConfiguration {

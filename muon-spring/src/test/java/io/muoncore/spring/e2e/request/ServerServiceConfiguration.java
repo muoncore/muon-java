@@ -1,19 +1,21 @@
-package io.muoncore.spring.e2e.model.request;
+package io.muoncore.spring.e2e.request;
 
 import io.muoncore.spring.annotations.EnableMuon;
-import io.muoncore.spring.annotations.EnableMuonRepositories;
+import io.muoncore.spring.annotations.EnableMuonControllers;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @Configuration
-@EnableMuon(serviceName = "${muon.client.name}",
-        tags = {"${muon.client.tag1}", "${muon.client.tag2}"},
+@ComponentScan(basePackages = {"io.muoncore.spring.model.request"})
+@EnableMuon(serviceName = "${muon.server.name}",
+        tags = {"${muon.server.tag1}", "${muon.server.tag2}"},
         aesEncryptionKey = "${muon.aesEncryptionKey}")
-@EnableMuonRepositories(basePackages = {"io.muoncore.spring.e2e.model.request"})
 @PropertySource("classpath:application.properties")
-public class ClientServiceConfiguration {
+@EnableMuonControllers
+public class ServerServiceConfiguration {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
         return new PropertySourcesPlaceholderConfigurer();
