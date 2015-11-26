@@ -13,10 +13,12 @@ import io.muoncore.protocol.reactivestream.server.PublisherLookup
 import reactor.Environment
 import reactor.rx.broadcast.Broadcaster
 import spock.lang.Ignore
+import spock.lang.IgnoreIf
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
+@IgnoreIf({ System.getenv("BUILD_NUMBER") })
 class ReactiveStreamIntegrationSpec extends Specification {
 
     @Shared def discovery = new InMemDiscovery()
