@@ -30,7 +30,7 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
             @Override
             public void send(GoingLeft message) {
                 if (message == null) {
-                    throw new MuonException("Cannot dispatch null down a channel from " + leftname + " to " + rightname + ". Null is a bad idea");
+                    throw new MuonException("Cannot dispatch null down a channel from " + rightname + " to " + leftname + ". Null is a bad idea");
                 }
                 dispatcher.dispatch(message, msg -> {
                     if (echoOut) System.out.println("Channel[" + leftname + " >>>>> " + rightname + "]: Sending " + msg + " to " + leftFunction);

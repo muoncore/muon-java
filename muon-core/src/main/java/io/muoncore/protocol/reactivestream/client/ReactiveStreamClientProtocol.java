@@ -1,6 +1,5 @@
 package io.muoncore.protocol.reactivestream.client;
 
-import io.muoncore.Discovery;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
@@ -26,7 +25,6 @@ public class ReactiveStreamClientProtocol<T> {
     private URI uri;
     private AutoConfiguration configuration;
     private Codecs codecs;
-    private Discovery discovery;
 
     public ReactiveStreamClientProtocol(URI uri,
                                         ChannelConnection<TransportOutboundMessage, TransportInboundMessage> transportConnection,
