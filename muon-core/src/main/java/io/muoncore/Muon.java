@@ -14,6 +14,7 @@ import io.muoncore.transport.TransportControl;
  */
 public interface Muon extends
         EventClientProtocolStack,
+//        EventServerApi,
         RequestResponseHandlersSource,
         RequestResponseClientProtocolStack,
         RequestResponseServerHandlerApi,

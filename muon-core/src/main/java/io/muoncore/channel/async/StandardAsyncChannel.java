@@ -2,6 +2,7 @@ package io.muoncore.channel.async;
 
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.exception.MuonException;
 import reactor.core.Dispatcher;
 
 public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<GoingLeft, GoingRight> {
@@ -28,10 +29,13 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
 
             @Override
             public void send(GoingLeft message) {
+                if (message == null) {
+                    throw new MuonException("Cannot dispatch null down a channel from " + leftname + " to " + rightname + ". Null is a bad idea");
+                }
                 dispatcher.dispatch(message, msg -> {
                     if (echoOut) System.out.println("Channel[" + leftname + " >>>>> " + rightname + "]: Sending " + msg + " to " + leftFunction);
                     leftFunction.apply(message); }
-                        , er -> System.out.println("Failed!!"));
+                        ,  Throwable::printStackTrace);
             }
         };
 
@@ -43,11 +47,14 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
 
             @Override
             public void send(GoingRight message) {
+                if (message == null) {
+                    throw new MuonException("Cannot dispatch null down a channel from " + leftname + " to " + rightname + ". Null is a bad idea");
+                }
                 dispatcher.dispatch(message, msg -> {
                     if (echoOut)
                         System.out.println("Channel[" + leftname + " <<<< " + rightname + "]: " + msg + " to " + rightFunction);
                     rightFunction.apply(message);
-                }, er -> System.out.println("Failed!!"));
+                }, Throwable::printStackTrace);
             }
         };
     }

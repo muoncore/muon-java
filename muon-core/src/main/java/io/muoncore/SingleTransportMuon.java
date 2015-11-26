@@ -29,8 +29,7 @@ import java.util.Map;
 /**
  * Simple bundle of default Muon protocol stacks based on a single transport.
  */
-public class SingleTransportMuon implements Muon
-{
+public class SingleTransportMuon implements Muon, ServerRegistrarSource {
 
     private SingleTransportClient transportClient;
     private TransportControl transportControl;
@@ -80,8 +79,9 @@ public class SingleTransportMuon implements Muon
         discovery.blockUntilReady();
     }
 
-    public ServerStacks getProtocolStacks() {
-        return protocols;
+    @Override
+    public ServerRegistrar getProtocolStacks() {
+        return registrar;
     }
 
     private void initServerStacks(DynamicRegistrationServerStacks stacks) {
