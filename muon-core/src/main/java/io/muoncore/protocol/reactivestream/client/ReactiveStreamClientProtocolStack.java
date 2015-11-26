@@ -11,6 +11,7 @@ import java.net.URI;
 public interface ReactiveStreamClientProtocolStack extends TransportClientSource, CodecsSource, MuonConfigurationSource {
 
     default <R> void subscribe(URI uri, Class<R> eventType, Subscriber<R> subscriber) throws UnsupportedEncodingException {
+        if (!uri.getScheme().equals("stream")) throw new IllegalArgumentException("URI Scheme is invalid. Requires scheme: stream://");
         ReactiveStreamClientProtocol<R> proto = new ReactiveStreamClientProtocol<>(
                 uri,
                 getTransportClient().openClientChannel(),
