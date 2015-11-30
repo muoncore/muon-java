@@ -6,6 +6,7 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.rx.broadcast.Broadcaster;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -23,13 +24,13 @@ public class StreamConnector {
         this.muonStreamMethodInvocation = muonStreamMethodInvocation;
     }
 
-    public synchronized void safeConnectToStream() throws URISyntaxException {
+    public synchronized void safeConnectToStream() throws URISyntaxException, UnsupportedEncodingException {
         if (connectionState == ConnectionState.DISCONNECTED) {
             connectToStream();
         }
     }
 
-    private void connectToStream() throws URISyntaxException {
+    private void connectToStream() throws URISyntaxException, UnsupportedEncodingException {
         connectionState = ConnectionState.CONNECTING;
         Broadcaster<Object> localstream = Broadcaster.create();
         localstream.subscribe(new Subscriber<Object>() {

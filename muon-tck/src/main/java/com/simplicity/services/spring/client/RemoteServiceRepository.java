@@ -1,6 +1,6 @@
 package com.simplicity.services.spring.client;
 
-import com.simplicity.services.spring.Person;
+import com.simplicity.services.spring.PersonRecord;
 import io.muoncore.spring.annotations.Command;
 import io.muoncore.spring.annotations.MuonRepository;
 import io.muoncore.spring.annotations.Query;
@@ -12,11 +12,11 @@ import java.util.List;
 @MuonRepository
 public interface RemoteServiceRepository {
     @Request("request://${muon.server.name}/getPerson")
-    Person getPersonById(@Parameter("id") Long id);
+    PersonRecord getPersonById(@Parameter("id") Long id);
 
     @Request("request://${muon.server.name}/addPerson")
-    void addPerson(Person person);
+    void addPerson(PersonRecord person);
 
     @Request("request://${muon.server.name}/getPeople")
-    List<Person> getPeople();
+    List<PersonRecord> getPeople();
 }

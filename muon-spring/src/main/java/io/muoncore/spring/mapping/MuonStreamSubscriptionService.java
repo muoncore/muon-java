@@ -6,6 +6,7 @@ import io.muoncore.spring.methodinvocation.MuonStreamMethodInvocation;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class MuonStreamSubscriptionService {
                     try {
                         LOG.info("Trying to reconnecto to " + streamConnector.getMuonUrl());
                         streamConnector.safeConnectToStream();
-                    } catch (URISyntaxException e) {
+                    } catch (URISyntaxException | UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
                 }

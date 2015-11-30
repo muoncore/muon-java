@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+io.muoncore.spring.boot.MuonAutoConfiguration
