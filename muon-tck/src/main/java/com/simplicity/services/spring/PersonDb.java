@@ -6,7 +6,7 @@ import java.util.Map;
 import static com.simplicity.services.spring.PersonBuilder.aDefaultPerson;
 
 public class PersonDb {
-    public static Map<Long, Person> PERSON_DB = new HashMap<Long, Person>() {{
+    public static Map<Long, PersonRecord> PERSON_DB = new HashMap<Long, PersonRecord>() {{
         put(1L, aDefaultPerson()
                 .withId(1L)
                 .withName("John Smith")

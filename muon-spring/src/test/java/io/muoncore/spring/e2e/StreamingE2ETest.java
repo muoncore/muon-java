@@ -1,7 +1,7 @@
 package io.muoncore.spring.e2e;
 
+import io.muoncore.protocol.reactivestream.server.PublisherLookup;
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerHandlerApi;
-import io.muoncore.spring.Person;
 import io.muoncore.spring.e2e.stream.StreamListenerServiceConfiguration;
 import io.muoncore.spring.e2e.stream.StreamSourceServiceConfiguration;
 import io.muoncore.spring.model.stream.TestStreamController;
@@ -13,8 +13,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import reactor.core.processor.CancelException;
 import reactor.rx.broadcast.Broadcaster;
+import io.muoncore.spring.*;
 
-import static io.muoncore.spring.PersonBuilder.aDefaultPerson;
 import static org.mockito.Mockito.*;
 
 public class StreamingE2ETest {
@@ -30,7 +30,7 @@ public class StreamingE2ETest {
         reactiveStreamServerApi = streamSourceServiceContext.getBean(ReactiveStreamServerHandlerApi.class);
         personSource = Broadcaster.create();
 
-        reactiveStreamServerApi.publishSource("personStream", personSource);
+        reactiveStreamServerApi.publishSource("personStream", PublisherLookup.PublisherType.HOT, personSource);
 
         ApplicationContext streamListenerServiceContext = new AnnotationConfigApplicationContext(StreamListenerServiceConfiguration.class);
 
@@ -46,7 +46,7 @@ public class StreamingE2ETest {
 
     @Test
     public void performsSimpleRequest() throws Exception {
-        Person aPerson = aDefaultPerson().build();
+        Person aPerson = PersonBuilder.aDefaultPerson().build();
         personSource.accept(aPerson);
 
         verify(testControllerDelegatingMock, times(1)).addPersonEvent(eq(aPerson));
@@ -55,9 +55,9 @@ public class StreamingE2ETest {
     @Test(expected = CancelException.class)
     public void throwsExceptionIfPublishToNonExistentStream() throws Exception {
         Broadcaster<Person> personBroadcaster = Broadcaster.create();
-        reactiveStreamServerApi.publishSource("the-wrong-source", personBroadcaster);
+        reactiveStreamServerApi.publishSource("the-wrong-source", PublisherLookup.PublisherType.HOT, personBroadcaster);
 
-        Person aPerson = aDefaultPerson().build();
+        Person aPerson = PersonBuilder.aDefaultPerson().build();
         personBroadcaster.accept(aPerson);
     }
 
@@ -65,11 +65,11 @@ public class StreamingE2ETest {
     public void reconnectsAfterBroadcasterFails() throws Exception {
 
         final Broadcaster<Person> removePersonStream = Broadcaster.create();
-        reactiveStreamServerApi.publishSource("removePersonStream", removePersonStream);
+        reactiveStreamServerApi.publishSource("removePersonStream", PublisherLookup.PublisherType.HOT, removePersonStream);
 
         Thread.sleep(200);
 
-        Person aPerson = aDefaultPerson().build();
+        Person aPerson = PersonBuilder.aDefaultPerson().build();
         removePersonStream.accept(aPerson);
 
         verify(testControllerDelegatingMock, times(1)).removePersonEvent(eq(aPerson));

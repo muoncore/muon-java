@@ -1,6 +1,6 @@
 package com.simplicity.services.spring.client;
 
-import com.simplicity.services.spring.Person;
+import com.simplicity.services.spring.PersonRecord;
 import io.muoncore.spring.annotations.EnableMuon;
 import io.muoncore.spring.annotations.EnableMuonRepositories;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +40,10 @@ public class ClientApplication {
     public void run() {
         remoteServiceRepository.addPerson(aDefaultPerson().withId(100L).build());
 
-        final Person personById = remoteServiceRepository.getPersonById(100L);
+        final PersonRecord personById = remoteServiceRepository.getPersonById(100L);
         System.out.println(personById);
 
-        List<Person> list = remoteServiceRepository.getPeople();
+        List<PersonRecord> list = remoteServiceRepository.getPeople();
         System.out.println(list);
 
     }

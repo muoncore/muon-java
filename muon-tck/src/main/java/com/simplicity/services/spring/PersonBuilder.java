@@ -27,8 +27,8 @@ public class PersonBuilder {
         return this;
     }
 
-    public Person build() {
-        return new Person(id, name, age);
+    public PersonRecord build() {
+        return new PersonRecord(id, name, age);
     }
 
 }

@@ -1,11 +1,11 @@
 package com.simplicity.services.spring;
 
-public class Person {
+public class PersonRecord {
     private long id;
     private String name;
     private Integer age;
 
-    public Person(long id, String name, Integer age) {
+    public PersonRecord(long id, String name, Integer age) {
         this.id = id;
         this.name = name;
         this.age = age;
@@ -40,7 +40,7 @@ public class Person {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Person that = (Person) o;
+        PersonRecord that = (PersonRecord) o;
 
         if (id != that.id) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
