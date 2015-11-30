@@ -22,7 +22,7 @@ import java.lang.annotation.*;
 
 /**
  * Marker interface to trigger Muon listeners processing
- * @see MuonQueryListener
+ * @see MuonRequestListener
  * @see MuonStreamListener
  */
 @Target({ElementType.TYPE})

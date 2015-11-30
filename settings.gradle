@@ -4,5 +4,5 @@ include 'muon-core',
         'muon-transport-amqp',
         'muon-discovery-amqp',
         'muon-codec-kryo',
-        'muon-tck'//,
-//        'muon-spring'
+        'muon-tck',
+        'muon-spring'

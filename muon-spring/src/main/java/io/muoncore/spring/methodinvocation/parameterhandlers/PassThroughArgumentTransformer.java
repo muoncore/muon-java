@@ -10,8 +10,8 @@ public class PassThroughArgumentTransformer implements MethodArgumentTransformer
     }
 
     @Override
-    public Object extractArgument(Object muonResourceEvent) {
-        return muonResourceEvent;
+    public Object extractArgument(Object request) {
+        return request;
     }
 
     @Override
