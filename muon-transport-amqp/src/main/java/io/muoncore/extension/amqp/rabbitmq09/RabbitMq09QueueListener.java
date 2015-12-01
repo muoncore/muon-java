@@ -64,7 +64,12 @@ public class RabbitMq09QueueListener implements QueueListener {
                     }
 
                     Map<String, String> newHeaders = new HashMap<>();
-                    headers.entrySet().stream().forEach( entry -> newHeaders.put(entry.getKey(), entry.getValue().toString()));
+                    headers.entrySet().stream().forEach( entry -> {
+                        if (entry.getKey() == null || entry.getValue() == null) {
+                            return;
+                        }
+                        newHeaders.put(entry.getKey(), entry.getValue().toString());
+                    });
 
                     String contentType = "";
                     if (newHeaders.get("Content-Type") != null) {
