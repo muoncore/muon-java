@@ -5,8 +5,13 @@ import io.muoncore.spring.MuonConfiguration;
 import io.muoncore.spring.annotations.EnableMuon;
 import io.muoncore.spring.annotations.EnableMuonControllers;
 import io.muoncore.spring.discovery.MuonDiscoveryFactoryBeanRegistrar;
+import io.muoncore.spring.repository.DefaultMuonEventStoreRepository;
+import io.muoncore.spring.repository.MuonEventStoreRepository;
 import io.muoncore.spring.transport.MuonTransportFactoryBeanRegistrar;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
@@ -20,22 +25,13 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:application.properties")
 public class MuonAutoConfiguration {
 
-//    @Bean
-//    @ConditionalOnMissingBean(CamelContext.class)
-//    CamelContext camelContext(ApplicationContext applicationContext,
-//                              CamelConfigurationProperties configurationProperties) {
-//        CamelContext camelContext = new SpringCamelContext(applicationContext);
-//        SpringCamelContext.setNoStart(true);
-//
-//        if (!configurationProperties.isJmxEnabled()) {
-//            camelContext.disableJMX();
-//        }
-//
-//        if (configurationProperties.getName() != null) {
-//            ((SpringCamelContext) camelContext).setName(configurationProperties.getName());
-//        }
-//
-//        return camelContext;
-//    }
+    @Bean
+    @ConditionalOnMissingBean(MuonEventStoreRepository.class)
+    MuonEventStoreRepository muonEventStore(ApplicationContext applicationContext) {
+        MuonEventStoreRepository repo = new DefaultMuonEventStoreRepository();
+
+
+        return repo;
+    }
 
 }

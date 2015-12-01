@@ -5,6 +5,8 @@ package io.muoncore.protocol.event;
  */
 public class Event<X> {
 
+    public final static String START="START";
+
     //precedence
     private String id;
     private String parentId;
