@@ -36,29 +36,8 @@ public class EventServerProtocolStack implements
         Channel<TransportOutboundMessage, TransportInboundMessage> api2 = Channels.channel("eventserver", "transport");
 
         api2.left().receive( message -> {
-//            RequestMetaData meta = RRPTransformers.toRequestMetaData(message);
-//            RequestResponseServerHandler handler = handlers.findHandler(meta);
-//
-//            Request request = RRPTransformers.toRequest(message, codecs, handler.getRequestType());
-//
-//            handler.handle(new RequestWrapper() {
-//                @Override
-//                public Request getRequest() {
-//                    return request;
-//                }
-//
-//                @Override
-//                public void answer(Response response) {
-//                    ServiceDescriptor target = discovery.findService(svc ->
-//                            svc.getIdentifier().equals(
-//                                    request.getMetaData().getSourceService())).get();
-//
-//                    TransportOutboundMessage msg = RRPTransformers.toOutbound(request.getMetaData().getTargetService(), request.getMetaData().getSourceService(), response, codecs,
-//                            target.getCodecs());
-//
-//                    api2.left().send(msg);
-//                }
-//            });
+            Event ev = codecs.decode(message.getPayload(), message.getContentType(), Event.class);
+            handler.apply(ev);
         });
 
         return api2.right();

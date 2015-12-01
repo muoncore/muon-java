@@ -32,6 +32,6 @@ public @interface EnableMuon {
     /**
      * AES encryption key, a string of 16/24/32 bytes
      */
-    String aesEncryptionKey();
+    String aesEncryptionKey() default "1234567890abcdef";
 
 }
