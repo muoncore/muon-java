@@ -78,7 +78,7 @@ public class ServiceComposition {
 //            OldMuon muon) {
 //
 //        Stream<Map> s1 = Streams.wrap(
-//                muon.query("muon://user?name=dawson", Map.class).toPublisher())
+//                muon.query("muon://user?stream=dawson", Map.class).toPublisher())
 //                .map(new Function<MuonClient.MuonResult<Map>, Map>() {
 //                    @Override
 //                    public Map apply(MuonClient.MuonResult<Map> mapMuonResult) {
@@ -89,7 +89,7 @@ public class ServiceComposition {
 //                        Streams.just(defaultUser()));
 //
 //        Stream<Map> s2 = Streams.wrap(
-//                muon.query("muon://order?name=dawson", Map.class).toPublisher())
+//                muon.query("muon://order?stream=dawson", Map.class).toPublisher())
 //                .map(new Function<MuonClient.MuonResult<Map>, Map>() {
 //                    @Override
 //                    public Map apply(MuonClient.MuonResult<Map> mapMuonResult) {

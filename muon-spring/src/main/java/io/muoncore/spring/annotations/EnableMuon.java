@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 public @interface EnableMuon {
 
     /**
-     * Assign a name to the Muon service instance
+     * Assign a stream to the Muon service instance
      */
     String serviceName();
 

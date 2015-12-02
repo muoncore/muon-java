@@ -23,19 +23,21 @@ public class DefaultMuonEventStoreRepository implements MuonEventStoreRepository
     }
 
     @Override
-    public void event(String streamName, Object payload) {
-        event(streamName, "", payload);
+    public void event(String eventType, String streamName, Object payload) {
+        event(eventType, streamName, "", payload);
     }
 
     @Override
-    public void event(Object payload) {
-        event("general", payload);
+    public void event(String eventType, Object payload) {
+        event(eventType, "general", payload);
     }
 
     @Override
-    public void event(String streamName, String parentId, Object payload) {
+    public void event(String eventType, String streamName, String parentId, Object payload) {
         muon.event(
-                new Event<>(UUID.randomUUID().toString(),
+                new Event<>(
+                        eventType,
+                        UUID.randomUUID().toString(),
                         parentId,
                         muon.getConfiguration().getServiceName(),
                         payload));

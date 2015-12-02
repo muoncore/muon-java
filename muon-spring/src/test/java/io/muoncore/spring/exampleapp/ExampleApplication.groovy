@@ -24,7 +24,7 @@ class ExampleApplication {
     /**
      * Listen to an event source
      */
-    @EventSourceListener(String)
+    @EventSourceListener
     public void ingestData(String value) {
         values << value
     }
@@ -32,7 +32,7 @@ class ExampleApplication {
     /**
      * Listen to an event source
      */
-    @EventSourceListener(String)
+    @EventSourceListener
     public void ingestData(Event value) {
         println "Received event ${value.id}"
     }
@@ -63,6 +63,6 @@ class ExampleApplication {
 
 //    add a @MuonStreamListener(reconnectMode=true) Subscriber<X> myMethod()
 //      - if return subscriber, use that instead of generating one.
-//    add above annotation. just does a lookup of the event store service name by tag and does a stream against that.
+//    add above annotation. just does a lookup of the event store service stream by tag and does a stream against that.
 //    add a core muon api to do this.
 //    add a @MuonStreamPublisher that returns ether a Publisher or a ReactiveStreamServerHandlerApi.PublisherGenerator

@@ -1,8 +1,8 @@
 package io.muoncore.spring.e2e.boot
 import io.muoncore.Muon
 import io.muoncore.spring.annotations.EnableMuon
+import io.muoncore.spring.annotations.EventSourceListener
 import io.muoncore.spring.annotations.MuonController
-import io.muoncore.spring.annotations.MuonStreamListener
 import io.muoncore.spring.repository.MuonEventStoreRepository
 import io.muoncore.spring.teststore.EventStoreInMem
 import org.springframework.beans.factory.annotation.Autowired
@@ -41,7 +41,7 @@ class BootService2 {
 
     @Autowired Muon muon
 
-    @MuonStreamListener(url = "stream://chronos/general")
+    @EventSourceListener()
     def receiveData(Map data) {
         println "Event is being checked ${data}"
         dataList << data
@@ -63,6 +63,6 @@ class BootService1 {
     void emitEvent() {
         println "Emitting!"
         issued++
-        eventStore.event([message:"awesome"])
+        eventStore.event("SomethingHappened", [message:"awesome"])
     }
 }

@@ -19,13 +19,13 @@ public interface MuonEventStoreRepository {
      * @param streamName
      * @param payload
      */
-    void event(String streamName, Object payload);
+    void event(String eventType, String streamName, Object payload);
 
     /**
      * Emit an event onto the default stream, named "general"
      * @param payload
      */
-    void event(Object payload);
+    void event(String eventType, Object payload);
 
     /**
      * Emit an event, with a parent id, onto the named stream.
@@ -34,7 +34,7 @@ public interface MuonEventStoreRepository {
      *                 This relationship will not enforced by the event store.
      * @param payload The event itself.
      */
-    void event(String streamName, String parentId, Object payload);
+    void event(String eventType, String streamName, String parentId, Object payload);
 
     void replay(String streamName, EventReplayMode mode, Subscriber<Event> event) throws UnsupportedEncodingException, URISyntaxException;
 }
