@@ -36,6 +36,9 @@ public class DefaultInMemClientChannelConnection implements InMemClientChannelCo
     public void send(TransportOutboundMessage message) {
         try {
             handshakeControl.await(1, TimeUnit.SECONDS);
+            if (serverChannel == null) {
+                throw new MuonTransportFailureException("Server channel did not connect within the required timeout. This is a bug", new NullPointerException());
+            }
             serverChannel.send(message.toInbound());
         } catch (InterruptedException e) {
             throw new MuonTransportFailureException("Unable to connect, no remote server attached to the channel within the timeout", e);

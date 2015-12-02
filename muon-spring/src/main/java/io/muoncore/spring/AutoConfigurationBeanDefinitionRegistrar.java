@@ -18,6 +18,7 @@ public class AutoConfigurationBeanDefinitionRegistrar implements ImportBeanDefin
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         Map<String, Object> annotationAttributes = importingClassMetadata.getAnnotationAttributes(EnableMuon.class.getName());
 
+
         Object serviceNameCandidate = annotationAttributes.get("serviceName");
         if (serviceNameCandidate != null && String.class == serviceNameCandidate.getClass()) {
             String serviceName = (String) serviceNameCandidate;

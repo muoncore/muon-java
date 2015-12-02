@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 public @interface EnableMuon {
 
     /**
-     * Assign a name to the Muon service instance
+     * Assign a stream to the Muon service instance
      */
     String serviceName();
 
@@ -32,6 +32,6 @@ public @interface EnableMuon {
     /**
      * AES encryption key, a string of 16/24/32 bytes
      */
-    String aesEncryptionKey();
+    String aesEncryptionKey() default "1234567890abcdef";
 
 }

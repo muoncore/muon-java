@@ -7,7 +7,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface Parameter {
     /**
-     * @return Muon parameter name
+     * @return Muon parameter stream
      */
     String value();
 }

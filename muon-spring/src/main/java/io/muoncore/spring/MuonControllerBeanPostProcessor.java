@@ -1,5 +1,9 @@
 package io.muoncore.spring;
 
+import io.muoncore.Muon;
+import io.muoncore.ServiceDescriptor;
+import io.muoncore.exception.MuonException;
+import io.muoncore.spring.annotations.EventSourceListener;
 import io.muoncore.spring.annotations.MuonController;
 import io.muoncore.spring.annotations.MuonRequestListener;
 import io.muoncore.spring.annotations.MuonStreamListener;
@@ -15,6 +19,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.StringValueResolver;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 public class MuonControllerBeanPostProcessor implements BeanPostProcessor, EmbeddedValueResolverAware {
     @Autowired
@@ -22,6 +27,9 @@ public class MuonControllerBeanPostProcessor implements BeanPostProcessor, Embed
     @Autowired
     private MuonRequestListenerService muonRequestListenerService;
     private StringValueResolver resolver;
+
+    @Autowired
+    private Muon muon;
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -47,10 +55,17 @@ public class MuonControllerBeanPostProcessor implements BeanPostProcessor, Embed
             if (muonQueryListener != null) {
                 muonRequestListenerService.addRequestMapping(resolver.resolveStringValue(muonQueryListener.path()), new MuonRequestMethodInvocation(method, bean));
             }
+            EventSourceListener eventSourceListener = AnnotationUtils.findAnnotation(method, EventSourceListener.class);
+            if (eventSourceListener != null) {
+                Optional<ServiceDescriptor> svc = muon.getDiscovery().findService(service -> service.getTags().contains("eventstore"));
+                svc.orElseThrow(() -> new MuonException("Unable to locate an event store in the current distributed system"));
+                svc.ifPresent(service -> streamSubscrioptionService.setupMuonMapping(resolver.resolveStringValue(
+                                "stream://" + service.getIdentifier() + "/" + eventSourceListener.stream()), new MuonStreamMethodInvocation(method, bean)));
+            }
         }
+
         return bean;
     }
-
     @Override
     public void setEmbeddedValueResolver(StringValueResolver resolver) {
         this.resolver = resolver;

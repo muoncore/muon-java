@@ -51,7 +51,7 @@ public class AMQPMuonTransport implements MuonTransport {
         AmqpChannel channel = channelFactory.createChannel();
         channel.initiateHandshake(serviceName, protocol);
         channels.add(channel);
-        Channel<TransportOutboundMessage, TransportInboundMessage> intermediate = Channels.channel("leftName", "rightName");
+        Channel<TransportOutboundMessage, TransportInboundMessage> intermediate = Channels.channel("AMQPChannel", "");
 
         Channels.connect(intermediate.right(), channel);
 

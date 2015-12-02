@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 public class InMemTransportFactory implements MuonTransportFactory {
 
     private static final String IN_MEM_TRANSPORT_ENABLED_PROPERTY_NAME = "transport.inmem.enabled";
-    public static EventBus EVENT_BUS;
+    public static EventBus EVENT_BUS = new EventBus();
 
     private static Logger LOG = Logger.getLogger(InMemTransportFactory.class.getName());
     private AutoConfiguration autoConfiguration;
@@ -30,13 +30,6 @@ public class InMemTransportFactory implements MuonTransportFactory {
     }
 
     private EventBus getSharedEventBus() {
-        if (EVENT_BUS == null) {
-            synchronized (InMemTransportFactory.class) {
-                if (EVENT_BUS == null) {
-                    EVENT_BUS = new EventBus();
-                }
-            }
-        }
         return EVENT_BUS;
     }
 
