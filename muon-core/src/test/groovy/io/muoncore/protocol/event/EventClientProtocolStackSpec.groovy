@@ -59,7 +59,7 @@ class EventClientProtocolStackSpec extends Specification {
         }
 
         when:
-        def future = eventProto.event(new Event("simples", "myParent", "myService", []))
+        def future = eventProto.event(new Event("SomethingHappened", "simples", "myParent", "myService", []))
 
         and: "A response comes back from the remote"
         Thread.start {
@@ -121,7 +121,7 @@ class EventClientProtocolStackSpec extends Specification {
         }
 
         when:
-        eventProto.event(new Event("simples", "myParent", "myService", []))
+        eventProto.event(new Event("SomethingHappened", "simples", "myParent", "myService", []))
         sleep(50)
 
         then:
@@ -164,7 +164,7 @@ class EventClientProtocolStackSpec extends Specification {
         }
 
         when:
-        def response = eventProto.event(new Event("simples", "myParent", "myService", [])).get()
+        def response = eventProto.event(new Event("SomethingHappened2", "simples", "myParent", "myService", [])).get()
 
         then:
         response

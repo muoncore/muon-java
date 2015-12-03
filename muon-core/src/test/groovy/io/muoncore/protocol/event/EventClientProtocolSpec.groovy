@@ -32,6 +32,7 @@ class EventClientProtocolSpec extends Specification {
 
         when:
         leftChannel.left().send(new Event(
+                "SomethingHappened",
                 "awesome",
                 "parentId",
                 "serviceId",
