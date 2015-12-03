@@ -1,8 +1,11 @@
 package io.muoncore.extension.amqp;
 
+import io.muoncore.exception.MuonException;
 import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
+import reactor.Environment;
+import reactor.core.Dispatcher;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -22,6 +25,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
     private AmqpConnection connection;
     private String localServiceName;
     private Logger log = Logger.getLogger(DefaultAmqpChannel.class.getName());
+    private Dispatcher dispatcher;
 
     private CountDownLatch handshakeControl = new CountDownLatch(1);
 
@@ -33,6 +37,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
         this.connection = connection;
         this.listenerFactory = queueListenerFactory;
         this.localServiceName = localServiceName;
+        this.dispatcher = Environment.workDispatcher();
     }
 
     @Override
@@ -41,14 +46,15 @@ public class DefaultAmqpChannel implements AmqpChannel {
         sendQueue = serviceName + "-receive-" + UUID.randomUUID().toString();
 
         listener = listenerFactory.listenOnQueue(receiveQueue, msg -> {
-            log.log(Level.FINE, "Received a message on the receive queue " + msg.getQueueName() + " of type " + msg.getEventType());
+            log.log(Level.INFO, "Received a message on the receive queue " + msg.getQueueName() + " of type " + msg.getEventType());
             if (msg.getEventType().equals("handshakeAccepted")) {
-                log.log(Level.FINER, "Handshake completed");
+                log.log(Level.INFO, "Handshake completed");
                 handshakeControl.countDown();
                 return;
             }
             if(function != null) {
-                function.apply(AmqpMessageTransformers.queueToInbound(msg));
+                dispatcher.dispatch(AmqpMessageTransformers.queueToInbound(msg),
+                        function::apply, Throwable::printStackTrace);
             }
         });
 
@@ -62,6 +68,11 @@ public class DefaultAmqpChannel implements AmqpChannel {
             connection.send(new QueueListener.QueueMessage("handshakeInitiated", "service." + serviceName, new byte[0], headers, "text/plain"));
         } catch (IOException e) {
             throw new MuonTransportFailureException("Unable to initiate handshake", e);
+        }
+        try {
+            if (!handshakeControl.await(500, TimeUnit.MILLISECONDS)) throw new MuonException("The handshake took too long!");
+        } catch (InterruptedException e) {
+            throw new MuonException("The handskahe took too long!", e);
         }
     }
 
@@ -81,6 +92,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
         Map<String, String> headers = new HashMap<>();
         headers.put(AMQPMuonTransport.HEADER_PROTOCOL, message.getProtocol());
 
+        handshakeControl.countDown();
         try {
             connection.send(new QueueListener.QueueMessage("handshakeAccepted", message.getReplyQueue(), new byte[0], headers, "text/plain"));
         } catch (IOException e) {
@@ -101,12 +113,13 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     @Override
     public void send(TransportOutboundMessage message) {
-        try {
-            handshakeControl.await(100, TimeUnit.MILLISECONDS);
-            log.log(Level.FINER, "Sending inbound channel message of type " + message.getProtocol() + "||" + message.getType());
-            connection.send(AmqpMessageTransformers.outboundToQueue(sendQueue, message));
-        } catch (IOException | InterruptedException e) {
-            throw new MuonTransportFailureException("Did not create a channel within the timeout", e);
-        }
+        log.log(Level.FINER, "Sending inbound channel message of type " + message.getProtocol() + "||" + message.getType());
+        dispatcher.dispatch(message, msg -> {
+            try {
+                connection.send(AmqpMessageTransformers.outboundToQueue(sendQueue, message));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }, Throwable::printStackTrace);
     }
 }

@@ -11,6 +11,7 @@ import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.protocol.reactivestream.server.PublisherLookup
 import reactor.Environment
+import reactor.fn.BiConsumer
 import reactor.rx.broadcast.Broadcaster
 import spock.lang.Ignore
 import spock.lang.IgnoreIf
@@ -60,6 +61,82 @@ class ReactiveStreamIntegrationSpec extends Specification {
 //        new PollingConditions(timeout: 20).eventually {
             data.size() == 20
 //        }
+
+        cleanup:
+        StandardAsyncChannel.echoOut = false
+    }
+
+    def "can create a publisher and subscribe to it remotely many times"() {
+
+        StandardAsyncChannel.echoOut = true
+        def env = Environment.initializeIfEmpty()
+
+        def numTimes = 20
+        def numMessages = 200
+        def data = []
+
+        def b = Broadcaster.create(env)
+        b.consume {
+            println "Received data ${it}"
+        }
+        b.observeError(Exception, new BiConsumer() {
+            @Override
+            void accept(Object o, Object o2) {
+                println "Something bad happend"
+            }
+        })
+
+        muon1.publishSource("somedata", PublisherLookup.PublisherType.HOT, b)
+
+        sleep(6000)
+        when:
+
+        numTimes.times { val ->
+            def sub2 = Broadcaster.create(env)
+
+            sub2.consume {
+                println "[${val}]REMOTE Receive ${it}"
+                data << it
+            }
+            sub2.observeError(Exception, new BiConsumer() {
+                @Override
+                void accept(Object o, Object o2) {
+                    println "Terrible things. very very bad....."
+                }
+            })
+            sub2.observeCancel({
+                println "The stream was cancelled"
+            })
+            sub2.observeComplete({
+                println "The stream is completed"
+            })
+            muon2.subscribe(new URI("stream://simples/somedata"), Map, sub2)
+        }
+
+        def tapper = Broadcaster.create(env)
+        tapper.consume {
+            println "Got a transport subscriber ${it.id}... "
+        }
+
+//        muon2.transportControl.tap({
+//            it.type == "SubscriptionRequested"
+//        }).subscribe(tapper)
+
+        sleep(5000)
+
+        and:
+        numMessages.times {
+            println "Publish"
+            b.accept(["hello": "world ${it}".toString()])
+            sleep(100)
+        }
+        sleep(5000)
+
+        then:
+
+        new PollingConditions(timeout: 20).eventually {
+            data.size() == numMessages * numTimes
+        }
 
         cleanup:
         StandardAsyncChannel.echoOut = false

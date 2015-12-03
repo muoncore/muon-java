@@ -1,9 +1,7 @@
 package com.simplicity.services.spring.client;
 
 import com.simplicity.services.spring.PersonRecord;
-import io.muoncore.spring.annotations.Command;
 import io.muoncore.spring.annotations.MuonRepository;
-import io.muoncore.spring.annotations.Query;
 import io.muoncore.spring.annotations.Request;
 import io.muoncore.spring.annotations.parameterhandlers.Parameter;
 

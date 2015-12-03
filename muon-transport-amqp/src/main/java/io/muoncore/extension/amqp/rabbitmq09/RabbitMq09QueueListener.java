@@ -1,7 +1,10 @@
 package io.muoncore.extension.amqp.rabbitmq09;
 
 
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.ConsumerCancelledException;
+import com.rabbitmq.client.QueueingConsumer;
+import com.rabbitmq.client.ShutdownSignalException;
 import io.muoncore.extension.amqp.QueueListener;
 
 import java.io.IOException;
@@ -75,7 +78,7 @@ public class RabbitMq09QueueListener implements QueueListener {
                     if (newHeaders.get("Content-Type") != null) {
                         contentType = newHeaders.get("Content-Type");
                     }
-                    log.log(Level.FINER, "Receiving message on " + queueName + " of type " + newHeaders.get("eventType"));
+                    log.log(Level.INFO, "Receiving message on " + queueName + " of type " + newHeaders.get("eventType"));
 
                     listener.exec(new QueueListener.QueueMessage(newHeaders.get("eventType"), queueName, content, newHeaders, contentType));
 

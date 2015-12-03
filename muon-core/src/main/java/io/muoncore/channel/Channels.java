@@ -2,10 +2,13 @@ package io.muoncore.channel;
 
 import io.muoncore.channel.async.StandardAsyncChannel;
 import reactor.Environment;
+import reactor.core.Dispatcher;
 
 import java.util.function.Function;
 
 public class Channels {
+
+    static Dispatcher WORK_DISPATCHER = Environment.workDispatcher();
 
     public static <X,Y> Channel<X, Y> channel(String leftname, String rightname) {
         return new StandardAsyncChannel<>(leftname, rightname, Environment.sharedDispatcher());
