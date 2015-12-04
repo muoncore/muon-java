@@ -1,7 +1,6 @@
 package io.muoncore.spring.integration.request;
 
 import io.muoncore.Muon;
-import io.muoncore.future.MuonFuture;
 import io.muoncore.protocol.requestresponse.RequestMetaData;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.protocol.requestresponse.server.HandlerPredicate;
@@ -15,7 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +23,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,33 +43,27 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class MuonRequestControllerIntegrationTest {
 
     public static final Person PETER = new Person(123l, "Peter", 23);
-    public static final Person MIKE = new Person(234l, "Mike", 30);
-    public static final String QUERY_EXPECTED_PERSON_NAME = "personName";
+
     @Autowired
     private Muon muon;
     @Autowired
     private TestRequestController testController;
 
-    @Mock
     TestRequestController mockedTestRequestController = mock(TestRequestController.class);
 
-    private ArgumentCaptor<String> resourceNameCaptor;
+    @Captor
     private ArgumentCaptor<Class> typeCaptor;
+    @Captor
     private ArgumentCaptor<HandlerPredicate> handlerPredicateCaptor;
-
-
+    @Captor
     private ArgumentCaptor<RequestResponseServerHandlerApi.Handler> handlerCaptor;
-
+    @Captor
     private ArgumentCaptor<Response> responseCaptor;
-
 
     @Before
     public void setUp() throws Exception {
+        initMocks(this);
         reset(mockedTestRequestController);
-        handlerPredicateCaptor = ArgumentCaptor.forClass(HandlerPredicate.class);
-        typeCaptor = ArgumentCaptor.forClass(Class.class);
-        handlerCaptor = ArgumentCaptor.forClass(RequestResponseServerHandlerApi.Handler.class);
-        responseCaptor = ArgumentCaptor.forClass(Response.class);
         testController.setDelegatingMock(mockedTestRequestController);
     }
 
@@ -118,25 +110,5 @@ public class MuonRequestControllerIntegrationTest {
     private void verifyMuonQuerySetupProcess() {
         verify(muon, times(3)).handleRequest(handlerPredicateCaptor.capture(), typeCaptor.capture(), handlerCaptor.capture());
     }
-
-/*
-    private MuonResourceEvent<Map> sampleQueryEvent() {
-        MuonResourceEvent<Map> queryEvent = new MuonResourceEvent<Map>(URI.create("muon://sample-service/point"));
-        queryEvent.setDecodedContent(sampleParameterMap());
-        return queryEvent;
-    }
-
-    private MuonResourceEvent<Person> sampleCommandEvent() {
-        MuonResourceEvent<Person> queryEvent = new MuonResourceEvent<Person>(URI.create("muon://sample-service/point"));
-        queryEvent.setDecodedContent(MIKE);
-        return queryEvent;
-    }
-
-    private HashMap<Object, Object> sampleParameterMap() {
-        HashMap<Object, Object> sampleParametersMap = new HashMap<>();
-        sampleParametersMap.put("personName", QUERY_EXPECTED_PERSON_NAME);
-        return sampleParametersMap;
-    }
-*/
 
 }

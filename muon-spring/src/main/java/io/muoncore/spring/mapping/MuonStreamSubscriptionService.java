@@ -35,7 +35,7 @@ public class MuonStreamSubscriptionService {
             for (StreamConnector streamConnector : streamConnectors) {
                 if (!streamConnector.isConnected()) {
                     try {
-                        LOG.info("Trying to reconnecto to " + streamConnector.getMuonUrl());
+                        LOG.info("Trying to reconnect to " + streamConnector.getMuonUrl());
                         streamConnector.safeConnectToStream();
                     } catch (URISyntaxException | UnsupportedEncodingException e) {
                         e.printStackTrace();

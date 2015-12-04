@@ -49,6 +49,8 @@ public class StreamingE2ETest {
         Person aPerson = PersonBuilder.aDefaultPerson().build();
         personSource.accept(aPerson);
 
+        Thread.sleep(100);
+
         verify(testControllerDelegatingMock, times(1)).addPersonEvent(eq(aPerson));
     }
 
@@ -71,6 +73,8 @@ public class StreamingE2ETest {
 
         Person aPerson = PersonBuilder.aDefaultPerson().build();
         removePersonStream.accept(aPerson);
+
+        Thread.sleep(100);
 
         verify(testControllerDelegatingMock, times(1)).removePersonEvent(eq(aPerson));
     }

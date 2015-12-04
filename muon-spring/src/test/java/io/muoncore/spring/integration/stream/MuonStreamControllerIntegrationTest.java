@@ -1,15 +1,33 @@
 package io.muoncore.spring.integration.stream;
 
+import io.muoncore.Muon;
+import io.muoncore.protocol.requestresponse.Response;
+import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandlerApi;
+import io.muoncore.spring.Person;
 import io.muoncore.spring.annotations.EnableMuonControllers;
 import io.muoncore.spring.integration.MockedMuonConfiguration;
+import io.muoncore.spring.model.stream.TestStreamController;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.*;
+import org.reactivestreams.Subscriber;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MuonStreamControllerIntegrationTest.class, loader = AnnotationConfigContextLoader.class)
@@ -18,117 +36,55 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 @Import(MockedMuonConfiguration.class)
 @ComponentScan(basePackages = "io.muoncore.spring.model.stream")
 public class MuonStreamControllerIntegrationTest {
-
-    @Test
-    public void noop() {}
-/*
     public static final Person PETER = new Person(123l, "Peter", 23);
-    public static final Person MIKE = new Person(234l, "Mike", 30);
-    public static final String QUERY_EXPECTED_PERSON_NAME = "personName";
+
     @Autowired
     private Muon muon;
     @Autowired
     private TestStreamController testController;
 
-    @Mock
-    TestStreamController mockedTestStreamController;
+    TestStreamController mockedTestStreamController = mock(TestStreamController.class);
 
-    private ArgumentCaptor<String> resourceNameCaptor;
-    private ArgumentCaptor<Class> typeCaptor;
-//    private ArgumentCaptor<MuonService.MuonQuery> muonQueryListenerCaptor;
-//    private ArgumentCaptor<MuonService.MuonCommand> muonCommandListenerCaptor;
-    private ArgumentCaptor<Broadcaster> streamBroadcaster;
+    @Captor
+    private ArgumentCaptor<URI> uriCaptor;
+    @Captor
+    private ArgumentCaptor<Class<Person>> typeCaptor;
+    @Captor
+    private ArgumentCaptor<Subscriber<Person>> subscriberCaptor;
+
 
     @Before
     public void setUp() throws Exception {
+        reset(mockedTestStreamController);
         initMocks(this);
-        resourceNameCaptor = ArgumentCaptor.forClass(String.class);
-        typeCaptor = ArgumentCaptor.forClass(Class.class);
-//        muonQueryListenerCaptor = ArgumentCaptor.forClass(MuonService.MuonQuery.class);
-//        muonCommandListenerCaptor = ArgumentCaptor.forClass(MuonService.MuonCommand.class);
-        streamBroadcaster = ArgumentCaptor.forClass(Broadcaster.class);
+        testController.setDelegatingMock(mockedTestStreamController);
     }
+
+    private int findMappingIndex(List<URI> uris, String path) {
+        for (int i = 0; i < uris.size(); i++) {
+            if (uris.get(i).toString().equals(path)) {
+                return i;
+            }
+        }
+        throw new IllegalArgumentException("Stream " + path + " is not registered in muon");
+    }
+
 
     @Test
-    public void processesMuonQueries() throws ExecutionException, InterruptedException {
+    public void subscribesToStreams() throws Exception {
+        verifyMuonStreamSetupProcess();
 
-        verifyMuonQuerySetupProcess();
-        assertThat(resourceNameCaptor.getValue(), is("/queryName"));
-        assertThat(typeCaptor.getValue(), equalTo(Object.class));
+        int i = findMappingIndex(uriCaptor.getAllValues(), "stream://muon-stream-source/personStream");
 
-        testController.setExpectedPersonName(QUERY_EXPECTED_PERSON_NAME);
-        testController.setResponsePerson(PETER);
+        assertThat(typeCaptor.getAllValues().get(i), equalTo(Person.class));
 
 
-        MuonFuture<Person> personFuture = muonQueryListenerCaptor.getValue().onQuery(sampleQueryEvent());
+        subscriberCaptor.getAllValues().get(i).onNext(PETER);
 
-        assertThat(personFuture.get(), is(PETER));
+        verify(mockedTestStreamController, times(1)).addPersonEvent(PETER);
     }
 
-    private void verifyMuonQuerySetupProcess() {
-        verify(muon, times(1)).handleRequest(resourceNameCaptor.capture(), typeCaptor.capture(), muonQueryListenerCaptor.capture());
+    private void verifyMuonStreamSetupProcess() throws UnsupportedEncodingException {
+        verify(muon, times(2)).subscribe(uriCaptor.capture(), typeCaptor.capture(), subscriberCaptor.capture());
     }
-
-    @Test
-    public void processesMuonCommands() throws ExecutionException, InterruptedException {
-        verifyMuonCommandSetupProcess();
-        assertThat(resourceNameCaptor.getValue(), is("/commandName"));
-        assertThat(typeCaptor.getValue(), equalTo(Person.class));
-
-        muonCommandListenerCaptor.getValue().onCommand(sampleCommandEvent());
-
-        assertThat(testController.getAddedPerson(), is(MIKE));
-    }
-
-    private void verifyMuonCommandSetupProcess() {
-        verify(muon, times(1)).onCommand(resourceNameCaptor.capture(), typeCaptor.capture(), muonCommandListenerCaptor.capture());
-    }
-
-    @Test
-    public void processesMuonStreams() throws URISyntaxException {
-        verifyMuonStreamSetupProcess(1);
-        assertThat(resourceNameCaptor.getValue(), is("muon://streamService/stream"));
-        assertThat(typeCaptor.getValue(), equalTo(Person.class));
-
-        streamBroadcaster.getValue().onNext(MIKE);
-
-        assertThat(testController.getReceivedStreamEvent(), is(MIKE));
-    }
-
-    private void verifyMuonStreamSetupProcess(int streamSubscriptions) throws URISyntaxException {
-        verify(muon, times(streamSubscriptions)).subscribe(resourceNameCaptor.capture(), typeCaptor.capture(), streamBroadcaster.capture());
-    }
-
-    @Test
-    public void reconnectsStreamOnError() throws URISyntaxException, InterruptedException {
-        verifyMuonStreamSetupProcess(1);
-        streamBroadcaster.getValue().onError(new Exception());
-
-        Thread.sleep(1000);
-
-        verifyMuonStreamSetupProcess(2);
-        assertThat(resourceNameCaptor.getValue(), is("muon://streamService/stream"));
-        assertThat(typeCaptor.getValue(), equalTo(Person.class));
-
-    }
-
-    private MuonResourceEvent<Map> sampleQueryEvent() {
-        MuonResourceEvent<Map> queryEvent = new MuonResourceEvent<Map>(URI.create("muon://sample-service/point"));
-        queryEvent.setDecodedContent(sampleParameterMap());
-        return queryEvent;
-    }
-
-    private MuonResourceEvent<Person> sampleCommandEvent() {
-        MuonResourceEvent<Person> queryEvent = new MuonResourceEvent<Person>(URI.create("muon://sample-service/point"));
-        queryEvent.setDecodedContent(MIKE);
-        return queryEvent;
-    }
-
-    private HashMap<Object, Object> sampleParameterMap() {
-        HashMap<Object, Object> sampleParametersMap = new HashMap<>();
-        sampleParametersMap.put("personName", QUERY_EXPECTED_PERSON_NAME);
-        return sampleParametersMap;
-    }
-
-*/
 }
