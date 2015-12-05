@@ -4,6 +4,8 @@ import io.muoncore.Discovery;
 import io.muoncore.Muon;
 import io.muoncore.SingleTransportMuon;
 import io.muoncore.config.AutoConfiguration;
+import io.muoncore.memory.discovery.InMemDiscovery;
+import io.muoncore.memory.transport.InMemTransport;
 import io.muoncore.transport.MuonTransport;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 @Configuration
 public class MuonConfiguration implements ApplicationContextAware{
@@ -28,10 +31,10 @@ public class MuonConfiguration implements ApplicationContextAware{
     Environment env;
 
     @Autowired
-    private MuonTransport[] muonTransports;
+    private List<MuonTransport> muonTransports;
 
     @Autowired
-    private Discovery[] muonDiscoveries;
+    private List<Discovery> muonDiscoveries;
     private ApplicationContext applicationContext;
 
     @Bean
@@ -41,23 +44,27 @@ public class MuonConfiguration implements ApplicationContextAware{
     }
 
     //TODO Remove this method when muon multiple transports is implemented
-    private MuonTransport getFirstValidMuonTransport(MuonTransport[] muonTransports) {
-        for (MuonTransport muonTransport : muonTransports) {
-            if (muonTransport != null) {
-                return muonTransport;
-            }
+    private MuonTransport getFirstValidMuonTransport(List<MuonTransport> muonTransports) {
+        if (muonTransports == null || muonTransports.size() == 0) {
+            throw new IllegalStateException("No muon transports found");
         }
-        throw new IllegalStateException("No muon transports found");
+        if (muonTransports.size() > 1) {
+            return muonTransports.stream().filter( tr -> tr.getClass() != InMemTransport.class).findFirst().get();
+        } else {
+            return muonTransports.get(0);
+        }
     }
 
     //TODO Remove this method when muon multiple discoveries is implemented
-    private Discovery getFirstValidDiscovery(Discovery[] muonDiscoveries) {
-        for (Discovery discovery : muonDiscoveries) {
-            if (discovery != null) {
-                return discovery;
-            }
+    private Discovery getFirstValidDiscovery(List<Discovery> muonDiscoveries) {
+        if (muonDiscoveries == null || muonDiscoveries.size() ==0) {
+            throw new IllegalStateException("No muon discoveries found");
         }
-        throw new IllegalStateException("No muon discoveries found");
+        if (muonDiscoveries.size() > 1) {
+            return muonDiscoveries.stream().filter( tr -> tr.getClass() != InMemDiscovery.class).findFirst().get();
+        } else {
+            return muonDiscoveries.get(0);
+        }
     }
 
     @Override
