@@ -13,7 +13,7 @@ import org.springframework.context.annotation.PropertySource;
 @Configuration
 @EnableConfigurationProperties(MuonConfigurationProperties.class)
 @EnableMuonControllers(streamKeepAliveTimeout = 100)
-@PropertySource("classpath:application.properties")
+@PropertySource(value="classpath:application.properties", ignoreResourceNotFound=true)
 public class MuonAutoConfiguration {
 
     @Bean
