@@ -47,6 +47,48 @@ class SimpleTransportMessageDispatcherSpec extends Specification {
         }
     }
 
+    def "triggers onComplete whenn a shutdown signal is received"() {
+
+        given:
+
+        def data = []
+        def complete = false
+
+        def dispatcher = new SimpleTransportMessageDispatcher()
+        dispatcher.observe({ true }).subscribe(new Subscriber<TransportMessage>() {
+            @Override
+            void onSubscribe(Subscription s) {
+                s.request(100)
+            }
+
+            @Override
+            void onNext(TransportMessage transportMessage) {
+                println "Got data"
+                data << transportMessage
+            }
+
+            @Override
+            void onError(Throwable t) {}
+
+            @Override
+            void onComplete() {
+                complete = true
+            }
+        })
+
+        when:
+        dispatcher.dispatch(inbound())
+        dispatcher.dispatch(inbound())
+        dispatcher.dispatch(inbound())
+        dispatcher.dispatch(inbound())
+        dispatcher.shutdown()
+
+        then:
+        new PollingConditions().eventually {
+            complete
+        }
+    }
+
     def "distributes data to multiple listener"() {
 
         given:

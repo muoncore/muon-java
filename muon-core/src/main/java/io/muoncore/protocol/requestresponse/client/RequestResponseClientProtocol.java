@@ -26,11 +26,19 @@ public class RequestResponseClientProtocol<X,R> {
             final Codecs codecs) {
 
         rightChannelConnection.receive( message -> {
+            if (message == null) {
+               leftChannelConnection.shutdown();
+                return;
+            }
             leftChannelConnection.send(
-                RRPTransformers.toResponse(message, codecs, responseType));
+                    RRPTransformers.toResponse(message, codecs, responseType));
         });
 
         leftChannelConnection.receive(request -> {
+            if (request == null) {
+                rightChannelConnection.shutdown();
+                return;
+            }
             rightChannelConnection.send(RRPTransformers.toOutbound(
                     serviceName,
                     request, codecs, codecs.getAvailableCodecs()));

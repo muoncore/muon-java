@@ -3,11 +3,13 @@ package io.muoncore.extension.amqp;
 import io.muoncore.exception.MuonException;
 import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.transport.TransportInboundMessage;
+import io.muoncore.transport.TransportMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 import reactor.Environment;
 import reactor.core.Dispatcher;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +33,8 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     private QueueListener listener;
 
+    private ChannelFunction onShutdown;
+
     public DefaultAmqpChannel(AmqpConnection connection,
                               QueueListenerFactory queueListenerFactory,
                               String localServiceName) {
@@ -38,6 +42,11 @@ public class DefaultAmqpChannel implements AmqpChannel {
         this.listenerFactory = queueListenerFactory;
         this.localServiceName = localServiceName;
         this.dispatcher = Environment.workDispatcher();
+    }
+
+    @Override
+    public void onShutdown(ChannelFunction runnable) {
+        this.onShutdown = runnable;
     }
 
     @Override
@@ -102,6 +111,17 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     @Override
     public void shutdown() {
+        send(new TransportOutboundMessage("ChannelShutdown", UUID.randomUUID().toString(),
+                "",
+                "",
+                "",
+                new HashMap<>(),
+                "",
+                null,
+                Collections.emptyList(), TransportMessage.ChannelOperation.CLOSE_CHANNEL));
+        if (onShutdown != null) {
+            this.onShutdown.apply(null);
+        }
         try { listener.cancel(); } catch(Exception e){}
         try { connection.close(); } catch(Exception e){}
     }
@@ -113,6 +133,10 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     @Override
     public void send(TransportOutboundMessage message) {
+        if (message == null) {
+            shutdown();
+            return;
+        }
         log.log(Level.FINER, "Sending inbound channel message of type " + message.getProtocol() + "||" + message.getType());
         dispatcher.dispatch(message, msg -> {
             try {

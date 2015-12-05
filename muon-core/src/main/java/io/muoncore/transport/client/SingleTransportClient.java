@@ -32,6 +32,7 @@ public class SingleTransportClient implements TransportClient, TransportControl 
     @Override
     public void shutdown() {
         transport.shutdown();
+        taps.shutdown();
     }
 
     @Override

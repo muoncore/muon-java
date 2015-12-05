@@ -79,6 +79,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                 server.createChannel(),
                 channel.left(),
                 { TransportOutboundMessage msg ->
+                    if (msg == null) return null
                     new TransportInboundMessage(
                             msg.type,
                             msg.id,
@@ -90,6 +91,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                             msg.payload, msg.sourceAvailableContentTypes, TransportMessage.ChannelOperation.NORMAL)
                 },
                 { TransportOutboundMessage msg ->
+                    if (msg == null) return null
                     new TransportInboundMessage(msg.type, msg.id,
                             msg.targetServiceName,
                             msg.sourceServiceName,

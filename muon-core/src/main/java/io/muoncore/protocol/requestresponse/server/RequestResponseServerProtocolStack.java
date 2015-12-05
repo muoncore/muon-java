@@ -47,6 +47,10 @@ public class RequestResponseServerProtocolStack implements
         Channel<TransportOutboundMessage, TransportInboundMessage> api2 = Channels.channel("rrpserver", "transport");
 
         api2.left().receive( message -> {
+            if (message == null) {
+                //shutdown signal.
+                return;
+            }
             RequestMetaData meta = RRPTransformers.toRequestMetaData(message);
             RequestResponseServerHandler handler = handlers.findHandler(meta);
 

@@ -24,13 +24,19 @@ public class IntrospectClientProtocol<X,R> {
             final Codecs codecs) {
 
         rightChannelConnection.receive( message -> {
-
+            if (message == null) {
+                leftChannelConnection.shutdown();
+                return;
+            }
             ServiceExtendedDescriptor descript = codecs.decode(message.getPayload(), message.getContentType(), ServiceExtendedDescriptor.class);
             leftChannelConnection.send(descript);
         });
 
         leftChannelConnection.receive(request -> {
-
+            if (request == null) {
+                rightChannelConnection.shutdown();
+                return;
+            }
             TransportOutboundMessage msg = new TransportOutboundMessage(
                     "introspectionRequested",
                     UUID.randomUUID().toString(),

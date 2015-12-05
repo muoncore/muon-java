@@ -10,12 +10,10 @@ import io.muoncore.transport.TransportMessage
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import spock.lang.Specification
-import spock.lang.Timeout
 import spock.util.concurrent.PollingConditions
 
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
-
-@Timeout(4)
+//@Timeout(4)
 class RequestResponseTapSimulationSpec extends Specification {
 
     def eventbus = new EventBus()
@@ -30,12 +28,12 @@ class RequestResponseTapSimulationSpec extends Specification {
         }
 
         List<TransportMessage> data = []
-        def tap = services[0].transportControl.tap({
+        services[0].transportControl.tap({
             true
         }).subscribe(new Subscriber<TransportMessage>() {
             @Override
             void onSubscribe(Subscription s) {
-                s.request(20)
+                s.request(200)
             }
 
             @Override
@@ -70,17 +68,20 @@ class RequestResponseTapSimulationSpec extends Specification {
             it.answer(new Response(200, [svc:"svc5"]))
         }
 
+        def dat = []
+
         when:
 
-        services[0].introspect("service-1").get()
-        services[0].request("request://service-1/", [], Map).get()
-        services[0].request("request://service-2/", [], Map).get()
-        services[0].request("request://service-3/", [], Map).get()
+        dat << services[0].introspect("service-1").get()
+        dat << services[0].request("request://service-1/", [], Map).get()
+        dat << services[0].request("request://service-2/", [], Map).get()
+        dat << services[0].request("request://service-3/", [], Map).get()
 
         then:
         new PollingConditions(timeout: 3).eventually {
-            data.size() == 8
-            data[0].protocol == "introspect"
+            dat.size() > 0 &&
+            data.size() == 8 &&
+            data[0].protocol == "introspect" &&
             data[2].protocol == "request"
         }
 

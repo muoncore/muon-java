@@ -9,7 +9,7 @@ import spock.lang.Specification
 
 class DefaultServerProtocolSpec extends Specification {
 
-    def "default proto sends bounce messages"() {
+    def "default proto sends bounce messages and closes the connection"() {
 
         def codecs = Mock(Codecs) {
             getAvailableCodecs() >> []
@@ -33,5 +33,6 @@ class DefaultServerProtocolSpec extends Specification {
 
         then:
         1 * receive.apply(_ as TransportOutboundMessage)
+        1 * receive.apply(null)
     }
 }

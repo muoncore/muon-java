@@ -42,21 +42,34 @@ class SingleTransportClientChannelConnection implements ChannelConnection<Transp
         if (inbound == null) {
             throw new IllegalStateException("Transport connection is not in a complete state can cannot send data. The receive function has not been set");
         }
-        dispatcher.dispatch(message, msg -> {
-            ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connection = channelConnectionMap.get(
-                    key(message)
-            );
-            if (connection == null) {
-                connection = connectChannel(message);
-                channelConnectionMap.put(key(message), connection);
-            }
-            taps.dispatch(message);
-            connection.send(message);
-            if (message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL) {
-                inbound = null;
-                this.transport = null;
-                this.taps = null;
-            }
+        if (message == null) {
+            shutdown();
+        } else {
+            dispatcher.dispatch(message, msg -> {
+                ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connection = channelConnectionMap.get(
+                        key(message)
+                );
+                if (connection == null) {
+                    connection = connectChannel(message);
+                    channelConnectionMap.put(key(message), connection);
+                }
+                taps.dispatch(message);
+                connection.send(message);
+                if (message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL) {
+                    inbound = null;
+                    this.transport = null;
+                    this.taps = null;
+                }
+            }, Throwable::printStackTrace);
+        }
+    }
+
+    @Override
+    public void shutdown() {
+        dispatcher.dispatch(null, msg -> {
+            channelConnectionMap.forEach((s, transportOutboundMessageTransportInboundMessageChannelConnection) -> {
+                transportOutboundMessageTransportInboundMessageChannelConnection.shutdown();
+            });
         }, Throwable::printStackTrace);
     }
 

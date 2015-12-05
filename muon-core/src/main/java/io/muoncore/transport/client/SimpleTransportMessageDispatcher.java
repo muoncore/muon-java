@@ -3,11 +3,13 @@ package io.muoncore.transport.client;
 import io.muoncore.transport.TransportMessage;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
+import reactor.Environment;
+import reactor.core.Dispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Predicate;
@@ -15,11 +17,22 @@ import java.util.function.Predicate;
 public class SimpleTransportMessageDispatcher implements TransportMessageDispatcher {
 
     private List<QueuePredicate> queues = new ArrayList<>();
-    private Executor exec = Executors.newFixedThreadPool(20);
+    private ExecutorService exec = Executors.newFixedThreadPool(20);
+    private Dispatcher dispatcher = Environment.newDispatcher();
+
+
+    private static final TransportMessage POISON = new TransportMessage(null, null, null, null, null, null, null,null,null, null);
 
     @Override
     public void dispatch(TransportMessage message) {
-        queues.stream().forEach(msg -> msg.add(message));
+        dispatcher.dispatch(message, m ->
+                queues.stream().forEach(msg -> msg.add(m)), Throwable::printStackTrace);
+    }
+
+    @Override
+    public void shutdown() {
+        dispatch(POISON);
+        exec.shutdown();
     }
 
     @Override
@@ -36,7 +49,13 @@ public class SimpleTransportMessageDispatcher implements TransportMessageDispatc
                 exec.execute(() -> {
                     for (int i = 0; i < n; i++) {
                         try {
-                            s.onNext(queue.take());
+                            TransportMessage msg = queue.take();
+                            if (msg == POISON) {
+                                s.onComplete();
+                                return;
+                            } else {
+                                s.onNext(msg);
+                            }
                         } catch (InterruptedException e) {
                             s.onError(e);
                         }
@@ -62,6 +81,8 @@ public class SimpleTransportMessageDispatcher implements TransportMessageDispatc
         }
 
         public void add(TransportMessage msg) {
+            if (msg == null) return;
+
             if (predicate.test(msg)) {
                 queue.add(msg);
             }

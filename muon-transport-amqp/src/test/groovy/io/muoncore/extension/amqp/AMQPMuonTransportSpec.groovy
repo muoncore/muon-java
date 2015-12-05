@@ -51,6 +51,7 @@ class AMQPMuonTransportSpec extends Specification {
         1 * channelFactory.createChannel() >> mockChannel
         1 * mockChannel.respondToHandshake(_ as AmqpHandshakeMessage)
         1 * serverStacks.openServerChannel("myfakeproto") >> mockServerChannelConnection
+        transport.numberOfActiveChannels == 1
     }
 
     def "open channel will cause a channel to be created with handshake initiated"() {
@@ -72,5 +73,62 @@ class AMQPMuonTransportSpec extends Specification {
         then:
         1 * channelFactory.createChannel() >> mockChannel
         1 * mockChannel.initiateHandshake("someRemoteService", "fakeproto")
+    }
+
+    def "multi open channel will cause multiple channels to be created with handshake initiated"() {
+        Environment.initializeIfEmpty()
+
+        def mockChannel = Mock(AmqpChannel)
+
+        def serverStacks = Mock(ServerStacks)
+        def serviceQueue = Mock(ServiceQueue)
+        def channelFactory = Mock(AmqpChannelFactory)
+        def transport = new AMQPMuonTransport(
+                "url", serviceQueue, channelFactory
+        )
+        Thread.sleep(50)
+
+        when:
+        transport.start(serverStacks)
+        transport.openClientChannel("someRemoteService", "fakeproto")
+        transport.openClientChannel("someRemoteService2", "fakeproto")
+
+        then:
+        2 * channelFactory.createChannel() >> mockChannel
+        1 * mockChannel.initiateHandshake("someRemoteService", "fakeproto")
+        1 * mockChannel.initiateHandshake("someRemoteService2", "fakeproto")
+        transport.numberOfActiveChannels == 2
+    }
+
+    def "channel shutdown will cause channel count to reduce and queue to shut down"() {
+        Environment.initializeIfEmpty()
+
+        def theShutdown
+
+        def mockChannel = Mock(AmqpChannel) {
+            onShutdown(_) >> { args ->
+                theShutdown = new ChannelFunctionExecShimBecauseGroovyCantCallLambda(args[0])
+            }
+        }
+
+        def serverStacks = Mock(ServerStacks)
+        def serviceQueue = Mock(ServiceQueue)
+        def channelFactory = Mock(AmqpChannelFactory) {
+            createChannel() >> mockChannel
+        }
+        def transport = new AMQPMuonTransport(
+                "url", serviceQueue, channelFactory
+        )
+        Thread.sleep(50)
+
+        when:
+        transport.start(serverStacks)
+        def c = transport.openClientChannel("someRemoteService2", "fakeproto")
+
+        and:
+        theShutdown()
+
+        then:
+        transport.numberOfActiveChannels == 0
     }
 }

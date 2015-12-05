@@ -46,6 +46,10 @@ class ChannelFutureAdapterSpec extends Specification {
         StandardAsyncChannel.echoOut = true
         def channel = Channels.channel("left", "right")
 
+        channel.right().receive({
+
+        })
+
         ChannelFutureAdapter adapter = new ChannelFutureAdapter(channel.left())
         def future = adapter.request("simples")
 
@@ -56,6 +60,55 @@ class ChannelFutureAdapterSpec extends Specification {
 
         expect:
         future.get(500, TimeUnit.MILLISECONDS) == "wibble"
+
+        cleanup:
+        StandardAsyncChannel.echoOut = false
+    }
+
+    def "adapter sends shutdown to channel on timeout"() {
+
+        Environment.initializeIfEmpty()
+        StandardAsyncChannel.echoOut = true
+        def channel = Channels.channel("left", "right")
+        def receiver = Mock(ChannelConnection.ChannelFunction)
+        channel.right().receive(receiver)
+
+        ChannelFutureAdapter adapter = new ChannelFutureAdapter(channel.left())
+        def future = adapter.request("simples")
+
+        when:
+        future.get(500, TimeUnit.MILLISECONDS)
+
+        then:
+        1 * receiver.apply(null)
+
+        cleanup:
+        StandardAsyncChannel.echoOut = false
+    }
+
+    def "adapter sends shutdown to channel on data received"() {
+
+        Environment.initializeIfEmpty()
+
+        StandardAsyncChannel.echoOut = true
+        def channel = Channels.channel("left", "right")
+        def receiver = Mock(ChannelConnection.ChannelFunction)
+
+        channel.right().receive(receiver)
+
+        ChannelFutureAdapter adapter = new ChannelFutureAdapter(channel.left())
+        def future = adapter.request("simples")
+
+        Thread.start {
+            Thread.sleep 200
+            channel.right().send "wibble"
+        }
+
+        when:
+        future.get(500, TimeUnit.MILLISECONDS)
+
+        then:
+        1 * receiver.apply(null)
 
         cleanup:
         StandardAsyncChannel.echoOut = false

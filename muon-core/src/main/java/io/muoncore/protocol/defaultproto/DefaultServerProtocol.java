@@ -55,7 +55,14 @@ public class DefaultServerProtocol implements ServerProtocolStack {
                         "text/plain",
                         new byte[0],
                         Arrays.asList(codecs.getAvailableCodecs())));
+
+                shutdown();
             }
+        }
+
+        @Override
+        public void shutdown() {
+            func.apply(null);
         }
     }
 

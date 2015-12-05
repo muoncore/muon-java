@@ -140,21 +140,30 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
 
                 @Override
                 public void onComplete() {
-                    function.apply(
-                            new TransportOutboundMessage(
-                                    ProtocolMessages.COMPLETE,
-                                    UUID.randomUUID().toString(),
-                                    subscribingServiceName,
-                                    configuration.getServiceName(),
-                                    ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                                    Collections.emptyMap(),
-                                    "text/plain",
-                                    new byte[0],
-                                    Arrays.asList(codecs.getAvailableCodecs()),
-                                    TransportMessage.ChannelOperation.CLOSE_CHANNEL));
+                    sendComplete();
                 }
             });
         }
+    }
+
+    private void sendComplete() {
+        function.apply(
+                new TransportOutboundMessage(
+                        ProtocolMessages.COMPLETE,
+                        UUID.randomUUID().toString(),
+                        subscribingServiceName,
+                        configuration.getServiceName(),
+                        ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
+                        Collections.emptyMap(),
+                        "text/plain",
+                        new byte[0],
+                        Arrays.asList(codecs.getAvailableCodecs()),
+                        TransportMessage.ChannelOperation.CLOSE_CHANNEL));
+    }
+
+    @Override
+    public void shutdown() {
+        sendComplete();
     }
 
     private void handleRequest(TransportInboundMessage msg) {

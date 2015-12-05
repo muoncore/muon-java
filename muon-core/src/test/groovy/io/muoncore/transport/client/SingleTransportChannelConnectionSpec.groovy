@@ -107,6 +107,38 @@ class SingleTransportChannelConnectionSpec extends Specification {
         7 * receive.apply(_)
     }
 
+    def "shutdown is propagated and then shuts down the channel"() {
+
+        Environment.initializeIfEmpty()
+
+//        def channelFunctions = []
+        def connections = [Mock(ChannelConnection)]
+
+        //capture the receive functions being generated and passed to our mock functions.
+        //slightly elaborate, we are stepping two levels into the interaction mocks.
+        def transport = Mock(MuonTransport) {
+            openClientChannel(_, _) >> {
+                return connections[0]
+            }
+        }
+
+        def receive = Mock(ChannelConnection.ChannelFunction)
+        def dispatcher = Mock(TransportMessageDispatcher)
+
+        def connection = new SingleTransportClientChannelConnection(transport, dispatcher, Environment.sharedDispatcher())
+        connection.receive(receive)
+
+        when:
+        connection.send(outbound("mymessage", "myService1", "requestresponse"))
+        connection.shutdown()
+
+        and: "Messages sent down all functions"
+        sleep(100)
+
+        then:
+        1 * connections[0].shutdown()
+    }
+
     def inbound(id, service, protocol) {
         new TransportInboundMessage(
                 "somethingHappened",

@@ -1,10 +1,7 @@
 package io.muoncore.extension.amqp.rabbitmq09;
 
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.ConsumerCancelledException;
-import com.rabbitmq.client.QueueingConsumer;
-import com.rabbitmq.client.ShutdownSignalException;
+import com.rabbitmq.client.*;
 import io.muoncore.extension.amqp.QueueListener;
 
 import java.io.IOException;
@@ -105,7 +102,7 @@ public class RabbitMq09QueueListener implements QueueListener {
         } finally {
             try {
                 channel.queueDelete(queueName, false, false);
-            } catch (IOException e) {
+            } catch (IOException | AlreadyClosedException e) {
                 e.printStackTrace();
             }
         }

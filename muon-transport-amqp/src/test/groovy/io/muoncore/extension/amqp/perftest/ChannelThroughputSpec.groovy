@@ -10,6 +10,7 @@ import io.muoncore.protocol.ServerStacks
 import io.muoncore.protocol.requestresponse.RRPTransformers
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportOutboundMessage
+import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -18,7 +19,7 @@ import spock.util.concurrent.PollingConditions
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
-//@Ignore
+@Ignore
 @IgnoreIf({ System.getenv("BUILD_NUMBER") })
 class ChannelThroughputSpec extends Specification {
 
@@ -44,6 +45,11 @@ class ChannelThroughputSpec extends Specification {
                     void send(TransportInboundMessage message) {
                         received << message
                     }
+
+                    @Override
+                    void shutdown() {
+
+                    }
                 }
             }
         }
@@ -52,6 +58,8 @@ class ChannelThroughputSpec extends Specification {
 
         svc2.start(stacks)
         svc1.start(serverStacks1)
+
+        sleep(3000)
 
         when:
         def pool = Executors.newFixedThreadPool(20)
@@ -89,10 +97,10 @@ class ChannelThroughputSpec extends Specification {
 
         where:
         numservices | numRequests
-        5   | 5
-        5  | 30
-        2  | 200
-        1  | 10000
+//        5   | 5
+//        5  | 30
+//        2  | 200
+//        1  | 10000
         20  | 1000
     }
 

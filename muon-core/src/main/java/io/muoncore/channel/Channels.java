@@ -34,7 +34,19 @@ public class Channels {
                                  Function<LeftIn, RightOut> transformerLeftToRight,
                                  Function<RightIn, LeftOut> transformerRightToLeft) {
 
-        left.receive( message -> right.send(transformerLeftToRight.apply(message)));
-        right.receive(message -> left.send(transformerRightToLeft.apply(message)));
+        left.receive( message -> {
+            if (message == null) {
+                right.shutdown();
+                return;
+            }
+            right.send(transformerLeftToRight.apply(message));
+        });
+        right.receive(message -> {
+            if (message == null) {
+                left.shutdown();
+                return;
+            }
+            left.send(transformerRightToLeft.apply(message));
+        });
     }
 }

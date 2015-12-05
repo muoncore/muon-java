@@ -37,7 +37,7 @@ public class ChannelFutureAdapter<Receive, Send> {
         return ret;
     }
 
-    static class ChannelFuture<X> implements MuonFuture<X> {
+    class ChannelFuture<X> implements MuonFuture<X> {
 
         final CountDownLatch responseReceivedSignal = new CountDownLatch(1);
 
@@ -56,6 +56,7 @@ public class ChannelFutureAdapter<Receive, Send> {
 
         @Override
         public boolean cancel(boolean b) {
+
             return false;
         }
 
@@ -71,14 +72,22 @@ public class ChannelFutureAdapter<Receive, Send> {
 
         @Override
         public X get() throws InterruptedException, ExecutionException {
-            responseReceivedSignal.await();
-            return data;
+            try {
+                responseReceivedSignal.await();
+                return data;
+            } finally {
+                channelConnection.shutdown();
+            }
         }
 
         @Override
         public X get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
-            responseReceivedSignal.await(l, timeUnit);
-            return data;
+            try {
+                responseReceivedSignal.await(l, timeUnit);
+                return data;
+            } finally {
+                channelConnection.shutdown();
+            }
         }
     }
 }

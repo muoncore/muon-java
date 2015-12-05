@@ -29,13 +29,21 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
 
             @Override
             public void send(GoingLeft message) {
+                if (leftFunction == null) {
+                    throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
+                }
                 if (message == null) {
-                    throw new MuonException("Cannot dispatch null down a channel from " + rightname + " to " + leftname + ". Null is a bad idea");
+                    throw new MuonException("Cannot dispatch null down a channel from " + rightname + " to " + leftname);
                 }
                 dispatcher.dispatch(message, msg -> {
                     if (echoOut) System.out.println("Channel[" + leftname + " >>>>> " + rightname + "]: Sending " + msg + " to " + leftFunction);
                     leftFunction.apply(message); }
                         ,  Throwable::printStackTrace);
+            }
+
+            @Override
+            public void shutdown() {
+                leftFunction.apply(null);
             }
         };
 
@@ -47,14 +55,22 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
 
             @Override
             public void send(GoingRight message) {
+                if (rightFunction == null) {
+                    throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
+                }
                 if (message == null) {
-                    throw new MuonException("Cannot dispatch null down a channel from " + leftname + " to " + rightname + ". Null is a bad idea");
+                    throw new MuonException("Cannot dispatch null down a channel from " + leftname + " to " + rightname);
                 }
                 dispatcher.dispatch(message, msg -> {
                     if (echoOut)
                         System.out.println("Channel[" + leftname + " <<<< " + rightname + "]: " + msg + " to " + rightFunction);
                     rightFunction.apply(message);
                 }, Throwable::printStackTrace);
+            }
+
+            @Override
+            public void shutdown() {
+                rightFunction.apply(null);
             }
         };
     }

@@ -25,10 +25,18 @@ public class EventClientProtocol<X> {
             ChannelConnection<Request<Event<X>>, Response<Map>> rightChannelConnection) {
 
         rightChannelConnection.receive( message -> {
+            if (message == null) {
+                leftChannelConnection.shutdown();
+                return;
+            }
             leftChannelConnection.send(message);
         });
 
         leftChannelConnection.receive(event -> {
+            if (event == null) {
+                rightChannelConnection.shutdown();
+                return;
+            }
             Optional<ServiceDescriptor> eventService = discovery.findService( service -> service.getTags().contains("eventstore"));
 
             if (!eventService.isPresent()) {
