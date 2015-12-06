@@ -20,9 +20,9 @@ public class InMemTransportFactory implements MuonTransportFactory {
     public MuonTransport build(Properties properties) {
         MuonTransport transport = null;
         try {
-            if (Boolean.valueOf(properties.getProperty(IN_MEM_TRANSPORT_ENABLED_PROPERTY_NAME))) {
+//            if (Boolean.valueOf(properties.getProperty(IN_MEM_TRANSPORT_ENABLED_PROPERTY_NAME))) {
                 transport = new InMemTransport(autoConfiguration, getSharedEventBus());
-            }
+//            }
         } catch (Exception e) {
             LOG.log(Level.INFO, "Error creating InMemTransport", e);
         }

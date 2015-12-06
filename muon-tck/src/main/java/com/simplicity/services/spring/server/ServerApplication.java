@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.PropertySource;
 
 //@Configuration
 @ComponentScan(basePackages = {"com.simplicity.services.spring.server"})
@@ -13,7 +14,7 @@ import org.springframework.context.annotation.ComponentScan;
 ////        tags = {"${muon.server.tag1}", "${muon.server.tag2}"},
 ////        aesEncryptionKey = "${muon.aesEncryptionKey}")
 //@EnableMuon(serviceName = "reallySimple")
-//@PropertySource("classpath:application.properties")
+@PropertySource("classpath:application.properties")
 //@SpringBootApplication
 @SpringBootApplication
 @MuonController

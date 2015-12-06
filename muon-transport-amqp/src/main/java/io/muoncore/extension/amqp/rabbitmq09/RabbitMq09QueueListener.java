@@ -75,7 +75,7 @@ public class RabbitMq09QueueListener implements QueueListener {
                     if (newHeaders.get("Content-Type") != null) {
                         contentType = newHeaders.get("Content-Type");
                     }
-                    log.log(Level.INFO, "Receiving message on " + queueName + " of type " + newHeaders.get("eventType"));
+                    log.log(Level.FINE, "Receiving message on " + queueName + " of type " + newHeaders.get("eventType"));
 
                     listener.exec(new QueueListener.QueueMessage(newHeaders.get("eventType"), queueName, content, newHeaders, contentType));
 

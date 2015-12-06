@@ -19,9 +19,9 @@ public class InMemDiscoveryFactory implements DiscoveryFactory {
     public Discovery build(Properties properties) {
         Discovery discovery = null;
         try {
-            if (Boolean.valueOf(properties.getProperty(IN_MEM_DISCOVERY_ENABLED_PROPERTY_NAME))) {
+//            if (Boolean.valueOf(properties.getProperty(IN_MEM_DISCOVERY_ENABLED_PROPERTY_NAME))) {
                 discovery = getSharedDiscovery();
-            }
+//            }
         } catch (Exception e) {
             LOG.log(Level.INFO, "Error creating InMemDiscovery", e);
         }

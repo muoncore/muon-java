@@ -56,5 +56,4 @@ public class MuonStreamSubscriptionService {
         }
         streamConnectors.add(streamConnector);
     }
-
 }

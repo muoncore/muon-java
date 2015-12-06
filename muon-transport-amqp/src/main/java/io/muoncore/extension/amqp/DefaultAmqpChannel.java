@@ -55,9 +55,9 @@ public class DefaultAmqpChannel implements AmqpChannel {
         sendQueue = serviceName + "-receive-" + UUID.randomUUID().toString();
 
         listener = listenerFactory.listenOnQueue(receiveQueue, msg -> {
-            log.log(Level.INFO, "Received a message on the receive queue " + msg.getQueueName() + " of type " + msg.getEventType());
+            log.log(Level.FINE, "Received a message on the receive queue " + msg.getQueueName() + " of type " + msg.getEventType());
             if (msg.getEventType().equals("handshakeAccepted")) {
-                log.log(Level.INFO, "Handshake completed");
+                log.log(Level.FINE, "Handshake completed");
                 handshakeControl.countDown();
                 return;
             }
@@ -123,7 +123,6 @@ public class DefaultAmqpChannel implements AmqpChannel {
             this.onShutdown.apply(null);
         }
         try { listener.cancel(); } catch(Exception e){}
-        try { connection.close(); } catch(Exception e){}
     }
 
     @Override

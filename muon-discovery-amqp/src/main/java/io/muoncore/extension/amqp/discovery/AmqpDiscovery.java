@@ -10,8 +10,10 @@ import io.muoncore.extension.amqp.QueueListenerFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class AmqpDiscovery implements Discovery {
 
@@ -26,6 +28,8 @@ public class AmqpDiscovery implements Discovery {
     private ExecutorService spinner;
 
     private ServiceDescriptor localDescriptor;
+    private CountDownLatch countdown = new CountDownLatch(1);
+    private volatile boolean started = false;
 
     public AmqpDiscovery(
             QueueListenerFactory queueListenerFactory,
@@ -44,11 +48,20 @@ public class AmqpDiscovery implements Discovery {
             listener = queueListenerFactory.listenOnBroadcast("discovery", data -> {
                 serviceCache.addService(codecs.decode(data.getBody(), data.getContentType(), ServiceDescriptor.class));
             });
+
+            startAnnouncePing();
+
             if (onReady != null) {
+                try {
+                    Thread.sleep(4000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 onReady.run();
             }
+            started = true;
+            countdown.countDown();
         }
-        startAnnouncePing();
     }
 
     private void startAnnouncePing() {
@@ -78,6 +91,13 @@ public class AmqpDiscovery implements Discovery {
 
     @Override
     public List<ServiceDescriptor> getKnownServices() {
+        if (!started) {
+            try {
+                countdown.await(4, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         return serviceCache.getServices();
     }
 
