@@ -4,14 +4,6 @@ import spock.lang.Specification
 
 class KryoBinaryCodecSpec extends Specification {
 
-  def "codec cannot decode to map"() {
-    when:
-    new KryoBinaryCodec().decode(new byte[0])
-
-    then:
-    thrown(IllegalArgumentException)
-  }
-
   def "codec can encode and decode an object"() {
 
     def codec = new KryoBinaryCodec()

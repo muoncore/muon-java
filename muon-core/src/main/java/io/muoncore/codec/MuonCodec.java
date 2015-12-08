@@ -1,11 +1,13 @@
 package io.muoncore.codec;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
+import java.lang.reflect.Type;
 
 public interface MuonCodec {
-    public <T> T decode(byte[] encodedData, Class<T> type);
-    public Map decode(byte[] encodedData);
-    public byte[] encode(Object data) throws UnsupportedEncodingException;
+
+    <T> T decode(byte[] encodedData, Type type);
+
+    byte[] encode(Object data) throws UnsupportedEncodingException;
+
     String getContentType();
 }

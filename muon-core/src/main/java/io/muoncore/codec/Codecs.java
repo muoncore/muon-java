@@ -1,8 +1,10 @@
 package io.muoncore.codec;
 
+import java.lang.reflect.Type;
+
 public interface Codecs {
     EncodingResult encode(Object object, String[] acceptableContentTypes);
-    <T> T decode(byte[] source, String contentType, Class<T> type);
+    <T> T decode(byte[] source, String contentType, Type type);
 
     String[] getAvailableCodecs();
 

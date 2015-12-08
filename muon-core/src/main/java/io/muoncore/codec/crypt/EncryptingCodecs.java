@@ -2,6 +2,7 @@ package io.muoncore.codec.crypt;
 
 import io.muoncore.codec.Codecs;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +29,7 @@ public class EncryptingCodecs implements Codecs {
     }
 
     @Override
-    public <T> T decode(byte[] source, String contentType, Class<T> type) {
+    public <T> T decode(byte[] source, String contentType, Type type) {
         byte[] decrypted = algorithm.decrypt(source);
         String content = contentType.substring(0, contentType.indexOf("+"));
         return delegate.decode(decrypted, content, type);

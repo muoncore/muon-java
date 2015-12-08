@@ -5,6 +5,7 @@ import io.muoncore.codec.MuonCodec;
 import io.muoncore.exception.MuonException;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 
 public class JsonOnlyCodecs implements Codecs {
 
@@ -29,7 +30,7 @@ public class JsonOnlyCodecs implements Codecs {
     }
 
     @Override
-    public <T> T decode(byte[] source, String contentType, Class<T> type) {
+    public <T> T decode(byte[] source, String contentType, Type type) {
         if (source == null) return null;
         return defaultCodec.decode(source, type);
     }
