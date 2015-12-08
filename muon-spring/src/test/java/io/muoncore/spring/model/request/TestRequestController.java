@@ -5,11 +5,11 @@ import io.muoncore.spring.annotations.MuonController;
 import io.muoncore.spring.annotations.MuonRequestListener;
 import io.muoncore.spring.annotations.parameterhandlers.Parameter;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 @MuonController
 public class TestRequestController {
-    private static final Logger LOG = Logger.getLogger(TestRequestController.class.getCanonicalName());
 
     public TestRequestController delegatingMock;
 
@@ -21,6 +21,11 @@ public class TestRequestController {
     @MuonRequestListener(path = "/findPerson")
     public Person findPerson(@Parameter("name") String name, @Parameter("age") Integer age) {
         return delegatingMock.findPerson(name, age);
+    }
+
+    @MuonRequestListener(path = "/getPeople")
+    public List<Person> getPeople() {
+        return delegatingMock.getPeople();
     }
 
     @MuonRequestListener(path = "/addPerson")

@@ -43,6 +43,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class MuonRequestControllerIntegrationTest {
 
     public static final Person PETER = new Person(123l, "Peter", 23);
+    public static final int TEST_CONTROLLER_ANNOTATED_METHODS = 4;
 
     @Autowired
     private Muon muon;
@@ -108,7 +109,7 @@ public class MuonRequestControllerIntegrationTest {
     }
 
     private void verifyMuonQuerySetupProcess() {
-        verify(muon, times(3)).handleRequest(handlerPredicateCaptor.capture(), typeCaptor.capture(), handlerCaptor.capture());
+        verify(muon, times(TEST_CONTROLLER_ANNOTATED_METHODS)).handleRequest(handlerPredicateCaptor.capture(), typeCaptor.capture(), handlerCaptor.capture());
     }
 
 }
