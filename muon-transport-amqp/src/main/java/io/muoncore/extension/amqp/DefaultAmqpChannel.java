@@ -35,6 +35,8 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     private ChannelFunction onShutdown;
 
+    private boolean ownsQueues = false;
+
     public DefaultAmqpChannel(AmqpConnection connection,
                               QueueListenerFactory queueListenerFactory,
                               String localServiceName) {
@@ -51,6 +53,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     @Override
     public void initiateHandshake(String serviceName, String protocol) {
+        ownsQueues = true;
         receiveQueue = localServiceName + "-receive-" + UUID.randomUUID().toString();
         sendQueue = serviceName + "-receive-" + UUID.randomUUID().toString();
 
@@ -87,6 +90,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     @Override
     public void respondToHandshake(AmqpHandshakeMessage message) {
+        ownsQueues = false;
         log.log(Level.FINER, "Handshake received " + message.getProtocol());
         receiveQueue = message.getReceiveQueue();
         sendQueue = message.getReplyQueue();
@@ -123,6 +127,10 @@ public class DefaultAmqpChannel implements AmqpChannel {
             this.onShutdown.apply(null);
         }
         try { listener.cancel(); } catch(Exception e){}
+        if (ownsQueues) {
+            connection.deleteQueue(sendQueue);
+            connection.deleteQueue(receiveQueue);
+        }
     }
 
     @Override

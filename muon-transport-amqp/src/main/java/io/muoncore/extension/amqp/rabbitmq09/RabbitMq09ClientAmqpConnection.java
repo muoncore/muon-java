@@ -23,6 +23,15 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
     private Channel channel;
 
     @Override
+    public void deleteQueue(String queue) {
+        try {
+            channel.queueDelete(queue);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public Channel getChannel() {
         return channel;
     }

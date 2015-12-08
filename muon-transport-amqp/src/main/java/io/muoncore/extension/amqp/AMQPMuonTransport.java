@@ -42,8 +42,8 @@ public class AMQPMuonTransport implements MuonTransport {
 
     @Override
     public void shutdown() {
-        serviceQueue.shutdown();
         new ArrayList<>(channels).stream().forEach(AmqpChannel::shutdown);
+        serviceQueue.shutdown();
     }
 
     @Override
@@ -56,7 +56,7 @@ public class AMQPMuonTransport implements MuonTransport {
 
         channel.initiateHandshake(serviceName, protocol);
         channels.add(channel);
-        Channel<TransportOutboundMessage, TransportInboundMessage> intermediate = Channels.channel("AMQPChannel", "");
+        Channel<TransportOutboundMessage, TransportInboundMessage> intermediate = Channels.channel("AMQPChannelExternal", "AMQPChannelInternal");
 
         Channels.connect(intermediate.right(), channel);
 
