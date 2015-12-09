@@ -8,6 +8,8 @@ import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
+import java.lang.reflect.Type;
+
 /**
  * Request Response client middleware protocol.
  *
@@ -22,7 +24,7 @@ public class RequestResponseClientProtocol<X,R> {
             String serviceName,
             final ChannelConnection<Response<R>, Request<X>> leftChannelConnection,
             final ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection,
-            final Class<R> responseType,
+            final Type responseType,
             final Codecs codecs) {
 
         rightChannelConnection.receive( message -> {
