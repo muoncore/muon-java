@@ -5,10 +5,10 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.exception.MuonException;
 import io.muoncore.protocol.reactivestream.ProtocolMessages;
+import io.muoncore.protocol.reactivestream.ReactiveStreamSubscriptionRequest;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportMessage;
 import io.muoncore.transport.TransportOutboundMessage;
-import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -85,16 +85,19 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
                 TransportMessage.ChannelOperation.NORMAL));
     }
 
+    @SuppressWarnings("unchecked")
     private void handleSubscribe(TransportInboundMessage msg) {
 
-        Optional<Publisher> pub = publisherLookup.lookupPublisher(msg.getMetadata().get("streamName"));
+        Optional<PublisherLookup.PublisherRecord> pub = publisherLookup.lookupPublisher(msg.getMetadata().get("streamName"));
 
         if (!pub.isPresent()) {
             sendNack();
         } else {
             acceptedContentTypes = msg.getSourceAvailableContentTypes();
             subscribingServiceName = msg.getSourceServiceName();
-            pub.get().subscribe(new Subscriber() {
+            ReactiveStreamSubscriptionRequest request = codecs.decode(msg.getPayload(), msg.getContentType(), ReactiveStreamSubscriptionRequest.class);
+
+            pub.get().getPublisher().generatePublisher(request).subscribe(new Subscriber() {
                 @Override
                 public void onSubscribe(Subscription s) {
                     subscription = s;
@@ -106,17 +109,17 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
                     Codecs.EncodingResult result = codecs.encode(o, acceptedContentTypes.toArray(new String[0]));
 
                     function.apply(
-                        new TransportOutboundMessage(
-                            ProtocolMessages.DATA,
-                            UUID.randomUUID().toString(),
-                            subscribingServiceName,
-                            configuration.getServiceName(),
-                            ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                            Collections.emptyMap(),
-                            result.getContentType(),
-                            result.getPayload(),
-                            Arrays.asList(codecs.getAvailableCodecs()),
-                            TransportMessage.ChannelOperation.NORMAL));
+                            new TransportOutboundMessage(
+                                    ProtocolMessages.DATA,
+                                    UUID.randomUUID().toString(),
+                                    subscribingServiceName,
+                                    configuration.getServiceName(),
+                                    ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
+                                    Collections.emptyMap(),
+                                    result.getContentType(),
+                                    result.getPayload(),
+                                    Arrays.asList(codecs.getAvailableCodecs()),
+                                    TransportMessage.ChannelOperation.NORMAL));
                 }
 
                 @Override
@@ -137,21 +140,30 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
 
                 @Override
                 public void onComplete() {
-                    function.apply(
-                            new TransportOutboundMessage(
-                                    ProtocolMessages.COMPLETE,
-                                    UUID.randomUUID().toString(),
-                                    subscribingServiceName,
-                                    configuration.getServiceName(),
-                                    ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                                    Collections.emptyMap(),
-                                    "text/plain",
-                                    new byte[0],
-                                    Arrays.asList(codecs.getAvailableCodecs()),
-                                    TransportMessage.ChannelOperation.CLOSE_CHANNEL));
+                    sendComplete();
                 }
             });
         }
+    }
+
+    private void sendComplete() {
+        function.apply(
+                new TransportOutboundMessage(
+                        ProtocolMessages.COMPLETE,
+                        UUID.randomUUID().toString(),
+                        subscribingServiceName,
+                        configuration.getServiceName(),
+                        ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
+                        Collections.emptyMap(),
+                        "text/plain",
+                        new byte[0],
+                        Arrays.asList(codecs.getAvailableCodecs()),
+                        TransportMessage.ChannelOperation.CLOSE_CHANNEL));
+    }
+
+    @Override
+    public void shutdown() {
+        sendComplete();
     }
 
     private void handleRequest(TransportInboundMessage msg) {

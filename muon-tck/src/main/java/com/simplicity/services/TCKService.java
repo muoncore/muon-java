@@ -12,6 +12,7 @@ import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.extension.amqp.discovery.ServiceCache;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory;
+import io.muoncore.protocol.reactivestream.server.PublisherLookup;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.transport.MuonTransport;
 import org.reactivestreams.Publisher;
@@ -87,7 +88,7 @@ public class TCKService {
 
     private static void streamPublisher(Muon muon) {
         Publisher<Long> pub = Streams.range(1, 10);
-        muon.publishSource("/myStream", pub);
+        muon.publishSource("/myStream", PublisherLookup.PublisherType.COLD, pub);
     }
 
     private static void inboundResourcesSetup(final Muon muon) {

@@ -5,6 +5,7 @@ import io.muoncore.config.AutoConfiguration
 import io.muoncore.exception.MuonException
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.reactivestream.ProtocolMessages
+import io.muoncore.protocol.reactivestream.ReactiveStreamSubscriptionRequest
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportMessage
@@ -15,13 +16,13 @@ import spock.lang.Specification
 
 class ReactiveStreamClientProtocolSpec extends Specification {
 
+
     def "sends SUBSCRIBE when the proto is started"() {
 
-        def uri = new URI("stream://targetService/streamname")
+        def uri = new URI("stream://targetService/streamname?first=true&last=20")
         def connection = Mock(ChannelConnection)
         def sub = Mock(Subscriber)
         def codecs = Mock(Codecs) {
-            encode(_, _) >> new Codecs.EncodingResult([0] as byte[], "application/json")
             getAvailableCodecs() >> []
         }
         def config = new AutoConfiguration(serviceName: "awesome")
@@ -45,6 +46,10 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                     msg.metadata.streamName == "/streamname" &&
                     msg.targetServiceName == "targetService"
         })
+
+        1 * codecs.encode({ ReactiveStreamSubscriptionRequest request ->
+            request.args == [first:"true", last:"20"]
+        } as ReactiveStreamSubscriptionRequest, _) >> new Codecs.EncodingResult([0] as byte[], "application/json")
 
         and: "Subscriber is unused"
         0 * sub._

@@ -6,6 +6,7 @@ import org.reactivestreams.Publisher;
 import java.util.function.Predicate;
 
 public interface TransportMessageDispatcher {
+    void shutdown();
     void dispatch(TransportMessage message);
     Publisher<TransportMessage> observe(Predicate<TransportMessage> filter);
 }

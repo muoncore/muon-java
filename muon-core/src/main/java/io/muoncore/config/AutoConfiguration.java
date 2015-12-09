@@ -33,10 +33,12 @@ public class AutoConfiguration {
         this.serviceName = serviceName;
     }
 
+    @Deprecated
     public String getDiscoveryUrl() {
         return discoveryUrl;
     }
 
+    @Deprecated
     public void setDiscoveryUrl(String discoveryUrl) {
         this.discoveryUrl = discoveryUrl;
     }

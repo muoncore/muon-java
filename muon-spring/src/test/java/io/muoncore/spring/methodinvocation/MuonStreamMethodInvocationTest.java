@@ -24,7 +24,7 @@ public class MuonStreamMethodInvocationTest {
         when(methodHolder.methodWithoutParameters()).thenReturn(SAMPLE_OUTPUT_STRING);
         methodInvocation = new MuonStreamMethodInvocation(
                 findMethod(MethodHolder.class, "methodWithoutParameters"), methodHolder);
-        assertThat((String) methodInvocation.invoke("String"), is(SAMPLE_OUTPUT_STRING));
+        assertThat(methodInvocation.invoke("String"), is(SAMPLE_OUTPUT_STRING));
         verify(methodHolder, times(1)).methodWithoutParameters();
     }
 
@@ -33,7 +33,7 @@ public class MuonStreamMethodInvocationTest {
         when(methodHolder.methodWithSingleStringParameter(SAMPLE_INPUT_STRING)).thenReturn(SAMPLE_OUTPUT_STRING);
         methodInvocation = new MuonStreamMethodInvocation(
                 findMethod(MethodHolder.class, "methodWithSingleStringParameter", String.class), methodHolder);
-        assertThat((String) methodInvocation.invoke(SAMPLE_INPUT_STRING), is(SAMPLE_OUTPUT_STRING));
+        assertThat(methodInvocation.invoke(SAMPLE_INPUT_STRING), is(SAMPLE_OUTPUT_STRING));
     }
 
     @Test(expected = IllegalStateException.class)

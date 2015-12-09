@@ -1,6 +1,6 @@
 package io.muoncore.spring.methodinvocation.parameterhandlers;
 
-import io.muoncore.transport.crud.requestresponse.MuonResourceEvent;
+import io.muoncore.protocol.requestresponse.server.RequestWrapper;
 
 import java.lang.reflect.Parameter;
 
@@ -17,9 +17,9 @@ public class DecodedContentEventArgumentTransformer implements MethodArgumentTra
     }
 
     @Override
-    public Object extractArgument(Object muonResourceEvent) {
-        if (muonResourceEvent instanceof MuonResourceEvent) {
-            return ((MuonResourceEvent) muonResourceEvent).getDecodedContent();
+    public Object extractArgument(Object muonRequest) {
+        if (muonRequest instanceof RequestWrapper) {
+            return ((RequestWrapper) muonRequest).getRequest().getPayload();
         } else {
             throw new IllegalStateException("@DecodedContent annotation should be used only on resource handlers");
         }

@@ -20,6 +20,7 @@ import io.muoncore.transport.TransportControl;
 import io.muoncore.transport.client.SimpleTransportMessageDispatcher;
 import io.muoncore.transport.client.SingleTransportClient;
 import io.muoncore.transport.client.TransportClient;
+import reactor.Environment;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,8 +29,7 @@ import java.util.Map;
 /**
  * Simple bundle of default Muon protocol stacks based on a single transport.
  */
-public class SingleTransportMuon implements Muon
-{
+public class SingleTransportMuon implements Muon, ServerRegistrarSource {
 
     private SingleTransportClient transportClient;
     private TransportControl transportControl;
@@ -45,21 +45,23 @@ public class SingleTransportMuon implements Muon
             AutoConfiguration configuration,
             Discovery discovery,
             MuonTransport transport) {
+        Environment.initializeIfEmpty();
         this.configuration = configuration;
         SingleTransportClient client = new SingleTransportClient(
                 transport, new SimpleTransportMessageDispatcher());
         this.transportClient = client;
         this.transportControl = client;
         this.discovery = discovery;
-        DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(new DefaultServerProtocol(codecs));
-        this.protocols = stacks;
-        this.registrar = stacks;
 
         this.publisherLookup = new DefaultPublisherLookup();
 
         this.codecs = new EncryptingCodecs(
                 new JsonOnlyCodecs(),
                 new SymmetricAESEncryptionAlgorithm(configuration.getAesEncryptionKey()));
+
+        DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(new DefaultServerProtocol(codecs));
+        this.protocols = stacks;
+        this.registrar = stacks;
 
         initDefaultRequestHandler();
 
@@ -75,6 +77,11 @@ public class SingleTransportMuon implements Muon
                 )));
 
         discovery.blockUntilReady();
+    }
+
+    @Override
+    public ServerRegistrar getProtocolStacks() {
+        return registrar;
     }
 
     private void initServerStacks(DynamicRegistrationServerStacks stacks) {

@@ -9,6 +9,7 @@ import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
+import reactor.Environment
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 
@@ -25,16 +26,20 @@ class RequestResponseWorksSpec extends Specification {
 
     def "high level request response protocol works"() {
 
+        Environment.initializeIfEmpty()
+
         def svc1 = createMuon("simples")
-        def svc2 = createMuon("tombola")
+        def svc2 = createMuon("tombolana")
 
         svc2.handleRequest(all(), Map) {
             it.request.id
             it.ok([hi:"there"])
         }
 
+        sleep(5000)
+
         when:
-        def response = svc1.request("request://tombola/hello", [hello:"world"], Map).get(500, TimeUnit.MILLISECONDS)
+        def response = svc1.request("request://tombolana/hello", [hello:"world"], Map).get(1000, TimeUnit.MILLISECONDS)
 
         then:
         response != null

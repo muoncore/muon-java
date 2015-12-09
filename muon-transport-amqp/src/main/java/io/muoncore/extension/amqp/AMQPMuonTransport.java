@@ -1,5 +1,6 @@
 package io.muoncore.extension.amqp;
 
+import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
 import io.muoncore.exception.MuonTransportFailureException;
@@ -41,16 +42,25 @@ public class AMQPMuonTransport implements MuonTransport {
 
     @Override
     public void shutdown() {
+        new ArrayList<>(channels).stream().forEach(AmqpChannel::shutdown);
         serviceQueue.shutdown();
-        channels.stream().forEach(AmqpChannel::shutdown);
     }
 
     @Override
     public ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel(String serviceName, String protocol) {
         AmqpChannel channel = channelFactory.createChannel();
+
+        channel.onShutdown(msg -> {
+            channels.remove(channel);
+        });
+
         channel.initiateHandshake(serviceName, protocol);
         channels.add(channel);
-        return channel;
+        Channel<TransportOutboundMessage, TransportInboundMessage> intermediate = Channels.channel("AMQPChannelExternal", "AMQPChannelInternal");
+
+        Channels.connect(intermediate.right(), channel);
+
+        return intermediate.left();
     }
 
     public void start(ServerStacks serverStacks) {
@@ -77,5 +87,9 @@ public class AMQPMuonTransport implements MuonTransport {
         } catch (URISyntaxException e) {
             throw new MuonTransportFailureException("Invalid URI is provided: " + rabbitUrl, e);
         }
+    }
+
+    public int getNumberOfActiveChannels() {
+        return channels.size();
     }
 }

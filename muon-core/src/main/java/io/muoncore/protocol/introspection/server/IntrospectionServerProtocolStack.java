@@ -40,6 +40,10 @@ public class IntrospectionServerProtocolStack implements ServerProtocolStack {
 
         @Override
         public void send(TransportInboundMessage message) {
+            if (message == null) {
+                func.apply(null);
+                return;
+            }
             Codecs.EncodingResult result = codecs.encode(descriptorSource.getServiceExtendedDescriptor(), message.getSourceAvailableContentTypes().toArray(new String[0]));
 
             TransportOutboundMessage msg = new TransportOutboundMessage(
@@ -55,6 +59,14 @@ public class IntrospectionServerProtocolStack implements ServerProtocolStack {
             );
 
             func.apply(msg);
+        }
+
+        @Override
+        public void shutdown() {
+            if (func != null) {
+                func.apply(null);
+                func = null;
+            }
         }
     }
 

@@ -17,7 +17,7 @@ public class DefaultServiceQueue implements ServiceQueue {
     @Override
     public void shutdown() {
         listener.cancel();
-        connection.close();
+        try { connection.close(); } catch (Exception ignored){}
     }
 
     @Override

@@ -22,6 +22,12 @@ public interface ChannelConnection<Outbound, Inbound> {
      */
     void send(Outbound message);
 
+    /**
+     * Causes the channel this connection is fronting to shut itself down.
+     * This will be via sending a special poison message down the channel.
+     */
+    void shutdown();
+
     @FunctionalInterface
     interface ChannelFunction<T> {
         void apply(T arg);

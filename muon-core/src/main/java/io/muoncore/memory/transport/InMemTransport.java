@@ -17,7 +17,6 @@ public class InMemTransport implements MuonTransport {
     private EventBus bus;
     private AutoConfiguration configuration;
 
-    private ServerStacks serverProtocols;
     private InMemServer inMemServer;
 
     public InMemTransport(
@@ -34,7 +33,6 @@ public class InMemTransport implements MuonTransport {
 
     @Override
     public void start(ServerStacks serverStacks) throws MuonTransportFailureException {
-        this.serverProtocols = serverStacks;
         this.inMemServer = new InMemServer(configuration.getServiceName(), bus, serverStacks);
     }
 

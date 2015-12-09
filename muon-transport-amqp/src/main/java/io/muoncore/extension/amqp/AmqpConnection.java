@@ -13,4 +13,5 @@ public interface AmqpConnection {
     boolean isAvailable();
 
     void close();
+    void deleteQueue(String queue);
 }

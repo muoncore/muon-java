@@ -1,16 +1,19 @@
 package io.muoncore.spring.mapping;
 
-import io.muoncore.crud.OldMuon;
+import io.muoncore.protocol.reactivestream.client.ReactiveStreamClientProtocolStack;
+import io.muoncore.spring.controllers.MuonControllersConfigurationHolder;
 import io.muoncore.spring.methodinvocation.MuonStreamMethodInvocation;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MuonStreamSubscriptionService {
 
@@ -18,24 +21,30 @@ public class MuonStreamSubscriptionService {
     ScheduledExecutorService monitor = Executors.newScheduledThreadPool(1);
 
     @Autowired
-    private OldMuon muon;
+    private ReactiveStreamClientProtocolStack muon;
+
+    @Autowired
+    private MuonControllersConfigurationHolder muonControllersConfigurationHolder;
+
+    private static Logger LOG = Logger.getLogger(MuonStreamSubscriptionService.class.getName());
 
     @PostConstruct
     public void startMonitoring() {
-        monitor.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                for (StreamConnector streamConnector : streamConnectors) {
-                    if (!streamConnector.isConnected()) {
-                        try {
-                            streamConnector.safeConnectToStream();
-                        } catch (URISyntaxException e) {
-                            e.printStackTrace();
-                        }
+        monitor.scheduleAtFixedRate(() -> {
+                    LOG.log(Level.FINE, "Checking connections");
+            for (StreamConnector streamConnector : streamConnectors) {
+                if (!streamConnector.isConnected()) {
+                    try {
+                        LOG.info("Trying to reconnect to " + streamConnector.getMuonUrl());
+                        streamConnector.safeConnectToStream();
+                    } catch (URISyntaxException | UnsupportedEncodingException e) {
+                        e.printStackTrace();
                     }
                 }
             }
-        }, 10, 10, TimeUnit.SECONDS);
+        }, muonControllersConfigurationHolder.getStreamKeepAliveTimeout(),
+                muonControllersConfigurationHolder.getStreamKeepAliveTimeout(),
+                muonControllersConfigurationHolder.getTimeUnit());
     }
 
     public void setupMuonMapping(String streamUrl, final MuonStreamMethodInvocation muonStreamMethodInvocation) {
@@ -47,5 +56,4 @@ public class MuonStreamSubscriptionService {
         }
         streamConnectors.add(streamConnector);
     }
-
 }

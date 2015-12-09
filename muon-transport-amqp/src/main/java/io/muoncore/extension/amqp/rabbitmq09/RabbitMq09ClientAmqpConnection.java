@@ -23,6 +23,15 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
     private Channel channel;
 
     @Override
+    public void deleteQueue(String queue) {
+        try {
+            channel.queueDelete(queue);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public Channel getChannel() {
         return channel;
     }
@@ -76,7 +85,7 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
     @Override
     public void send(QueueListener.QueueMessage message) throws IOException {
 
-        log.info("Sending message on " + message.getQueueName() + " of type " + message.getEventType());
+        log.log(Level.FINER, "Sending message on " + message.getQueueName() + " of type " + message.getEventType());
 
         Map<String, Object> headers = new HashMap<>(message.getHeaders());
         headers.put("eventType", message.getEventType());

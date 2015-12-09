@@ -3,6 +3,8 @@ package io.muoncore.transport.client;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.transport.*;
 import org.reactivestreams.Publisher;
+import reactor.Environment;
+import reactor.core.Dispatcher;
 
 import java.util.function.Predicate;
 
@@ -13,6 +15,7 @@ public class SingleTransportClient implements TransportClient, TransportControl 
 
     private MuonTransport transport;
     private TransportMessageDispatcher taps;
+    private Dispatcher dispatcher = Environment.newDispatcher("transportDispatch", 8192);
 
     public SingleTransportClient(
             MuonTransport transport,
@@ -23,12 +26,13 @@ public class SingleTransportClient implements TransportClient, TransportControl 
 
     @Override
     public ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel() {
-        return new SingleTransportClientChannelConnection(transport, taps);
+        return new SingleTransportClientChannelConnection(transport, taps, dispatcher);
     }
 
     @Override
     public void shutdown() {
         transport.shutdown();
+        taps.shutdown();
     }
 
     @Override

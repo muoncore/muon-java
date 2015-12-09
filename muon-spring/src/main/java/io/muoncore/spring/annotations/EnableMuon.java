@@ -1,28 +1,26 @@
 package io.muoncore.spring.annotations;
 
-import io.muoncore.spring.MuonBeanDefinitionRegistrar;
-import io.muoncore.spring.MuonBootstrapConfiguration;
+import io.muoncore.spring.MuonConfiguration;
+import io.muoncore.spring.AutoConfigurationBeanDefinitionRegistrar;
+import io.muoncore.spring.discovery.MuonDiscoveryFactoryBeanRegistrar;
+import io.muoncore.spring.transport.MuonTransportFactoryBeanRegistrar;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
 
 /**
  * Enable spring-muon integration. Will create an instance of Muon
- * Triggers processing of muon litener annotations:
- * <ul>
- * <li>{@link io.muoncore.spring.annotations.MuonController}</li>
- * <li>{@link io.muoncore.spring.annotations.MuonQueryListener}</li>
- * <li>{@link io.muoncore.spring.annotations.MuonStreamListener}</li>
- * </ul>
+ * @see io.muoncore.spring.annotations.EnableMuonControllers
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({MuonBeanDefinitionRegistrar.class, MuonBootstrapConfiguration.class})
+@Import({MuonTransportFactoryBeanRegistrar.class,  MuonDiscoveryFactoryBeanRegistrar.class,
+        MuonConfiguration.class, AutoConfigurationBeanDefinitionRegistrar.class})
 public @interface EnableMuon {
 
     /**
-     * Assign a name to the Muon service instance
+     * Assign a stream to the Muon service instance
      */
     String serviceName();
 
@@ -32,8 +30,8 @@ public @interface EnableMuon {
     String[] tags() default {};
 
     /**
-     * Discovery url, currently only amqp://... supported
+     * AES encryption key, a string of 16/24/32 bytes
      */
-    String discoveryUrl();
+    String aesEncryptionKey() default "1234567890abcdef";
 
 }
