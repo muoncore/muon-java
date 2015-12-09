@@ -116,6 +116,7 @@ project('muon-tck') {
     repositories {
         maven { url 'http://repo.spring.io/libs-milestone' }
     }
+
     dependencies {
         compile project(":muon-core")
         compile project(":muon-transport-amqp")
