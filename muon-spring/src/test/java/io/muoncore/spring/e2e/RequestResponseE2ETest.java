@@ -105,4 +105,15 @@ public class RequestResponseE2ETest {
         assertThat(people, equalTo(personList));
     }
 
+    @Test
+    public void passesListOfObjectsAsParam() throws Exception {
+        final List<Person> people = new ArrayList<>();
+        people.add(aDefaultPerson().withName("Thomas").build());
+        people.add(aDefaultPerson().withName("Markus").build());
+
+        testRequestRepository.replacePeople(people);
+
+        verify(testControllerDelegatingMock, timeout(100).only()).replacePeople(people);
+    }
+
 }

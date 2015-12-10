@@ -6,7 +6,6 @@ import io.muoncore.spring.annotations.MuonRequestListener;
 import io.muoncore.spring.annotations.parameterhandlers.Parameter;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 @MuonController
 public class TestRequestController {
@@ -35,5 +34,10 @@ public class TestRequestController {
 
     public void setDelegatingMock(TestRequestController delegatingMock) {
         this.delegatingMock = delegatingMock;
+    }
+
+    @MuonRequestListener(path = "/replacePeople")
+    public void replacePeople(List<Person> people) {
+        delegatingMock.replacePeople(people);
     }
 }

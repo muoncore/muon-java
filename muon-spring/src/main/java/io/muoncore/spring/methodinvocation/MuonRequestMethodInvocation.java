@@ -1,12 +1,13 @@
 package io.muoncore.spring.methodinvocation;
 
 import io.muoncore.protocol.requestresponse.server.RequestWrapper;
-import io.muoncore.spring.methodinvocation.parameterhandlers.DecodedContentEventArgumentTransformer;
 import io.muoncore.spring.methodinvocation.parameterhandlers.MethodArgumentTransformer;
+import io.muoncore.spring.methodinvocation.parameterhandlers.PayloadArgumentTransformer;
 import io.muoncore.spring.methodinvocation.parameterhandlers.ResourceMethodArgumentTransformerFactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
 public class MuonRequestMethodInvocation extends AbstractMuonMethodInvocation<RequestWrapper> {
 
@@ -21,9 +22,9 @@ public class MuonRequestMethodInvocation extends AbstractMuonMethodInvocation<Re
         }
     }
 
-    public Class getDecodedParameterType() {
+    public Type getDecodedParameterType() {
         for (MethodArgumentTransformer methodArgumentTransformer : argumentTransformers) {
-            if (methodArgumentTransformer instanceof DecodedContentEventArgumentTransformer) {
+            if (methodArgumentTransformer instanceof PayloadArgumentTransformer) {
                 return methodArgumentTransformer.getParameterType();
             }
         }

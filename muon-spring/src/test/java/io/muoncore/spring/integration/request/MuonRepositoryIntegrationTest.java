@@ -19,6 +19,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -46,14 +48,14 @@ public class MuonRepositoryIntegrationTest {
 
     private ArgumentCaptor<String> urlCaptor;
     private ArgumentCaptor<Object> payloadCaptor;
-    private ArgumentCaptor<Class> classCaptor;
+    private ArgumentCaptor<Type> classCaptor;
 
     @Before
     public void setUp() throws Exception {
         reset(muon);
         urlCaptor = ArgumentCaptor.forClass(String.class);
         payloadCaptor = ArgumentCaptor.forClass(Object.class);
-        classCaptor = ArgumentCaptor.forClass(Class.class);
+        classCaptor = ArgumentCaptor.forClass(Type.class);
     }
 
     private <T> MuonFuture<Response<T>> createReturnFuture(T data) throws Exception {
@@ -103,7 +105,10 @@ public class MuonRepositoryIntegrationTest {
         assertThat(result.get(1), is(MIKE));
 
         assertThat(urlCaptor.getValue(), is("request://muon-server/getPeople"));
-        assertThat(classCaptor.getValue(), equalTo(List.class));
+        final ParameterizedType type = (ParameterizedType) classCaptor.getValue();
+        assertThat(type.getRawType(), equalTo(List.class));
+        assertThat(type.getActualTypeArguments(), equalTo(new Class[]{Person.class}));
+
 
         assertThat(payloadCaptor.getValue(), nullValue());
     }

@@ -24,4 +24,7 @@ public interface TestRequestRepository {
 
     @Request("request://${muon.server.name}/findPerson")
     JsonObject getPersonByNameAndAgeString(@Parameter("name") String name, @Parameter("age") Integer age);
+
+    @Request("request://${muon.server.name}/replacePeople")
+    void replacePeople(List<Person> people);
 }

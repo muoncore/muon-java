@@ -4,6 +4,7 @@ import io.muoncore.spring.methodinvocation.parameterhandlers.PassThroughArgument
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
 public class MuonStreamMethodInvocation extends AbstractMuonMethodInvocation<Object> {
 
@@ -22,7 +23,7 @@ public class MuonStreamMethodInvocation extends AbstractMuonMethodInvocation<Obj
         }
     }
 
-    public Class getDecodedParameterType() {
+    public Type getDecodedParameterType() {
         if (argumentTransformers.get(0) != null) {
             return argumentTransformers.get(0).getParameterType();
         } else {

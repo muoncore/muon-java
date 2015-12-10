@@ -43,7 +43,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class MuonRequestControllerIntegrationTest {
 
     public static final Person PETER = new Person(123l, "Peter", 23);
-    public static final int TEST_CONTROLLER_ANNOTATED_METHODS = 4;
+    public static final int TEST_CONTROLLER_ANNOTATED_METHODS = 5;
 
     @Autowired
     private Muon muon;

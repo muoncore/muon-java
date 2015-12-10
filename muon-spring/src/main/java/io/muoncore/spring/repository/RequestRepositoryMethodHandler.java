@@ -9,8 +9,12 @@ import org.springframework.util.StringValueResolver;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -18,7 +22,7 @@ import java.util.concurrent.TimeoutException;
 public class RequestRepositoryMethodHandler implements RepositoryMethodHandler {
 
     public static final String CONFIGURATION_EXCEPTION_TEXT = "Repository method should contain either multiple @Parameter annotated methods, or single object method";
-    protected final Class returnType;
+    protected final Type returnType;
     protected final Muon muon;
 
     protected String muonUrl;
@@ -44,8 +48,9 @@ public class RequestRepositoryMethodHandler implements RepositoryMethodHandler {
     }
 
 
-    private Class initReturnType(Method method) {
-        Class returnType = method.getReturnType();
+    private Type initReturnType(Method method) {
+
+        Type returnType = method.getGenericReturnType();
         if (returnType == void.class) {
             returnType =  Object.class;
         }
@@ -113,7 +118,7 @@ public class RequestRepositoryMethodHandler implements RepositoryMethodHandler {
 
     private Object processMuonOperation(Object payload) {
         try {
-            MuonFuture<Response> future = executeMuonOperation(payload);
+            MuonFuture<Response<Object>> future = executeMuonOperation(payload);
             if (keepMuonFuture) {
                 return future;
             } else {
@@ -125,7 +130,7 @@ public class RequestRepositoryMethodHandler implements RepositoryMethodHandler {
         }
     }
 
-    protected MuonFuture<Response> executeMuonOperation(Object payload) throws URISyntaxException {
+    protected MuonFuture<Response<Object>> executeMuonOperation(Object payload) throws URISyntaxException {
         return muon.request(muonUrl, payload, returnType);
     }
 
