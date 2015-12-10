@@ -7,6 +7,7 @@ import io.muoncore.spring.e2e.stream.StreamSourceServiceConfiguration;
 import io.muoncore.spring.model.stream.TestStreamController;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationContext;
@@ -17,6 +18,7 @@ import io.muoncore.spring.*;
 
 import static org.mockito.Mockito.*;
 
+@Ignore("Pending fix of MutiBootSpec")
 public class StreamingE2ETest {
 
     private static TestStreamController testControllerDelegatingMock;

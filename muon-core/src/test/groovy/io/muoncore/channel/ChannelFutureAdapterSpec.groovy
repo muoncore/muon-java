@@ -1,4 +1,4 @@
-package io.muoncore.protocol.channelfuture
+package io.muoncore.channel
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.channel.ChannelFutureAdapter
 import io.muoncore.channel.Channels
