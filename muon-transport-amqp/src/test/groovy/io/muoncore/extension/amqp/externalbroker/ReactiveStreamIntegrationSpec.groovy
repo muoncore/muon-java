@@ -3,6 +3,7 @@ package io.muoncore.extension.amqp.externalbroker
 import io.muoncore.Muon
 import io.muoncore.SingleTransportMuon
 import io.muoncore.channel.async.StandardAsyncChannel
+import io.muoncore.codec.MyTestClass
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.extension.amqp.AMQPMuonTransport
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
@@ -19,6 +20,8 @@ import spock.lang.IgnoreIf
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
+
+import static io.muoncore.codec.types.MuonCodecTypes.listOf
 
 @IgnoreIf({ System.getenv("BUILD_NUMBER") })
 class ReactiveStreamIntegrationSpec extends Specification {
@@ -187,6 +190,49 @@ class ReactiveStreamIntegrationSpec extends Specification {
     def cleanupSpec() {
         muon1.shutdown()
         muon2.shutdown()
+    }
+
+    def "can subscribe to events, which are lists"() {
+
+        StandardAsyncChannel.echoOut = true
+        def env = Environment.initializeIfEmpty()
+
+        def data
+
+        def b = Broadcaster.create(env)
+        def sub2 = Broadcaster.create(env)
+
+        sub2.consume {
+            if (data == null) {
+                data = it
+            } else {
+                throw new IllegalStateException()
+            }
+        }
+
+        muon1.publishSource("somedata", PublisherLookup.PublisherType.HOT, b)
+
+        sleep(4000)
+        when:
+        muon2.subscribe(new URI("stream://simples/somedata"), listOf(MyTestClass), sub2)
+
+        sleep(1000)
+
+        and:
+        List<MyTestClass> event = [new MyTestClass(someValue: "test1", someOtherValue: 1),
+                                   new MyTestClass(someValue: "test2", someOtherValue: 2)]
+
+        b.accept(event)
+        sleep(5000)
+
+        then:
+
+//        new PollingConditions(timeout: 20).eventually {
+        data == event
+//        }
+
+        cleanup:
+        StandardAsyncChannel.echoOut = false
     }
 
     @Ignore
