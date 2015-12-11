@@ -52,6 +52,15 @@ public interface RequestResponseClientProtocolStack extends
                 responseType,
                 getCodecs());
 
+//
+//        Channels.connect(
+//                prcess1,
+//                process2
+//                process3
+//        )
+
+
+
         return adapter.request(event);
     }
 }

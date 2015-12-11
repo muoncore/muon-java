@@ -20,6 +20,22 @@ public class ServiceDescriptor {
         this.connectionUrls = connectionUrls;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ServiceDescriptor that = (ServiceDescriptor) o;
+
+        return getIdentifier().equals(that.getIdentifier());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return getIdentifier().hashCode();
+    }
+
     public String[] getCodecs() {
         return codecs.toArray(new String[0]);
     }

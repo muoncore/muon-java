@@ -38,13 +38,6 @@ public class MuonControllerBeanPostProcessor implements BeanPostProcessor, Embed
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        try {
-            //TODO, discovery wait is not working as expected here. block until it's ready.
-            //Remove after demos
-            Thread.sleep(4000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         if (bean == null) {
             return null;
         }

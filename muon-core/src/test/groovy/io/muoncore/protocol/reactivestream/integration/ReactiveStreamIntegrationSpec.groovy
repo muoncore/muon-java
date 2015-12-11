@@ -51,6 +51,40 @@ class ReactiveStreamIntegrationSpec extends Specification {
         }
     }
 
+    def "data stays in order"() {
+
+        Environment.initializeIfEmpty()
+
+        def data = []
+
+        def b = Broadcaster.create()
+        def sub2 = Broadcaster.create()
+
+        sub2.consume {
+            data << it
+        }
+
+        def muon1 = muon("simples")
+        def muon2 = muon("tombola")
+
+        muon1.publishSource("somedata", PublisherLookup.PublisherType.HOT, b)
+
+        when:
+        muon2.subscribe(new URI("stream://simples/somedata"), Map, sub2)
+
+        sleep(100)
+
+        and:
+        50000.times {
+            b.accept(["hello": "world"])
+        }
+
+        then:
+        new PollingConditions().eventually {
+            data.size() == 50000
+        }
+    }
+
     @Ignore
     def "subscribing to remote fails with onError"() {
 
