@@ -51,6 +51,43 @@ class RequestResponseWorksSpec extends Specification {
         svc2.shutdown()
     }
 
+    def "service A can be called by B and C concurrently"() {
+
+        given: "A RPC handler that takes a long time to complete"
+        Environment.initializeIfEmpty()
+
+        def svc1 = createMuon("simples")
+        def svc2 = createMuon("tombolana")
+        def svc3 = createMuon("tombola")
+
+        def times = Collections.synchronizedList([])
+
+        svc1.handleRequest(all(), Map) {
+            times << System.currentTimeMillis()
+            it.request.id
+            Thread.sleep(4000)
+            it.ok([hi:"there"])
+        }
+
+        sleep(5000)
+
+        when:
+        def response = svc2.request("request://simples/hello", [hello:"world"], Map)
+        sleep(100)
+        def response2 = svc3.request("request://simples/hello", [hello:"world"], Map)
+
+        response.get() && response2.get()
+
+        then: "The timings indicate concurrent access"
+        times.size() == 2
+        def difference = Math.abs(times[0] - times[1])
+        difference < 1000
+
+        cleanup:
+        svc1.shutdown()
+        svc2.shutdown()
+    }
+
     private Muon createMuon(serviceName) {
 
         def connection = new RabbitMq09ClientAmqpConnection("amqp://muon:microservices@localhost")
