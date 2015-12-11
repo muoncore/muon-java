@@ -72,14 +72,16 @@ class RequestResponseWorksSpec extends Specification {
         sleep(5000)
 
         when:
-        def response = svc2.request("request://simples/hello", [hello:"world"], Map)
+        def responses = []
+        responses << svc2.request("request://simples/hello", [hello:"world"], Map)
         sleep(100)
-        def response2 = svc3.request("request://simples/hello", [hello:"world"], Map)
-
-        response.get() && response2.get()
+        10.times {
+            responses << svc3.request("request://simples/hello", [hello: "world"], Map)
+        }
+        responses*.get()
 
         then: "The timings indicate concurrent access"
-        times.size() == 2
+        times.size() == 11
         def difference = Math.abs(times[0] - times[1])
         difference < 1000
 
