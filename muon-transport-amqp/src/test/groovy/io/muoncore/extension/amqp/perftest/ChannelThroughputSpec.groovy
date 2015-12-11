@@ -15,6 +15,7 @@ import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.concurrent.PollingConditions
+import reactor.Environment
 
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
@@ -27,6 +28,8 @@ class ChannelThroughputSpec extends Specification {
 
     @Unroll
     def "can establish #numservices channels and send #numRequests messages"() {
+
+        Environment.initializeIfEmpty()
 
         AMQPMuonTransport svc1 = createTransport("service1")
 
@@ -59,7 +62,7 @@ class ChannelThroughputSpec extends Specification {
         svc2.start(stacks)
         svc1.start(serverStacks1)
 
-        sleep(3000)
+        sleep(3500)
 
         when:
         def pool = Executors.newFixedThreadPool(20)
@@ -84,11 +87,15 @@ class ChannelThroughputSpec extends Specification {
             }
         }
         pool.shutdown()
-        sleep(5000)
+//        sleep(5000)
 
         then:
-        new PollingConditions(timeout: 20).eventually {
-            received.metadata.id.size() == numRequests * numservices
+        new PollingConditions(timeout: 30).eventually {
+            try {
+                new ArrayList<>(received).metadata.id.size() == numRequests * numservices
+            } catch (Exception ex) {
+                ex.printStackTrace()
+            }
         }
 
         cleanup:
@@ -97,8 +104,8 @@ class ChannelThroughputSpec extends Specification {
 
         where:
         numservices | numRequests
-//        5   | 5
-//        5  | 30
+        5   | 5
+        5  | 30
 //        2  | 200
 //        1  | 10000
         20  | 1000

@@ -142,6 +142,47 @@ class ReactiveStreamIntegrationSpec extends Specification {
         StandardAsyncChannel.echoOut = false
     }
 
+    def "data remains in order"() {
+
+        StandardAsyncChannel.echoOut = true
+        def env = Environment.initializeIfEmpty()
+
+        def data = []
+
+        def b = Broadcaster.create(env)
+        def sub2 = Broadcaster.create(env)
+
+        sub2.consume {
+            data << it
+        }
+
+        muon1.publishSource("somedata", PublisherLookup.PublisherType.HOT, b)
+
+        sleep(4000)
+        when:
+        muon2.subscribe(new URI("stream://simples/somedata"), Integer, sub2)
+
+        sleep(1000)
+
+        def inc = 1
+
+        and:
+        200.times {
+            println "Publish"
+            b.accept(inc++)
+        }
+        sleep(5000)
+
+        def sorted = new ArrayList<>(data).sort()
+
+        then:
+
+        data == sorted
+
+        cleanup:
+        StandardAsyncChannel.echoOut = false
+    }
+
     def cleanupSpec() {
         muon1.shutdown()
         muon2.shutdown()
