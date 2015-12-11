@@ -10,6 +10,7 @@ class DefaultAmqpChannelSpec extends Specification {
 
     def "respondToHandshake opens a new queue and sends a handshak response"() {
         given:
+        Environment.initializeIfEmpty()
         def listenerfactory = Mock(QueueListenerFactory)
         def connection = Mock(AmqpConnection)
         def channel = new DefaultAmqpChannel(connection, listenerfactory, "myawesomeservice")
