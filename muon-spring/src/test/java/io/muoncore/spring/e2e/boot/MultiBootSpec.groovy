@@ -59,7 +59,7 @@ class BootService1 {
 
     int issued = 0
 
-    @Scheduled(fixedRate = 500l)
+    @Scheduled(fixedRate = 5l)
     void emitEvent() {
         println "Emitting!"
         issued++

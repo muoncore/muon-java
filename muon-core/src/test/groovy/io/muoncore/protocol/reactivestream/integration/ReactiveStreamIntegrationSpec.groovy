@@ -2,6 +2,7 @@ package io.muoncore.protocol.reactivestream.integration
 import com.google.common.eventbus.EventBus
 import io.muoncore.Muon
 import io.muoncore.SingleTransportMuon
+import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
@@ -82,6 +83,50 @@ class ReactiveStreamIntegrationSpec extends Specification {
         new PollingConditions().eventually {
             errorReceived
         }
+    }
+
+    def "data remains in order"() {
+
+        def muon1 = muon("simples")
+        def muon2 = muon("tombola")
+
+        StandardAsyncChannel.echoOut = true
+        def env = Environment.initializeIfEmpty()
+
+        def data = []
+
+        def b = Broadcaster.create(env)
+        def sub2 = Broadcaster.create(env)
+
+        sub2.consume {
+            data << it
+        }
+
+        muon1.publishSource("somedata", PublisherLookup.PublisherType.HOT, b)
+
+        sleep(4000)
+        when:
+        muon2.subscribe(new URI("stream://simples/somedata"), Integer, sub2)
+
+        sleep(1000)
+
+        def inc = 1
+
+        and:
+        200.times {
+            println "Publish"
+            b.accept(inc++)
+        }
+        sleep(5000)
+
+        def sorted = new ArrayList<>(data).sort()
+
+        then:
+
+        data == sorted
+
+        cleanup:
+        StandardAsyncChannel.echoOut = false
     }
 
     Muon muon(name) {

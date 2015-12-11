@@ -4,8 +4,7 @@ import io.muoncore.Discovery;
 import io.muoncore.Muon;
 import io.muoncore.SingleTransportMuon;
 import io.muoncore.config.AutoConfiguration;
-import io.muoncore.memory.discovery.InMemDiscovery;
-import io.muoncore.memory.transport.InMemTransport;
+import io.muoncore.discovery.MultiDiscovery;
 import io.muoncore.transport.MuonTransport;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,9 @@ public class MuonConfiguration implements ApplicationContextAware{
 
     @Bean
     public Muon muon() throws URISyntaxException, InterruptedException, NoSuchAlgorithmException, KeyManagementException, IOException {
-        return new SingleTransportMuon(muonAutoConfiguration, getFirstValidDiscovery(muonDiscoveries), getFirstValidMuonTransport(muonTransports));
+        return new SingleTransportMuon(muonAutoConfiguration,
+                new MultiDiscovery(muonDiscoveries),
+                getFirstValidMuonTransport(muonTransports));
 
     }
 
@@ -48,23 +49,15 @@ public class MuonConfiguration implements ApplicationContextAware{
         if (muonTransports == null || muonTransports.size() == 0) {
             throw new IllegalStateException("No muon transports found");
         }
-        if (muonTransports.size() > 1) {
-            return muonTransports.stream().filter( tr -> tr.getClass() != InMemTransport.class).findFirst().get();
-        } else {
-            return muonTransports.get(0);
-        }
+        return muonTransports.get(0);
     }
 
-    //TODO Remove this method when muon multiple discoveries is implemented
-    private Discovery getFirstValidDiscovery(List<Discovery> muonDiscoveries) {
+    private Discovery getDiscovery(List<Discovery> muonDiscoveries) {
         if (muonDiscoveries == null || muonDiscoveries.size() ==0) {
             throw new IllegalStateException("No muon discoveries found");
         }
-        if (muonDiscoveries.size() > 1) {
-            return muonDiscoveries.stream().filter( tr -> tr.getClass() != InMemDiscovery.class).findFirst().get();
-        } else {
-            return muonDiscoveries.get(0);
-        }
+
+        return new MultiDiscovery(muonDiscoveries);
     }
 
     @Override

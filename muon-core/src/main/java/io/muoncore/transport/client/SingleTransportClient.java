@@ -5,6 +5,7 @@ import io.muoncore.transport.*;
 import org.reactivestreams.Publisher;
 import reactor.Environment;
 import reactor.core.Dispatcher;
+import reactor.core.config.DispatcherType;
 
 import java.util.function.Predicate;
 
@@ -15,7 +16,8 @@ public class SingleTransportClient implements TransportClient, TransportControl 
 
     private MuonTransport transport;
     private TransportMessageDispatcher taps;
-    private Dispatcher dispatcher = Environment.newDispatcher("transportDispatch", 8192);
+//    private Dispatcher dispatcher = Environment.newDispatcher("transportDispatch", 8192);
+    private Dispatcher dispatcher = Environment.newDispatcher(8192, 10, DispatcherType.RING_BUFFER);
 
     public SingleTransportClient(
             MuonTransport transport,

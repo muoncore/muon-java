@@ -23,6 +23,14 @@ public class MuonDiscoveryFactoryBeanRegistrar implements ImportBeanDefinitionRe
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
+        try {
+            //TODO, discovery wait is not working as expected here. block until it's ready.
+            //Remove after demos
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(DiscoveryFactory.class));
         Properties properties = PropertiesHelper.populateConnectionProperties(environment, MUON_PREFIX);

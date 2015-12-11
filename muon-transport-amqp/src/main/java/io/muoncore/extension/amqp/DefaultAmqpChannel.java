@@ -43,7 +43,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
         this.connection = connection;
         this.listenerFactory = queueListenerFactory;
         this.localServiceName = localServiceName;
-        this.dispatcher = Environment.workDispatcher();
+        this.dispatcher = Environment.newDispatcher();
     }
 
     @Override

@@ -38,7 +38,7 @@ class SingleTransportClientChannelConnection implements ChannelConnection<Transp
     }
 
     @Override
-    public void send(TransportOutboundMessage message) {
+    public synchronized void send(TransportOutboundMessage message) {
         if (inbound == null) {
             throw new IllegalStateException("Transport connection is not in a complete state can cannot send data. The receive function has not been set");
         }
