@@ -44,7 +44,7 @@ public class RequestResponseServerProtocolStack implements
     @SuppressWarnings("unchecked")
     public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
 
-        Channel<TransportOutboundMessage, TransportInboundMessage> api2 = Channels.channel("rrpserver", "transport");
+        Channel<TransportOutboundMessage, TransportInboundMessage> api2 = Channels.workerChannel("rrpserver", "transport");
 
         api2.left().receive( message -> {
             if (message == null) {

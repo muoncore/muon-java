@@ -19,7 +19,7 @@ public class Channels {
      * processing without impacting overall event dispatch
      */
     public static <X,Y> Channel<X, Y> workerChannel(String leftname, String rightname) {
-        return new StandardAsyncChannel<>(leftname, rightname, Environment.newDispatcher(leftname + rightname, 16));
+        return new StandardAsyncChannel<>(leftname, rightname, WORK_DISPATCHER);
     }
     public static <X,Y> void connect(ChannelConnection<X, Y> right, ChannelConnection<Y, X> left) {
         assert right != null;
