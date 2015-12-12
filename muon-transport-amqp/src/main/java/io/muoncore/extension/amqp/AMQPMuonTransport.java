@@ -1,5 +1,6 @@
 package io.muoncore.extension.amqp;
 
+import io.muoncore.Discovery;
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
@@ -27,11 +28,13 @@ public class AMQPMuonTransport implements MuonTransport {
     private List<AmqpChannel> channels;
     private ServiceQueue serviceQueue;
     private AmqpChannelFactory channelFactory;
+    private Discovery discovery;
 
     public AMQPMuonTransport(
             String url,
             ServiceQueue serviceQueue,
-            AmqpChannelFactory channelFactory) {
+            AmqpChannelFactory channelFactory,
+            Discovery discovery) {
         channels = new ArrayList<>();
         this.channelFactory = channelFactory;
         this.rabbitUrl = url;

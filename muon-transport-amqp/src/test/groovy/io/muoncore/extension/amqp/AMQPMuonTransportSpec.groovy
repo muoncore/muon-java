@@ -1,11 +1,17 @@
 package io.muoncore.extension.amqp
 
+import io.muoncore.Discovery
+import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.protocol.ServerStacks
 import reactor.Environment
 import spock.lang.Specification
 
 class AMQPMuonTransportSpec extends Specification {
+
+    def discovery = Mock(Discovery) {
+        findService(_) >> Optional.of(new ServiceDescriptor("identifier", [], [], []))
+    }
 
     def "Opens listen service queue for handshake. For every handshake, create a new channel"() {
         Environment.initializeIfEmpty()
@@ -14,7 +20,7 @@ class AMQPMuonTransportSpec extends Specification {
         def serviceQueue = Mock(ServiceQueue)
         def channelFactory = Mock(AmqpChannelFactory)
         def transport = new AMQPMuonTransport(
-            "url", serviceQueue, channelFactory
+            "url", serviceQueue, channelFactory, discovery
         )
 
         when:
@@ -39,7 +45,7 @@ class AMQPMuonTransportSpec extends Specification {
         }
         def channelFactory = Mock(AmqpChannelFactory)
         def transport = new AMQPMuonTransport(
-                "url", serviceQueue, channelFactory
+                "url", serviceQueue, channelFactory, discovery
         )
         Thread.sleep(50)
 
@@ -62,7 +68,7 @@ class AMQPMuonTransportSpec extends Specification {
         def serviceQueue = Mock(ServiceQueue)
         def channelFactory = Mock(AmqpChannelFactory)
         def transport = new AMQPMuonTransport(
-                "url", serviceQueue, channelFactory
+                "url", serviceQueue, channelFactory, discovery
         )
         Thread.sleep(50)
 
@@ -84,7 +90,7 @@ class AMQPMuonTransportSpec extends Specification {
         def serviceQueue = Mock(ServiceQueue)
         def channelFactory = Mock(AmqpChannelFactory)
         def transport = new AMQPMuonTransport(
-                "url", serviceQueue, channelFactory
+                "url", serviceQueue, channelFactory, discovery
         )
         Thread.sleep(50)
 
@@ -117,7 +123,7 @@ class AMQPMuonTransportSpec extends Specification {
             createChannel() >> mockChannel
         }
         def transport = new AMQPMuonTransport(
-                "url", serviceQueue, channelFactory
+                "url", serviceQueue, channelFactory, discovery
         )
         Thread.sleep(50)
 
@@ -130,5 +136,34 @@ class AMQPMuonTransportSpec extends Specification {
 
         then:
         transport.numberOfActiveChannels == 0
+    }
+
+    def "openClientChannel on non existent service will cause a failure"() {
+        Environment.initializeIfEmpty()
+
+        def mockChannel = Mock(AmqpChannel)
+        def mockServerChannelConnection = Mock(ChannelConnection)
+        def func
+        def serverStacks = Mock(ServerStacks)
+        def serviceQueue = Mock(ServiceQueue) {
+            onHandshake(_) >> { args ->
+                func = new ChannelFunctionExecShimBecauseGroovyCantCallLambda(args[0])
+            }
+        }
+        def channelFactory = Mock(AmqpChannelFactory)
+
+        def transport = new AMQPMuonTransport(
+                "url", serviceQueue, channelFactory, discovery
+        )
+        Thread.sleep(50)
+
+        when:
+        transport.start(serverStacks)
+        def cl = transport.openClientChannel("fakeclient", "myprotoofdoom")
+
+        func(new AmqpHandshakeMessage("myfakeproto", "", "", ""))
+
+        then: "Some error is thrown. but we don't know what yet..."
+        1==2
     }
 }
