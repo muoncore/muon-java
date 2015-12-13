@@ -1,5 +1,6 @@
 package io.muoncore.spring.transport;
 
+import io.muoncore.Discovery;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.MuonTransportFactory;
@@ -16,10 +17,14 @@ public class MuonTransportFactoryBean implements FactoryBean<MuonTransport> {
     @Autowired
     private AutoConfiguration autoConfiguration;
 
+    @Autowired
+    private Discovery discovery;
+
     @Override
     public MuonTransport getObject() throws Exception {
         MuonTransportFactory factory = type.newInstance();
         factory.setAutoConfiguration(autoConfiguration);
+        factory.setDiscovery(discovery);
         return factory.build(properties);
     }
 

@@ -1,6 +1,7 @@
 package io.muoncore.transport;
 
 import com.google.common.eventbus.EventBus;
+import io.muoncore.Discovery;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.memory.transport.InMemTransport;
 
@@ -36,5 +37,10 @@ public class InMemTransportFactory implements MuonTransportFactory {
     @Override
     public void setAutoConfiguration(AutoConfiguration autoConfiguration) {
         this.autoConfiguration = autoConfiguration;
+    }
+
+    @Override
+    public void setDiscovery(Discovery discovery) {
+        
     }
 }

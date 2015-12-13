@@ -1,4 +1,5 @@
 package io.muoncore.extension.amqp.perftest
+
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.json.GsonCodec
 import io.muoncore.extension.amqp.AMQPMuonTransport
@@ -6,16 +7,17 @@ import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
+import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.protocol.ServerStacks
 import io.muoncore.protocol.requestresponse.RRPTransformers
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportOutboundMessage
+import reactor.Environment
 import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.concurrent.PollingConditions
-import reactor.Environment
 
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
@@ -24,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger
 @IgnoreIf({ System.getenv("BUILD_NUMBER") })
 class ChannelThroughputSpec extends Specification {
 
+    def discovery = new InMemDiscovery()
     def serverStacks1 = Mock(ServerStacks)
 
     @Unroll
@@ -119,7 +122,7 @@ class ChannelThroughputSpec extends Specification {
         def channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection)
 
         def svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
+                "amqp://muon:microservices@localhost", serviceQueue, channelFactory, discovery)
         svc1
     }
 }

@@ -17,4 +17,18 @@ public class TransportInboundMessage extends TransportMessage {
             ChannelOperation channelOperation) {
         super(type, id, targetServiceName, sourceServiceName, protocol, metadata, contentType, payload, sourceAvailableContentTypes, channelOperation);
     }
+
+    public static TransportInboundMessage serviceNotFound(TransportOutboundMessage msg) {
+        return new TransportInboundMessage(
+                "ServiceNotFound",
+                msg.getId(),
+                msg.getSourceServiceName(),
+                msg.getTargetServiceName(),
+                msg.getProtocol(),
+                msg.getMetadata(),
+                msg.getContentType(),
+                msg.getPayload(),
+                msg.getSourceAvailableContentTypes(),
+                ChannelOperation.NORMAL);
+    }
 }

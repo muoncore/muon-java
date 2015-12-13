@@ -1,9 +1,11 @@
 package io.muoncore.extension.amqp;
 
+import io.muoncore.Discovery;
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
 import io.muoncore.exception.MuonTransportFailureException;
+import io.muoncore.exception.NoSuchServiceException;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.TransportInboundMessage;
@@ -27,15 +29,18 @@ public class AMQPMuonTransport implements MuonTransport {
     private List<AmqpChannel> channels;
     private ServiceQueue serviceQueue;
     private AmqpChannelFactory channelFactory;
+    private Discovery discovery;
 
     public AMQPMuonTransport(
             String url,
             ServiceQueue serviceQueue,
-            AmqpChannelFactory channelFactory) {
+            AmqpChannelFactory channelFactory,
+            Discovery discovery) {
         channels = new ArrayList<>();
         this.channelFactory = channelFactory;
         this.rabbitUrl = url;
         this.serviceQueue = serviceQueue;
+        this.discovery = discovery;
 
         log.info("Connecting to AMQP host at " + rabbitUrl);
     }
@@ -48,6 +53,12 @@ public class AMQPMuonTransport implements MuonTransport {
 
     @Override
     public ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel(String serviceName, String protocol) {
+
+        if (!discovery.findService( svc -> svc.getIdentifier().equals(serviceName))
+                .isPresent()) {
+            throw new NoSuchServiceException(serviceName);
+        }
+
         AmqpChannel channel = channelFactory.createChannel();
 
         channel.onShutdown(msg -> {

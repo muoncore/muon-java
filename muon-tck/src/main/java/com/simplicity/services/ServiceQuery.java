@@ -34,8 +34,10 @@ public class ServiceQuery {
         ServiceQueue serviceQueue = new DefaultServiceQueue(serviceName, connection);
         AmqpChannelFactory channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection);
 
+        Discovery discovery = createDiscovery();
+
         MuonTransport svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceQueue, channelFactory);
+                "amqp://muon:microservices@localhost", serviceQueue, channelFactory, discovery);
 
         AutoConfiguration config = new AutoConfiguration();
         config.setServiceName(serviceName);

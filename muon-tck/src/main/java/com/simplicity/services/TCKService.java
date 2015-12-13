@@ -43,14 +43,16 @@ public class TCKService {
         ServiceQueue serviceQueue = new DefaultServiceQueue(serviceName, connection);
         AmqpChannelFactory channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection);
 
+        Discovery discovery = createDiscovery();
+
         MuonTransport svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceQueue, channelFactory);
+                "amqp://muon:microservices@localhost", serviceQueue, channelFactory, discovery);
 
         AutoConfiguration config = new AutoConfiguration();
         config.setServiceName(serviceName);
         config.setAesEncryptionKey("abcde12345678906");
 
-        Muon muon = new SingleTransportMuon(config, createDiscovery(), svc1);
+        Muon muon = new SingleTransportMuon(config, discovery, svc1);
 
         //allow discovery settle time.
         Thread.sleep(5000);
