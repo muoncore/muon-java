@@ -31,7 +31,7 @@ public class AmqpMuonTransportFactory implements MuonTransportFactory {
                 ServiceQueue serviceQueue = new DefaultServiceQueue(serviceName, connection);
                 AmqpChannelFactory channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection);
 
-                muonTransport = new AMQPMuonTransport(discoveryUrl, serviceQueue, channelFactory, discovery);
+                muonTransport = new AMQPMuonTransport(discoveryUrl, serviceQueue, channelFactory);
             }
         } catch (Exception e) {
             LOG.log(Level.WARNING, "Error creating AMQP muon transport", e);
@@ -42,10 +42,5 @@ public class AmqpMuonTransportFactory implements MuonTransportFactory {
     @Override
     public void setAutoConfiguration(AutoConfiguration autoConfiguration) {
         this.autoConfiguration = autoConfiguration;
-    }
-
-    @Override
-    public void setDiscovery(Discovery discovery) {
-        this.discovery = discovery;
     }
 }

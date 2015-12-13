@@ -46,7 +46,7 @@ public class TCKService {
         Discovery discovery = createDiscovery();
 
         MuonTransport svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceQueue, channelFactory, discovery);
+                "amqp://muon:microservices@localhost", serviceQueue, channelFactory);
 
         AutoConfiguration config = new AutoConfiguration();
         config.setServiceName(serviceName);

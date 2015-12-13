@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public class TransportInboundMessage extends TransportMessage {
+
     public TransportInboundMessage(
             String type,
             String id,
@@ -20,7 +21,7 @@ public class TransportInboundMessage extends TransportMessage {
 
     public static TransportInboundMessage serviceNotFound(TransportOutboundMessage msg) {
         return new TransportInboundMessage(
-                "ServiceNotFound",
+                TransportEvents.SERVICE_NOT_FOUND,
                 msg.getId(),
                 msg.getSourceServiceName(),
                 msg.getTargetServiceName(),

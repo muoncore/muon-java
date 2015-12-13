@@ -1,7 +1,9 @@
 package com.simplicity.services.example.user;
 
 import io.muoncore.Muon;
+import io.muoncore.protocol.requestresponse.server.RequestWrapper;
 import io.muoncore.spring.annotations.EnableMuon;
+import io.muoncore.spring.annotations.MuonRequestListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,6 +14,7 @@ import reactor.Environment;
 import reactor.rx.broadcast.Broadcaster;
 
 import javax.annotation.PostConstruct;
+import java.util.Map;
 
 import static io.muoncore.protocol.reactivestream.server.PublisherLookup.PublisherType.HOT;
 
@@ -34,6 +37,12 @@ public class UserService {
     public void emitData() {
         System.out.println("Sending data");
         tickTock.accept("Hello " + System.currentTimeMillis());
+    }
+
+    @MuonRequestListener(path = "/")
+    public void doSomething(RequestWrapper<Map> wrapper) {
+
+        wrapper.ok("Hello there");
     }
 
     public static void main(String[] args) {

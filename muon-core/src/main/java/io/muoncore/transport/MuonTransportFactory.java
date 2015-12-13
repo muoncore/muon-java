@@ -10,5 +10,4 @@ public interface MuonTransportFactory {
     MuonTransport build(Properties properties);
 
     void setAutoConfiguration(AutoConfiguration autoConfiguration);
-    void setDiscovery(Discovery discovery);
 }

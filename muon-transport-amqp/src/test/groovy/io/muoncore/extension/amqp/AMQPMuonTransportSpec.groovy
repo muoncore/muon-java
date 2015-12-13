@@ -21,11 +21,11 @@ class AMQPMuonTransportSpec extends Specification {
         def serviceQueue = Mock(ServiceQueue)
         def channelFactory = Mock(AmqpChannelFactory)
         def transport = new AMQPMuonTransport(
-            "url", serviceQueue, channelFactory, discovery
+            "url", serviceQueue, channelFactory
         )
 
         when:
-        transport.start(serverStacks)
+        transport.start(discovery, serverStacks)
 
         then:
         1 * serviceQueue.onHandshake(_)
@@ -46,12 +46,12 @@ class AMQPMuonTransportSpec extends Specification {
         }
         def channelFactory = Mock(AmqpChannelFactory)
         def transport = new AMQPMuonTransport(
-                "url", serviceQueue, channelFactory, discovery
+                "url", serviceQueue, channelFactory
         )
         Thread.sleep(50)
 
         when:
-        transport.start(serverStacks)
+        transport.start(discovery, serverStacks)
         func(new AmqpHandshakeMessage("myfakeproto", "", "", ""))
 
         then:
@@ -69,12 +69,12 @@ class AMQPMuonTransportSpec extends Specification {
         def serviceQueue = Mock(ServiceQueue)
         def channelFactory = Mock(AmqpChannelFactory)
         def transport = new AMQPMuonTransport(
-                "url", serviceQueue, channelFactory, discovery
+                "url", serviceQueue, channelFactory
         )
         Thread.sleep(50)
 
         when:
-        transport.start(serverStacks)
+        transport.start(discovery, serverStacks)
         transport.openClientChannel("someRemoteService", "fakeproto")
 
         then:
@@ -91,12 +91,12 @@ class AMQPMuonTransportSpec extends Specification {
         def serviceQueue = Mock(ServiceQueue)
         def channelFactory = Mock(AmqpChannelFactory)
         def transport = new AMQPMuonTransport(
-                "url", serviceQueue, channelFactory, discovery
+                "url", serviceQueue, channelFactory
         )
         Thread.sleep(50)
 
         when:
-        transport.start(serverStacks)
+        transport.start(discovery, serverStacks)
         transport.openClientChannel("someRemoteService", "fakeproto")
         transport.openClientChannel("someRemoteService2", "fakeproto")
 
@@ -124,12 +124,12 @@ class AMQPMuonTransportSpec extends Specification {
             createChannel() >> mockChannel
         }
         def transport = new AMQPMuonTransport(
-                "url", serviceQueue, channelFactory, discovery
+                "url", serviceQueue, channelFactory
         )
         Thread.sleep(50)
 
         when:
-        transport.start(serverStacks)
+        transport.start(discovery, serverStacks)
         def c = transport.openClientChannel("someRemoteService2", "fakeproto")
 
         and:
@@ -162,12 +162,12 @@ class AMQPMuonTransportSpec extends Specification {
         }
 
         def transport = new AMQPMuonTransport(
-                "url", serviceQueue, channelFactory, discovery
+                "url", serviceQueue, channelFactory
         )
         Thread.sleep(50)
 
         when:
-        transport.start(serverStacks)
+        transport.start(discovery, serverStacks)
         def cl = transport.openClientChannel("fakeclient", "myprotoofdoom")
 
         func(new AmqpHandshakeMessage("myfakeproto", "", "", ""))
