@@ -47,7 +47,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
         }
 
         then:
-        new PollingConditions().eventually {
+        new PollingConditions(timeout: 20).eventually {
             data.size() == 50000
         }
     }
