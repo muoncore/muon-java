@@ -3,6 +3,7 @@ package io.muoncore.extension.amqp
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
+import io.muoncore.exception.NoSuchServiceException
 import io.muoncore.protocol.ServerStacks
 import reactor.Environment
 import spock.lang.Specification
@@ -139,6 +140,11 @@ class AMQPMuonTransportSpec extends Specification {
     }
 
     def "openClientChannel on non existent service will cause a failure"() {
+        given:
+        discovery = Mock(Discovery) {
+            findService(_) >> Optional.empty()
+        }
+
         Environment.initializeIfEmpty()
 
         def mockChannel = Mock(AmqpChannel)
@@ -150,7 +156,10 @@ class AMQPMuonTransportSpec extends Specification {
                 func = new ChannelFunctionExecShimBecauseGroovyCantCallLambda(args[0])
             }
         }
-        def channelFactory = Mock(AmqpChannelFactory)
+
+        def channelFactory = Mock(AmqpChannelFactory) {
+            createChannel() >> mockChannel
+        }
 
         def transport = new AMQPMuonTransport(
                 "url", serviceQueue, channelFactory, discovery
@@ -164,6 +173,7 @@ class AMQPMuonTransportSpec extends Specification {
         func(new AmqpHandshakeMessage("myfakeproto", "", "", ""))
 
         then: "Some error is thrown. but we don't know what yet..."
-        1==2
+        thrown(NoSuchServiceException)
+        0 * serverStacks._
     }
 }

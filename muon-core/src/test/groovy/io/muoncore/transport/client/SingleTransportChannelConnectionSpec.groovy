@@ -1,6 +1,7 @@
 package io.muoncore.transport.client
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.json.GsonCodec
+import io.muoncore.exception.NoSuchServiceException
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.transport.MuonTransport
 import io.muoncore.transport.TransportInboundMessage
@@ -137,6 +138,33 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
         then:
         1 * connections[0].shutdown()
+    }
+
+    def "when transport.openCLientChannel throws NoSuchServiceException, a message is sent back down the channel reporting error and closing it"() {
+
+        Environment.initializeIfEmpty()
+
+        def transport = Mock(MuonTransport) {
+            openClientChannel(_, _) >> {
+                throw new NoSuchServiceException("simples")
+            }
+        }
+
+        ChannelConnection.ChannelFunction receive = Mock(ChannelConnection.ChannelFunction)
+        def dispatcher = Mock(TransportMessageDispatcher)
+
+        def connection = new SingleTransportClientChannelConnection(transport, dispatcher, Environment.sharedDispatcher())
+        connection.receive(receive)
+
+        when:
+        connection.send(outbound("mymessage", "myService1", "requestresponse"))
+
+        sleep(100)
+        then:
+        1 * receive.apply({ TransportInboundMessage msg ->
+            msg.channelOperation == TransportMessage.ChannelOperation.NORMAL &&
+                    msg.sourceServiceName == "myService1"
+        })
     }
 
     def inbound(id, service, protocol) {

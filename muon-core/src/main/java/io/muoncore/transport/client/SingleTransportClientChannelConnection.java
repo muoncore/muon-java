@@ -1,6 +1,7 @@
 package io.muoncore.transport.client;
 
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.exception.NoSuchServiceException;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportMessage;
@@ -49,16 +50,20 @@ class SingleTransportClientChannelConnection implements ChannelConnection<Transp
                 ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connection = channelConnectionMap.get(
                         key(message)
                 );
-                if (connection == null) {
-                    connection = connectChannel(message);
-                    channelConnectionMap.put(key(message), connection);
-                }
                 taps.dispatch(message);
-                connection.send(message);
-                if (message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL) {
-                    inbound = null;
-                    this.transport = null;
-                    this.taps = null;
+                try {
+                    if (connection == null) {
+                        connection = connectChannel(message);
+                        channelConnectionMap.put(key(message), connection);
+                    }
+                    connection.send(message);
+                    if (message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL) {
+                        inbound = null;
+                        this.transport = null;
+                        this.taps = null;
+                    }
+                } catch (NoSuchServiceException ex) {
+                    inbound.apply(TransportInboundMessage.serviceNotFound(msg));
                 }
             }, Throwable::printStackTrace);
         }
