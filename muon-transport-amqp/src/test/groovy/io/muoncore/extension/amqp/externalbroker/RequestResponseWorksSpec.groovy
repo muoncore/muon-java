@@ -134,7 +134,7 @@ class RequestResponseWorksSpec extends Specification {
         def min = Collections.min(times)
 
         def difference = Math.abs(max - min)
-        difference < 1000
+        difference < 1500
 
         cleanup:
         svc1.shutdown()
@@ -149,7 +149,7 @@ class RequestResponseWorksSpec extends Specification {
         def channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection)
 
         def svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
+                "amqp://muon:microservices@localhost", serviceQueue, channelFactory, discovery)
 
         def config = new AutoConfiguration(serviceName:serviceName, aesEncryptionKey: "abcde12345678906")
         def muon = new SingleTransportMuon(config, discovery, svc1)

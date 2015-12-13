@@ -1,5 +1,6 @@
 package io.muoncore.extension.amqp.externalbroker
 
+import io.muoncore.Discovery
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.json.GsonCodec
 import io.muoncore.extension.amqp.AMQPMuonTransport
@@ -19,6 +20,8 @@ class EstablishChannelSpec extends Specification {
 
     def serverStacks1 = Mock(ServerStacks)
     def serverStacks2 = Mock(ServerStacks)
+
+    def discovery = Mock(Discovery)
 
     def "two transports can establish an AMQP channel between them"() {
 
@@ -60,7 +63,7 @@ class EstablishChannelSpec extends Specification {
         def channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection)
 
         def svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
+                "amqp://muon:microservices@localhost", serviceQueue, channelFactory, discovery)
         svc1
     }
 }

@@ -1,4 +1,5 @@
 package io.muoncore.extension.amqp.externalbroker
+
 import io.muoncore.Muon
 import io.muoncore.SingleTransportMuon
 import io.muoncore.channel.async.StandardAsyncChannel
@@ -229,7 +230,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
         def channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection)
 
         def svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
+                "amqp://muon:microservices@localhost", serviceQueue, channelFactory, discovery)
 
         def config = new AutoConfiguration(serviceName:serviceName, aesEncryptionKey: "abcde12345678906")
         def muon = new SingleTransportMuon(config, discovery, svc1)
