@@ -4,6 +4,7 @@ package io.muoncore.spring.methodinvocation.parameterhandlers;
 import io.muoncore.protocol.requestresponse.server.RequestWrapper;
 
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.Map;
 
 public class ParameterEventArgumentTransformer implements MethodArgumentTransformer {
@@ -18,8 +19,8 @@ public class ParameterEventArgumentTransformer implements MethodArgumentTransfor
     }
 
     @Override
-    public Class<?> getParameterType() {
-        return parameter.getType();
+    public Type getParameterType() {
+        return parameter.getParameterizedType();
     }
 
     @Override

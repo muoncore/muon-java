@@ -4,9 +4,8 @@ import io.muoncore.spring.Person;
 import io.muoncore.spring.annotations.MuonController;
 import io.muoncore.spring.annotations.MuonStreamListener;
 
-/**
- * Created by volod on 11/24/2015.
- */
+import java.util.List;
+
 @MuonController
 public class TestStreamController {
 
@@ -15,6 +14,11 @@ public class TestStreamController {
     @MuonStreamListener(url = "stream://${muon.streamSource.name}/personStream")
     public void addPersonEvent(Person person) {
         delegatingMock.addPersonEvent(person);
+    }
+
+    @MuonStreamListener(url = "stream://${muon.streamSource.name}/manyPeopleStream")
+    public void manyPeopleEvent(List<Person> people) {
+        delegatingMock.manyPeopleEvent(people);
     }
 
     @MuonStreamListener(url = "stream://${muon.streamSource.name}/removePersonStream")

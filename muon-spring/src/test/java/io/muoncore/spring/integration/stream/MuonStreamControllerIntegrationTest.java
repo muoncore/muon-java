@@ -1,8 +1,6 @@
 package io.muoncore.spring.integration.stream;
 
 import io.muoncore.Muon;
-import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandlerApi;
 import io.muoncore.spring.Person;
 import io.muoncore.spring.annotations.EnableMuonControllers;
 import io.muoncore.spring.integration.MockedMuonConfiguration;
@@ -10,7 +8,8 @@ import io.muoncore.spring.model.stream.TestStreamController;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.reactivestreams.Subscriber;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -85,6 +84,6 @@ public class MuonStreamControllerIntegrationTest {
     }
 
     private void verifyMuonStreamSetupProcess() throws UnsupportedEncodingException {
-        verify(muon, times(2)).subscribe(uriCaptor.capture(), typeCaptor.capture(), subscriberCaptor.capture());
+        verify(muon, times(3)).subscribe(uriCaptor.capture(), typeCaptor.capture(), subscriberCaptor.capture());
     }
 }

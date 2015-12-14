@@ -3,6 +3,7 @@ package io.muoncore.spring.methodinvocation.parameterhandlers;
 import io.muoncore.protocol.requestresponse.server.RequestWrapper;
 
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
 public class RequestArgumentTransformer implements MethodArgumentTransformer {
     private final Parameter parameter;
@@ -18,7 +19,7 @@ public class RequestArgumentTransformer implements MethodArgumentTransformer {
     }
 
     @Override
-    public Class<?> getParameterType() {
-        return parameter.getType();
+    public Type getParameterType() {
+        return parameter.getParameterizedType();
     }
 }
