@@ -3,34 +3,84 @@ import java.text.SimpleDateFormat
 buildscript {
     repositories {
         jcenter()
+        maven {
+            url 'http://maven.tmatesoft.com/content/repositories/releases/'
+        }
     }
     dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0"
+        classpath 'me.trnl:github-release-gradle-plugin:0.1'
     }
 }
 
+apply plugin: 'release'
+apply plugin: 'console'
+apply plugin: 'git'
+apply plugin: 'github'
+
 def globalVersion = new Version(currentVersion)
-def hasbintray = hasProperty("bintrayUsername")
+
+project.version = currentVersion
+
+release {
+    /* Let's check that everything is committed */
+    doFirst {
+        if (!project.git.status().isEmpty()) {
+            throw new GradleException('You have uncommitted changes.')
+        }
+    }
+
+    /* Ask user for a release version, suggesting some default variant. */
+    version = { console.prompt(' > Please enter release version:', project.version - '-SNAPSHOT') }
+    tag = { "r$project.release.version" }
+    commitMessage = { "Release $project.release.version" }
+
+    /* Files and projects that needs to be updated with a new release version. */
+    update {
+        file project.file('gradle.properties')
+    }
+
+    /* Spec for next version. As above, asking user input. */
+    next {
+        version = { console.prompt(' > Please enter next version:', bumpVersion(project.release.version)) }
+        commitMessage = { "Bumping version to $project.release.next.version" }
+    }
+
+    /* Tasks that needs to be performed during release. Will be done after tag step. */
+//    dependsOn subprojects.findAll { it.name != 'util' }*.install
+//    dependsOn project('driver').uberJar
+//    dependsOn project('driver-compat').uberJar
+//    dependsOn publishWiki
+//    dependsOn draftGhRelease
+}
+
+//replace current release with the snapshot.
+commitNewVersion.doFirst {
+    def propFile = new File("gradle.properties")
+    def prop = propFile.text.replaceAll(project.release.version, "${project.release.next.version}-SNAPSHOT")
+    propFile.newWriter().withWriter {
+        it << prop
+    }
+}
+
+def bumpVersion(String version) {
+    def split = version.split("\\.")
+    return "${split[0]}.${split[1]}.${++Integer.parseInt(split[2])}"
+}
 
 ext {
     gradleVersion = '2.4'
 
-    // Libraries
     reactiveStreamsVersion = '1.0.0'
 
     reactorVersion = '2.0.1.RELEASE'
 }
 
 subprojects { subproject ->
-    apply plugin: 'groovy'
-}
-
-subprojects { subproject ->
-    if (subproject.name == "muon-tck") return
-    apply plugin: 'com.jfrog.bintray'
+    if (subproject.name in ["muon-tck", "doc"]) return
     apply plugin: 'groovy'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
+//    apply plugin: "com.jfrog.artifactory"
 
     group = "io.muoncore"
     version = globalVersion.toString()
@@ -53,47 +103,6 @@ subprojects { subproject ->
 
     repositories {
         jcenter()
-    }
-
-    bintray {
-        if (hasbintray) {
-            user = bintrayUsername
-            key = bintrayPassword
-        }
-
-        dryRun = false //Whether to run this as dry-run, without deploying
-        publish = true //If version should be auto published after an upload
-
-        configurations = ['published', 'archives']
-
-        pkg {
-            userOrg = 'muoncore'
-            repo = 'muon-java'
-            name = subproject.name
-            desc = subproject.description
-            websiteUrl = 'https://muoncore.io'
-            issueTrackerUrl = 'https://github.com/muoncore/muon-java/issues'
-            vcsUrl = 'https://github.com/muoncore/muon-java.git'
-            licenses = ['Apache-2.0']
-            labels = ['muon', 'microservices']
-            publicDownloadNumbers = true
-            //Optional version descriptor
-            version {
-                name = globalVersion.toString()
-                //attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin'] //Optional version-level attributes
-//      gpg {
-//        sign = true //Determines whether to GPG sign the files. The default is false
-//        passphrase = 'passphrase' //Optional. The passphrase for GPG signing'
-//      }
-                mavenCentralSync {
-                    sync = false //Optional (true by default). Determines whether to sync the version to Maven Central.
-                    user = 'userToken' //OSS user token
-                    password = 'paasword' //OSS user password
-                    close = '1'
-                    //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
-                }
-            }
-        }
     }
 }
 
@@ -199,35 +208,35 @@ project('muon-spring') {
 task wrapper(type: Wrapper) {
     gradleVersion = '2.5'
 }
-
-subprojects {
-    apply plugin: 'maven'
-
-    if (project.plugins.hasPlugin('java')) {
-        // manifest.mainAttributes(provider: 'gradle')
-        configurations {
-            published
-        }
-        dependencies {
-            testCompile 'junit:junit:4.7'
-        }
-
-        task sourceJar(type: Jar) {
-            from sourceSets.main.allSource
-            classifier = 'sources'
-        }
-        task javadocJar(type: Jar, dependsOn: javadoc) {
-            classifier = 'javadoc'
-            from javadoc.destinationDir
-        }
-
-        // Add the sourceJars to non-extractor modules
-        artifacts {
-            published sourceJar
-            published javadocJar
-        }
-    }
-}
+//
+//subprojects {
+//    apply plugin: 'maven'
+//
+//    if (project.plugins.hasPlugin('java')) {
+//        // manifest.mainAttributes(provider: 'gradle')
+//        configurations {
+//            published
+//        }
+//        dependencies {
+//            testCompile 'junit:junit:4.7'
+//        }
+//
+//        task sourceJar(type: Jar) {
+//            from sourceSets.main.allSource
+//            classifier = 'sources'
+//        }
+//        task javadocJar(type: Jar, dependsOn: javadoc) {
+//            classifier = 'javadoc'
+//            from javadoc.destinationDir
+//        }
+//
+//        // Add the sourceJars to non-extractor modules
+//        artifacts {
+//            published sourceJar
+//            published javadocJar
+//        }
+//    }
+//}
 
 configurations {
     published

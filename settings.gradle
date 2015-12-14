@@ -5,4 +5,5 @@ include 'muon-core',
         'muon-discovery-amqp',
         'muon-codec-kryo',
         'muon-tck',
-        'muon-spring'
+        'muon-spring',
+        "doc"
