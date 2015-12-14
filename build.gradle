@@ -9,6 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'me.trnl:github-release-gradle-plugin:0.1'
+        classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '3.2.0')
     }
 }
 
@@ -19,15 +20,15 @@ apply plugin: 'github'
 
 def globalVersion = new Version(currentVersion)
 
-project.version = currentVersion
+project.version = currentVersion.toString()
 
 release {
     /* Let's check that everything is committed */
-    doFirst {
-        if (!project.git.status().isEmpty()) {
-            throw new GradleException('You have uncommitted changes.')
-        }
-    }
+//    doFirst {
+//        if (!project.git.status().isEmpty()) {
+//            throw new GradleException('You have uncommitted changes.')
+//        }
+//    }
 
     /* Ask user for a release version, suggesting some default variant. */
     version = { console.prompt(' > Please enter release version:', project.version - '-SNAPSHOT') }
@@ -46,15 +47,15 @@ release {
     }
 
     /* Tasks that needs to be performed during release. Will be done after tag step. */
-//    dependsOn subprojects.findAll { it.name != 'util' }*.install
-//    dependsOn project('driver').uberJar
-//    dependsOn project('driver-compat').uberJar
-//    dependsOn publishWiki
-//    dependsOn draftGhRelease
+    dependsOn { subprojects.findAll { !(it.name in ["muon-tck", "doc"]) }*.assemble }
 }
 
 //replace current release with the snapshot.
 commitNewVersion.doFirst {
+
+    //upload to artifactory ...
+
+
     def propFile = new File("gradle.properties")
     def prop = propFile.text.replaceAll(project.release.version, "${project.release.next.version}-SNAPSHOT")
     propFile.newWriter().withWriter {
@@ -67,6 +68,19 @@ def bumpVersion(String version) {
     return "${split[0]}.${split[1]}.${++Integer.parseInt(split[2])}"
 }
 
+// ---------  Github release setup -----------
+github {
+    /* Wiki repo will be calculated from this. */
+    repo = 'git@github.com:microserviceux/muon-java.git'
+
+    release {
+        /* Use {} brackets for lazy evaluation */
+        tag = { "r$project.release.version" }
+        name = { "$project.release.version" }
+    }
+}
+
+// ---------- Regular build ----------
 ext {
     gradleVersion = '2.4'
 
@@ -80,10 +94,42 @@ subprojects { subproject ->
     apply plugin: 'groovy'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
-//    apply plugin: "com.jfrog.artifactory"
+    apply plugin: "com.jfrog.artifactory"
 
     group = "io.muoncore"
     version = globalVersion.toString()
+
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+            }
+        }
+    }
+
+// ----------- Deployment --------------
+    artifactory {
+        contextUrl = 'https://simplicityitself.artifactoryonline.com/simplicityitself/'   //The base Artifactory URL if not overridden by the publisher/resolver
+        publish {
+            repository {
+                repoKey = 'muon'   //The Artifactory repository key to publish to
+                username = artifactory_user          //The publisher user name
+                password = artifactory_password       //The publisher password
+            }
+            defaults {
+                publications ('mavenJava')
+                publishArtifacts = true
+                publishPom = true
+            }
+        }
+        resolve {
+            repository {
+                repoKey = 'repo'  //The Artifactory (preferably virtual) repository key to resolve from
+            }
+        }
+    }
+
 
     dependencies {
         compile "org.codehaus.groovy:groovy-all:2.4.1"
@@ -103,6 +149,33 @@ subprojects { subproject ->
 
     repositories {
         jcenter()
+    }
+
+    if (project.plugins.hasPlugin('java')) {
+        // manifest.mainAttributes(provider: 'gradle')
+        configurations {
+            published
+        }
+
+
+        dependencies {
+            testCompile 'junit:junit:4.7'
+        }
+
+        task sourceJar(type: Jar) {
+            from sourceSets.main.allSource
+            classifier = 'sources'
+        }
+        task javadocJar(type: Jar, dependsOn: javadoc) {
+            classifier = 'javadoc'
+            from javadoc.destinationDir
+        }
+
+        // Add the sourceJars to non-extractor modules
+        artifacts {
+            published sourceJar
+            published javadocJar
+        }
     }
 }
 
@@ -208,35 +281,6 @@ project('muon-spring') {
 task wrapper(type: Wrapper) {
     gradleVersion = '2.5'
 }
-//
-//subprojects {
-//    apply plugin: 'maven'
-//
-//    if (project.plugins.hasPlugin('java')) {
-//        // manifest.mainAttributes(provider: 'gradle')
-//        configurations {
-//            published
-//        }
-//        dependencies {
-//            testCompile 'junit:junit:4.7'
-//        }
-//
-//        task sourceJar(type: Jar) {
-//            from sourceSets.main.allSource
-//            classifier = 'sources'
-//        }
-//        task javadocJar(type: Jar, dependsOn: javadoc) {
-//            classifier = 'javadoc'
-//            from javadoc.destinationDir
-//        }
-//
-//        // Add the sourceJars to non-extractor modules
-//        artifacts {
-//            published sourceJar
-//            published javadocJar
-//        }
-//    }
-//}
 
 configurations {
     published
