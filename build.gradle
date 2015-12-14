@@ -24,14 +24,21 @@ project.version = currentVersion.toString()
 
 release {
     /* Let's check that everything is committed */
-//    doFirst {
-//        if (!project.git.status().isEmpty()) {
-//            throw new GradleException('You have uncommitted changes.')
-//        }
-//    }
+    doFirst {
+        if (!project.git.status().isEmpty()) {
+            throw new GradleException('You have uncommitted changes.')
+        }
+    }
 
     /* Ask user for a release version, suggesting some default variant. */
-    version = { console.prompt(' > Please enter release version:', project.version - '-SNAPSHOT') }
+    version = {
+        def (version, message) = deriveReleaseVersion()
+        console.prompt(
+"""
+Current feature version is ${project.version}
+Last Fix release was ${latestFix}
+> enter next release version:""", version)
+    }
     tag = { "r$project.release.version" }
     commitMessage = { "Release $project.release.version" }
 
@@ -53,19 +60,80 @@ release {
 //replace current release with the snapshot.
 commitNewVersion.doFirst {
 
-    //upload to artifactory ...
-
-
     def propFile = new File("gradle.properties")
-    def prop = propFile.text.replaceAll(project.release.version, "${project.release.next.version}-SNAPSHOT")
-    propFile.newWriter().withWriter {
-        it << prop
+    Properties props = new Properties()
+    propFile.withReader {
+        props.load(it)
+    }
+
+    String releaseVersion = project.release.next.version
+
+    def split = releaseVersion.split("\\.")
+    def version = "${split[0]}.${split[1]}"
+
+    props.put("currentVersion", (version + "-SNAPSHOT").toString())
+
+    println "Checking tags for version ${version}"
+
+    String ret = git.exec(project.projectDir, "tag")
+
+    println "Tags is ${ret}"
+
+    def tags = []
+
+    ret.eachLine {
+        if (it.startsWith("r${version}")) {
+            tags << it.trim()
+        }
+    }
+
+    println "There are ${tags.size()} fix tags for this feature version"
+
+    def fixes = tags.collect {
+        Integer.parseInt(it.split("\\.")[2])
+    }
+    int latest = 0
+    if (fixes.size() > 0) {
+        latest = fixes.sort().last()
+    }
+
+    latest++
+
+    println "The latest fix is ${latest}"
+
+    props.put("latestFix", "$latest".toString())
+
+    propFile.withWriter {
+        props.store(it, "")
     }
 }
 
+def deriveReleaseVersion() {
+    def branch = git.currentBranch(project.projectDir)
+    def suggested = project.version - '-SNAPSHOT'
+    def message
+
+    message = "feature release"
+    println "Performing Feature release"
+
+    def fix = Integer.parseInt(latestFix) + 1
+    def version = (project.version - '-SNAPSHOT')
+
+    suggested = "${version}.${fix}"
+
+    return [suggested, message]
+}
+
 def bumpVersion(String version) {
+    def branch = git.currentBranch(project.projectDir)
+
     def split = version.split("\\.")
-    return "${split[0]}.${split[1]}.${++Integer.parseInt(split[2])}"
+
+    if (branch == "master") {
+        return "${split[0]}.${++split[1]}"
+    } else {
+        return "${split[0]}.${split[1]}"
+    }
 }
 
 // ---------  Github release setup -----------
