@@ -3,11 +3,11 @@ package io.muoncore.extension.amqp.externalbroker
 import io.muoncore.Muon
 import io.muoncore.SingleTransportMuon
 import io.muoncore.channel.async.StandardAsyncChannel
-import io.muoncore.codec.MyTestClass
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.extension.amqp.AMQPMuonTransport
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue
+import io.muoncore.extension.amqp.MyTestClass
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import io.muoncore.memory.discovery.InMemDiscovery
