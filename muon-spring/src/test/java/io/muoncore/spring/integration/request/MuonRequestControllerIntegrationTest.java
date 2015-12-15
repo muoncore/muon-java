@@ -23,6 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +54,7 @@ public class MuonRequestControllerIntegrationTest {
     TestRequestController mockedTestRequestController = mock(TestRequestController.class);
 
     @Captor
-    private ArgumentCaptor<Class> typeCaptor;
+    private ArgumentCaptor<Type> typeCaptor;
     @Captor
     private ArgumentCaptor<HandlerPredicate> handlerPredicateCaptor;
     @Captor

@@ -20,8 +20,16 @@ import java.net.URISyntaxException;
 public interface RequestResponseClientProtocolStack extends
         TransportClientSource, CodecsSource, ServiceConfigurationSource {
 
+    default <R> MuonFuture<Response<R>> request(String uri, Class<R> responseType) {
+        return request(uri, (Type) responseType);
+    }
+
     default <R> MuonFuture<Response<R>> request(String uri, Type responseType) {
         return request(uri, new Object(), responseType);
+    }
+
+    default <X,R> MuonFuture<Response<R>> request(String uri, X payload, Class<R> responseType) {
+        return request(uri, payload, (Type) responseType);
     }
 
     default <X,R> MuonFuture<Response<R>> request(String uri, X payload, Type responseType) {
@@ -32,11 +40,19 @@ public interface RequestResponseClientProtocolStack extends
         }
     }
 
+    default <X,R> MuonFuture<Response<R>> request(URI uri, X payload, Class<R> responseType) {
+        return request(uri, payload, (Type) responseType);
+    }
+
     default <X,R> MuonFuture<Response<R>> request(URI uri, X payload, Type responseType) {
         if (!uri.getScheme().equals(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)) {
             throw new MuonException("Scheme is invalid: " + uri.getScheme() + ", requires scheme: " + RRPTransformers.REQUEST_RESPONSE_PROTOCOL);
         }
         return request(new Request<>(new RequestMetaData(uri.getPath(), getConfiguration().getServiceName(), uri.getHost()), payload), responseType);
+    }
+
+    default <X,R> MuonFuture<Response<R>> request(Request<X> event, Class<R> responseType) {
+        return request(event, (Type) responseType);
     }
 
     default <X,R> MuonFuture<Response<R>> request(Request<X> event, Type responseType) {

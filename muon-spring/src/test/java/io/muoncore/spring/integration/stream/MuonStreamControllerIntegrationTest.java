@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.List;
 
@@ -47,7 +48,7 @@ public class MuonStreamControllerIntegrationTest {
     @Captor
     private ArgumentCaptor<URI> uriCaptor;
     @Captor
-    private ArgumentCaptor<Class<Person>> typeCaptor;
+    private ArgumentCaptor<Type> typeCaptor;
     @Captor
     private ArgumentCaptor<Subscriber<Person>> subscriberCaptor;
 
