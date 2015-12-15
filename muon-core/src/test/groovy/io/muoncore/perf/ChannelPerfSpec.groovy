@@ -16,6 +16,8 @@ import spock.lang.Timeout
 import spock.lang.Unroll
 import spock.util.concurrent.PollingConditions
 
+import java.util.concurrent.TimeUnit
+
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
 @Timeout(10)
@@ -49,7 +51,7 @@ class ChannelPerfSpec extends Specification {
         }
 
         then:
-        requests*.get().size() == numTimes
+        requests*.get(15, TimeUnit.SECONDS).size() == numTimes
 
         cleanup:
         service1.shutdown()

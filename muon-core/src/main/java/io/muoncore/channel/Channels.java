@@ -9,10 +9,11 @@ import java.util.function.Function;
 
 public class Channels {
 
-    static Dispatcher WORK_DISPATCHER = Environment.newDispatcher(2048, 200, DispatcherType.THREAD_POOL_EXECUTOR);
+    static Dispatcher WORK_DISPATCHER = Environment.newDispatcher(32768, 200, DispatcherType.THREAD_POOL_EXECUTOR);
+    static Dispatcher EVENT_DISPATCHER = Environment.newDispatcher(32768, 200, DispatcherType.RING_BUFFER);
 
     public static <X,Y> Channel<X, Y> channel(String leftname, String rightname) {
-        return new StandardAsyncChannel<>(leftname, rightname, Environment.sharedDispatcher());
+        return new StandardAsyncChannel<>(leftname, rightname, EVENT_DISPATCHER);
     }
 
     /**
