@@ -1,2 +1,5 @@
 # Muon Java
-[![Build Status](http://teamcity.simplicityitself.com/app/rest/builds/buildType:(id:MuonCoreJava)/statusIcon)](http://teamcity.simplicityitself.com)
+
+Java Implementation of the Muon Microservices Toolkit.
+
+See [documentation](https://github.com/microserviceux/documentation)
