@@ -7,6 +7,7 @@ import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.reactivestream.ProtocolMessages
 import io.muoncore.protocol.reactivestream.ReactiveStreamSubscriptionRequest
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack
+import io.muoncore.transport.TransportEvents
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportMessage
 import io.muoncore.transport.TransportOutboundMessage
@@ -128,6 +129,48 @@ class ReactiveStreamClientProtocolSpec extends Specification {
         client.start()
         function(new TransportInboundMessage(
                 ProtocolMessages.NACK,
+                UUID.randomUUID().toString(),
+                "awesome",
+                "tombola",
+                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
+                [:],
+                "application/json",
+                [] as byte[],
+                ["application/json"],
+                TransportMessage.ChannelOperation.NORMAL))
+
+        then:
+        1 * sub.onError(_ as MuonException)
+    }
+
+    def "on Transport.ServiceNotFound received, calls subscriber.onSubscribe and subscriber error"() {
+        def function
+
+        def uri = new URI("")
+        def connection = Mock(ChannelConnection) {
+            receive(_) >> { args ->
+                function = new ChannelFunctionExecShimBecauseGroovyCantCallLambda(args[0])
+            }
+        }
+        def sub = Mock(Subscriber)
+        def codecs = Mock(Codecs) {
+            encode(_, _) >> new Codecs.EncodingResult([0] as byte[], "application/json")
+            getAvailableCodecs() >> []
+        }
+        def config = new AutoConfiguration(serviceName: "awesome")
+
+        def client = new ReactiveStreamClientProtocol(
+                uri,
+                connection,
+                sub,
+                Map,
+                codecs,
+                config)
+
+        when:
+        client.start()
+        function(new TransportInboundMessage(
+                TransportEvents.SERVICE_NOT_FOUND,
                 UUID.randomUUID().toString(),
                 "awesome",
                 "tombola",

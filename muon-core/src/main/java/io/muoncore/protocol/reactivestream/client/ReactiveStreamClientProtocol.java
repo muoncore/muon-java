@@ -7,6 +7,7 @@ import io.muoncore.exception.MuonException;
 import io.muoncore.protocol.reactivestream.ProtocolMessages;
 import io.muoncore.protocol.reactivestream.ReactiveStreamSubscriptionRequest;
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack;
+import io.muoncore.transport.TransportEvents;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 import org.reactivestreams.Subscriber;
@@ -80,6 +81,9 @@ public class ReactiveStreamClientProtocol<T> {
                 break;
             case ProtocolMessages.NACK:
                 subscriber.onError(new MuonException("Stream does not exist"));
+                break;
+            case TransportEvents.SERVICE_NOT_FOUND:
+                subscriber.onError(new MuonException("Service " + msg.getSourceServiceName() + " does not exist"));
                 break;
             case ProtocolMessages.DATA:
                 subscriber.onNext(codecs.decode(msg.getPayload(), msg.getContentType(), type));
