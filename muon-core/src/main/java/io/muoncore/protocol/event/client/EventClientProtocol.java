@@ -3,14 +3,16 @@ package io.muoncore.protocol.event.client;
 import io.muoncore.Discovery;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.protocol.event.Event;
-import io.muoncore.protocol.requestresponse.Request;
-import io.muoncore.protocol.requestresponse.RequestMetaData;
-import io.muoncore.protocol.requestresponse.Response;
+import io.muoncore.protocol.event.EventProtocolMessages;
+import io.muoncore.transport.TransportEvents;
+import io.muoncore.transport.TransportInboundMessage;
+import io.muoncore.transport.TransportOutboundMessage;
 
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -21,15 +23,38 @@ public class EventClientProtocol<X> {
     public EventClientProtocol(
             AutoConfiguration configuration,
             Discovery discovery,
-            ChannelConnection<Response<Map>, Event<X>> leftChannelConnection,
-            ChannelConnection<Request<Event<X>>, Response<Map>> rightChannelConnection) {
+            Codecs codecs,
+            ChannelConnection<EventResult, Event<X>> leftChannelConnection,
+            ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection) {
 
         rightChannelConnection.receive( message -> {
             if (message == null) {
                 leftChannelConnection.shutdown();
                 return;
             }
-            leftChannelConnection.send(message);
+
+            EventResult result;
+
+            switch(message.getType()) {
+                case TransportEvents.SERVICE_NOT_FOUND:
+                    result = new EventResult(EventResult.EventResultStatus.FAILED);
+                    break;
+
+                case TransportEvents.PROTOCOL_NOT_FOUND:
+                    result = new EventResult(EventResult.EventResultStatus.FAILED);
+                    break;
+
+                default:
+                    result = new EventResult(EventResult.EventResultStatus.PERSISTED);
+            }
+
+            //TODO, error handling
+            /*
+              timeout?
+             */
+
+            leftChannelConnection.send(result);
+            leftChannelConnection.shutdown();
         });
 
         leftChannelConnection.receive(event -> {
@@ -40,14 +65,23 @@ public class EventClientProtocol<X> {
             Optional<ServiceDescriptor> eventService = discovery.findService( service -> service.getTags().contains("eventstore"));
 
             if (!eventService.isPresent()) {
-                leftChannelConnection.send(new Response<>(404, new HashMap<>()));
+                //TODO, a failure, no event store available.
+                leftChannelConnection.send(new EventResult(EventResult.EventResultStatus.FAILED));
             } else {
-                Request<Event<X>> msg = new Request<>(
-                        new RequestMetaData(
-                                "/",
-                                configuration.getServiceName(),
-                                eventService.get().getIdentifier()), event);
-                msg.setId(event.getId());
+
+                Codecs.EncodingResult result = codecs.encode(event, eventService.get().getCodecs());
+
+                TransportOutboundMessage msg = new TransportOutboundMessage(
+                        event.getEventType(),
+                        event.getId(),
+                        eventService.get().getIdentifier(),
+                        configuration.getServiceName(),
+                        EventProtocolMessages.PROTOCOL,
+                        new HashMap<>(),
+                        result.getContentType(),
+                        result.getPayload(),
+                        Arrays.asList(codecs.getAvailableCodecs()));
+
                 rightChannelConnection.send(msg);
             }
         });

@@ -11,9 +11,6 @@ import io.muoncore.exception.MuonException;
 import io.muoncore.future.MuonFuture;
 import io.muoncore.protocol.event.Event;
 import io.muoncore.protocol.reactivestream.client.ReactiveStreamClientProtocolStack;
-import io.muoncore.protocol.requestresponse.Request;
-import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocol;
 import io.muoncore.transport.TransportClientSource;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
@@ -22,7 +19,6 @@ import org.reactivestreams.Subscriber;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
 import java.util.Optional;
 
 public interface EventClientProtocolStack extends
@@ -54,29 +50,22 @@ public interface EventClientProtocolStack extends
         }
     }
 
-    default <X> MuonFuture<Response<Map>> event(Event<X> event) {
+    default <X> MuonFuture<EventResult> event(Event<X> event) {
 
-        Channel<Event<X>, Response<Map>> api2eventproto = Channels.channel("eventapi", "eventproto");
-        Channel<Request<Event<X>>, Response<Map>> event2rrp = Channels.channel("eventproto", "rrpproto");
-        Channel<TransportOutboundMessage, TransportInboundMessage> rrp2transport = Channels.channel("rrpproto", "transport");
+        Channel<Event<X>, EventResult> api2eventproto = Channels.channel("eventapi", "eventproto");
+        Channel<TransportOutboundMessage, TransportInboundMessage> rrp2transport = Channels.channel("eventproto", "transport");
 
-        ChannelFutureAdapter<Response<Map>, Event<X>> adapter =
+        ChannelFutureAdapter<EventResult, Event<X>> adapter =
                 new ChannelFutureAdapter<>(api2eventproto.left());
 
         new EventClientProtocol<>(
                 getConfiguration(),
                 getDiscovery(),
+                getCodecs(),
                 api2eventproto.right(),
-                event2rrp.left());
+                rrp2transport.left());
 
-        new RequestResponseClientProtocol<>(
-                getConfiguration().getServiceName(),
-                event2rrp.right(),
-                rrp2transport.left(), Map.class, getCodecs());
-
-        Channels.connectAndTransform(rrp2transport.right(), getTransportClient().openClientChannel(),
-                transportOutboundMessage -> transportOutboundMessage.cloneWithProtocol("event"),
-                transportInboundMessage -> transportInboundMessage);
+        Channels.connect(rrp2transport.right(), getTransportClient().openClientChannel());
 
         return adapter.request(event);
     }

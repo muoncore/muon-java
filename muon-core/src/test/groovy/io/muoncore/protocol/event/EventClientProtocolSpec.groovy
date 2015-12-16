@@ -2,18 +2,23 @@ package io.muoncore.protocol.event
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.Channels
+import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.event.client.EventClientProtocol
-import io.muoncore.protocol.requestresponse.Request
+import io.muoncore.transport.TransportOutboundMessage
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
 class EventClientProtocolSpec extends Specification {
 
-    def "protocol sends a Request on for event Event"() {
+    def "protocol sends an event on for event Event"() {
 
         def discovery = Mock(Discovery) {
             findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], [], []))
+        }
+        def codecs = Mock(Codecs) {
+            encode(_, _) >> new Codecs.EncodingResult(null, null)
+            getAvailableCodecs() >> []
         }
 
         def leftChannel = Channels.channel("left", "right")
@@ -27,7 +32,7 @@ class EventClientProtocolSpec extends Specification {
 
         def proto = new EventClientProtocol(
                 new AutoConfiguration(serviceName: "tombola"),
-                discovery,
+                discovery, codecs,
                 leftChannel.right(), rightChannel.left())
 
         when:
@@ -41,7 +46,7 @@ class EventClientProtocolSpec extends Specification {
 
         then:
         new PollingConditions().eventually {
-            ret instanceof Request
+            ret instanceof TransportOutboundMessage
             ret.id == "awesome"
         }
     }
