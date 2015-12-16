@@ -158,15 +158,37 @@ ext {
 }
 
 subprojects { subproject ->
-    if (subproject.name in ["muon-tck", "doc"]) return
     apply plugin: 'groovy'
-    apply plugin: 'maven'
-    apply plugin: 'maven-publish'
-    apply plugin: "com.jfrog.artifactory"
 
     group = "io.muoncore"
     version = globalVersion.toString()
 
+    dependencies {
+        testCompile "org.codehaus.groovy:groovy-all:2.4.1"
+        testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
+        testCompile 'cglib:cglib:2.2.2'
+    }
+
+    compileJava {
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
+    }
+
+    compileTestJava {
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
+    }
+
+    repositories {
+        jcenter()
+    }
+}
+
+subprojects { subproject ->
+    if (subproject.name in ["muon-examples", "doc"]) return
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: "com.jfrog.artifactory"
 
     publishing {
         publications {
@@ -196,27 +218,6 @@ subprojects { subproject ->
                 repoKey = 'repo'  //The Artifactory (preferably virtual) repository key to resolve from
             }
         }
-    }
-
-
-    dependencies {
-        compile "org.codehaus.groovy:groovy-all:2.4.1"
-        testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
-        testCompile 'cglib:cglib:2.2.2'
-    }
-
-    compileJava {
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
-    }
-
-    compileTestJava {
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
-    }
-
-    repositories {
-        jcenter()
     }
 
     if (project.plugins.hasPlugin('java')) {
@@ -261,12 +262,10 @@ project('muon-core') {
     }
 }
 
-project('muon-tck') {
-    apply plugin: 'application'
+project('muon-examples') {
+    apply plugin: 'groovy'
 
     description = 'Muon TCK Implementation for testing the validity of this Muon library'
-
-    mainClassName = "com.simplicity.services.TCKService"
 
     repositories {
         maven { url 'http://repo.spring.io/libs-milestone' }

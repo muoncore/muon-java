@@ -1,0 +1,45 @@
+
+= Muon Java
+
+Muon Java is the implementation of the Muon microservices toolkit for the Java platform. It enables the easy construction
+of microservices that can communicate with other Muon compatible services.
+
+== A Microservice based system in 5 minutes
+
+The quickest way to start a new Muon Java Microservice is to use _Spring Boot_ and the _Spring CLI_.
+
+You can install this by following the instructions at spring.io or using _SDK Man_
+
+```
+curl -s get.sdkman.io | bash
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+sdk install springboot
+```
+
+You can then create a new Spring Boot based application as a Groovy script.
+
+```
+include::../build.gradle[lines=0-5]
+```
+
+
+== Service Discovery
+
+
+== Communication Protocols and APIs
+
+=== Reactive RPC
+
+=== Reactive Streams
+
+=== Event Sourcing
+
+
+== Spring Support
+
+== Encoding
+
+== Wiretap
+
+== Transports
