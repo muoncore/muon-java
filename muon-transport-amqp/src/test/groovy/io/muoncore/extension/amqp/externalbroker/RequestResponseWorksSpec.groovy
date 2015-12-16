@@ -191,7 +191,7 @@ class RequestResponseWorksSpec extends Specification {
         def channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection)
 
         def svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceQueue, channelFactory, discovery)
+                "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
 
         def config = new AutoConfiguration(serviceName:serviceName, aesEncryptionKey: "abcde12345678906")
         def muon = new SingleTransportMuon(config, discovery, svc1)
