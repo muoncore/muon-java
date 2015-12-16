@@ -20,7 +20,7 @@ sdk install springboot
 You can then create a new Spring Boot based application as a Groovy script.
 
 ```
-include::../build.gradle[lines=0-5]
+include::src/main/groovy/io/muoncore/example/Introduction.groovy[lines=5,6,18]
 ```
 
 
@@ -30,6 +30,16 @@ include::../build.gradle[lines=0-5]
 == Communication Protocols and APIs
 
 === Reactive RPC
+
+==== Simple RPC
+
+
+==== Making it Reactive
+
+==== Batch handled RPC
+
+
+
 
 === Reactive Streams
 
