@@ -68,7 +68,7 @@ public class SingleTransportMuon implements Muon, ServerRegistrarSource {
 
         initServerStacks(stacks);
 
-        transport.start(stacks);
+        transport.start(discovery, stacks);
 
         discovery.advertiseLocalService(new ServiceDescriptor(
                 configuration.getServiceName(),

@@ -1,5 +1,6 @@
 package io.muoncore.transport;
 
+import io.muoncore.Discovery;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.exception.NoSuchServiceException;
@@ -11,7 +12,9 @@ public interface MuonTransport {
 
     void shutdown();
 
-    void start(ServerStacks serverStacks) throws MuonTransportFailureException;
+    void start(
+            Discovery discovery,
+            ServerStacks serverStacks) throws MuonTransportFailureException;
 
     String getUrlScheme();
 

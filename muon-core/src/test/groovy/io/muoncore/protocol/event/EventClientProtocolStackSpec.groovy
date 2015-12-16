@@ -2,12 +2,13 @@ package io.muoncore.protocol.event
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
+import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.codec.Codecs
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.event.client.EventClientProtocolStack
-import io.muoncore.protocol.requestresponse.Response
+import io.muoncore.protocol.event.client.EventResult
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportMessage
 import io.muoncore.transport.client.TransportClient
@@ -19,6 +20,8 @@ import spock.util.concurrent.PollingConditions
 class EventClientProtocolStackSpec extends Specification {
 
     def "Stack converts events to transport messages"() {
+
+        StandardAsyncChannel.echoOut=true
 
         def capturedFunction
         def config = new AutoConfiguration(serviceName: "tombola")
@@ -81,7 +84,8 @@ class EventClientProtocolStackSpec extends Specification {
         capturedFunction != null
         1 * clientChannel.send(_)
         new PollingConditions().eventually {
-            future.get() instanceof Response
+            future.get() instanceof EventResult
+            future.get().status == EventResult.EventResultStatus.PERSISTED
         }
     }
 
@@ -168,6 +172,6 @@ class EventClientProtocolStackSpec extends Specification {
 
         then:
         response
-        response.status == 404
+        response.status == EventResult.EventResultStatus.FAILED
     }
 }

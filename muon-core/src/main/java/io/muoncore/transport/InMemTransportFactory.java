@@ -39,8 +39,4 @@ public class InMemTransportFactory implements MuonTransportFactory {
         this.autoConfiguration = autoConfiguration;
     }
 
-    @Override
-    public void setDiscovery(Discovery discovery) {
-        
-    }
 }

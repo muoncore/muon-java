@@ -2,9 +2,11 @@ package io.muoncore.protocol.requestresponse.client;
 
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
+import io.muoncore.protocol.requestresponse.RRPEvents;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.Response;
+import io.muoncore.transport.TransportEvents;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
@@ -32,8 +34,18 @@ public class RequestResponseClientProtocol<X,R> {
                leftChannelConnection.shutdown();
                 return;
             }
-            leftChannelConnection.send(
-                    RRPTransformers.toResponse(message, codecs, responseType));
+
+            switch(message.getType()) {
+                case RRPEvents.RESPONSE:
+                    leftChannelConnection.send(
+                            RRPTransformers.toResponse(message, codecs, responseType));
+                    break;
+                case TransportEvents.SERVICE_NOT_FOUND:
+                    leftChannelConnection.send(
+                            new Response<>(
+                            404,
+                            null));
+            }
         });
 
         leftChannelConnection.receive(request -> {

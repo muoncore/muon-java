@@ -47,7 +47,7 @@ public class RRPTransformers {
         Codecs.EncodingResult payload = codecs.encode(request.getPayload(), acceptEncodings);
 
         return new TransportOutboundMessage(
-                "requestMade",
+                RRPEvents.REQUEST,
                 request.getId(),
                 request.getMetaData().getTargetService(),
                 thisService,
@@ -65,7 +65,7 @@ public class RRPTransformers {
         Codecs.EncodingResult payload = codecs.encode(response.getPayload(), acceptEncodings);
 
         return new TransportOutboundMessage(
-                "responseSent",
+                RRPEvents.RESPONSE,
                 response.getId(),
                 targetService,
                 thisService,

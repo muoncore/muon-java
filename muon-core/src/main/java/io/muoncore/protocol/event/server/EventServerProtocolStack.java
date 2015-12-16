@@ -8,6 +8,7 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.descriptors.ProtocolDescriptor;
 import io.muoncore.protocol.ServerProtocolStack;
 import io.muoncore.protocol.event.Event;
+import io.muoncore.protocol.event.EventProtocolMessages;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
@@ -38,6 +39,7 @@ public class EventServerProtocolStack implements
         api2.left().receive( message -> {
             Event ev = codecs.decode(message.getPayload(), message.getContentType(), Event.class);
             handler.apply(ev);
+            //api2.left().send();
         });
 
         return api2.right();
@@ -47,9 +49,9 @@ public class EventServerProtocolStack implements
     public ProtocolDescriptor getProtocolDescriptor() {
 
         return new ProtocolDescriptor(
-                "event",
+                EventProtocolMessages.PROTOCOL,
                 "Event Sink Protocol",
-                "Provides a discoverable sink for events to flow into without needing  explicit service endpoints",
+                "Provides a discoverable sink for events to flow into without needing explicit service endpoints",
                 Collections.emptyList());
     }
 }

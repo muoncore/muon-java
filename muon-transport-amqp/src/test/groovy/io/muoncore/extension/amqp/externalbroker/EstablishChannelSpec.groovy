@@ -33,8 +33,8 @@ class EstablishChannelSpec extends Specification {
         AMQPMuonTransport svc1 = createTransport("service1")
         AMQPMuonTransport svc2 = createTransport("tombola")
 
-        svc2.start(serverStacks2)
-        svc1.start(serverStacks1)
+        svc2.start(discovery, serverStacks2)
+        svc1.start(discovery, serverStacks1)
 
         when:
         def channel = svc1.openClientChannel("tombola", "requestresponse")
@@ -66,7 +66,7 @@ class EstablishChannelSpec extends Specification {
         def channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection)
 
         def svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceQueue, channelFactory, discovery)
+                "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
         svc1
     }
 }

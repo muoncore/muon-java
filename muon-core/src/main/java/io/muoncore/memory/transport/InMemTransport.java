@@ -1,6 +1,7 @@
 package io.muoncore.memory.transport;
 
 import com.google.common.eventbus.EventBus;
+import io.muoncore.Discovery;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.exception.MuonTransportFailureException;
@@ -32,7 +33,7 @@ public class InMemTransport implements MuonTransport {
     }
 
     @Override
-    public void start(ServerStacks serverStacks) throws MuonTransportFailureException {
+    public void start(Discovery discovery, ServerStacks serverStacks) throws MuonTransportFailureException {
         this.inMemServer = new InMemServer(configuration.getServiceName(), bus, serverStacks);
     }
 

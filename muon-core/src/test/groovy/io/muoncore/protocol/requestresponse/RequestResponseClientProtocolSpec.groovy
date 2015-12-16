@@ -2,6 +2,7 @@ package io.muoncore.protocol.requestresponse
 import io.muoncore.channel.Channels
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocol
+import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportOutboundMessage
 import reactor.Environment
 import spock.lang.Specification
@@ -35,6 +36,46 @@ class RequestResponseClientProtocolSpec extends Specification {
         new PollingConditions().eventually {
             ret instanceof TransportOutboundMessage
             ret.protocol == RRPTransformers.REQUEST_RESPONSE_PROTOCOL
+        }
+    }
+    def "when recieving a ServiceNotFound, returns a 404 response"() {
+
+        Environment.initializeIfEmpty()
+        Response ret
+
+        def leftChannel = Channels.channel("left", "right")
+        def rightChannel = Channels.channel("left", "right")
+
+        leftChannel.left().receive({
+            ret = it
+        })
+
+        def proto = new RequestResponseClientProtocol(
+                "tombola",
+                leftChannel.right(),
+                rightChannel.left(),
+                Map,
+                new JsonOnlyCodecs())
+
+        when:
+        rightChannel.right().send(TransportInboundMessage.serviceNotFound(
+                new TransportOutboundMessage(
+                        "Meh",
+                        "",
+                        "simples",
+                        "tombola",
+                        RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
+                        [:],
+                        "",
+                        null,
+                        null
+                )
+        ))
+
+        then:
+        new PollingConditions().eventually {
+            ret instanceof Response
+            ret.status==404
         }
     }
 }

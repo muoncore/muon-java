@@ -62,8 +62,8 @@ class ChannelThroughputSpec extends Specification {
 
         AMQPMuonTransport svc2 = createTransport("tombola")
 
-        svc2.start(stacks)
-        svc1.start(serverStacks1)
+        svc2.start(discovery, stacks)
+        svc1.start(discovery, serverStacks1)
 
         sleep(3500)
 
@@ -122,7 +122,7 @@ class ChannelThroughputSpec extends Specification {
         def channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection)
 
         def svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceQueue, channelFactory, discovery)
+                "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
         svc1
     }
 }
