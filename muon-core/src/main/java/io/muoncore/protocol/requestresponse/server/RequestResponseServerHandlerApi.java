@@ -1,5 +1,7 @@
 package io.muoncore.protocol.requestresponse.server;
 
+import java.lang.reflect.Type;
+
 public interface RequestResponseServerHandlerApi extends
         RequestResponseHandlersSource {
 
@@ -13,6 +15,13 @@ public interface RequestResponseServerHandlerApi extends
             final HandlerPredicate predicate,
             final Class<T> requestType,
             final Handler<T> handler) {
+        handleRequest(predicate, (Type) requestType, handler);
+    }
+
+    default <T> void handleRequest(
+            final HandlerPredicate predicate,
+            final Type requestType,
+            final Handler<T> handler) {
         getRequestResponseHandlers().addHandler(new RequestResponseServerHandler<T, Object>() {
             @Override
             public HandlerPredicate getPredicate() {
@@ -25,7 +34,7 @@ public interface RequestResponseServerHandlerApi extends
             }
 
             @Override
-            public Class getRequestType() {
+            public Type getRequestType() {
                 return requestType;
             }
         });

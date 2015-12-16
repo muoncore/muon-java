@@ -5,25 +5,16 @@ import io.muoncore.codec.MuonCodec;
 import io.muoncore.exception.MuonException;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
+import java.lang.reflect.Type;
 
 public class GsonCodec implements MuonCodec {
 
     private Gson gson = new Gson();
 
     @Override
-    public <T> T decode(byte[] encodedData, Class<T> type) {
+    public <T> T decode(byte[] encodedData, Type type) {
         try {
             return gson.fromJson(new String(encodedData, "UTF8"), type);
-        } catch (UnsupportedEncodingException e) {
-            throw new MuonException("Unable to read byte array", e);
-        }
-    }
-
-    @Override
-    public Map decode(byte[] encodedData) {
-        try {
-            return gson.fromJson(new String(encodedData, "UTF8"), Map.class);
         } catch (UnsupportedEncodingException e) {
             throw new MuonException("Unable to read byte array", e);
         }

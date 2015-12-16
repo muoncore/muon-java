@@ -3,17 +3,18 @@ package io.muoncore.spring.methodinvocation.parameterhandlers;
 import io.muoncore.protocol.requestresponse.server.RequestWrapper;
 
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
-public class DecodedContentEventArgumentTransformer implements MethodArgumentTransformer {
+public class PayloadArgumentTransformer implements MethodArgumentTransformer {
     private Parameter parameter;
 
-    public DecodedContentEventArgumentTransformer(Parameter parameter) {
+    public PayloadArgumentTransformer(Parameter parameter) {
         this.parameter = parameter;
     }
 
     @Override
-    public Class<?> getParameterType() {
-        return parameter.getType();
+    public Type getParameterType() {
+        return parameter.getParameterizedType();
     }
 
     @Override

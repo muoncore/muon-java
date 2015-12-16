@@ -14,7 +14,7 @@ public class ResourceMethodArgumentTransformerFactory {
         } else if (parameter.isAnnotationPresent(io.muoncore.spring.annotations.parameterhandlers.Parameter.class)) {
             return new ParameterEventArgumentTransformer(parameter);
         } else {
-            return new DecodedContentEventArgumentTransformer(parameter);
+            return new PayloadArgumentTransformer(parameter);
         }
     }
 }

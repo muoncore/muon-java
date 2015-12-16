@@ -1,4 +1,4 @@
-package io.muoncore.codec
+package io.muoncore.extension.amqp
 
 class MyTestClass {
   String someValue

@@ -7,6 +7,7 @@ import io.muoncore.config.AutoConfiguration
 import io.muoncore.extension.amqp.AMQPMuonTransport
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue
+import io.muoncore.extension.amqp.MyTestClass
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import reactor.Environment
@@ -15,6 +16,7 @@ import spock.lang.Specification
 
 import java.util.concurrent.TimeUnit
 
+import static io.muoncore.codec.types.MuonCodecTypes.listOf
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
 @IgnoreIf({ System.getenv("BUILD_NUMBER") })
@@ -49,6 +51,46 @@ class RequestResponseWorksSpec extends Specification {
         cleanup:
         svc1.shutdown()
         svc2.shutdown()
+    }
+
+    def "request response protocol supports lists"() {
+        def svc1 = createMuon("simples")
+        def svc2 = createMuon("tombolana")
+
+        List<MyTestClass> expectedList = [
+                new MyTestClass(someValue: "v1", someOtherValue: 1),
+                new MyTestClass(someValue: "v2", someOtherValue: 2)
+        ]
+
+        List<MyTestClass> returnList = [
+                new MyTestClass(someValue: "v3", someOtherValue: 3),
+                new MyTestClass(someValue: "v4", someOtherValue: 4)
+        ]
+
+        List<MyTestClass> serviceReceivedList = null
+
+        svc2.handleRequest(all(), listOf(io.muoncore.codec.MyTestClass)) {
+            serviceReceivedList = it.request.payload
+            assert it.request.payload == expectedList
+
+            it.ok(returnList)
+        }
+
+        sleep(5000)
+
+        when:
+        def response = svc1.request("request://tombolana/hello", expectedList, listOf(MyTestClass)).get(1000, TimeUnit.MILLISECONDS)
+
+        then:
+        serviceReceivedList == expectedList
+        response != null
+        response.status == 200
+        response.payload == returnList
+
+        cleanup:
+        svc1.shutdown()
+        svc2.shutdown()
+
     }
 
     def "service A can be called by B and C concurrently"() {
@@ -156,4 +198,5 @@ class RequestResponseWorksSpec extends Specification {
 
         muon
     }
+
 }

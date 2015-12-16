@@ -1,6 +1,7 @@
 package io.muoncore.spring.methodinvocation.parameterhandlers;
 
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
 public class PassThroughArgumentTransformer implements MethodArgumentTransformer {
     private Parameter parameter;
@@ -15,7 +16,7 @@ public class PassThroughArgumentTransformer implements MethodArgumentTransformer
     }
 
     @Override
-    public Class<?> getParameterType() {
-        return parameter.getType();
+    public Type getParameterType() {
+        return parameter.getParameterizedType();
     }
 }

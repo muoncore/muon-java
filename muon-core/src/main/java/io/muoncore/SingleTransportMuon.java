@@ -22,6 +22,7 @@ import io.muoncore.transport.client.SingleTransportClient;
 import io.muoncore.transport.client.TransportClient;
 import reactor.Environment;
 
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -108,7 +109,7 @@ public class SingleTransportMuon implements Muon, ServerRegistrarSource {
             }
 
             @Override
-            public Class<Map> getRequestType() {
+            public Type getRequestType() {
                 return Map.class;
             }
         });

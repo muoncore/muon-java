@@ -13,6 +13,9 @@ import org.mockito.Mockito;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static io.muoncore.spring.PersonBuilder.aDefaultPerson;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -86,6 +89,31 @@ public class RequestResponseE2ETest {
         verify(testControllerDelegatingMock, times(1)).findPerson("Thomas", 43);
 
         verifyNoMoreInteractions(testControllerDelegatingMock);
+    }
+
+    @Test
+    public void performsRequestOfListOfObjects() throws Exception {
+        final List<Person> personList = new ArrayList<>();
+        personList.add(aDefaultPerson().withName("Thomas").build());
+        personList.add(aDefaultPerson().withName("Markus").build());
+        when(testControllerDelegatingMock.getPeople()).thenReturn(personList);
+
+        List<Person> people = testRequestRepository.getPeople();
+
+        verify(testControllerDelegatingMock, timeout(100).only()).getPeople();
+
+        assertThat(people, equalTo(personList));
+    }
+
+    @Test
+    public void passesListOfObjectsAsParam() throws Exception {
+        final List<Person> people = new ArrayList<>();
+        people.add(aDefaultPerson().withName("Thomas").build());
+        people.add(aDefaultPerson().withName("Markus").build());
+
+        testRequestRepository.replacePeople(people);
+
+        verify(testControllerDelegatingMock, timeout(100).only()).replacePeople(people);
     }
 
 }

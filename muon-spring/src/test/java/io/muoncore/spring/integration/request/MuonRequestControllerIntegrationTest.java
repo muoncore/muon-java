@@ -23,6 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class MuonRequestControllerIntegrationTest {
 
     public static final Person PETER = new Person(123l, "Peter", 23);
+    public static final int TEST_CONTROLLER_ANNOTATED_METHODS = 5;
 
     @Autowired
     private Muon muon;
@@ -52,7 +54,7 @@ public class MuonRequestControllerIntegrationTest {
     TestRequestController mockedTestRequestController = mock(TestRequestController.class);
 
     @Captor
-    private ArgumentCaptor<Class> typeCaptor;
+    private ArgumentCaptor<Type> typeCaptor;
     @Captor
     private ArgumentCaptor<HandlerPredicate> handlerPredicateCaptor;
     @Captor
@@ -108,7 +110,7 @@ public class MuonRequestControllerIntegrationTest {
     }
 
     private void verifyMuonQuerySetupProcess() {
-        verify(muon, times(3)).handleRequest(handlerPredicateCaptor.capture(), typeCaptor.capture(), handlerCaptor.capture());
+        verify(muon, times(TEST_CONTROLLER_ANNOTATED_METHODS)).handleRequest(handlerPredicateCaptor.capture(), typeCaptor.capture(), handlerCaptor.capture());
     }
 
 }

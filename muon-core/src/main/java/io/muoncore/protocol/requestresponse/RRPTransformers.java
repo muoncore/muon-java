@@ -4,6 +4,7 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,14 +13,14 @@ public class RRPTransformers {
 
     public final static String REQUEST_RESPONSE_PROTOCOL = "request";
 
-    public static <T> RequestMetaData toRequestMetaData(TransportInboundMessage msg) {
+    public static RequestMetaData toRequestMetaData(TransportInboundMessage msg) {
         return new RequestMetaData(
                 msg.getMetadata().get(Request.URL),
                 msg.getSourceServiceName(),
                 msg.getTargetServiceName());
     }
 
-    public static <T> Request toRequest(TransportInboundMessage msg, Codecs codecs, Class<T> type) {
+    public static Request toRequest(TransportInboundMessage msg, Codecs codecs, Type type) {
         Request ret = new Request<>(
                 new RequestMetaData(
                         msg.getMetadata().get(Request.URL),
@@ -31,7 +32,7 @@ public class RRPTransformers {
         return ret;
     }
 
-    public static <T> Response<T> toResponse(TransportInboundMessage msg, Codecs codecs, Class<T> type) {
+    public static <T> Response<T> toResponse(TransportInboundMessage msg, Codecs codecs, Type type) {
         return new Response<>(
                 Integer.parseInt(msg.getMetadata().get(Response.STATUS)),
                 codecs.decode(msg.getPayload(),

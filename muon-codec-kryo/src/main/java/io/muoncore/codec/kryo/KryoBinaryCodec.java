@@ -4,25 +4,24 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import io.muoncore.codec.MuonCodec;
+import io.muoncore.exception.MuonException;
 
-import java.util.Map;
+import java.lang.reflect.Type;
 
 public class KryoBinaryCodec implements MuonCodec {
 
     @Override
-    public <T> T decode(byte[] encodedData, Class<T> type) {
+    public <T> T decode(byte[] encodedData, Type type) {
+        if (!(type instanceof Class)) {
+            throw new MuonException("Kryo codec does not support compound or parameterized types. Use plain classes instead");
+        }
         Kryo kryo = new Kryo();
 
         Input input = new Input(encodedData);
-        T decodedObject = kryo.readObject(input, type);
+        T decodedObject = kryo.readObject(input, (Class<T>) type);
         input.close();
 
         return decodedObject;
-    }
-
-    @Override
-    public Map decode(byte[] encodedData) {
-        throw new IllegalArgumentException("KryoCodec cannot decode to generic Map");
     }
 
     @Override

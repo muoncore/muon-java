@@ -75,12 +75,12 @@ public class TCKService {
 
                 String url = (String) queryEvent.getRequest().getPayload().get("resource");
 
-                Response<Map> rsult = null;
+                Response<Map> result = null;
                 try {
-                    rsult = muon.request(url, Map.class).get();
+                    result = muon.request(url, Map.class).get();
                     storedata.clear();
-                    storedata.putAll(rsult.getPayload());
-                    queryEvent.ok(rsult.getPayload());
+                    storedata.putAll(result.getPayload());
+                    queryEvent.ok(result.getPayload());
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }

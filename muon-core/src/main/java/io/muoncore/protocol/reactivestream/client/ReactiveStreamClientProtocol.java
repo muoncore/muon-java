@@ -13,6 +13,7 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.*;
@@ -21,7 +22,7 @@ public class ReactiveStreamClientProtocol<T> {
 
     private ChannelConnection<TransportOutboundMessage, TransportInboundMessage> transportConnection;
     private Subscriber<T> subscriber;
-    private Class<T> type;
+    private Type type;
     private URI uri;
     private AutoConfiguration configuration;
     private Codecs codecs;
@@ -29,7 +30,7 @@ public class ReactiveStreamClientProtocol<T> {
     public ReactiveStreamClientProtocol(URI uri,
                                         ChannelConnection<TransportOutboundMessage, TransportInboundMessage> transportConnection,
                                         Subscriber<T> subscriber,
-                                        Class<T> type,
+                                        Type type,
                                         Codecs codecs,
                                         AutoConfiguration configuration) {
         this.uri = uri;
