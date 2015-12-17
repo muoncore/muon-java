@@ -1,0 +1,175 @@
+:source-highlighter: pygments
+
+= Muon Java
+
+Muon Java is the implementation of the Muon microservices toolkit for the Java platform. It enables you to easily build
+microservices in many languages that have richer, more performant and fully reactive communication semantics.
+
+Go from days to minutes.
+
+== A Microservice based system in 5 minutes
+
+The quickest way to start a new Muon Java Microservice is to use _Spring Boot_ and the _Spring CLI_.
+
+You can install this by following the instructions at spring.io or using _SDK Man_
+
+```
+curl -s get.sdkman.io | bash
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+sdk install springboot
+```
+
+You can then create a new Spring Boot based application as a Groovy script.
+
+[source,groovy,indent=0]
+----
+include::src/main/groovy/io/muoncore/example/Introduction.groovy[lines=7..22]
+----
+(1) TODO, make these work ok.
+
+[source,groovy,indent=0]
+----
+include::src/main/groovy/io/muoncore/example/Introduction2.groovy[lines=7..22]
+----
+
+These will run in production, as independent services and require no underlying platform or runtime.
+
+== Service Discovery
+
+When distributing computation in the way that Microservices encourage you to, there is a deep need to actually go and find
+all the pieces currently are. Tracking all of the service instances in your distributed system, understand what logical services
+are actually available, and what they are capable of is a necessary and easily overlooked piece of the puzzle.
+
+Done properly, service discovery gives you the ability to change as needed, and to move and change your services without
+having to update every other service to match. Muon takes the position that _availability_ (in the CAP theorum sense) is more
+likely to be systemically useful than _consistency_. Not all service discovery systems take this same view.
+
+Service discovery is baked into the core of Muon, and every implementation has a similar looking subsystem. This allows you
+to build services that are _autonomous_ and _self healing_. As dependencies of a service start and stop, Muon can tell your application,
+and it can react accordingly.
+
+This is accessed in Muon Java by the ```Discovery``` object. This is accessible on the Muon and gives access to listings
+of the existing services and a ```ServiceDescriptor``` for each remote service that is currently accessible by the local service.
+
+The Discovery system has most effect when you access the various communication APIs that Muon provides. Each will generally accept
+a URL of some kind. The 'host' within that url is a logical service identifier, not a DNS name. This identifier is declared
+ by the service itself and then registered in the backing discovery service. The actual service discovery
+ implementation used depends on the configuration.
+
+== Communication Protocols and APIs
+
+Muon is a polyglot toolkit for event based communication. Internally, it uses Communicating Sequential Processes to create and
+manage flows of data between networks of services in a scalable, performant and reactive manner.
+
+This underlying model is very powerful and flexible. TO make this easy to pick up and use, we have defined a series of _protocols_,
+well known event based exchanges of data across the CSP web that gives semantics that are well known and understood by users.
+
+For the protocol to enable communication between services, it must be implemented on both sides of a connection and so
+ we have defined a common set of core protocols that are implemented in every Muon library.
+
+It is straightforward to add your own event protocols to give more advanced behaviours, however this comes with the caveat that you would
+need to implement this in each muon implementation you want to access.
+
+=== Reactive RPC
+
+Request/ Response is a well understood communication style where you make a single request and expect to receive a single resonse
+
+Muon supports this style of communication, over it's naturally scalable reactive and event based channel communication.
+
+==== Simple RPC
+
+Here is the simplest possible Muon RPC endpoint. It accepts any data pushed to it, and responsds with a simple text message
+
+[source,java,indent=0]
+----
+include::src/main/java/io/muoncore/example/ReactiveRPC.java[]
+----
+
+The client for this looks like
+
+[source,java,indent=0]
+----
+include::src/main/java/io/muoncore/example/ReactiveRPC.java[]
+----
+
+The Response object contains meta data about the reponse, if it succeeded.
+
+
+==== Making it Reactive
+
+The handler does not need to response synchronously as in the above example. The response can be invoked from any context, and by any thread.
+
+This will cause an event to flow back down the channel and complete the request/ response cycle.
+
+An example of this in action is
+
+[source,java,indent=0]
+----
+include::src/main/java/io/muoncore/example/ReactiveRPCAsync.java[]
+----
+//TODO, callouts and description
+
+This demonstrates adding the requests onto a queue and processing them asynchronously.
+
+Be aware that the request will time out on both the client and server side, depending on your configuration.
+
+==== Batch handling RPC
+
+A common failure of RPC based systems is that they attempt to perform too much work in concurrently, and in logical isolation.
+This then ends up causing thread thrashing, overwhelming of the thread pool or overload on some backing data store.
+
+Taking the above mechanism to it's logical conclusion, it becomes trivial to batch up the processing of request.
+
+[source,java,indent=0]
+----
+include::src/main/java/io/muoncore/example/ReactiveRPCBatch.java[]
+----
+
+This example will, every 5 seconds, drain the queue, generate a single answer and send it to all of them.
+
+
+=== Reactive Streams
+
+Muon is built to enable the creation of streams easily. Internally everything is treated as a _channel_, a naturally streaming
+construction.
+
+This is best accessed via the Reactive Streams API, a cross industry effort to standardise streaming communication with back pressure.
+
+To publish a new stream, create a _Publisher_ and pass it into the publishStream method, giving it a name, and the semantics of the stream.
+
+[source,java,indent=0]
+----
+include::src/main/java/io/muoncore/example/ReactiveStreams.java[]
+----
+
+Here, we use _Spring Reactor_ to demonstrate the creation of a Publisher, however any Reactive Streams compatible framework or library could
+be used.
+
+To access the data from another service, use the subscribe method, passing in the logical Muon discovery url.
+
+[source,java,indent=0]
+----
+include::src/main/java/io/muoncore/example/ReactiveStreams.java[]
+----
+
+Again, this example uses Java and shows two applications communicating over a stream, with back pressure.
+
+
+=== Event Sourcing
+
+
+== Event Based Testing
+
+
+== Spring Support
+
+
+== Encoding
+
+
+== Wiretap
+
+
+== Transports
+
