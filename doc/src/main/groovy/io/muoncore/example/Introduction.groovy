@@ -5,11 +5,12 @@ import io.muoncore.spring.annotations.MuonController
 import io.muoncore.spring.annotations.MuonRequestListener
 import org.springframework.boot.autoconfigure.SpringBootApplication
 
-
+/*
 @Grapes([
         @Grab('io.muoncore:muon-transport-amqp:6.4-SNAPSHOT'),
         @Grab('io.muoncore:muon-discovery-amqp:6.4-SNAPSHOT'),
         @Grab('io.muoncore:muon-spring:6.4-SNAPSHOT')])
+*/
 @SpringBootApplication
 @MuonController                        //(1) Enable Muon and set up
 @EnableMuon(serviceName = "users")   //(2)
