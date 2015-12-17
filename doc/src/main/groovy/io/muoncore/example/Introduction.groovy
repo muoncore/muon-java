@@ -2,6 +2,7 @@ package io.muoncore.example
 
 import io.muoncore.spring.annotations.EnableMuon
 import io.muoncore.spring.annotations.MuonController
+import io.muoncore.spring.annotations.MuonRequestListener
 import org.springframework.boot.autoconfigure.SpringBootApplication
 
 
@@ -10,12 +11,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 @EnableMuon(serviceName = "tombola")   //(2)
 class Introduction {
 
-
-    def myRpcEndpoint() {
-
+    @MuonRequestListener(path = "/")   //(3) An RPC Endpoint
+    def myRpcEndpoint(Map data) {
+        return data
     }
-
-
 }
 
 

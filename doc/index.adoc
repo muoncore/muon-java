@@ -20,8 +20,10 @@ sdk install springboot
 You can then create a new Spring Boot based application as a Groovy script.
 
 ```
-include::src/main/groovy/io/muoncore/example/Introduction.groovy[lines=5,6,18]
+include::src/main/groovy/io/muoncore/example/Introduction.groovy[]
 ```
+(1) TODO, make these work ok.
+
 
 
 == Service Discovery
@@ -29,27 +31,101 @@ include::src/main/groovy/io/muoncore/example/Introduction.groovy[lines=5,6,18]
 
 == Communication Protocols and APIs
 
+
+
 === Reactive RPC
 
+Request/ Response is a well understood communication style where you make a single request and expect to receive a single resonse
+
+Muon supports this style of communication, over it's naturally scalable reactive and event based channel communication.
+
 ==== Simple RPC
+
+Here is the simplest possible Muon RPC endpoint. It accepts any data pushed to it, and responsds with a simple text message
+
+```
+include::src/main/java/io/muoncore/example/ReactiveRPC.java[]
+```
+
+The client for this looks like
+
+```
+include::src/main/java/io/muoncore/example/ReactiveRPC.java[]
+```
+
+The Response object contains meta data about the reponse, if it succeeded.
 
 
 ==== Making it Reactive
 
-==== Batch handled RPC
+The handler does not need to response synchronously as in the above example. The response can be invoked from any context, and by any thread.
 
+This will cause an event to flow back down the channel and complete the request/ response cycle.
 
+An example of this in action is
+
+```
+include::src/main/java/io/muoncore/example/ReactiveRPCAsync.java[]
+```
+//TODO, callouts and description
+
+This demonstrates adding the requests onto a queue and processing them asynchronously.
+
+Be aware that the request will time out on both the client and server side, depending on your configuration.
+
+==== Batch handling RPC
+
+A common failure of RPC based systems is that they attempt to perform too much work in concurrently, and in logical isolation.
+This then ends up causing thread thrashing, overwhelming of the thread pool or overload on some backing data store.
+
+Taking the above mechanism to it's logical conclusion, it becomes trivial to batch up the processing of request.
+
+```
+include::src/main/java/io/muoncore/example/ReactiveRPCBatch.java[]
+```
+
+This example will, every 5 seconds, drain the queue, generate a single answer and send it to all of them.
 
 
 === Reactive Streams
 
+Muon is built to enable the creation of streams easily. Internally everything is treated as a _channel_, a naturally streaming
+construction.
+
+This is best accessed via the Reactive Streams API, a cross industry effort to standardise streaming communication with back pressure.
+
+To publish a new stream, create a _Publisher_ and pass it into the publishStream method, giving it a name, and the semantics of the stream.
+
+```
+include::src/main/java/io/muoncore/example/ReactiveStreams.java[]
+```
+
+Here, we use _Spring Reactor_ to demonstrate the creation of a Publisher, however any Reactive Streams compatible framework or library could
+be used.
+
+To access the data from another service, use the subscribe method, passing in the logical Muon discovery url.
+
+```
+include::src/main/java/io/muoncore/example/ReactiveStreams.java[]
+```
+
+Again, this example uses Java and shows two applications communicating over a stream, with back pressure.
+
+
 === Event Sourcing
+
+
+== Event Based Testing
 
 
 == Spring Support
 
+
 == Encoding
+
 
 == Wiretap
 
+
 == Transports
+
