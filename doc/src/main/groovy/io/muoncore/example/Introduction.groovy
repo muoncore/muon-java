@@ -12,12 +12,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
         @Grab('io.muoncore:muon-spring:6.4-SNAPSHOT')])
 */
 @SpringBootApplication
-@MuonController                        //(1) Enable Muon and set up
-@EnableMuon(serviceName = "users")   //(2)
+@MuonController                      // <1>
+@EnableMuon(serviceName = "users")   // <2>
 class Introduction {
 
-    @MuonRequestListener(path = "/")   //(3) An RPC Endpoint
+    @MuonRequestListener(path = "/")   //<3>
     def myRpcEndpoint(Map data) {
         return data
     }
+
 }

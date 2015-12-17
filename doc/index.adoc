@@ -24,9 +24,9 @@ You can then create a new Spring Boot based application as a Groovy script.
 
 [source,groovy,indent=0]
 ----
-include::src/main/groovy/io/muoncore/example/Introduction.groovy[lines=7..22]
+include::src/main/groovy/io/muoncore/example/Introduction.groovy[lines=6..22]
 ----
-(1) TODO, make these work ok.
+<1> TODO, yo
 
 [source,groovy,indent=0]
 ----
