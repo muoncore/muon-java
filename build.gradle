@@ -338,6 +338,7 @@ project('doc') {
         compile project(":muon-discovery-amqp")
 
         compile "org.codehaus.groovy:groovy-all:2.4.1"
+        compile 'org.apache.ivy:ivy:2.4.0'
     }
 }
 
