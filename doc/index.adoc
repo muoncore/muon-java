@@ -26,7 +26,7 @@ You can then create a new Spring Boot based application as a Groovy script.
 ----
 include::src/main/groovy/io/muoncore/example/Introduction.groovy[lines=6..22]
 ----
-<1> TODO, yo
+<1> Hello
 
 [source,groovy,indent=0]
 ----
@@ -169,6 +169,7 @@ Again, this example uses Java and shows two applications communicating over a st
 
 
 == Wiretap
+
 
 
 == Transports
