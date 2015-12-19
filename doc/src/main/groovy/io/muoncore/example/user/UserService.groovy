@@ -13,8 +13,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
         @Grab('io.muoncore:muon-spring:6.4-SNAPSHOT')])
 */
 @SpringBootApplication
-@EnableMuon(serviceName = "users")   // <2>
-@MuonController                      // <3>
+@EnableMuon(serviceName = "users")   // <1>
+@MuonController                      // <2>
 class UserService {
 
     @MuonRequestListener(path = "/")   //<3>

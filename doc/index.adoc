@@ -9,10 +9,12 @@ Go from days to minutes.
 
 == A Microservice based system in 5 minutes
 
-The quickest way to start a new Muon Java Microservice is to use _Spring Boot_ and the _Spring CLI_.
+The quickest way to start a new Muon Java Microservice is to use _Spring Boot_ and the _Spring CLI_. You can see deeper information
+later in this guide.
 
 You can install this by following the instructions at spring.io or using _SDK Man_
 
+[source,bash]
 ```
 curl -s get.sdkman.io | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
@@ -24,17 +26,27 @@ You can then create a new Spring Boot based application as a Groovy script.
 
 [source,groovy,indent=0]
 ----
-include::src/main/groovy/io/muoncore/example/Introduction.groovy[lines=6..22]
+include::src/main/groovy/io/muoncore/example/user/UserService.groovy[lines=15..28]
 ----
 <1> Use Spring Boot annotations to start up a Muon instance.
 <2> Declare that this class has Muon operations to discover
 <3> Declare an RPC endpoint (see RPC).
 
+Here, we have configured a full muon service that makes available a single endpoint using the RPC _protocol_.  This protocol gives
+an easy way to make a request and wait until a single response is received. Next, you can create another microservice
+that exposes this to the outside world.
+
 [source,groovy,indent=0]
 ----
-include::src/main/groovy/io/muoncore/example/Introduction2.groovy[lines=7..22]
+include::src/main/groovy/io/muoncore/example/gateway/Gateway.groovy[lines=18..36]
 ----
-<1>
+<1> Gain access to the _muon_ instance that has been created.
+<2> Configure Spring MVC to listen on an HTTP endpoint
+<3> Use the muon instance to make an RPC call
+
+Here, we have used Spring MVC, configured again via Spring Boot. This gives an easy way to start up an HTTP container
+and make it accessible. When you call http://localhost:8080/ you will receive an http response. The body of that response
+will ultimately come from data supplied by UserService.
 
 These will run in production, as independent services and require no underlying platform or runtime.
 

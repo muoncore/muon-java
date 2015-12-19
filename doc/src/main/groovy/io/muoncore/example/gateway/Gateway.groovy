@@ -21,13 +21,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @EnableMuon(serviceName = "gateway")
 class Gateway {
 
-    @Autowired
+    @Autowired                     //<1>
     Muon muon
 
-    @RequestMapping("/")
+    @RequestMapping("/")           //<2>
     @ResponseBody
     String home() {
-        muon.request("request://users/", Map).get().payload
+        muon.request("request://users/", Map).get().payload   //<3>
     }
     public static void main(String[] args) throws Exception {
         SpringApplication.run(Gateway, args);
