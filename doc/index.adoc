@@ -26,14 +26,18 @@ You can then create a new Spring Boot based application as a Groovy script.
 ----
 include::src/main/groovy/io/muoncore/example/Introduction.groovy[lines=6..22]
 ----
-<1> Hello
+<1> Use Spring Boot annotations to start up a Muon instance.
+<2> Declare that this class has Muon operations to discover
+<3> Declare an RPC endpoint (see RPC).
 
 [source,groovy,indent=0]
 ----
 include::src/main/groovy/io/muoncore/example/Introduction2.groovy[lines=7..22]
 ----
+<1>
 
 These will run in production, as independent services and require no underlying platform or runtime.
+
 
 == Service Discovery
 

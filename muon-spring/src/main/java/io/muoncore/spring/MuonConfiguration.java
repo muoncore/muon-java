@@ -49,7 +49,7 @@ public class MuonConfiguration implements ApplicationContextAware{
         if (muonTransports == null || muonTransports.size() == 0) {
             throw new IllegalStateException("No muon transports found");
         }
-        return muonTransports.get(0);
+        return muonTransports.get(muonTransports.size() - 1);
     }
 
     private Discovery getDiscovery(List<Discovery> muonDiscoveries) {

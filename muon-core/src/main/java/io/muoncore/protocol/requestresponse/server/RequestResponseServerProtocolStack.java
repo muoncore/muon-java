@@ -14,6 +14,7 @@ import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.RequestMetaData;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.transport.TransportInboundMessage;
+import io.muoncore.transport.TransportMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
 import java.util.List;
@@ -47,7 +48,7 @@ public class RequestResponseServerProtocolStack implements
         Channel<TransportOutboundMessage, TransportInboundMessage> api2 = Channels.workerChannel("rrpserver", "transport");
 
         api2.left().receive( message -> {
-            if (message == null) {
+            if (message == null || message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL) {
                 //shutdown signal.
                 return;
             }
