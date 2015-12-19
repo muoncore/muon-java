@@ -3,7 +3,8 @@
 = Muon Java
 
 Muon Java is the implementation of the Muon microservices toolkit for the Java platform. It enables you to easily build
-microservices in many languages that have richer, more performant and fully reactive communication semantics.
+microservices in many languages that have richer, more performant and fully reactive communication semantics and gain access
+to Muon compatible services written in other languages without having to sacrifice the rich semantics or performance.
 
 Go from days to minutes.
 
@@ -26,11 +27,12 @@ You can then create a new Spring Boot based application as a Groovy script.
 
 [source,groovy,indent=0]
 ----
-include::src/main/groovy/io/muoncore/example/user/UserService.groovy[lines=15..28]
+include::src/main/groovy/io/muoncore/example/user/UserService.groovy[lines=17..32]
 ----
 <1> Use Spring Boot annotations to start up a Muon instance.
 <2> Declare that this class has Muon operations to discover
 <3> Declare an RPC endpoint (see RPC).
+<4> Send data back to the client, in this case including the current process identifier.
 
 Here, we have configured a full muon service that makes available a single endpoint using the RPC _protocol_.  This protocol gives
 an easy way to make a request and wait until a single response is received. Next, you can create another microservice
