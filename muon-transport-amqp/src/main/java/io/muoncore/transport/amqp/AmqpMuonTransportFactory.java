@@ -23,7 +23,11 @@ public class AmqpMuonTransportFactory implements MuonTransportFactory {
     public MuonTransport build(Properties properties) {
         MuonTransport muonTransport = null;
         try {
-            final String discoveryUrl = properties.getProperty(DISCOVERY_URL_PROPERTY_NAME);
+            String discoveryUrl = properties.getProperty(DISCOVERY_URL_PROPERTY_NAME);
+            if (discoveryUrl == null || discoveryUrl.trim().length() == 0) {
+                discoveryUrl = "amqp://localhost";
+                LOG.log(Level.WARNING, "amqp.discoveryUrl is not set, defaulting to 'amqp://localhost' for AMQP transport connection");
+            }
             final String serviceName = autoConfiguration.getServiceName();
             if (discoveryUrl != null && serviceName != null) {
                 AmqpConnection connection = new RabbitMq09ClientAmqpConnection(discoveryUrl);
@@ -34,7 +38,7 @@ public class AmqpMuonTransportFactory implements MuonTransportFactory {
                 muonTransport = new AMQPMuonTransport(discoveryUrl, serviceQueue, channelFactory);
             }
         } catch (Exception e) {
-            LOG.log(Level.WARNING, "Error creating AMQP muon transport", e);
+            LOG.log(Level.WARNING, "Error creating AMQP muon transport, properties muon.serviceName must be set.", e);
         }
         return muonTransport;
     }
