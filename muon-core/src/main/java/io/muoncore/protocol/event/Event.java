@@ -42,4 +42,12 @@ public class Event<X> {
     public X getPayload() {
         return payload;
     }
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "id='" + id + '\'' +
+                ", eventType='" + eventType + '\'' +
+                '}';
+    }
 }

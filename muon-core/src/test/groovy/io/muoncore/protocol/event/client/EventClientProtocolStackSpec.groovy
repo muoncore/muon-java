@@ -1,4 +1,4 @@
-package io.muoncore.protocol.event
+package io.muoncore.protocol.event.client
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
@@ -7,8 +7,7 @@ import io.muoncore.codec.Codecs
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
-import io.muoncore.protocol.event.client.EventClientProtocolStack
-import io.muoncore.protocol.event.client.EventResult
+import io.muoncore.protocol.event.Event
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportMessage
 import io.muoncore.transport.client.TransportClient

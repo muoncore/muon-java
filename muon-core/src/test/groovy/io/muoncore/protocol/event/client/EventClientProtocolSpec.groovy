@@ -1,10 +1,10 @@
-package io.muoncore.protocol.event
+package io.muoncore.protocol.event.client
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.Channels
 import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
-import io.muoncore.protocol.event.client.EventClientProtocol
+import io.muoncore.protocol.event.Event
 import io.muoncore.transport.TransportOutboundMessage
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
