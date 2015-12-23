@@ -17,9 +17,8 @@ class SingleTransportChannelConnectionSpec extends Specification {
         Environment.initializeIfEmpty()
 
         def transport = Mock(MuonTransport)
-        def dispatcher = Mock(TransportMessageDispatcher)
 
-        def connection = new SingleTransportClientChannelConnection(transport, dispatcher, Environment.sharedDispatcher())
+        def connection = new SingleTransportClientChannelConnection(transport, Environment.sharedDispatcher())
 
         when:
         connection.send(outbound("mymessage", "myService1", "requestresponse"))
@@ -33,9 +32,8 @@ class SingleTransportChannelConnectionSpec extends Specification {
         Environment.initializeIfEmpty()
 
         def transport = Mock(MuonTransport)
-        def dispatcher = Mock(TransportMessageDispatcher)
 
-        def connection = new SingleTransportClientChannelConnection(transport, dispatcher, Environment.sharedDispatcher())
+        def connection = new SingleTransportClientChannelConnection(transport, Environment.sharedDispatcher())
         connection.receive({})
 
         when:
@@ -82,9 +80,8 @@ class SingleTransportChannelConnectionSpec extends Specification {
         }
 
         def receive = Mock(ChannelConnection.ChannelFunction)
-        def dispatcher = Mock(TransportMessageDispatcher)
 
-        def connection = new SingleTransportClientChannelConnection(transport, dispatcher, Environment.sharedDispatcher())
+        def connection = new SingleTransportClientChannelConnection(transport, Environment.sharedDispatcher())
         connection.receive(receive)
 
         when:
@@ -124,9 +121,8 @@ class SingleTransportChannelConnectionSpec extends Specification {
         }
 
         def receive = Mock(ChannelConnection.ChannelFunction)
-        def dispatcher = Mock(TransportMessageDispatcher)
 
-        def connection = new SingleTransportClientChannelConnection(transport, dispatcher, Environment.sharedDispatcher())
+        def connection = new SingleTransportClientChannelConnection(transport, Environment.sharedDispatcher())
         connection.receive(receive)
 
         when:
@@ -151,9 +147,8 @@ class SingleTransportChannelConnectionSpec extends Specification {
         }
 
         ChannelConnection.ChannelFunction receive = Mock(ChannelConnection.ChannelFunction)
-        def dispatcher = Mock(TransportMessageDispatcher)
 
-        def connection = new SingleTransportClientChannelConnection(transport, dispatcher, Environment.sharedDispatcher())
+        def connection = new SingleTransportClientChannelConnection(transport, Environment.sharedDispatcher())
         connection.receive(receive)
 
         when:

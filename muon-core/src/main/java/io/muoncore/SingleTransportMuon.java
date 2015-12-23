@@ -20,6 +20,7 @@ import io.muoncore.transport.TransportControl;
 import io.muoncore.transport.client.SimpleTransportMessageDispatcher;
 import io.muoncore.transport.client.SingleTransportClient;
 import io.muoncore.transport.client.TransportClient;
+import io.muoncore.transport.client.TransportMessageDispatcher;
 import reactor.Environment;
 
 import java.lang.reflect.Type;
@@ -48,8 +49,9 @@ public class SingleTransportMuon implements Muon, ServerRegistrarSource {
             MuonTransport transport) {
         Environment.initializeIfEmpty();
         this.configuration = configuration;
+        TransportMessageDispatcher wiretap = new SimpleTransportMessageDispatcher();
         SingleTransportClient client = new SingleTransportClient(
-                transport, new SimpleTransportMessageDispatcher());
+                transport, wiretap);
         this.transportClient = client;
         this.transportControl = client;
         this.discovery = discovery;
@@ -60,7 +62,9 @@ public class SingleTransportMuon implements Muon, ServerRegistrarSource {
                 new JsonOnlyCodecs(),
                 new SymmetricAESEncryptionAlgorithm(configuration.getAesEncryptionKey()));
 
-        DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(new DefaultServerProtocol(codecs));
+        DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(
+                new DefaultServerProtocol(codecs),
+                wiretap);
         this.protocols = stacks;
         this.registrar = stacks;
 

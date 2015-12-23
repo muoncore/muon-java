@@ -1,6 +1,8 @@
 package io.muoncore.transport.client;
 
+import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.channel.Channels;
 import io.muoncore.transport.*;
 import org.reactivestreams.Publisher;
 import reactor.Environment;
@@ -28,7 +30,13 @@ public class SingleTransportClient implements TransportClient, TransportControl 
 
     @Override
     public ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel() {
-        return new SingleTransportClientChannelConnection(transport, taps, dispatcher);
+        Channel<TransportOutboundMessage, TransportInboundMessage> tapChannel = Channels.wiretapChannel(taps);
+
+        Channels.connect(
+                tapChannel.right(),
+                new SingleTransportClientChannelConnection(transport, dispatcher));
+
+        return tapChannel.left();
     }
 
     @Override

@@ -13,7 +13,6 @@ import java.util.Map;
 
 class SingleTransportClientChannelConnection implements ChannelConnection<TransportOutboundMessage, TransportInboundMessage> {
 
-    private TransportMessageDispatcher taps;
     private MuonTransport transport;
     private ChannelFunction<TransportInboundMessage> inbound;
     private Dispatcher dispatcher;
@@ -21,20 +20,15 @@ class SingleTransportClientChannelConnection implements ChannelConnection<Transp
     private Map<String, ChannelConnection<TransportOutboundMessage, TransportInboundMessage>> channelConnectionMap = new HashMap<>();
 
     public SingleTransportClientChannelConnection(
-            MuonTransport transport,
-            TransportMessageDispatcher taps, Dispatcher dispatcher) {
+            MuonTransport transport, Dispatcher dispatcher) {
         this.transport = transport;
-        this.taps = taps;
         this.dispatcher = dispatcher;
     }
 
     @Override
     public void receive(ChannelFunction<TransportInboundMessage> function) {
         inbound = arg -> {
-            dispatcher.tryDispatch(arg, ev -> {
-                taps.dispatch(arg);
-                function.apply(arg);
-            }, Throwable::printStackTrace);
+            dispatcher.tryDispatch(arg, function::apply, Throwable::printStackTrace);
         };
     }
 
@@ -50,7 +44,6 @@ class SingleTransportClientChannelConnection implements ChannelConnection<Transp
                 ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connection = channelConnectionMap.get(
                         key(message)
                 );
-                taps.dispatch(message);
                 try {
                     if (connection == null) {
                         connection = connectChannel(message);
@@ -60,7 +53,6 @@ class SingleTransportClientChannelConnection implements ChannelConnection<Transp
                     if (message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL) {
                         inbound = null;
                         this.transport = null;
-                        this.taps = null;
                     }
                 } catch (NoSuchServiceException ex) {
                     inbound.apply(TransportInboundMessage.serviceNotFound(msg));

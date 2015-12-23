@@ -52,6 +52,9 @@ will ultimately come from data supplied by UserService.
 
 These will run in production, as independent services and require no underlying platform or runtime.
 
+== Core Features
+
+
 
 == Service Discovery
 
@@ -180,15 +183,20 @@ Again, this example uses Java and shows two applications communicating over a st
 == Event Based Testing
 
 
-== Spring Support
-
-
 == Encoding
 
+
+== Transports
+
+
+= Extended Features
+
+While the above are common to all Muon implementations and required to be compatible, the following are extra features
+added to the Java library that will enable it to be awesome.
 
 == Wiretap
 
 
+== Spring Support
 
-== Transports
 

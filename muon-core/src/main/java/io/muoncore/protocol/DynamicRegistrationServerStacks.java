@@ -1,9 +1,12 @@
 package io.muoncore.protocol;
 
+import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.channel.Channels;
 import io.muoncore.descriptors.ProtocolDescriptor;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.transport.client.TransportMessageDispatcher;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,9 +17,13 @@ public class DynamicRegistrationServerStacks implements ServerStacks, ServerRegi
 
     private Map<String, ServerProtocolStack> protocols = new HashMap<>();
     private final ServerProtocolStack defaultProtocol;
+    private final TransportMessageDispatcher wiretapDispatch;
 
-    public DynamicRegistrationServerStacks(ServerProtocolStack defaultProtocol) {
+    public DynamicRegistrationServerStacks(
+            ServerProtocolStack defaultProtocol,
+            TransportMessageDispatcher wiretapDispatch) {
         this.defaultProtocol = defaultProtocol;
+        this.wiretapDispatch = wiretapDispatch;
     }
 
     @Override
@@ -28,7 +35,11 @@ public class DynamicRegistrationServerStacks implements ServerStacks, ServerRegi
             proto = defaultProtocol;
         }
 
-        return proto.createChannel();
+        Channel<TransportInboundMessage, TransportOutboundMessage> tap = Channels.wiretapChannel(wiretapDispatch);
+
+        Channels.connect(tap.right(), proto.createChannel());
+
+        return tap.left();
     }
 
     @Override

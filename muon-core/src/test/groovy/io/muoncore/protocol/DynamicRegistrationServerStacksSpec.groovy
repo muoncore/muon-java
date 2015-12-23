@@ -1,11 +1,13 @@
 package io.muoncore.protocol
-
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.descriptors.ProtocolDescriptor
+import io.muoncore.transport.client.TransportMessageDispatcher
 import spock.lang.Specification
 import spock.lang.Unroll
 
 class DynamicRegistrationServerStacksSpec extends Specification {
+
+    TransportMessageDispatcher tap = Mock(TransportMessageDispatcher)
 
     def protos
     def defaultproto = Mock(ServerProtocolStack) {
@@ -20,7 +22,7 @@ class DynamicRegistrationServerStacksSpec extends Specification {
 
     def setup() {
 
-        protos = new DynamicRegistrationServerStacks(defaultproto)
+        protos = new DynamicRegistrationServerStacks(defaultproto, tap)
         protos.registerServerProtocol(proto2)
         protos.registerServerProtocol(proto3)
     }
@@ -28,7 +30,7 @@ class DynamicRegistrationServerStacksSpec extends Specification {
     def "returns list of protocol descriptors"() {
         def defaultproto = Mock(ServerProtocolStack)
 
-        def protos = new DynamicRegistrationServerStacks(defaultproto)
+        def protos = new DynamicRegistrationServerStacks(defaultproto, tap)
         protos.registerServerProtocol(Mock(ServerProtocolStack) { getProtocolDescriptor() >> new ProtocolDescriptor("simple", "", "", [])})
         protos.registerServerProtocol(Mock(ServerProtocolStack) { getProtocolDescriptor() >> new ProtocolDescriptor("fake", "", "", [])})
         protos.registerServerProtocol(Mock(ServerProtocolStack) { getProtocolDescriptor() >> new ProtocolDescriptor("advance", "", "", [])})
@@ -44,7 +46,7 @@ class DynamicRegistrationServerStacksSpec extends Specification {
 
         def defaultproto = Mock(ServerProtocolStack)
 
-        def protos = new DynamicRegistrationServerStacks(defaultproto)
+        def protos = new DynamicRegistrationServerStacks(defaultproto, tap)
 
         when:
         def ret = protos.openServerChannel("simples")
@@ -69,5 +71,19 @@ class DynamicRegistrationServerStacksSpec extends Specification {
         "proto2"       || "simples"
         "defaultproto" || "NOTHING-DEFAULTME"
         "proto3"       || "wibble"
+    }
+
+    def "allows tapping of inbound connections"() {
+
+        def defaultproto = Mock(ServerProtocolStack)
+
+        def protos = new DynamicRegistrationServerStacks(defaultproto, tap)
+
+        when:
+        def ret = protos.openServerChannel("simples")
+
+        then:
+        ret != null
+        1 * defaultproto.createChannel() >> Mock(ChannelConnection)
     }
 }

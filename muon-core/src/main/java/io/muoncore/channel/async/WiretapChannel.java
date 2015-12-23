@@ -3,9 +3,11 @@ package io.muoncore.channel.async;
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.exception.MuonException;
+import io.muoncore.transport.TransportMessage;
+import io.muoncore.transport.client.TransportMessageDispatcher;
 import reactor.core.Dispatcher;
 
-public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<GoingLeft, GoingRight> {
+public class WiretapChannel<GoingLeft extends TransportMessage, GoingRight extends TransportMessage> implements Channel<GoingLeft, GoingRight> {
 
     private Dispatcher dispatcher;
 
@@ -17,9 +19,11 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
 
     public static boolean echoOut = false;
 
-    public StandardAsyncChannel(String leftname, String rightname, Dispatcher dispatcher) {
+    public WiretapChannel(Dispatcher dispatcher, TransportMessageDispatcher transportMessageDispatcher) {
 
         this.dispatcher = dispatcher;
+        String leftname = "left";
+        String rightname = "right";
 
         left = new ChannelConnection<GoingLeft, GoingRight>() {
             @Override
@@ -33,7 +37,8 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
                     throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
                 }
                 dispatcher.dispatch(message, msg -> {
-                    if (echoOut) System.out.println("Channel[" + leftname + " >>>>> " + rightname + "]: Sending " + msg + " to " + leftFunction);
+                    if (echoOut) System.out.println("WiretapChannel[" + leftname + " >>>>> " + rightname + "]: Sending " + msg + " to " + leftFunction);
+                    transportMessageDispatcher.dispatch(msg);
                     leftFunction.apply(message); }
                         ,  Throwable::printStackTrace);
             }
@@ -57,7 +62,8 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
                 }
                 dispatcher.dispatch(message, msg -> {
                     if (echoOut)
-                        System.out.println("Channel[" + leftname + " <<<< " + rightname + "]: " + msg + " to " + rightFunction);
+                        System.out.println("WiretapChannel[" + leftname + " <<<< " + rightname + "]: " + msg + " to " + rightFunction);
+                    transportMessageDispatcher.dispatch(msg);
                     rightFunction.apply(message);
                 }, Throwable::printStackTrace);
             }
