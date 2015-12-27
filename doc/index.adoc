@@ -174,13 +174,24 @@ To access the data from another service, use the subscribe method, passing in th
 include::src/main/java/io/muoncore/example/ReactiveStreams.java[]
 ----
 
-Again, this example uses Java and shows two applications communicating over a stream, with back pressure.
-
+Again, this example uses Java and shows two separate services communicating using a reactive message stream, with back pressure support
+managed by Reactor.
 
 === Event Sourcing
 
+TODO, link core event sourcing docs.
+
+Apart from the recommended event store, Photon, Muon Java provides an in memory, simplified event store that only implements
+ the core ingest and stream functionality of a muon compatible event store. You can read more about it link:InMemEventStore.html[here]
+
+This is most useful during building tests.
 
 == Event Based Testing
+
+If you adopt the Event system (which requires an event store such as _Photon_), then you will design your system domains
+as a set of _Events_, and your business processes as a set of causal relationships between them.
+
+
 
 
 == Encoding
@@ -189,12 +200,13 @@ Again, this example uses Java and shows two applications communicating over a st
 == Transports
 
 
+=== Wiretap
+
+
 = Extended Features
 
 While the above are common to all Muon implementations and required to be compatible, the following are extra features
 added to the Java library that will enable it to be awesome.
-
-== Wiretap
 
 
 == Spring Support

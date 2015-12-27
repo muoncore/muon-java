@@ -12,12 +12,9 @@ import java.util.concurrent.TimeoutException;
  * Take a bidirectional channel and add request/ response semantics to
  * it at the code level.
  *
- * There's a certain assumption that this is sitting on top of a more
- * intelligent request/ response aware protocol that can handle failure
- * however that isn't required if the channel is reliable.
+ * There's an assumption that this is sitting on top of a more
+ * intelligent request/ response aware protocol that can handle failure conditions gracefully
  *
- * @param <Receive>
- * @param <Send>
  */
 public class ChannelFutureAdapter<Receive, Send> {
 
@@ -32,7 +29,6 @@ public class ChannelFutureAdapter<Receive, Send> {
 
         channelConnection.receive(ret::setData);
         channelConnection.send(obj);
-        //TODO, closing the connection down once data flows or timeout reached, how?
 
         return ret;
     }
@@ -56,8 +52,9 @@ public class ChannelFutureAdapter<Receive, Send> {
 
         @Override
         public boolean cancel(boolean b) {
-
-            return false;
+            if (isDone) return false;
+            channelConnection.shutdown();
+            return true;
         }
 
         @Override

@@ -1,7 +1,0 @@
-== AMQP Support
-
-== Transport
-
-
-== Discovery
-
