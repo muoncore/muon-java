@@ -202,6 +202,50 @@ as a set of _Events_, and your business processes as a set of causal relationshi
 
 === Wiretap
 
+The transport subsystem of Muon injects a WiretapChannel into every connection that is made. This allows you to optionally
+read the messages moving in and out of the transport and further interpret them. The messages themselves are immutable,
+and so you recieve the message itself for processing.
+
+Ordinarily, this is used to record the way a service communicates with the rest of the distributed application. This
+is particularly useful when designing and building a new communication protocol.
+
+Image a service with a single RPC endpoint that accepts an undefined object data structure, which represent using a Map.
+ It then responds inline wth the number 42. A very simple service.
+
+[source,java]
+----
+include::src/main/java/io/muoncore/example/Wiretap.java[tags=setupRPC]
+----
+
+We would like to generate a list of all the services that are calling this one, without altering the business method.
+
+We could implement this using a wiretap, this will extract a stream of all the requests that match a particular filter.
+The stream interface provided implements the Reactive Stream interface.
+
+[source,java]
+----
+include::src/main/java/io/muoncore/example/Wiretap.java[tags=wiretap]
+----
+<1> The services that have connected to this one via the RPC endpont.
+<2> A Spring Reactor Broadcaster, converting the messages into the list.
+<3> Adding the tap into the Muon transport subsystem
+<4> The filter matches for the EventType field on the TransportMessage, picking out particular messages.
+
+Whenever you then perform an RPC communication, the Request ```TransportMessage``` events will be selected by your wiretap
+ and passed into the Subscriber, in this case the Reactor Broadcaster.
+
+[source,java]
+----
+include::src/main/java/io/muoncore/example/Wiretap.java[tags=fireRPC]
+----
+
+As many wiretaps as you like can be active. You may add another Wiretap later on to select the Response messages, and it will then begin
+to receive all the messages required.
+
+[source,java]
+----
+include::src/main/java/io/muoncore/example/Wiretap.java[tags=wiretap2]
+----
 
 = Extended Features
 
