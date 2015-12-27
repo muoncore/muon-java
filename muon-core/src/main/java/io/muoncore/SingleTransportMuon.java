@@ -15,6 +15,7 @@ import io.muoncore.protocol.reactivestream.server.DefaultPublisherLookup;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack;
 import io.muoncore.protocol.requestresponse.server.*;
+import io.muoncore.protocol.support.ProtocolTimer;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.TransportControl;
 import io.muoncore.transport.client.SimpleTransportMessageDispatcher;
@@ -42,6 +43,7 @@ public class SingleTransportMuon implements Muon, ServerRegistrarSource {
     private Codecs codecs;
     private AutoConfiguration configuration;
     private PublisherLookup publisherLookup;
+    private ProtocolTimer protocolTimer;
 
     public SingleTransportMuon(
             AutoConfiguration configuration,
@@ -55,7 +57,7 @@ public class SingleTransportMuon implements Muon, ServerRegistrarSource {
         this.transportClient = client;
         this.transportControl = client;
         this.discovery = discovery;
-
+        this.protocolTimer = new ProtocolTimer();
         this.publisherLookup = new DefaultPublisherLookup();
 
         this.codecs = new EncryptingCodecs(
@@ -157,5 +159,10 @@ public class SingleTransportMuon implements Muon, ServerRegistrarSource {
     @Override
     public PublisherLookup getPublisherLookup() {
         return publisherLookup;
+    }
+
+    @Override
+    public ProtocolTimer getProtocolTimer() {
+        return protocolTimer;
     }
 }

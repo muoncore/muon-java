@@ -2,6 +2,7 @@ package io.muoncore.protocol.requestresponse
 import io.muoncore.channel.Channels
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocol
+import io.muoncore.protocol.support.ProtocolTimer
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportOutboundMessage
 import reactor.Environment
@@ -27,7 +28,7 @@ class RequestResponseClientProtocolSpec extends Specification {
                 leftChannel.right(),
                 rightChannel.left(),
                 Map,
-                new JsonOnlyCodecs())
+                new JsonOnlyCodecs(), new ProtocolTimer())
 
         when:
         leftChannel.left().send(new Request(new RequestMetaData("url","service", "remote"),[:]))
@@ -55,7 +56,7 @@ class RequestResponseClientProtocolSpec extends Specification {
                 leftChannel.right(),
                 rightChannel.left(),
                 Map,
-                new JsonOnlyCodecs())
+                new JsonOnlyCodecs(), new ProtocolTimer())
 
         when:
         rightChannel.right().send(TransportInboundMessage.serviceNotFound(

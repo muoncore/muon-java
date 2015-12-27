@@ -69,7 +69,7 @@ class RequestResponseWorksSpec extends Specification {
 
         List<MyTestClass> serviceReceivedList = null
 
-        svc2.handleRequest(all(), listOf(io.muoncore.codec.MyTestClass)) {
+        svc2.handleRequest(all(), listOf(MyTestClass)) {
             serviceReceivedList = it.request.payload
             assert it.request.payload == expectedList
 

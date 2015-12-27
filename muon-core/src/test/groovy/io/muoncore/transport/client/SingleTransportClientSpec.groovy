@@ -1,6 +1,5 @@
 package io.muoncore.transport.client
 
-import io.muoncore.channel.Channel
 import io.muoncore.transport.MuonTransport
 import reactor.Environment
 import spock.lang.Specification
@@ -16,6 +15,6 @@ class SingleTransportClientSpec extends Specification {
         def cl = new SingleTransportClient(transport, dispatcher)
 
         expect:
-        cl.openClientChannel() instanceof Channel
+        cl.openClientChannel() != null
     }
 }

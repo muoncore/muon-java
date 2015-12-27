@@ -7,6 +7,7 @@ import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocolStack
 import io.muoncore.protocol.requestresponse.server.*
+import io.muoncore.protocol.support.ProtocolTimer
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportMessage
 import io.muoncore.transport.TransportOutboundMessage
@@ -120,6 +121,11 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
             @Override
             AutoConfiguration getConfiguration() {
                 return new AutoConfiguration(serviceName: "remote")
+            }
+
+            @Override
+            ProtocolTimer getProtocolTimer() {
+                return new ProtocolTimer()
             }
         }
 

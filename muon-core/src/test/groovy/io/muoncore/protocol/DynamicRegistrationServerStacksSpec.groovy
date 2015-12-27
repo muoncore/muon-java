@@ -1,4 +1,5 @@
 package io.muoncore.protocol
+
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.descriptors.ProtocolDescriptor
 import io.muoncore.transport.client.TransportMessageDispatcher
@@ -63,7 +64,7 @@ class DynamicRegistrationServerStacksSpec extends Specification {
         protos.openServerChannel(protoName)
 
         then:
-        1 * getProperty(chosenProto).createChannel()
+        1 * getProperty(chosenProto).createChannel() >> Mock(ChannelConnection)
 
         where:
 

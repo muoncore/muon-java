@@ -6,6 +6,7 @@ import io.muoncore.protocol.requestresponse.RRPEvents;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.Response;
+import io.muoncore.protocol.support.ProtocolTimer;
 import io.muoncore.transport.TransportEvents;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
@@ -21,13 +22,17 @@ import java.lang.reflect.Type;
 public class RequestResponseClientProtocol<X,R> {
 
     private Codecs codecs;
+    private ProtocolTimer timer;
+
+    private ProtocolTimer.TimerControl localTimeoutEvent;
 
     public RequestResponseClientProtocol(
             String serviceName,
             final ChannelConnection<Response<R>, Request<X>> leftChannelConnection,
             final ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection,
             final Type responseType,
-            final Codecs codecs) {
+            final Codecs codecs,
+            final ProtocolTimer timer) {
 
         rightChannelConnection.receive( message -> {
             if (message == null) {

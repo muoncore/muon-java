@@ -5,8 +5,6 @@ package io.muoncore.protocol.event;
  */
 public class Event<X> {
 
-    public final static String START="START";
-
     //precedence
     private String id;
     private String parentId;
@@ -16,11 +14,12 @@ public class Event<X> {
 
     private X payload;
 
-    public Event(String type, String id, String parentId, String serviceId, X payload) {
+    public Event(String eventType, String id, String parentId, String serviceId, X payload) {
         this.id = id;
         this.parentId = parentId;
         this.serviceId = serviceId;
         this.payload = payload;
+        this.eventType = eventType;
     }
 
     public String getEventType() {

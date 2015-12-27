@@ -11,6 +11,7 @@ import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.RequestMetaData;
 import io.muoncore.protocol.requestresponse.Response;
+import io.muoncore.protocol.support.ProtocolTimerSource;
 import io.muoncore.transport.TransportClientSource;
 
 import java.lang.reflect.Type;
@@ -18,7 +19,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public interface RequestResponseClientProtocolStack extends
-        TransportClientSource, CodecsSource, ServiceConfigurationSource {
+        TransportClientSource, CodecsSource, ServiceConfigurationSource, ProtocolTimerSource {
 
     default <R> MuonFuture<Response<R>> request(String uri, Class<R> responseType) {
         return request(uri, (Type) responseType);
@@ -67,16 +68,8 @@ public interface RequestResponseClientProtocolStack extends
                 api2rrp.right(),
                 getTransportClient().openClientChannel(),
                 responseType,
-                getCodecs());
-
-//
-//        Channels.connect(
-//                prcess1,
-//                process2
-//                process3
-//        )
-
-
+                getCodecs(),
+                getProtocolTimer());
 
         return adapter.request(event);
     }
