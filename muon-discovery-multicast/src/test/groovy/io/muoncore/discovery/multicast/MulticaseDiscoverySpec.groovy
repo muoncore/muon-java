@@ -7,7 +7,7 @@ import spock.util.concurrent.PollingConditions
 
 class MulticaseDiscoverySpec extends Specification {
 
-    def "be awesome"() {
+    def "can fire up multiple multicast discoveries and have them interact"() {
 
         def disco1 = new MulticastDiscovery(new ServiceCache())
         def disco2 = new MulticastDiscovery(new ServiceCache())
