@@ -6,6 +6,7 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.extension.amqp.AmqpConnection;
 import io.muoncore.extension.amqp.QueueListener;
 import io.muoncore.extension.amqp.QueueListenerFactory;
+import io.muoncore.transport.ServiceCache;
 
 import java.io.IOException;
 import java.util.HashMap;

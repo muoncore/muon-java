@@ -8,7 +8,7 @@ import io.muoncore.discovery.DiscoveryFactory;
 import io.muoncore.extension.amqp.AmqpConnection;
 import io.muoncore.extension.amqp.QueueListenerFactory;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
-import io.muoncore.extension.amqp.discovery.ServiceCache;
+import io.muoncore.transport.ServiceCache;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory;
 

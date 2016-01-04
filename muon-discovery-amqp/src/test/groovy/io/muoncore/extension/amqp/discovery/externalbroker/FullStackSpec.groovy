@@ -9,7 +9,7 @@ import io.muoncore.extension.amqp.AMQPMuonTransport
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery
-import io.muoncore.extension.amqp.discovery.ServiceCache
+import io.muoncore.transport.ServiceCache
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import io.muoncore.protocol.requestresponse.Response

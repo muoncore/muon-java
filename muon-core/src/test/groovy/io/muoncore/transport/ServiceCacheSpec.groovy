@@ -1,5 +1,4 @@
-package io.muoncore.extension.amqp.discovery
-
+package io.muoncore.transport
 import io.muoncore.ServiceDescriptor
 import spock.lang.Specification
 

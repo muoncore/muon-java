@@ -8,10 +8,10 @@ import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.extension.amqp.*;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
-import io.muoncore.extension.amqp.discovery.ServiceCache;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory;
 import io.muoncore.transport.MuonTransport;
+import io.muoncore.transport.ServiceCache;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
