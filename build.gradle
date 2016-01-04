@@ -298,6 +298,13 @@ project('muon-discovery-amqp') {
     }
 }
 
+project('muon-discovery-multicast') {
+    description = 'Multicast based discovery'
+    dependencies {
+        compile project(":muon-core")
+    }
+}
+
 project('muon-codec-kryo') {
     description = 'Codec implementation using Kryo (for communication with other JVMs only)'
     dependencies {
