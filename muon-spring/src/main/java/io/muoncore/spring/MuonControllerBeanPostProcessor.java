@@ -46,6 +46,11 @@ public class MuonControllerBeanPostProcessor implements BeanPostProcessor, Embed
         if (annotation == null) {
             return bean;
         }
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         for (Method method : beanClazz.getMethods()) {
             MuonStreamListener muonStreamListener = AnnotationUtils.findAnnotation(method, MuonStreamListener.class);
             if (muonStreamListener != null) {
