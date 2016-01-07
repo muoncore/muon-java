@@ -5,7 +5,7 @@ import io.muoncore.transport.ServiceCache
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
-class MulticaseDiscoverySpec extends Specification {
+class MulticastDiscoverySpec extends Specification {
 
     def "can fire up multiple multicast discoveries and have them interact"() {
 
