@@ -21,7 +21,7 @@ public class AmqpDiscovery implements Discovery {
     private QueueListenerFactory queueListenerFactory;
     private AmqpConnection connection;
     private ServiceCache serviceCache;
-    private Codecs codecs;
+    final private Codecs codecs;
 
     private QueueListener listener;
     private Runnable onReady;
@@ -42,6 +42,7 @@ public class AmqpDiscovery implements Discovery {
         this.serviceCache = cache;
         this.codecs = codecs;
         this.spinner = Executors.newCachedThreadPool();
+        System.out.println("Using data " + codecs);
     }
 
     public void start() {
@@ -54,7 +55,7 @@ public class AmqpDiscovery implements Discovery {
 
             if (onReady != null) {
                 try {
-                    Thread.sleep(4000);
+                    Thread.sleep(3500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -72,6 +73,7 @@ public class AmqpDiscovery implements Discovery {
                     if (localDescriptor != null) {
                         Codecs.EncodingResult payload = codecs.encode(localDescriptor, new String[] {"application/json" });
 
+                        System.out.println("got payload " + payload + " from " + codecs.getClass());
                         if (!payload.isFailed()) {
                             try {
                                 connection.broadcast(new QueueListener.QueueMessage(

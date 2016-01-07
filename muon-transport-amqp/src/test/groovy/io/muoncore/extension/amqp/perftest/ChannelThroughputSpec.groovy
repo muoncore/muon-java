@@ -1,5 +1,5 @@
 package io.muoncore.extension.amqp.perftest
-
+import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.json.GsonCodec
 import io.muoncore.extension.amqp.AMQPMuonTransport
@@ -13,7 +13,6 @@ import io.muoncore.protocol.requestresponse.RRPTransformers
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportOutboundMessage
 import reactor.Environment
-import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -22,7 +21,6 @@ import spock.util.concurrent.PollingConditions
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
-@Ignore
 @IgnoreIf({ System.getenv("BUILD_NUMBER") })
 class ChannelThroughputSpec extends Specification {
 
@@ -41,10 +39,11 @@ class ChannelThroughputSpec extends Specification {
         def stacks = new ServerStacks() {
             @Override
             ChannelConnection<TransportInboundMessage, TransportOutboundMessage> openServerChannel(String protocol) {
+                println "Opening channel for proto $protocol"
                 return new ChannelConnection<TransportInboundMessage, TransportOutboundMessage>() {
                     @Override
                     void receive(ChannelConnection.ChannelFunction<TransportOutboundMessage> function) {
-
+                        println "eh?"
                     }
 
                     @Override
@@ -54,7 +53,7 @@ class ChannelThroughputSpec extends Specification {
 
                     @Override
                     void shutdown() {
-
+                        println "SHUTDOWN!"
                     }
                 }
             }
@@ -65,7 +64,10 @@ class ChannelThroughputSpec extends Specification {
         svc2.start(discovery, stacks)
         svc1.start(discovery, serverStacks1)
 
-        sleep(3500)
+        discovery.advertiseLocalService(new ServiceDescriptor("tombola", [], [], []))
+        discovery.advertiseLocalService(new ServiceDescriptor("service1", [], [], []))
+
+        sleep(4000)
 
         when:
         def pool = Executors.newFixedThreadPool(20)
@@ -73,24 +75,27 @@ class ChannelThroughputSpec extends Specification {
         def id = new AtomicInteger()
 
         numservices.times {
-            pool.submit {
-                def channel = svc1.openClientChannel("tombola", "requestresponse")
 
-                numRequests.times {
-                    channel.send(new TransportOutboundMessage(
-                            "somethingHappened",
-                            "${id.addAndGet(1)}",
-                            "remoteService",
-                            "tombola",
-                            RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
-                            [:],
-                            "application/json",
-                            new GsonCodec().encode([:]), ["application/json"]))
+            def channel = svc1.openClientChannel("tombola", "requestresponse")
+
+            numRequests.times {
+                pool.submit {
+                println "Sending data .."
+                channel.send(new TransportOutboundMessage(
+                        "somethingHappened",
+                        "${id.addAndGet(1)}",
+                        "tombola",
+                        "service1",
+                        RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
+                        [:],
+                        "application/json",
+                        new GsonCodec().encode([:]), ["application/json"]))
                 }
             }
         }
+        sleep(5000)
+
         pool.shutdown()
-//        sleep(5000)
 
         then:
         new PollingConditions(timeout: 30).eventually {

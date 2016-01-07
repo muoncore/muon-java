@@ -1,5 +1,6 @@
 package io.muoncore.perf
 import com.google.common.eventbus.EventBus
+import io.muoncore.ServiceDescriptor
 import io.muoncore.SingleTransportMuon
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.config.AutoConfiguration
@@ -21,7 +22,6 @@ import java.util.concurrent.TimeUnit
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
 @Timeout(10)
-//@Ignore
 class ChannelPerfSpec extends Specification {
 
     def eventbus = new EventBus()
@@ -38,6 +38,9 @@ class ChannelPerfSpec extends Specification {
 
         def service1 = createService("1", discovery)
         def service2 = createService("2", discovery)
+
+        discovery.advertiseLocalService(new ServiceDescriptor("service-1", [], [], []))
+        discovery.advertiseLocalService(new ServiceDescriptor("service-2", [], [], []))
 
         service2.handleRequest(all(), Map) {
             it.answer(new Response(200, [svc:"svc1"]))
@@ -70,6 +73,7 @@ class ChannelPerfSpec extends Specification {
         def discovery = new InMemDiscovery()
 
         def service1 = createService("1", discovery)
+
         service1.protocolStacks.registerServerProtocol(new ServerProtocolStack() {
             @Override
             ProtocolDescriptor getProtocolDescriptor() {
@@ -97,6 +101,9 @@ class ChannelPerfSpec extends Specification {
         })
 
         def service2 = createService("2", discovery)
+
+        discovery.advertiseLocalService(new ServiceDescriptor("service-1", [], [], []))
+        discovery.advertiseLocalService(new ServiceDescriptor("service-2", [], [], []))
 
         when:
         def channel = service2.transportClient.openClientChannel()
