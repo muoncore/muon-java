@@ -38,7 +38,6 @@ public class MulticastServerThread extends Thread {
                 // send it
                 InetAddress group = InetAddress.getByName("230.0.0.1");
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4446);
-                System.out.println("Advertising descriptor : " + buf.length);
                 socket.send(packet);
 
                 // sleep for a while

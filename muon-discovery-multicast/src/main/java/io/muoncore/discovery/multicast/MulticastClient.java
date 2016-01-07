@@ -40,9 +40,7 @@ public class MulticastClient extends Thread {
 
                 byte[] data = Arrays.copyOfRange(buf, 0, packet.getLength());
 
-                System.out.println("Adding new stuff :" + data.length);
                 ServiceDescriptor descriptor = codec.decode(data, ServiceDescriptor.class);
-                System.out.println("Adding new service! " + descriptor.getIdentifier());
                 serviceCache.addService(descriptor);
             }
 

@@ -42,7 +42,6 @@ public class AmqpDiscovery implements Discovery {
         this.serviceCache = cache;
         this.codecs = codecs;
         this.spinner = Executors.newCachedThreadPool();
-        System.out.println("Using data " + codecs);
     }
 
     public void start() {
@@ -73,7 +72,6 @@ public class AmqpDiscovery implements Discovery {
                     if (localDescriptor != null) {
                         Codecs.EncodingResult payload = codecs.encode(localDescriptor, new String[] {"application/json" });
 
-                        System.out.println("got payload " + payload + " from " + codecs.getClass());
                         if (!payload.isFailed()) {
                             try {
                                 connection.broadcast(new QueueListener.QueueMessage(

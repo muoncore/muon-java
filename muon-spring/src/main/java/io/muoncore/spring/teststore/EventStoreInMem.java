@@ -70,10 +70,8 @@ public class EventStoreInMem {
         }, muon.getCodecs()));
 
         muon.publishGeneratedSource("general", PublisherLookup.PublisherType.HOT_COLD, subscriptionRequest -> {
-            System.out.println("Subscription to general stream!");
             return subscriber -> {
                 Queue<Event> queue = new LinkedList<>();
-                System.out.println("Replaying " + history.size() + " events into the stream");
                 synchronized (history) {
                     history.stream().forEach(queue::add);
                 }
