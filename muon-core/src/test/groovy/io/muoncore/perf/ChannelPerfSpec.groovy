@@ -111,6 +111,7 @@ class ChannelPerfSpec extends Specification {
             //println "Data coming back?"
         }
 
+        println "Starting message emit"
         numTimes.times {
             channel.send(new TransportOutboundMessage(
                     "somethingHappened",
@@ -123,12 +124,12 @@ class ChannelPerfSpec extends Specification {
                     new byte[0],
                     ["application/json"]
             ))
-            println "Sending data in iteration $it"
         }
+        println "Message emit completed"
 
         then:
 
-        new PollingConditions(timeout: 10).eventually {
+        new PollingConditions(timeout: 30).eventually {
             data.size() == numTimes
         }
 
