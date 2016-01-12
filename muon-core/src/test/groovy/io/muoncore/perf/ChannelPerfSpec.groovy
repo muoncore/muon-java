@@ -128,7 +128,7 @@ class ChannelPerfSpec extends Specification {
 
         then:
 
-        new PollingConditions().eventually {
+        new PollingConditions(timeout: 10).eventually {
             data.size() == numTimes
         }
 
