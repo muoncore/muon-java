@@ -123,6 +123,7 @@ class ChannelPerfSpec extends Specification {
                     new byte[0],
                     ["application/json"]
             ))
+            println "Sending data in iteration $it"
         }
 
         then:
