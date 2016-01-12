@@ -15,6 +15,7 @@ import io.muoncore.protocol.reactivestream.server.PublisherLookup
 import reactor.Environment
 import reactor.fn.BiConsumer
 import reactor.rx.broadcast.Broadcaster
+import spock.lang.AutoCleanup
 import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Shared
@@ -28,7 +29,11 @@ class ReactiveStreamIntegrationSpec extends Specification {
 
     @Shared def discovery = new InMemDiscovery()
 
-    @Shared def muon1 = muon("simples")
+    @AutoCleanup("shutdown")
+    @Shared
+    def muon1 = muon("simples")
+
+    @AutoCleanup("shutdown")
     @Shared def muon2 = muon("tombola")
 
     def "can create a publisher and subscribe to it remotely"() {

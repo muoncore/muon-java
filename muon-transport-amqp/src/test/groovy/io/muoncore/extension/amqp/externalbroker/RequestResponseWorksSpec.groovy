@@ -133,6 +133,7 @@ class RequestResponseWorksSpec extends Specification {
         cleanup:
         svc1.shutdown()
         svc2.shutdown()
+        svc3.shutdown()
     }
 
     def "service A can be called by B and C concurrently in a non blocking way"() {
@@ -181,6 +182,7 @@ class RequestResponseWorksSpec extends Specification {
         cleanup:
         svc1.shutdown()
         svc2.shutdown()
+        svc3.shutdown()
     }
 
     private Muon createMuon(serviceName) {

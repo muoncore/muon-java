@@ -25,14 +25,13 @@ import java.util.concurrent.atomic.AtomicInteger
 class ChannelThroughputSpec extends Specification {
 
     def discovery = new InMemDiscovery()
-    def serverStacks1 = Mock(ServerStacks)
 
     @Unroll
     def "can establish #numservices channels and send #numRequests messages"() {
 
         Environment.initializeIfEmpty()
 
-        AMQPMuonTransport svc1 = createTransport("service1")
+        AMQPMuonTransport service1 = createTransport("service1")
 
         def received = []
 
@@ -58,11 +57,33 @@ class ChannelThroughputSpec extends Specification {
                 }
             }
         }
+        def stacks2 = new ServerStacks() {
+            @Override
+            ChannelConnection<TransportInboundMessage, TransportOutboundMessage> openServerChannel(String protocol) {
+                println "SERVICE1 Opening channel for proto $protocol"
+                return new ChannelConnection<TransportInboundMessage, TransportOutboundMessage>() {
+                    @Override
+                    void receive(ChannelConnection.ChannelFunction<TransportOutboundMessage> function) {
+                        println "eh?"
+                    }
 
-        AMQPMuonTransport svc2 = createTransport("tombola")
+                    @Override
+                    void send(TransportInboundMessage message) {
+                        received << message
+                    }
 
-        svc2.start(discovery, stacks)
-        svc1.start(discovery, serverStacks1)
+                    @Override
+                    void shutdown() {
+                        println "SHUTDOWN!"
+                    }
+                }
+            }
+        }
+
+        AMQPMuonTransport tombola = createTransport("tombola")
+
+        tombola.start(discovery, stacks)
+        service1.start(discovery, stacks2)
 
         discovery.advertiseLocalService(new ServiceDescriptor("tombola", [], [], []))
         discovery.advertiseLocalService(new ServiceDescriptor("service1", [], [], []))
@@ -76,7 +97,10 @@ class ChannelThroughputSpec extends Specification {
 
         numservices.times {
 
-            def channel = svc1.openClientChannel("tombola", "requestresponse")
+            def channel = service1.openClientChannel("tombola", "requestresponse")
+            channel.receive({
+                println "Hello ${it}"
+            })
 
             numRequests.times {
                 pool.submit {
@@ -100,21 +124,21 @@ class ChannelThroughputSpec extends Specification {
         then:
         new PollingConditions(timeout: 30).eventually {
             try {
-                new ArrayList<>(received).metadata.id.size() == numRequests * numservices
+                new ArrayList<>(received)?.metadata?.id?.size() == numRequests * numservices
             } catch (Exception ex) {
                 ex.printStackTrace()
             }
         }
 
         cleanup:
-        svc1.shutdown()
-        svc2.shutdown()
+        service1.shutdown()
+        tombola.shutdown()
 
         where:
         numservices | numRequests
         5   | 5
         5  | 30
-//        2  | 200
+        2  | 200
 //        1  | 10000
         20  | 1000
     }
