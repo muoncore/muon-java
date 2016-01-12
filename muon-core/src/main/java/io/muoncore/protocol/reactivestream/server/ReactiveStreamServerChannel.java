@@ -51,7 +51,27 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
             case ProtocolMessages.CANCEL:
                 handleCancel(message);
                 break;
+            default:
+                sendProtocolFailureException(message);
         }
+    }
+
+    private void sendProtocolFailureException(TransportInboundMessage msg) {
+        Map<String, String> meta = new HashMap<>();
+        meta.put("SourceMessage", msg.getId());
+        meta.put("SourceType", msg.getType());
+
+        function.apply(new TransportOutboundMessage(
+                ProtocolMessages.PROTOCOL_FAILURE,
+                UUID.randomUUID().toString(),
+                subscribingServiceName,
+                configuration.getServiceName(),
+                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
+                meta,
+                "application/json",
+                new byte[0],
+                Arrays.asList(codecs.getAvailableCodecs()),
+                TransportMessage.ChannelOperation.CLOSE_CHANNEL));
     }
 
     private void sendNack() {

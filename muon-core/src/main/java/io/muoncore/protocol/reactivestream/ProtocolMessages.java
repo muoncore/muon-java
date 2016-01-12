@@ -11,5 +11,6 @@ public class ProtocolMessages {
     public final static String DATA= "Data";
     public final static String COMPLETE= "Completed";
     public final static String ERROR= "Errored";
+    public final static String PROTOCOL_FAILURE= "ProtocolFailure";
 
 }
