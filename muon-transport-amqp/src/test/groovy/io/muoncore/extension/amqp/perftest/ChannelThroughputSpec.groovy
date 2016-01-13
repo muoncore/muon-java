@@ -122,7 +122,7 @@ class ChannelThroughputSpec extends Specification {
         pool.shutdown()
 
         then:
-        new PollingConditions(timeout: 45).eventually {
+        new PollingConditions(timeout: 60).eventually {
             try {
                 new ArrayList<>(received)?.metadata?.id?.size() == numRequests * numservices
             } catch (Exception ex) {

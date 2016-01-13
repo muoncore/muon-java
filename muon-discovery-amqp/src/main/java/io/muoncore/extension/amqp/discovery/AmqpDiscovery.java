@@ -24,13 +24,14 @@ public class AmqpDiscovery implements Discovery {
     final private Codecs codecs;
 
     private QueueListener listener;
-    private Runnable onReady;
+    private DiscoveryOnReady onReady;
 
     private ExecutorService spinner;
 
     private ServiceDescriptor localDescriptor;
     private CountDownLatch countdown = new CountDownLatch(1);
     private volatile boolean started = false;
+    private volatile boolean executedOnReady = false;
 
     public AmqpDiscovery(
             QueueListenerFactory queueListenerFactory,
@@ -52,14 +53,17 @@ public class AmqpDiscovery implements Discovery {
 
             startAnnouncePing();
 
-            if (onReady != null) {
+            spinner.execute(() -> {
                 try {
-                    Thread.sleep(3500);
-                } catch (InterruptedException e) {
+                    Thread.sleep(4000);
+                    executedOnReady = true;
+                    if (onReady != null) {
+                        onReady.call();
+                    }
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-                onReady.run();
-            }
+            });
             started = true;
             countdown.countDown();
         }
@@ -108,10 +112,14 @@ public class AmqpDiscovery implements Discovery {
     }
 
     @Override
-    public void onReady(Runnable onReady) {
+    public void onReady(DiscoveryOnReady onReady) {
         synchronized (this) {
-            if (listener != null) {
-                onReady.run();
+            if (executedOnReady) {
+                try {
+                    onReady.call();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             } else {
                 this.onReady = onReady;
             }

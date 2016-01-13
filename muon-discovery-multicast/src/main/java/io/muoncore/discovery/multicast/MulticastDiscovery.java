@@ -37,7 +37,7 @@ public class MulticastDiscovery implements Discovery {
     }
 
     @Override
-    public void onReady(Runnable onReady) {
+    public void onReady(DiscoveryOnReady onReady) {
 
     }
 

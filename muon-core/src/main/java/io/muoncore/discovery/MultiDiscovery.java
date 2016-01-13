@@ -32,7 +32,7 @@ public class MultiDiscovery implements Discovery {
     }
 
     @Override
-    public void onReady(Runnable onReady) {
+    public void onReady(DiscoveryOnReady onReady) {
         discoveries.stream().forEach( discovery -> discovery.onReady(onReadyLatch::countDown));
 
         new Thread(() ->{
@@ -41,7 +41,11 @@ public class MultiDiscovery implements Discovery {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            onReady.run();
+            try {
+                onReady.call();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }).start();
     }
 

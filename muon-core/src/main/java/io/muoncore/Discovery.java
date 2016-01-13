@@ -37,7 +37,7 @@ public interface Discovery {
      */
     void advertiseLocalService(ServiceDescriptor descriptor);
 
-    void onReady(Runnable onReady);
+    void onReady(DiscoveryOnReady onReady);
 
     void shutdown();
 
@@ -51,5 +51,9 @@ public interface Discovery {
                 e.printStackTrace();
             }
         }
+    }
+
+    interface DiscoveryOnReady {
+        void call() throws Exception;
     }
 }

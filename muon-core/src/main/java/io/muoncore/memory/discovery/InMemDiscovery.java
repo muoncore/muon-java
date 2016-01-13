@@ -25,8 +25,14 @@ public class InMemDiscovery implements Discovery {
     }
 
     @Override
-    public void onReady(Runnable onReady) {
-        new Thread(onReady).start();
+    public void onReady(DiscoveryOnReady onReady) {
+        new Thread(() -> {
+            try {
+                onReady.call();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     @Override
