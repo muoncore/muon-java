@@ -1,19 +1,20 @@
 package io.muoncore.channel;
 
+import java.util.function.Function;
+
 import io.muoncore.channel.async.StandardAsyncChannel;
 import io.muoncore.channel.async.WiretapChannel;
 import io.muoncore.transport.TransportMessage;
+import io.muoncore.transport.client.RingBufferLocalDispatcher;
 import io.muoncore.transport.client.TransportMessageDispatcher;
 import reactor.Environment;
 import reactor.core.Dispatcher;
 import reactor.core.config.DispatcherType;
 
-import java.util.function.Function;
-
 public class Channels {
 
     static Dispatcher WORK_DISPATCHER = Environment.newDispatcher(32768, 200, DispatcherType.THREAD_POOL_EXECUTOR);
-    static Dispatcher EVENT_DISPATCHER = Environment.newDispatcher(32768, 200, DispatcherType.RING_BUFFER);
+    static Dispatcher EVENT_DISPATCHER = new RingBufferLocalDispatcher("channel", 32768);
 
     /**
      * Create a channel that permits wiretap on the events moving across it.
