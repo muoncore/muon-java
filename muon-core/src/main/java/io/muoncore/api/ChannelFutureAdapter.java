@@ -1,7 +1,8 @@
-package io.muoncore.channel;
+package io.muoncore.api;
 
-import io.muoncore.future.MuonFuture;
+import io.muoncore.channel.ChannelConnection;
 import org.reactivestreams.Publisher;
+import reactor.rx.broadcast.Broadcaster;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -11,10 +12,6 @@ import java.util.concurrent.TimeoutException;
 /**
  * Take a bidirectional channel and add request/ response semantics to
  * it at the code level.
- *
- * There's an assumption that this is sitting on top of a more
- * intelligent request/ response aware protocol that can handle failure conditions gracefully
- *
  */
 public class ChannelFutureAdapter<Receive, Send> {
 
@@ -39,27 +36,44 @@ public class ChannelFutureAdapter<Receive, Send> {
 
         boolean isDone;
         private X data;
+        private boolean cancelled = false;
+        private PromiseFunction<X> onFulfilled;
+        private Broadcaster<X> broadcast;
 
         public void setData(X data) {
+            if (isDone) return;
+
             this.data = data;
+            if (onFulfilled != null) {
+                onFulfilled.call(data);
+            }
+            if (broadcast != null) {
+                broadcast.accept(data);
+            }
+            shutdown();
             responseReceivedSignal.countDown();
         }
 
         @Override
         public Publisher<X> toPublisher() {
-            throw new IllegalStateException("Not implemented for channel adapter");
+            if (broadcast == null) {
+                broadcast = Broadcaster.create();
+            }
+            return broadcast;
         }
 
         @Override
         public boolean cancel(boolean b) {
             if (isDone) return false;
-            channelConnection.shutdown();
+            shutdown();
+            isDone = true;
+            cancelled = true;
             return true;
         }
 
         @Override
         public boolean isCancelled() {
-            return false;
+            return cancelled;
         }
 
         @Override
@@ -68,12 +82,17 @@ public class ChannelFutureAdapter<Receive, Send> {
         }
 
         @Override
+        public void then(PromiseFunction<X> onFulfilled) {
+            this.onFulfilled = onFulfilled;
+        }
+
+        @Override
         public X get() throws InterruptedException, ExecutionException {
             try {
                 responseReceivedSignal.await();
                 return data;
             } finally {
-                channelConnection.shutdown();
+                shutdown();
             }
         }
 
@@ -83,7 +102,16 @@ public class ChannelFutureAdapter<Receive, Send> {
                 responseReceivedSignal.await(l, timeUnit);
                 return data;
             } finally {
-                channelConnection.shutdown();
+                shutdown();
+            }
+        }
+
+        private void shutdown() {
+            if (isDone || isCancelled()) return;
+            isDone = true;
+            channelConnection.shutdown();
+            if (broadcast != null) {
+                broadcast.onComplete();
             }
         }
     }

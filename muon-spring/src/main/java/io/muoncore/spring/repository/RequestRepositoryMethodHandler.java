@@ -2,7 +2,7 @@ package io.muoncore.spring.repository;
 
 import io.muoncore.Muon;
 import io.muoncore.exception.MuonException;
-import io.muoncore.future.MuonFuture;
+import io.muoncore.api.MuonFuture;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.spring.annotations.Request;
 import org.springframework.util.StringValueResolver;

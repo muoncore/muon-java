@@ -77,11 +77,12 @@ class EventClientProtocolStackSpec extends Specification {
                     new byte[0], [], TransportMessage.ChannelOperation.NORMAL))
         }
 
-        sleep(50)
+        sleep(200)
 
         then:
         capturedFunction != null
-        1 * clientChannel.send(_)
+        1 * clientChannel.send(_ as TransportMessage)
+        1 * clientChannel.send(null)
         new PollingConditions().eventually {
             future.get() instanceof EventResult
             future.get().status == EventResult.EventResultStatus.PERSISTED

@@ -1,6 +1,5 @@
-package io.muoncore.future;
+package io.muoncore.api;
 
-import io.muoncore.future.MuonFuture;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -40,6 +39,11 @@ public class ImmediateReturnFuture<X> implements MuonFuture<X> {
     @Override
     public X get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
         return get();
+    }
+
+    @Override
+    public void then(PromiseFunction<X> onFulfilled) {
+        new Thread(() -> onFulfilled.call(theReturn));
     }
 
     @Override

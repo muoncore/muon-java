@@ -1,11 +1,11 @@
 package io.muoncore.protocol.requestresponse.client;
 
 import io.muoncore.channel.Channel;
-import io.muoncore.channel.ChannelFutureAdapter;
+import io.muoncore.api.ChannelFutureAdapter;
 import io.muoncore.channel.Channels;
 import io.muoncore.codec.CodecsSource;
 import io.muoncore.exception.MuonException;
-import io.muoncore.future.MuonFuture;
+import io.muoncore.api.MuonFuture;
 import io.muoncore.protocol.ServiceConfigurationSource;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;

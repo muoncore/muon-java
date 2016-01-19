@@ -1,12 +1,12 @@
 package io.muoncore.protocol.introspection.client;
 
 import io.muoncore.channel.Channel;
-import io.muoncore.channel.ChannelFutureAdapter;
+import io.muoncore.api.ChannelFutureAdapter;
 import io.muoncore.channel.Channels;
 import io.muoncore.codec.CodecsSource;
 import io.muoncore.config.MuonConfigurationSource;
 import io.muoncore.descriptors.ServiceExtendedDescriptor;
-import io.muoncore.future.MuonFuture;
+import io.muoncore.api.MuonFuture;
 import io.muoncore.transport.TransportClientSource;
 
 public interface IntrospectionClientProtocolStack extends TransportClientSource, CodecsSource, MuonConfigurationSource {

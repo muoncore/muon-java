@@ -1,7 +1,6 @@
 package io.muoncore.channel
-import io.muoncore.channel.ChannelConnection
-import io.muoncore.channel.ChannelFutureAdapter
-import io.muoncore.channel.Channels
+
+import io.muoncore.api.ChannelFutureAdapter
 import io.muoncore.channel.async.StandardAsyncChannel
 import reactor.Environment
 import spock.lang.Specification
@@ -79,6 +78,8 @@ class ChannelFutureAdapterSpec extends Specification {
         when:
         future.get(500, TimeUnit.MILLISECONDS)
 
+        Thread.sleep(50)
+
         then:
         1 * receiver.apply(null)
 
@@ -106,6 +107,8 @@ class ChannelFutureAdapterSpec extends Specification {
 
         when:
         future.get(500, TimeUnit.MILLISECONDS)
+
+        Thread.sleep(50)
 
         then:
         1 * receiver.apply(null)

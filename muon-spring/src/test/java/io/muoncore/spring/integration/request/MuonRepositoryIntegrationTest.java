@@ -1,8 +1,8 @@
 package io.muoncore.spring.integration.request;
 
 import io.muoncore.Muon;
-import io.muoncore.future.ImmediateReturnFuture;
-import io.muoncore.future.MuonFuture;
+import io.muoncore.api.ImmediateReturnFuture;
+import io.muoncore.api.MuonFuture;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.spring.Person;
 import io.muoncore.spring.annotations.EnableMuonRepositories;

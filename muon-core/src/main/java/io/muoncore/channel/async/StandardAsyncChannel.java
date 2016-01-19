@@ -40,7 +40,11 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
 
             @Override
             public void shutdown() {
-                leftFunction.apply(null);
+                dispatcher.dispatch(this, msg -> {
+                    if (echoOut)
+                        System.out.println("Channel[" + rightname + " <<<< " + leftFunction+ "]: SHUTDOWN to " + leftFunction);
+                    leftFunction.apply(null);
+                }, Throwable::printStackTrace);
             }
         };
 
@@ -64,7 +68,11 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
 
             @Override
             public void shutdown() {
-                rightFunction.apply(null);
+                dispatcher.dispatch(this, msg -> {
+                    if (echoOut)
+                        System.out.println("Channel[" + leftname + " <<<< " + rightname + "]: SHUTDOWN to " + rightFunction);
+                    rightFunction.apply(null);
+                }, Throwable::printStackTrace);
             }
         };
     }
