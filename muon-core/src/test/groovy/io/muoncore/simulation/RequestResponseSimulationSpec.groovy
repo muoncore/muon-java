@@ -19,15 +19,14 @@ import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 @Timeout(1)
 class RequestResponseSimulationSpec extends Specification {
 
-    def eventbus = new EventBus()
-
     def "many services can run and be discovered"() {
+        def eventbus = new EventBus()
         given: "some services"
 
         def discovery = new InMemDiscovery()
 
         def services = (1..100).collect {
-            createService(it, discovery)
+            createService(it, discovery, eventbus)
         }
 
         expect:
@@ -38,6 +37,7 @@ class RequestResponseSimulationSpec extends Specification {
     }
 
     def "1 service can make requests to 5 others"() {
+        def eventbus = new EventBus()
         Environment.initializeIfEmpty()
 
         given: "some services"
@@ -45,7 +45,7 @@ class RequestResponseSimulationSpec extends Specification {
         def discovery = new InMemDiscovery()
 
         def services = (0..5).collect {
-            createService(it, discovery)
+            createService(it, discovery, eventbus)
         }
 
         services[1].handleRequest(all(), Map) {
@@ -77,6 +77,7 @@ class RequestResponseSimulationSpec extends Specification {
     }
 
     def "promise interface works"() {
+        def eventbus = new EventBus()
         Environment.initializeIfEmpty()
         StandardAsyncChannel.echoOut=true
 
@@ -87,31 +88,36 @@ class RequestResponseSimulationSpec extends Specification {
         def discovery = new InMemDiscovery()
 
         def services = (0..5).collect {
-            createService(it, discovery)
+            createService(it, discovery, eventbus)
         }
 
         services[1].handleRequest(all(), Map) {
+            println "Request received, sending response"
             it.answer(new Response(200, [svc:"svc1"]))
         }
 
         when:
         services[0].request("request://service-1/", [], Map).then {
+            println "Response says something."
             data = it.payload
         }
 
         then:
         new PollingConditions().eventually {
-            println data
+
             data != null
             data.svc == "svc1"
         }
 
         cleanup:
+        println "Data is ${data}"
+        System.out.flush()
         services*.shutdown()
         StandardAsyncChannel.echoOut=false
     }
 
     def "publisher interface works"() {
+        def eventbus = new EventBus()
         StandardAsyncChannel.echoOut=true
         Environment.initializeIfEmpty()
 
@@ -122,7 +128,7 @@ class RequestResponseSimulationSpec extends Specification {
         def discovery = new InMemDiscovery()
 
         def services = (0..5).collect {
-            createService(it, discovery)
+            createService(it, discovery, eventbus)
         }
 
         services[1].handleRequest(all(), Map) {
@@ -149,7 +155,7 @@ class RequestResponseSimulationSpec extends Specification {
         StandardAsyncChannel.echoOut=false
     }
 
-    Muon createService(ident, discovery) {
+    Muon createService(ident, discovery, eventbus) {
         def config = new AutoConfiguration(serviceName: "service-${ident}", aesEncryptionKey: "abcde12345678906")
         def transport = new InMemTransport(config, eventbus)
 
