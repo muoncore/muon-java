@@ -34,7 +34,7 @@ public class ChannelFutureAdapter<Receive, Send> {
 
         final CountDownLatch responseReceivedSignal = new CountDownLatch(1);
 
-        boolean isDone;
+        private volatile boolean isDone;
         private X data;
         private boolean cancelled = false;
         private PromiseFunction<X> onFulfilled;
