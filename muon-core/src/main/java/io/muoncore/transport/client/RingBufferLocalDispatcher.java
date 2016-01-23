@@ -16,34 +16,26 @@
 
 package io.muoncore.transport.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.Environment;
+import reactor.core.Dispatcher;
+import reactor.core.dispatch.wait.AgileWaitingStrategy;
+import reactor.core.dispatch.wait.WaitingMood;
+import reactor.core.support.Assert;
+import reactor.core.support.NamedDaemonThreadFactory;
+import reactor.core.support.Recyclable;
+import reactor.fn.Consumer;
+import reactor.jarjar.com.lmax.disruptor.*;
+import reactor.jarjar.com.lmax.disruptor.dsl.Disruptor;
+import reactor.jarjar.com.lmax.disruptor.dsl.ProducerType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import reactor.Environment;
-import reactor.core.Dispatcher;
-import reactor.core.alloc.Recyclable;
-import reactor.core.dispatch.InsufficientCapacityException;
-import reactor.core.dispatch.wait.WaitingMood;
-import reactor.core.support.Assert;
-import reactor.core.support.NamedDaemonThreadFactory;
-import reactor.fn.Consumer;
-import reactor.jarjar.com.lmax.disruptor.BlockingWaitStrategy;
-import reactor.jarjar.com.lmax.disruptor.EventFactory;
-import reactor.jarjar.com.lmax.disruptor.EventHandler;
-import reactor.jarjar.com.lmax.disruptor.ExceptionHandler;
-import reactor.jarjar.com.lmax.disruptor.RingBuffer;
-import reactor.jarjar.com.lmax.disruptor.WaitStrategy;
-import reactor.jarjar.com.lmax.disruptor.dsl.Disruptor;
-import reactor.jarjar.com.lmax.disruptor.dsl.ProducerType;
-
-import reactor.core.dispatch.wait.AgileWaitingStrategy;
 
 /**
  * Implementation of a {@link reactor.core.Dispatcher} that uses a
@@ -354,15 +346,18 @@ public final class RingBufferLocalDispatcher implements Dispatcher, WaitingMood 
 		return context;
 	}
 
-	public final <E> void tryDispatch(E event, Consumer<E> eventConsumer, Consumer<Throwable> errorConsumer)
-			throws InsufficientCapacityException {
+	public final <E> void tryDispatch(E event, Consumer<E> eventConsumer, Consumer<Throwable> errorConsumer) {
 		Assert.isTrue(alive(), "This Dispatcher has been shut down.");
 		boolean isInContext = inContext();
 		Task task;
 		if (isInContext) {
 			task = allocateRecursiveTask();
 		} else {
-			task = tryAllocateTask();
+			try {
+				task = tryAllocateTask();
+			} catch (InsufficientCapacityException e) {
+				throw new IllegalStateException("Error in task allocation");
+			}
 		}
 
 		task.setData(event).setErrorConsumer(errorConsumer).setEventConsumer(eventConsumer);
