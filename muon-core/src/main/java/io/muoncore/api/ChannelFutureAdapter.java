@@ -84,6 +84,9 @@ public class ChannelFutureAdapter<Receive, Send> {
         @Override
         public void then(PromiseFunction<X> onFulfilled) {
             this.onFulfilled = onFulfilled;
+            if (this.data != null) {
+                onFulfilled.call(data);
+            }
         }
 
         @Override
