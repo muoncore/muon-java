@@ -30,9 +30,18 @@ public class EncryptingCodecs implements Codecs {
 
     @Override
     public <T> T decode(byte[] source, String contentType, Type type) {
-        byte[] decrypted = algorithm.decrypt(source);
-        String content = contentType.substring(0, contentType.indexOf("+"));
-        return delegate.decode(decrypted, content, type);
+        boolean encryptedContentType = contentType.indexOf("+") > 0;
+        byte[] decrypted;
+        String decryptedContentType;
+        if (encryptedContentType) {
+            decrypted = algorithm.decrypt(source);
+            decryptedContentType = contentType.substring(0, contentType.indexOf("+"));
+        } else {
+            decrypted = source;
+            decryptedContentType = contentType;
+        }
+
+        return delegate.decode(decrypted, decryptedContentType, type);
     }
 
     @Override

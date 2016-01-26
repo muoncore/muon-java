@@ -47,6 +47,26 @@ class EncryptingCodecsSpec extends Specification {
         ret.message == "awesome"
     }
 
+    def "does not use decryptor if not an encrypted content type"() {
+
+        given:
+        def delegate = Mock(Codecs)
+        def algo = Mock(EncryptionAlgorithm) {
+            getAlgorithmName() >> "AWESOMEALGO"
+        }
+
+        def codecs = new EncryptingCodecs(delegate, algo)
+        def encodedNotEncrypted = [1, 2, 3] as byte[]
+
+        when:
+        def ret = codecs.decode(encodedNotEncrypted, "application/json", Map)
+
+        then:
+        0 * algo._
+        1 * delegate.decode(encodedNotEncrypted, "application/json", Map) >> [message:"awesome"]
+        ret.message == "awesome"
+    }
+
     /*
 
       updates content types to add a +algo for each registered encryption algo., should check it against current algo(s)?
