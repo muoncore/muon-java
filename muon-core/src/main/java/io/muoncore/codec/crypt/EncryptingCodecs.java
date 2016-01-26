@@ -24,8 +24,20 @@ public class EncryptingCodecs implements Codecs {
     @Override
     public EncodingResult encode(Object object, String[] acceptableContentTypes) {
         EncodingResult result = delegate.encode(object, acceptableContentTypes);
-        return new EncodingResult(algorithm.encrypt(result.getPayload()),
-                result.getContentType() + "+" + algorithm.getAlgorithmName());
+
+        boolean encryptedContentType = false;
+        for(String contentType: acceptableContentTypes) {
+            if (contentType.indexOf("+") > 0) {
+                encryptedContentType = true;
+            }
+        }
+
+        if(encryptedContentType) {
+            return new EncodingResult(algorithm.encrypt(result.getPayload()),
+                    result.getContentType() + "+" + algorithm.getAlgorithmName());
+        } else {
+            return result;
+        }
     }
 
     @Override
