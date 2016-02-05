@@ -1,6 +1,5 @@
 package io.muoncore.transport.amqp;
 
-import io.muoncore.Discovery;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.extension.amqp.*;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection;
@@ -14,28 +13,27 @@ import java.util.logging.Logger;
 
 public class AmqpMuonTransportFactory implements MuonTransportFactory {
 
-    public static final String DISCOVERY_URL_PROPERTY_NAME = "amqp.discoveryUrl";
+    private static final String TRANSPORT_URL_PROPERTY_NAME = "amqp.transport.url";
     private static Logger LOG = Logger.getLogger(AmqpMuonTransportFactory.class.getName());
     private AutoConfiguration autoConfiguration;
-    private Discovery discovery;
 
     @Override
     public MuonTransport build(Properties properties) {
         MuonTransport muonTransport = null;
         try {
-            String discoveryUrl = properties.getProperty(DISCOVERY_URL_PROPERTY_NAME);
-            if (discoveryUrl == null || discoveryUrl.trim().length() == 0) {
-                discoveryUrl = "amqp://localhost";
+            String amqpUrl = properties.getProperty(TRANSPORT_URL_PROPERTY_NAME);
+            if (amqpUrl == null || amqpUrl.trim().length() == 0) {
+                amqpUrl = "amqp://localhost";
                 LOG.log(Level.WARNING, "amqp.discoveryUrl is not set, defaulting to 'amqp://localhost' for AMQP transport connection");
             }
             final String serviceName = autoConfiguration.getServiceName();
-            if (discoveryUrl != null && serviceName != null) {
-                AmqpConnection connection = new RabbitMq09ClientAmqpConnection(discoveryUrl);
+            if (amqpUrl != null && serviceName != null) {
+                AmqpConnection connection = new RabbitMq09ClientAmqpConnection(amqpUrl);
                 QueueListenerFactory queueFactory = new RabbitMq09QueueListenerFactory(connection.getChannel());
                 ServiceQueue serviceQueue = new DefaultServiceQueue(serviceName, connection);
                 AmqpChannelFactory channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection);
 
-                muonTransport = new AMQPMuonTransport(discoveryUrl, serviceQueue, channelFactory);
+                muonTransport = new AMQPMuonTransport(amqpUrl, serviceQueue, channelFactory);
             }
         } catch (Exception e) {
             LOG.log(Level.WARNING, "Error creating AMQP muon transport, properties muon.serviceName must be set.", e);

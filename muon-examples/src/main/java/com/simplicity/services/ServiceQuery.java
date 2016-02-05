@@ -39,7 +39,7 @@ public class ServiceQuery {
 
         AutoConfiguration config = new AutoConfiguration();
         config.setServiceName(serviceName);
-        config.setAesEncryptionKey("abcde12345678906");
+//        config.setAesEncryptionKey("abcde12345678906");
 
         Muon muon = new SingleTransportMuon(config, createDiscovery(), svc1);
 

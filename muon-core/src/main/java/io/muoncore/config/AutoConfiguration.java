@@ -2,20 +2,12 @@ package io.muoncore.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class AutoConfiguration {
-    private String discoveryUrl;
     private String serviceName;
     private List<String> tags = new ArrayList<>();
-    private String aesEncryptionKey;
-
-    public String getAesEncryptionKey() {
-        return aesEncryptionKey;
-    }
-
-    public void setAesEncryptionKey(String aesEncryptionKey) {
-        this.aesEncryptionKey = aesEncryptionKey;
-    }
+    private Properties config = new Properties();
 
     public List<String> getTags() {
         return tags;
@@ -33,13 +25,23 @@ public class AutoConfiguration {
         this.serviceName = serviceName;
     }
 
-    @Deprecated
-    public String getDiscoveryUrl() {
-        return discoveryUrl;
+    public Properties getProperties() {
+        return config;
     }
 
-    @Deprecated
-    public void setDiscoveryUrl(String discoveryUrl) {
-        this.discoveryUrl = discoveryUrl;
+    public long getLongConfig(String name) {
+        return Long.parseLong(config.getProperty(name));
+    }
+
+    public long getLongConfig(String name, long defaultValue) {
+        try {
+            return Long.parseLong(config.getProperty(name));
+        } catch (NumberFormatException ex) {
+            return defaultValue;
+        }
+    }
+
+    public String getStringConfig(String name) {
+        return config.getProperty(name);
     }
 }

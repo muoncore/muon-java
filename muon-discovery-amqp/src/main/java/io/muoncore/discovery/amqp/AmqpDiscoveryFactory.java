@@ -17,9 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AmqpDiscoveryFactory implements DiscoveryFactory {
-    public static final String DISCOVERY_URL_PROPERTY_NAME = "amqp.discoveryUrl";
+    private static final String DISCOVERY_URL_PROPERTY_NAME = "amqp.discovery.url";
     private static Logger LOG = Logger.getLogger(AmqpDiscoveryFactory.class.getName());
-    private AutoConfiguration autoConfiguration;
 
     @Override
     public Discovery build(Properties properties) {
@@ -44,6 +43,5 @@ public class AmqpDiscoveryFactory implements DiscoveryFactory {
 
     @Override
     public void setAutoConfiguration(AutoConfiguration autoConfiguration) {
-        this.autoConfiguration = autoConfiguration;
     }
 }
