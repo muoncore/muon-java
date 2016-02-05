@@ -31,7 +31,8 @@ public class AutoConfigurationFactoryBean implements FactoryBean<AutoConfigurati
         AutoConfiguration autoConfiguration = new AutoConfiguration();
         autoConfiguration.setServiceName(resolvedServiceName);
         autoConfiguration.setTags(resolvedTags);
-        autoConfiguration.setAesEncryptionKey(resolvedAesEncryptionKey);
+//        TODO, replace wit property based equivalent
+//        autoConfiguration.setAesEncryptionKey(resolvedAesEncryptionKey);
 
         return autoConfiguration;
     }

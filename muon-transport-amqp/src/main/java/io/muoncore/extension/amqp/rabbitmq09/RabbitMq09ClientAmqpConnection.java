@@ -47,6 +47,7 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
             boolean reconnect = true;
             while (reconnect) {
                 try {
+                    log.info("Connecting to AMQP broker using url: " + rabbitUrl);
                     factory.setUri(rabbitUrl);
                     connection = factory.newConnection();
                     channel = connection.createChannel();
