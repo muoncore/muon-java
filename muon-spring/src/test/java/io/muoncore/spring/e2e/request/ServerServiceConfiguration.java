@@ -11,8 +11,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 @Configuration
 @ComponentScan(basePackages = {"io.muoncore.spring.model.request"})
 @EnableMuon(serviceName = "${muon.server.name}",
-        tags = {"${muon.server.tag1}", "${muon.server.tag2}"},
-        aesEncryptionKey = "${muon.aesEncryptionKey}")
+        tags = {"${muon.server.tag1}", "${muon.server.tag2}"})
 @PropertySource("classpath:application.properties")
 @EnableMuonControllers
 public class ServerServiceConfiguration {

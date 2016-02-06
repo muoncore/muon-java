@@ -9,8 +9,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @Configuration
 @EnableMuon(serviceName = "${muon.client.name}",
-        tags = {"${muon.client.tag1}", "${muon.client.tag2}"},
-        aesEncryptionKey = "${muon.aesEncryptionKey}")
+        tags = {"${muon.client.tag1}", "${muon.client.tag2}"})
 @EnableMuonRepositories(basePackages = {"io.muoncore.spring.model.request"})
 @PropertySource("classpath:application.properties")
 public class ClientServiceConfiguration {
