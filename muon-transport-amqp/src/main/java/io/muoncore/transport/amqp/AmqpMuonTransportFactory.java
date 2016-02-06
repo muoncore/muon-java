@@ -24,19 +24,18 @@ public class AmqpMuonTransportFactory implements MuonTransportFactory {
             String amqpUrl = properties.getProperty(TRANSPORT_URL_PROPERTY_NAME);
             if (amqpUrl == null || amqpUrl.trim().length() == 0) {
                 amqpUrl = "amqp://localhost";
-                LOG.log(Level.WARNING, "amqp.discoveryUrl is not set, defaulting to 'amqp://localhost' for AMQP transport connection");
+                LOG.log(Level.WARNING, TRANSPORT_URL_PROPERTY_NAME + " is not set, defaulting to 'amqp://localhost' for AMQP transport connection");
             }
-            final String serviceName = autoConfiguration.getServiceName();
-            if (amqpUrl != null && serviceName != null) {
-                AmqpConnection connection = new RabbitMq09ClientAmqpConnection(amqpUrl);
-                QueueListenerFactory queueFactory = new RabbitMq09QueueListenerFactory(connection.getChannel());
-                ServiceQueue serviceQueue = new DefaultServiceQueue(serviceName, connection);
-                AmqpChannelFactory channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection);
 
-                muonTransport = new AMQPMuonTransport(amqpUrl, serviceQueue, channelFactory);
-            }
+            String serviceName = autoConfiguration.getServiceName();
+            AmqpConnection connection = new RabbitMq09ClientAmqpConnection(amqpUrl);
+            QueueListenerFactory queueFactory = new RabbitMq09QueueListenerFactory(connection.getChannel());
+            ServiceQueue serviceQueue = new DefaultServiceQueue(serviceName, connection);
+            AmqpChannelFactory channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection);
+
+            muonTransport = new AMQPMuonTransport(amqpUrl, serviceQueue, channelFactory);
         } catch (Exception e) {
-            LOG.log(Level.WARNING, "Error creating AMQP muon transport, properties muon.serviceName must be set.", e);
+            LOG.log(Level.WARNING, "Error creating AMQP muon transport", e);
         }
         return muonTransport;
     }

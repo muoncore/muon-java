@@ -28,10 +28,4 @@ public @interface EnableMuon {
      * List of optional service tags of Muon instance
      */
     String[] tags() default {};
-
-    /**
-     * AES encryption key, a string of 16/24/32 bytes
-     */
-    String aesEncryptionKey() default "1234567890abcdef";
-
 }
