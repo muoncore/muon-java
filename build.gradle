@@ -262,6 +262,16 @@ project('muon-core') {
     }
 }
 
+project('muon-config-builder') {
+    apply plugin: 'groovy'
+
+    description = 'Module that constructs a MuonConfiguration for use by muon internal components and services build upon them'
+
+    dependencies {
+        compile project(":muon-core")
+    }
+}
+
 project('muon-examples') {
     apply plugin: 'groovy'
 

@@ -7,4 +7,5 @@ include 'muon-core',
         'muon-codec-kryo',
         'muon-examples',
         'muon-spring',
+        'muon-config-builder',
         "doc"

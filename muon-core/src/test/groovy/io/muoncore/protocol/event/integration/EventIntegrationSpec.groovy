@@ -68,13 +68,13 @@ class EventIntegrationSpec extends Specification {
     }
 
     Muon muon(name) {
-        def config = new AutoConfiguration(serviceName: name, aesEncryptionKey: "abcde12345678906")
+        def config = new AutoConfiguration(serviceName: name)
         def transport = new InMemTransport(config, eventbus)
 
         new SingleTransportMuon(config, discovery, transport)
     }
     public Muon muonEventStore(Closure handler) {
-        def config = new AutoConfiguration(tags:["eventstore"], serviceName: "chronos", aesEncryptionKey: "abcde12345678906")
+        def config = new AutoConfiguration(tags:["eventstore"], serviceName: "chronos")
         def transport = new InMemTransport(config, eventbus)
 
         def muon = new SingleTransportMuon(config, discovery, transport)

@@ -1,0 +1,42 @@
+= Muon Java Configuration Reference
+
+== Sources of configuration
+
+== Configuration Options
+
+=== Core
+
+=== AMQP Properties
+
+.AMQP Properties
+|===
+|Configuration Property |Default Value |Description
+
+|amqp.discovery.url
+|Column 2, row 1
+|Column 3, row 1
+
+|Column 1, row 2
+|Column 2, row 2
+|Column 3, row 2
+
+|Column 1, row 3
+|Column 2, row 3
+|Column 3, row 3
+|===
+
+
+==== Discovery AMQP Url
+
+The AMQP url is used to configure where the AMQP based discovery will connect to, and what
+credentials it will use.
+
+
+
+=== AMQP Transport
+
+==== Transport AMQP Url
+
+
+
+

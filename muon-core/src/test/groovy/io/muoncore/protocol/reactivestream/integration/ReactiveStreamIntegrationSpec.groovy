@@ -130,7 +130,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
     }
 
     Muon muon(name) {
-        def config = new AutoConfiguration(serviceName: name, aesEncryptionKey: "abcde12345678906")
+        def config = new AutoConfiguration(serviceName: name)
         def transport = new InMemTransport(config, eventbus)
 
         new SingleTransportMuon(config, discovery, transport)
