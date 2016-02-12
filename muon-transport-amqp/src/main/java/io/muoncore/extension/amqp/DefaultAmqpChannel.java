@@ -131,6 +131,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
             connection.deleteQueue(sendQueue);
             connection.deleteQueue(receiveQueue);
         }
+        dispatcher.shutdown();
     }
 
     @Override
