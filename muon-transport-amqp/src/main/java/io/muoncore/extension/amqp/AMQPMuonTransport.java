@@ -74,9 +74,9 @@ public class AMQPMuonTransport implements MuonTransport {
 
     public void start(Discovery discovery, final ServerStacks serverStacks) {
         this.discovery = discovery;
-        log.warning("Booting up transport with stack " + serverStacks);
+        log.info("Booting up transport with stack " + serverStacks);
         serviceQueue.onHandshake( handshake -> {
-            log.warning("opening new server channel with " + serverStacks);
+            log.fine("opening new server channel with " + serverStacks);
             ChannelConnection<TransportInboundMessage, TransportOutboundMessage> connection =
                     serverStacks.openServerChannel(handshake.getProtocol());
             AmqpChannel channel = channelFactory.createChannel();
