@@ -17,7 +17,7 @@ public class RabbitMq09QueueListener implements QueueListener {
     private Logger log = Logger.getLogger(RabbitMq09QueueListener.class.getName());
     private String queueName;
     private QueueListener.QueueFunction listener;
-    private QueueingConsumer consumer;
+    private Consumer consumer;
 
     public RabbitMq09QueueListener(Channel channel, String queueName, QueueListener.QueueFunction function) {
         this.channel = channel;
@@ -46,11 +46,7 @@ public class RabbitMq09QueueListener implements QueueListener {
                 notify();
             }
 
-            consumer = new QueueingConsumer(channel);
-
-            channel.basicConsume(queueName, false, consumer);
-
-            channel.basicConsume(queueName, false, new DefaultConsumer(channel) {
+            consumer = new DefaultConsumer(channel) {
                 @Override
                 public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                     try {
@@ -84,9 +80,12 @@ public class RabbitMq09QueueListener implements QueueListener {
                         log.log(Level.WARNING, e.getMessage(), e);
                     }
                 }
-            });
+            };
+
+            channel.basicConsume(queueName, false, consumer);
 
             log.log(Level.FINE, "Queue ready: " + queueName);
+
         } catch (Exception e) {
             log.log(Level.WARNING, e.getMessage(), e);
         }
