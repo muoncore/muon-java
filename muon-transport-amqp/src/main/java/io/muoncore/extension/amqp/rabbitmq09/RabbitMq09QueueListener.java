@@ -47,45 +47,46 @@ public class RabbitMq09QueueListener implements QueueListener {
             }
 
             consumer = new QueueingConsumer(channel);
+
             channel.basicConsume(queueName, false, consumer);
-            log.log(Level.FINE, "Queue ready: " + queueName);
 
-            running = true;
-            while (running) {
-                try {
-                    QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+            channel.basicConsume(queueName, false, new DefaultConsumer(channel) {
+                @Override
+                public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+                    try {
 
-                    byte[] content = delivery.getBody();
+                        Map<String, Object> headers = properties.getHeaders();
 
-                    Map<String, Object> headers = delivery.getProperties().getHeaders();
-
-                    if (headers == null) {
-                        headers = new HashMap<>();
-                    }
-
-                    Map<String, String> newHeaders = new HashMap<>();
-                    headers.entrySet().stream().forEach( entry -> {
-                        if (entry.getKey() == null || entry.getValue() == null) {
-                            return;
+                        if (headers == null) {
+                            headers = new HashMap<>();
                         }
-                        newHeaders.put(entry.getKey(), entry.getValue().toString());
-                    });
 
-                    String contentType = "";
-                    if (newHeaders.get("Content-Type") != null) {
-                        contentType = newHeaders.get("Content-Type");
+                        Map<String, String> newHeaders = new HashMap<>();
+                        headers.entrySet().stream().forEach( entry -> {
+                            if (entry.getKey() == null || entry.getValue() == null) {
+                                return;
+                            }
+                            newHeaders.put(entry.getKey(), entry.getValue().toString());
+                        });
+
+                        String contentType = "";
+                        if (newHeaders.get("Content-Type") != null) {
+                            contentType = newHeaders.get("Content-Type");
+                        }
+                        log.log(Level.FINE, "Receiving message on " + queueName + " of type " + newHeaders.get("eventType"));
+
+                        listener.exec(new QueueListener.QueueMessage(newHeaders.get("eventType"), queueName, body, newHeaders, contentType));
+
+                        channel.basicAck(envelope.getDeliveryTag(), false);
+                    } catch (ShutdownSignalException | ConsumerCancelledException ex) {
+                        log.log(Level.FINER, ex.getMessage(), ex);
+                    } catch (Exception e) {
+                        log.log(Level.WARNING, e.getMessage(), e);
                     }
-                    log.log(Level.FINE, "Receiving message on " + queueName + " of type " + newHeaders.get("eventType"));
-
-                    listener.exec(new QueueListener.QueueMessage(newHeaders.get("eventType"), queueName, content, newHeaders, contentType));
-
-                    channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-                } catch (ShutdownSignalException | ConsumerCancelledException ex) {
-                    log.log(Level.FINER, ex.getMessage(), ex);
-                } catch (Exception e) {
-                    log.log(Level.WARNING, e.getMessage(), e);
                 }
-            }
+            });
+
+            log.log(Level.FINE, "Queue ready: " + queueName);
         } catch (Exception e) {
             log.log(Level.WARNING, e.getMessage(), e);
         }
