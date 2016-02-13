@@ -17,8 +17,7 @@ import static com.simplicity.services.spring.PersonBuilder.aDefaultPerson;
 
 @Configuration
 @EnableMuon(serviceName = "${muon.client.name}",
-        tags = {"${muon.client.tag1}", "${muon.client.tag2}"},
-        aesEncryptionKey = "${muon.aesEncryptionKey}")
+        tags = {"${muon.client.tag1}", "${muon.client.tag2}"})
 @EnableMuonRepositories(basePackages = {"com.simplicity.services.spring.client"})
 @PropertySource("classpath:application.properties")
 public class ClientApplication {
