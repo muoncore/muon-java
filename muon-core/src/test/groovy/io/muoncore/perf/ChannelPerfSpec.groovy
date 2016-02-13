@@ -12,6 +12,7 @@ import io.muoncore.protocol.requestresponse.Response
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportOutboundMessage
 import reactor.Environment
+import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Timeout
 import spock.lang.Unroll
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit
 
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
+@IgnoreIf({ System.getenv("BUILD_NUMBER") })
 @Timeout(10)
 class ChannelPerfSpec extends Specification {
 
