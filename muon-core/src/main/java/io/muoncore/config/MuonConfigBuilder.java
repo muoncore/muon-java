@@ -3,6 +3,7 @@ package io.muoncore.config;
 import io.muoncore.config.writers.ConfigFileConfigurationWriter;
 import io.muoncore.config.writers.DefaultConfigurationWriter;
 import io.muoncore.config.writers.DockerLinkConfigurationWriter;
+import io.muoncore.config.writers.EnvironmentConfigurationWriter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +19,7 @@ public class MuonConfigBuilder {
     private MuonConfigBuilder() {
         addWriter(new DefaultConfigurationWriter());
         addWriter(new ConfigFileConfigurationWriter());
-        addWriter(new ConfigFileConfigurationWriter());
+        addWriter(new EnvironmentConfigurationWriter());
         addWriter(new DockerLinkConfigurationWriter());
     }
 
