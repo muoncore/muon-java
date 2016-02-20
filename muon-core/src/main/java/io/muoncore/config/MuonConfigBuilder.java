@@ -42,7 +42,8 @@ public class MuonConfigBuilder {
         return config;
     }
 
-    public void addWriter(AutoConfigurationWriter writer) {
+    public MuonConfigBuilder addWriter(AutoConfigurationWriter writer) {
         writers.add(writer);
+        return this;
     }
 }

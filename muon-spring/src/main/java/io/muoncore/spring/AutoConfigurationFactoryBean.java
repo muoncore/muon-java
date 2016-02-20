@@ -1,6 +1,7 @@
 package io.muoncore.spring;
 
 import io.muoncore.config.AutoConfiguration;
+import io.muoncore.config.MuonConfigBuilder;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.util.StringValueResolver;
@@ -26,15 +27,12 @@ public class AutoConfigurationFactoryBean implements FactoryBean<AutoConfigurati
         Assert.notNull(serviceName);
         String resolvedServiceName = embeddedValueResolver.resolveStringValue(serviceName);
         List<String> resolvedTags = resolveTags(tags);
-        String resolvedAesEncryptionKey = embeddedValueResolver.resolveStringValue(aesEncryptionKey);
 
-        AutoConfiguration autoConfiguration = new AutoConfiguration();
-        autoConfiguration.setServiceName(resolvedServiceName);
-        autoConfiguration.setTags(resolvedTags);
-//        TODO, replace wit property based equivalent
-//        autoConfiguration.setAesEncryptionKey(resolvedAesEncryptionKey);
+        AutoConfiguration config = MuonConfigBuilder
+                .withServiceIdentifier(resolvedServiceName)
+                .withTags(resolvedTags.toArray(new String[resolvedTags.size()])).build();
 
-        return autoConfiguration;
+        return config;
     }
 
     private List<String> resolveTags(String[] tags) {
