@@ -8,7 +8,7 @@ import io.muoncore.config.AutoConfigurationWriter;
  *
  * Primarily, AMQP transport
  *
- * docker.rabbitmq.port.5762.tcp.addr is aliased to amqp.transport.url and amqp.discovery.url
+ * docker.rabbitmq.port.5672.tcp.addr is aliased to amqp.transport.url and amqp.discovery.url
  *
  */
 public class DockerLinkConfigurationWriter implements AutoConfigurationWriter {
@@ -16,9 +16,9 @@ public class DockerLinkConfigurationWriter implements AutoConfigurationWriter {
     @Override
     public void writeConfiguration(AutoConfiguration config) {
 
-        String rabbitMqUrl = config.getStringConfig("rabbitmq.port.5762.tcp.addr");
+        String rabbitMqUrl = config.getStringConfig("rabbitmq.port.5672.tcp.addr");
 
-        if (config.getStringConfig("rabbitmq.port.5762.tcp.addr") != null) {
+        if (config.getStringConfig("rabbitmq.port.5672.tcp.addr") != null) {
             config.getProperties().put("amqp.transport.url", rabbitMqUrl);
             config.getProperties().put("amqp.discovery.url", rabbitMqUrl);
         }
