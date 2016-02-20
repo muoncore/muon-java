@@ -16,9 +16,9 @@ public class DockerLinkConfigurationWriter implements AutoConfigurationWriter {
     @Override
     public void writeConfiguration(AutoConfiguration config) {
 
-        String rabbitMqUrl = config.getStringConfig("rabbitmq.port.5672.tcp.addr");
-
         if (config.getStringConfig("rabbitmq.port.5672.tcp.addr") != null) {
+            String rabbitMqUrl = "amqp://muon:microservices@" + config.getStringConfig("rabbitmq.port.5672.tcp.addr");
+
             config.getProperties().put("amqp.transport.url", rabbitMqUrl);
             config.getProperties().put("amqp.discovery.url", rabbitMqUrl);
         }
