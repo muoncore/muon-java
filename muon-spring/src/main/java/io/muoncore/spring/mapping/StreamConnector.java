@@ -1,6 +1,6 @@
 package io.muoncore.spring.mapping;
 
-import io.muoncore.protocol.reactivestream.client.ReactiveStreamClientProtocolStack;
+import io.muoncore.Muon;
 import io.muoncore.spring.methodinvocation.MuonStreamMethodInvocation;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -12,13 +12,13 @@ import java.net.URISyntaxException;
 
 public class StreamConnector {
 
-    private ReactiveStreamClientProtocolStack muon;
+    private Muon muon;
     private MuonStreamMethodInvocation muonStreamMethodInvocation;
     private String muonUrl;
 
     private ConnectionState connectionState = ConnectionState.DISCONNECTED;
 
-    public StreamConnector(ReactiveStreamClientProtocolStack muon, String muonUrl, MuonStreamMethodInvocation muonStreamMethodInvocation) {
+    public StreamConnector(Muon muon, String muonUrl, MuonStreamMethodInvocation muonStreamMethodInvocation) {
         this.muon = muon;
         this.muonUrl = muonUrl;
         this.muonStreamMethodInvocation = muonStreamMethodInvocation;

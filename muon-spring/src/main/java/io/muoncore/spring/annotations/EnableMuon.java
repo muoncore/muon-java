@@ -15,8 +15,8 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({MuonTransportFactoryBeanRegistrar.class,  MuonDiscoveryFactoryBeanRegistrar.class,
-        MuonConfiguration.class, AutoConfigurationBeanDefinitionRegistrar.class})
+@Import({MuonConfiguration.class, MuonTransportFactoryBeanRegistrar.class,  MuonDiscoveryFactoryBeanRegistrar.class,
+         AutoConfigurationBeanDefinitionRegistrar.class})
 public @interface EnableMuon {
 
     /**

@@ -1,6 +1,6 @@
 package io.muoncore.spring.mapping;
 
-import io.muoncore.protocol.reactivestream.client.ReactiveStreamClientProtocolStack;
+import io.muoncore.Muon;
 import io.muoncore.spring.controllers.MuonControllersConfigurationHolder;
 import io.muoncore.spring.methodinvocation.MuonStreamMethodInvocation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class MuonStreamSubscriptionService {
     ScheduledExecutorService monitor = Executors.newScheduledThreadPool(1);
 
     @Autowired
-    private ReactiveStreamClientProtocolStack muon;
+    private Muon muon;
 
     @Autowired
     private MuonControllersConfigurationHolder muonControllersConfigurationHolder;

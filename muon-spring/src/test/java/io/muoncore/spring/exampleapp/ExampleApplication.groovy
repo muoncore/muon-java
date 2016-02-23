@@ -1,6 +1,6 @@
 package io.muoncore.spring.exampleapp
-
 import io.muoncore.protocol.event.Event
+import io.muoncore.spring.annotations.EnableMuon
 import io.muoncore.spring.annotations.EventSourceListener
 import io.muoncore.spring.annotations.MuonController
 import io.muoncore.spring.repository.MuonEventStoreRepository
@@ -9,14 +9,13 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
-import reactor.rx.broadcast.Broadcaster
 
 @SpringBootApplication
 @MuonController
 @EnableScheduling
+@EnableMuon(serviceName = "exampleApp")
 class ExampleApplication {
 
-    @Autowired Broadcaster broadcaster;
     @Autowired MuonEventStoreRepository eventStoreRepository;
 
     private List<String> values = new ArrayList<>()

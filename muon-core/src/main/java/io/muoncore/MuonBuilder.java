@@ -9,8 +9,11 @@ import io.muoncore.transport.MuonTransportFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class MuonBuilder {
+
+    private Logger LOG = Logger.getLogger(MuonBuilder.class.getSimpleName());
 
     private AutoConfiguration config;
 
@@ -36,9 +39,13 @@ public class MuonBuilder {
         MuonTransport transport = null;
 
         for(String factory: factoryImpl) {
-            MuonTransportFactory factoryInstance = (MuonTransportFactory) Class.forName(factory).newInstance();
-            factoryInstance.setAutoConfiguration(config);
-            transport = factoryInstance.build(config.getProperties());
+            try {
+                MuonTransportFactory factoryInstance = (MuonTransportFactory) Class.forName(factory).newInstance();
+                factoryInstance.setAutoConfiguration(config);
+                transport = factoryInstance.build(config.getProperties());
+            } catch (ClassNotFoundException ex) {
+                LOG.info("Configured transport " + factory + " not present in the classpath, ignoring");
+            }
         }
 
         return transport;
@@ -50,9 +57,13 @@ public class MuonBuilder {
         List<Discovery> discoveries = new ArrayList<>();
 
         for(String factory: factoryImpl) {
-            DiscoveryFactory factoryInstance = (DiscoveryFactory) Class.forName(factory).newInstance();
-            factoryInstance.setAutoConfiguration(config);
-            discoveries.add(factoryInstance.build(config.getProperties()));
+            try {
+                DiscoveryFactory factoryInstance = (DiscoveryFactory) Class.forName(factory).newInstance();
+                factoryInstance.setAutoConfiguration(config);
+                discoveries.add(factoryInstance.build(config.getProperties()));
+            } catch (ClassNotFoundException ex) {
+                LOG.info("Configured discovery " + factory + " not present in the classpath, ignoring");
+            }
         }
 
         return new MultiDiscovery(discoveries);

@@ -14,11 +14,12 @@ public class DefaultConfigurationWriter implements AutoConfigurationWriter {
     public void writeConfiguration(AutoConfiguration config) {
         //default discovery
         config.getProperties().put("muon.discovery.factories",
-                "io.muoncore.discovery.amqp.AmqpDiscoveryFactory");
+                "io.muoncore.discovery.amqp.AmqpDiscoveryFactory,io.muoncore.discovery.InMemDiscoveryFactory");
 
         //default transport
         config.getProperties().put("muon.transport.factories",
-                "io.muoncore.transport.amqp.AmqpMuonTransportFactory");
+                "io.muoncore.transport.amqp.AmqpMuonTransportFactory,io.muoncore.transport.InMemTransportFactory");
+
 
         //default transport connection info
         config.getProperties().put("amqp.transport.url",
