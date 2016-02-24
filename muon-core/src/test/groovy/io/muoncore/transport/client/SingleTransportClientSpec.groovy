@@ -12,7 +12,7 @@ class SingleTransportClientSpec extends Specification {
         def transport = Mock(MuonTransport)
         def dispatcher = Mock(TransportMessageDispatcher)
 
-        def cl = new SingleTransportClient(transport, dispatcher)
+        def cl = new MultiTransportClient(transport, dispatcher)
 
         expect:
         cl.openClientChannel() != null

@@ -1,7 +1,7 @@
 package io.muoncore.perf
 import com.google.common.eventbus.EventBus
 import io.muoncore.ServiceDescriptor
-import io.muoncore.SingleTransportMuon
+import io.muoncore.MultiTransportMuon
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.descriptors.ProtocolDescriptor
@@ -143,10 +143,10 @@ class ChannelPerfSpec extends Specification {
         numTimes << [500, 2000, 5000, 10000, 50000, 1000000]
     }
 
-    SingleTransportMuon createService(ident, discovery) {
+    MultiTransportMuon createService(ident, discovery) {
         def config = new AutoConfiguration(serviceName: "service-${ident}")
         def transport = new InMemTransport(config, eventbus)
 
-        new SingleTransportMuon(config, discovery, transport)
+        new MultiTransportMuon(config, discovery, transport)
     }
 }

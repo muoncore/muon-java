@@ -1,33 +1,28 @@
 package io.muoncore.transport.client;
 
-import java.util.function.Predicate;
-
-import org.reactivestreams.Publisher;
-
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
-import io.muoncore.transport.MuonTransport;
-import io.muoncore.transport.TransportControl;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.transport.*;
+import org.reactivestreams.Publisher;
 import reactor.core.Dispatcher;
+
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Transport layer bound to a single transport.
  */
-public class SingleTransportClient implements TransportClient, TransportControl {
+public class MultiTransportClient implements TransportClient, TransportControl {
 
-    private MuonTransport transport;
+    private List<MuonTransport> transports;
     private TransportMessageDispatcher taps;
-//    private Dispatcher dispatcher = Environment.newDispatcher("transportDispatch", 8192);
     private Dispatcher dispatcher = new RingBufferLocalDispatcher("transportDispatch", 8192);
 
-    public SingleTransportClient(
-            MuonTransport transport,
+    public MultiTransportClient(
+            List<MuonTransport> transports,
             TransportMessageDispatcher taps) {
-        this.transport = transport;
+        this.transports = transports;
         this.taps = taps;
     }
 
@@ -37,14 +32,16 @@ public class SingleTransportClient implements TransportClient, TransportControl 
 
         Channels.connect(
                 tapChannel.right(),
-                new SingleTransportClientChannelConnection(transport, dispatcher));
+                new MultiTransportClientChannelConnection(transports, dispatcher));
 
         return tapChannel.left();
     }
 
     @Override
     public void shutdown() {
-        transport.shutdown();
+        for (MuonTransport transport: transports) {
+            transport.shutdown();
+        }
         taps.shutdown();
     }
 

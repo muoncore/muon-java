@@ -2,7 +2,7 @@ package io.muoncore.simulation
 
 import com.google.common.eventbus.EventBus
 import io.muoncore.Muon
-import io.muoncore.SingleTransportMuon
+import io.muoncore.MultiTransportMuon
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
@@ -60,6 +60,6 @@ class IntrospectionSimulationSpec extends Specification {
         def config = new AutoConfiguration(serviceName: "service-${ident}")
         def transport = new InMemTransport(config, eventbus)
 
-        new SingleTransportMuon(config, discovery, transport)
+        new MultiTransportMuon(config, discovery, transport)
     }
 }

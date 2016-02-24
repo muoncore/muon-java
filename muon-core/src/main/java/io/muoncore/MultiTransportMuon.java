@@ -16,23 +16,24 @@ import io.muoncore.protocol.requestresponse.server.*;
 import io.muoncore.protocol.support.ProtocolTimer;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.TransportControl;
+import io.muoncore.transport.client.MultiTransportClient;
 import io.muoncore.transport.client.SimpleTransportMessageDispatcher;
-import io.muoncore.transport.client.SingleTransportClient;
 import io.muoncore.transport.client.TransportClient;
 import io.muoncore.transport.client.TransportMessageDispatcher;
 import reactor.Environment;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * Simple bundle of default Muon protocol stacks based on a single transport.
+ * Simple bundle of default Muon protocol stacks
  */
-public class SingleTransportMuon implements Muon, ServerRegistrarSource {
+public class MultiTransportMuon implements Muon, ServerRegistrarSource {
 
-    private SingleTransportClient transportClient;
+    private MultiTransportClient transportClient;
     private TransportControl transportControl;
     private Discovery discovery;
     private ServerStacks protocols;
@@ -43,15 +44,15 @@ public class SingleTransportMuon implements Muon, ServerRegistrarSource {
     private PublisherLookup publisherLookup;
     private ProtocolTimer protocolTimer;
 
-    public SingleTransportMuon(
+    public MultiTransportMuon(
             AutoConfiguration configuration,
             Discovery discovery,
-            MuonTransport transport) {
+            List<MuonTransport> transports) {
         Environment.initializeIfEmpty();
         this.configuration = configuration;
         TransportMessageDispatcher wiretap = new SimpleTransportMessageDispatcher();
-        SingleTransportClient client = new SingleTransportClient(
-                transport, wiretap);
+        MultiTransportClient client = new MultiTransportClient(
+                transports, wiretap);
         this.transportClient = client;
         this.transportControl = client;
         this.discovery = discovery;
@@ -74,14 +75,13 @@ public class SingleTransportMuon implements Muon, ServerRegistrarSource {
 
         initServerStacks(stacks);
 
-        transport.start(discovery, stacks);
+        transports.forEach(tr -> tr.start(discovery, stacks));
 
         discovery.advertiseLocalService(new ServiceDescriptor(
                 configuration.getServiceName(),
                 configuration.getTags(),
                 Arrays.asList(codecs.getAvailableCodecs()),
-                Collections.singletonList(transport.getLocalConnectionURI()
-                )));
+                transports.stream().map(MuonTransport::getLocalConnectionURI).collect(Collectors.toList())));
 
         discovery.blockUntilReady();
     }

@@ -27,28 +27,28 @@ public class MuonBuilder {
 
     public Muon build() {
         try {
-            return new SingleTransportMuon(config, generateDiscovery(), generateTransport());
+            return new MultiTransportMuon(config, generateDiscovery(), generateTransport());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new MuonException("Unable to create Muon instance, error during construction", e);
         }
     }
 
-    private MuonTransport generateTransport() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    private List<MuonTransport> generateTransport() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         String[] factoryImpl = config.getStringConfig("muon.transport.factories").split(",");
 
-        MuonTransport transport = null;
+        List<MuonTransport> transports = new ArrayList<>();
 
         for(String factory: factoryImpl) {
             try {
                 MuonTransportFactory factoryInstance = (MuonTransportFactory) Class.forName(factory).newInstance();
                 factoryInstance.setAutoConfiguration(config);
-                transport = factoryInstance.build(config.getProperties());
+                transports.add(factoryInstance.build(config.getProperties()));
             } catch (ClassNotFoundException ex) {
                 LOG.info("Configured transport " + factory + " not present in the classpath, ignoring");
             }
         }
 
-        return transport;
+        return transports;
     }
 
     private Discovery generateDiscovery() throws ClassNotFoundException, IllegalAccessException, InstantiationException {

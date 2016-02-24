@@ -1,7 +1,7 @@
 package io.muoncore.protocol.event.integration
 import com.google.common.eventbus.EventBus
 import io.muoncore.Muon
-import io.muoncore.SingleTransportMuon
+import io.muoncore.MultiTransportMuon
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
@@ -71,13 +71,13 @@ class EventIntegrationSpec extends Specification {
         def config = new AutoConfiguration(serviceName: name)
         def transport = new InMemTransport(config, eventbus)
 
-        new SingleTransportMuon(config, discovery, transport)
+        new MultiTransportMuon(config, discovery, transport)
     }
     public Muon muonEventStore(Closure handler) {
         def config = new AutoConfiguration(tags:["eventstore"], serviceName: "chronos")
         def transport = new InMemTransport(config, eventbus)
 
-        def muon = new SingleTransportMuon(config, discovery, transport)
+        def muon = new MultiTransportMuon(config, discovery, transport)
 
         muon.protocolStacks.registerServerProtocol(new EventServerProtocolStack(handler, muon.codecs))
 

@@ -1,7 +1,7 @@
 package io.muoncore.extension.amqp.discovery.externalbroker
 import io.muoncore.Discovery
 import io.muoncore.Muon
-import io.muoncore.SingleTransportMuon
+import io.muoncore.MultiTransportMuon
 import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
@@ -87,7 +87,7 @@ class FullStackSpec extends Specification {
                 "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
 
         def config = new AutoConfiguration(serviceName:serviceName, aesEncryptionKey: "abcde12345678906")
-        def muon = new SingleTransportMuon(config, discovery, svc1)
+        def muon = new MultiTransportMuon(config, discovery, svc1)
 
         muon
     }

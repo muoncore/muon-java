@@ -3,7 +3,7 @@ package com.simplicity.services;
 import io.muoncore.Discovery;
 import io.muoncore.Muon;
 import io.muoncore.ServiceDescriptor;
-import io.muoncore.SingleTransportMuon;
+import io.muoncore.MultiTransportMuon;
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.config.AutoConfiguration;
@@ -52,7 +52,7 @@ public class TCKService {
         config.setServiceName(serviceName);
 //        config.setAesEncryptionKey("abcde12345678906");
 
-        Muon muon = new SingleTransportMuon(config, discovery, svc1);
+        Muon muon = new MultiTransportMuon(config, discovery, svc1);
 
         //allow discovery settle time.
         Thread.sleep(5000);

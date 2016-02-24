@@ -9,19 +9,21 @@ import io.muoncore.transport.TransportOutboundMessage;
 import reactor.core.Dispatcher;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-class SingleTransportClientChannelConnection implements ChannelConnection<TransportOutboundMessage, TransportInboundMessage> {
+class MultiTransportClientChannelConnection implements ChannelConnection<TransportOutboundMessage, TransportInboundMessage> {
 
-    private MuonTransport transport;
+    private List<MuonTransport> transports;
     private ChannelFunction<TransportInboundMessage> inbound;
     private Dispatcher dispatcher;
 
     private Map<String, ChannelConnection<TransportOutboundMessage, TransportInboundMessage>> channelConnectionMap = new HashMap<>();
 
-    public SingleTransportClientChannelConnection(
-            MuonTransport transport, Dispatcher dispatcher) {
-        this.transport = transport;
+    public MultiTransportClientChannelConnection(
+            List<MuonTransport> transports, Dispatcher dispatcher) {
+        this.transports = transports;
         this.dispatcher = dispatcher;
     }
 
@@ -52,7 +54,7 @@ class SingleTransportClientChannelConnection implements ChannelConnection<Transp
                     connection.send(message);
                     if (message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL) {
                         inbound = null;
-                        this.transport = null;
+                        this.transports = null;
                     }
                 } catch (NoSuchServiceException ex) {
                     inbound.apply(TransportInboundMessage.serviceNotFound(msg));
@@ -71,7 +73,12 @@ class SingleTransportClientChannelConnection implements ChannelConnection<Transp
     }
 
     private ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connectChannel(TransportOutboundMessage message) {
-        ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connection = transport.openClientChannel(message.getTargetServiceName(), message.getProtocol());
+
+        Optional<MuonTransport> transport = transports.stream().filter( tr -> tr.canConnectToService(message.getTargetServiceName())).findFirst();
+
+        //TODO, handle failure case
+
+        ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connection = transport.get().openClientChannel(message.getTargetServiceName(), message.getProtocol());
 
         connection.receive(inbound);
 

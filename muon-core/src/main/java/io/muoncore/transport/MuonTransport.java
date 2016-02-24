@@ -20,6 +20,8 @@ public interface MuonTransport {
 
     URI getLocalConnectionURI();
 
+    boolean canConnectToService(String name);
+
     ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel(
             String serviceName,
             String protocol) throws NoSuchServiceException, MuonTransportFailureException;

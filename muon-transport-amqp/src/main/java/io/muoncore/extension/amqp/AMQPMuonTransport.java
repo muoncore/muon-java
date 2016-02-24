@@ -1,6 +1,7 @@
 package io.muoncore.extension.amqp;
 
 import io.muoncore.Discovery;
+import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
@@ -47,6 +48,12 @@ public class AMQPMuonTransport implements MuonTransport {
     public void shutdown() {
         new ArrayList<>(channels).stream().forEach(AmqpChannel::shutdown);
         serviceQueue.shutdown();
+    }
+
+    @Override
+    public boolean canConnectToService(String name) {
+        ServiceDescriptor descriptor = discovery.getKnownServices().stream().filter( svc -> svc.getIdentifier().equals(name)).findFirst().get();
+        return descriptor.getConnectionUrls().stream().anyMatch( url -> url.getScheme().equals(getUrlScheme()));
     }
 
     @Override

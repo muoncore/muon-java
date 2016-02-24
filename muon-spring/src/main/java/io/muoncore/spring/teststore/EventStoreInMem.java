@@ -1,6 +1,6 @@
 package io.muoncore.spring.teststore;
 
-import io.muoncore.SingleTransportMuon;
+import io.muoncore.MultiTransportMuon;
 import io.muoncore.protocol.event.Event;
 import io.muoncore.protocol.event.server.EventServerProtocolStack;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
@@ -29,7 +29,7 @@ import java.util.concurrent.Executors;
 @EnableMuon(serviceName = "chronos", tags = {"eventstore"})
 public class EventStoreInMem {
 
-    @Autowired public SingleTransportMuon muon;
+    @Autowired public MultiTransportMuon muon;
     private List<Event> history = new ArrayList<>();
     private List<SubQueue> subs = new ArrayList<>();
     private final Executor exec = Executors.newFixedThreadPool(10);

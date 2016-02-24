@@ -18,7 +18,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
         def transport = Mock(MuonTransport)
 
-        def connection = new SingleTransportClientChannelConnection(transport, Environment.sharedDispatcher())
+        def connection = new MultiTransportClientChannelConnection(transport, Environment.sharedDispatcher())
 
         when:
         connection.send(outbound("mymessage", "myService1", "requestresponse"))
@@ -33,7 +33,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
         def transport = Mock(MuonTransport)
 
-        def connection = new SingleTransportClientChannelConnection(transport, Environment.sharedDispatcher())
+        def connection = new MultiTransportClientChannelConnection(transport, Environment.sharedDispatcher())
         connection.receive({})
 
         when:
@@ -81,7 +81,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
         def receive = Mock(ChannelConnection.ChannelFunction)
 
-        def connection = new SingleTransportClientChannelConnection(transport, Environment.sharedDispatcher())
+        def connection = new MultiTransportClientChannelConnection(transport, Environment.sharedDispatcher())
         connection.receive(receive)
 
         when:
@@ -122,7 +122,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
         def receive = Mock(ChannelConnection.ChannelFunction)
 
-        def connection = new SingleTransportClientChannelConnection(transport, Environment.sharedDispatcher())
+        def connection = new MultiTransportClientChannelConnection(transport, Environment.sharedDispatcher())
         connection.receive(receive)
 
         when:
@@ -148,7 +148,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
         ChannelConnection.ChannelFunction receive = Mock(ChannelConnection.ChannelFunction)
 
-        def connection = new SingleTransportClientChannelConnection(transport, Environment.sharedDispatcher())
+        def connection = new MultiTransportClientChannelConnection(transport, Environment.sharedDispatcher())
         connection.receive(receive)
 
         when:

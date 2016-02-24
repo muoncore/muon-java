@@ -2,6 +2,7 @@ package io.muoncore.memory.transport;
 
 import com.google.common.eventbus.EventBus;
 import io.muoncore.Discovery;
+import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.exception.MuonTransportFailureException;
@@ -19,12 +20,19 @@ public class InMemTransport implements MuonTransport {
     private AutoConfiguration configuration;
 
     private InMemServer inMemServer;
+    private Discovery discovery;
 
     public InMemTransport(
             AutoConfiguration configuration,
             EventBus bus) {
         this.bus = bus;
         this.configuration = configuration;
+    }
+
+    @Override
+    public boolean canConnectToService(String name) {
+        ServiceDescriptor descriptor = discovery.getKnownServices().stream().filter( svc -> svc.getIdentifier().equals(name)).findFirst().get();
+        return descriptor.getConnectionUrls().stream().anyMatch( url -> url.getScheme().equals(getUrlScheme()));
     }
 
     @Override
