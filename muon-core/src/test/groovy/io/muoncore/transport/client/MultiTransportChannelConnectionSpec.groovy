@@ -10,7 +10,7 @@ import io.muoncore.transport.TransportOutboundMessage
 import reactor.Environment
 import spock.lang.Specification
 
-class SingleTransportChannelConnectionSpec extends Specification {
+class MultiTransportChannelConnectionSpec extends Specification {
 
     def "transport channel requires full connection before sending"() {
 
@@ -18,7 +18,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
         def transport = Mock(MuonTransport)
 
-        def connection = new MultiTransportClientChannelConnection(transport, Environment.sharedDispatcher())
+        def connection = new MultiTransportClientChannelConnection([transport], Environment.sharedDispatcher())
 
         when:
         connection.send(outbound("mymessage", "myService1", "requestresponse"))
@@ -31,9 +31,11 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
         Environment.initializeIfEmpty()
 
-        def transport = Mock(MuonTransport)
+        def transport = Mock(MuonTransport) {
+            canConnectToService(_) >> true
+        }
 
-        def connection = new MultiTransportClientChannelConnection(transport, Environment.sharedDispatcher())
+        def connection = new MultiTransportClientChannelConnection([transport], Environment.sharedDispatcher())
         connection.receive({})
 
         when:
@@ -57,7 +59,6 @@ class SingleTransportChannelConnectionSpec extends Specification {
         1 * transport.openClientChannel("myService1", "wibble") >> Stub(ChannelConnection)
         1 * transport.openClientChannel("myService2", "simple") >> Stub(ChannelConnection)
 
-        0 * transport._
     }
 
     def "all inbound messages on the channels are pushed into the function for back propogation along the channel"() {
@@ -77,11 +78,12 @@ class SingleTransportChannelConnectionSpec extends Specification {
                 }
                 return c
             }
+            canConnectToService(_) >> true
         }
 
         def receive = Mock(ChannelConnection.ChannelFunction)
 
-        def connection = new MultiTransportClientChannelConnection(transport, Environment.sharedDispatcher())
+        def connection = new MultiTransportClientChannelConnection([transport], Environment.sharedDispatcher())
         connection.receive(receive)
 
         when:
@@ -118,11 +120,12 @@ class SingleTransportChannelConnectionSpec extends Specification {
             openClientChannel(_, _) >> {
                 return connections[0]
             }
+            canConnectToService(_) >> true
         }
 
         def receive = Mock(ChannelConnection.ChannelFunction)
 
-        def connection = new MultiTransportClientChannelConnection(transport, Environment.sharedDispatcher())
+        def connection = new MultiTransportClientChannelConnection([transport], Environment.sharedDispatcher())
         connection.receive(receive)
 
         when:
@@ -148,7 +151,7 @@ class SingleTransportChannelConnectionSpec extends Specification {
 
         ChannelConnection.ChannelFunction receive = Mock(ChannelConnection.ChannelFunction)
 
-        def connection = new MultiTransportClientChannelConnection(transport, Environment.sharedDispatcher())
+        def connection = new MultiTransportClientChannelConnection([transport], Environment.sharedDispatcher())
         connection.receive(receive)
 
         when:

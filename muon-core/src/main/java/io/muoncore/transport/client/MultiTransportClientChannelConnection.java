@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 class MultiTransportClientChannelConnection implements ChannelConnection<TransportOutboundMessage, TransportInboundMessage> {
 
@@ -20,6 +21,7 @@ class MultiTransportClientChannelConnection implements ChannelConnection<Transpo
     private Dispatcher dispatcher;
 
     private Map<String, ChannelConnection<TransportOutboundMessage, TransportInboundMessage>> channelConnectionMap = new HashMap<>();
+    private Logger LOG = Logger.getLogger(MultiTransportClientChannelConnection.class.getCanonicalName());
 
     public MultiTransportClientChannelConnection(
             List<MuonTransport> transports, Dispatcher dispatcher) {
@@ -49,7 +51,13 @@ class MultiTransportClientChannelConnection implements ChannelConnection<Transpo
                 try {
                     if (connection == null) {
                         connection = connectChannel(message);
-                        channelConnectionMap.put(key(message), connection);
+                        if (connection == null) {
+                            LOG.warning("Cannot open channel to service " + message.getTargetServiceName() + ", no transport accepted the message");
+                            inbound.apply(TransportInboundMessage.serviceNotFound(msg));
+                            return;
+                        } else {
+                            channelConnectionMap.put(key(message), connection);
+                        }
                     }
                     connection.send(message);
                     if (message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL) {
@@ -76,13 +84,13 @@ class MultiTransportClientChannelConnection implements ChannelConnection<Transpo
 
         Optional<MuonTransport> transport = transports.stream().filter( tr -> tr.canConnectToService(message.getTargetServiceName())).findFirst();
 
-        //TODO, handle failure case
-
-        ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connection = transport.get().openClientChannel(message.getTargetServiceName(), message.getProtocol());
-
-        connection.receive(inbound);
-
-        return connection;
+        if (transport.isPresent()) {
+            ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connection = transport.get().openClientChannel(message.getTargetServiceName(), message.getProtocol());
+            connection.receive(inbound);
+            return connection;
+        } else {
+            return null;
+        }
     }
 
     private static String key(TransportOutboundMessage key) {

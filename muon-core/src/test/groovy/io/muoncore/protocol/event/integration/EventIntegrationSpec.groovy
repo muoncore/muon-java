@@ -71,13 +71,13 @@ class EventIntegrationSpec extends Specification {
         def config = new AutoConfiguration(serviceName: name)
         def transport = new InMemTransport(config, eventbus)
 
-        new MultiTransportMuon(config, discovery, transport)
+        new MultiTransportMuon(config, discovery, [transport])
     }
     public Muon muonEventStore(Closure handler) {
         def config = new AutoConfiguration(tags:["eventstore"], serviceName: "chronos")
         def transport = new InMemTransport(config, eventbus)
 
-        def muon = new MultiTransportMuon(config, discovery, transport)
+        def muon = new MultiTransportMuon(config, discovery, [transport])
 
         muon.protocolStacks.registerServerProtocol(new EventServerProtocolStack(handler, muon.codecs))
 

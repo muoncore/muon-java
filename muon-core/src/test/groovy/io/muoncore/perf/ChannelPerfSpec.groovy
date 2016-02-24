@@ -147,6 +147,6 @@ class ChannelPerfSpec extends Specification {
         def config = new AutoConfiguration(serviceName: "service-${ident}")
         def transport = new InMemTransport(config, eventbus)
 
-        new MultiTransportMuon(config, discovery, transport)
+        new MultiTransportMuon(config, discovery, [transport])
     }
 }

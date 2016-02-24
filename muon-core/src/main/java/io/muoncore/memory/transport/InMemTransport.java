@@ -13,6 +13,7 @@ import io.muoncore.transport.TransportOutboundMessage;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 public class InMemTransport implements MuonTransport {
 
@@ -31,8 +32,17 @@ public class InMemTransport implements MuonTransport {
 
     @Override
     public boolean canConnectToService(String name) {
-        ServiceDescriptor descriptor = discovery.getKnownServices().stream().filter( svc -> svc.getIdentifier().equals(name)).findFirst().get();
-        return descriptor.getConnectionUrls().stream().anyMatch( url -> url.getScheme().equals(getUrlScheme()));
+        Optional<ServiceDescriptor> descriptor = discovery
+                .getKnownServices()
+                .stream()
+                .filter(svc ->
+                        svc.getIdentifier()
+                                .equals(name))
+                .findFirst();
+
+        if (!descriptor.isPresent()) return false;
+
+        return descriptor.get().getConnectionUrls().stream().anyMatch( url -> url.getScheme().equals(getUrlScheme()));
     }
 
     @Override
@@ -42,6 +52,7 @@ public class InMemTransport implements MuonTransport {
 
     @Override
     public void start(Discovery discovery, ServerStacks serverStacks) throws MuonTransportFailureException {
+        this.discovery = discovery;
         this.inMemServer = new InMemServer(configuration.getServiceName(), bus, serverStacks);
     }
 

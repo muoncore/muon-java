@@ -133,6 +133,6 @@ class ReactiveStreamIntegrationSpec extends Specification {
         def config = new AutoConfiguration(serviceName: name)
         def transport = new InMemTransport(config, eventbus)
 
-        new MultiTransportMuon(config, discovery, transport)
+        new MultiTransportMuon(config, discovery, [transport])
     }
 }

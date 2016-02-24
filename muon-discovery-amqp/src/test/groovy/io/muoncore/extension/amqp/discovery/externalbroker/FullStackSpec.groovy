@@ -87,7 +87,7 @@ class FullStackSpec extends Specification {
                 "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
 
         def config = new AutoConfiguration(serviceName:serviceName, aesEncryptionKey: "abcde12345678906")
-        def muon = new MultiTransportMuon(config, discovery, svc1)
+        def muon = new MultiTransportMuon(config, discovery, [svc1])
 
         muon
     }
