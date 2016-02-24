@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class ServiceQuery {
         config.setServiceName(serviceName);
 //        config.setAesEncryptionKey("abcde12345678906");
 
-        Muon muon = new MultiTransportMuon(config, createDiscovery(), svc1);
+        Muon muon = new MultiTransportMuon(config, createDiscovery(), Collections.singletonList(svc1));
 
         //allow discovery settle time.
         Thread.sleep(5000);

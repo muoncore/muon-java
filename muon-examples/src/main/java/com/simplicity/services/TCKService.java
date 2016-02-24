@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -52,7 +53,7 @@ public class TCKService {
         config.setServiceName(serviceName);
 //        config.setAesEncryptionKey("abcde12345678906");
 
-        Muon muon = new MultiTransportMuon(config, discovery, svc1);
+        Muon muon = new MultiTransportMuon(config, discovery, Collections.singletonList(svc1));
 
         //allow discovery settle time.
         Thread.sleep(5000);
