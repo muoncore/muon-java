@@ -26,7 +26,6 @@ public class AutoConfigurationBeanDefinitionRegistrar implements ImportBeanDefin
                     .genericBeanDefinition(AutoConfigurationFactoryBean.class);
             definition.addPropertyValue("serviceName", serviceName);
             definition.addPropertyValue("tags", annotationAttributes.get("tags"));
-            definition.addPropertyValue("aesEncryptionKey", annotationAttributes.get("aesEncryptionKey"));
             BeanDefinitionReaderUtils.registerBeanDefinition(
                     new BeanDefinitionHolder(definition.getBeanDefinition(), AUTO_CONFIGURATION_BEAN_NAME), registry);
         }
