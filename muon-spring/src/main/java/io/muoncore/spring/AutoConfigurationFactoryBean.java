@@ -3,7 +3,12 @@ package io.muoncore.spring;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.EmbeddedValueResolverAware;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertySource;
 import org.springframework.util.StringValueResolver;
 import reactor.core.support.Assert;
 
@@ -15,7 +20,7 @@ public class AutoConfigurationFactoryBean implements FactoryBean<AutoConfigurati
 
     private String serviceName;
     private String[] tags;
-    private String aesEncryptionKey;
+    @Autowired private Environment environment;
 
     @Override
     public void setEmbeddedValueResolver(StringValueResolver resolver) {
@@ -28,11 +33,21 @@ public class AutoConfigurationFactoryBean implements FactoryBean<AutoConfigurati
         String resolvedServiceName = embeddedValueResolver.resolveStringValue(serviceName);
         List<String> resolvedTags = resolveTags(tags);
 
-        AutoConfiguration config = MuonConfigBuilder
+        return MuonConfigBuilder
                 .withServiceIdentifier(resolvedServiceName)
-                .withTags(resolvedTags.toArray(new String[resolvedTags.size()])).build();
-
-        return config;
+                .addWriter(autoConfig -> {
+                    ConfigurableEnvironment configurableEnvironment = (ConfigurableEnvironment) environment;
+                    for (PropertySource<?> propertySource : configurableEnvironment.getPropertySources()) {
+                        if (propertySource instanceof EnumerablePropertySource) {
+                            final EnumerablePropertySource enumerablePropertySource = (EnumerablePropertySource) propertySource;
+                            for (String name : enumerablePropertySource.getPropertyNames()) {
+                                autoConfig.getProperties().put(name, enumerablePropertySource.getProperty(name));
+                            }
+                        }
+                    }
+                })
+                .withTags(resolvedTags.toArray(new String[resolvedTags.size()]))
+                .build();
     }
 
     private List<String> resolveTags(String[] tags) {
@@ -61,13 +76,5 @@ public class AutoConfigurationFactoryBean implements FactoryBean<AutoConfigurati
 
     public void setTags(String[] tags) {
         this.tags = tags;
-    }
-
-    public String getAesEncryptionKey() {
-        return aesEncryptionKey;
-    }
-
-    public void setAesEncryptionKey(String aesEncryptionKey) {
-        this.aesEncryptionKey = aesEncryptionKey;
     }
 }
