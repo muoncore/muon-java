@@ -18,6 +18,9 @@ import io.muoncore.transport.TransportMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -29,6 +32,7 @@ import java.util.stream.Collectors;
 public class RequestResponseServerProtocolStack implements
         ServerProtocolStack {
 
+    private static final Logger LOG = Logger.getLogger(RequestResponseServerProtocolStack.class.getCanonicalName());
     private final RequestResponseHandlers handlers;
     private Codecs codecs;
     private Discovery discovery;
@@ -65,12 +69,19 @@ public class RequestResponseServerProtocolStack implements
 
                 @Override
                 public void answer(Response response) {
-                    ServiceDescriptor target = discovery.findService(svc ->
+                    Optional<ServiceDescriptor> target = discovery.findService(svc ->
                             svc.getIdentifier().equals(
-                                    request.getMetaData().getSourceService())).get();
+                                    request.getMetaData().getSourceService()));
 
+                    String[] codecs;
+                    if (target.isPresent()) {
+                        codecs = target.get().getCodecs();
+                    } else {
+                        LOG.log(Level.WARNING, "Could not locate service " + request.getMetaData().getSourceService() + ", setting response codec to application/json");
+                        codecs = new String[]{"application/json"};
+                    }
                     TransportOutboundMessage msg = RRPTransformers.toOutbound(request.getMetaData().getTargetService(), request.getMetaData().getSourceService(), response, codecs,
-                            target.getCodecs());
+                            target.get().getCodecs());
 
                     api2.left().send(msg);
                 }
