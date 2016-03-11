@@ -32,10 +32,16 @@ public class AmqpMessageTransformers {
         Map metadata = new HashMap<>();
         metadata.putAll(message.getHeaders());
 
+        String targetService = "unknown";
+
+        if (message.getHeaders().get("targetService") != null) {
+            targetService = message.getHeaders().get("targetService");
+        }
+
         return new TransportInboundMessage(
                 message.getEventType(),
                 message.getHeaders().get("id").toString(),
-                message.getHeaders().get("targetService").toString(),
+                targetService,
                 message.getHeaders().get("sourceService").toString(),
                 message.getHeaders().get("protocol").toString(),
                 metadata,
