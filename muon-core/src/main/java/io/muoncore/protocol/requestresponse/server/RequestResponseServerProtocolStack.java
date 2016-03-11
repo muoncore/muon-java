@@ -73,15 +73,16 @@ public class RequestResponseServerProtocolStack implements
                             svc.getIdentifier().equals(
                                     request.getMetaData().getSourceService()));
 
-                    String[] codecs;
+                    String[] codecList;
                     if (target.isPresent()) {
-                        codecs = target.get().getCodecs();
+                        codecList = target.get().getCodecs();
                     } else {
                         LOG.log(Level.WARNING, "Could not locate service " + request.getMetaData().getSourceService() + ", setting response codec to application/json");
-                        codecs = new String[]{"application/json"};
+                        codecList = new String[]{"application/json"};
                     }
+
                     TransportOutboundMessage msg = RRPTransformers.toOutbound(request.getMetaData().getTargetService(), request.getMetaData().getSourceService(), response, codecs,
-                            target.get().getCodecs());
+                            codecList);
 
                     api2.left().send(msg);
                 }
