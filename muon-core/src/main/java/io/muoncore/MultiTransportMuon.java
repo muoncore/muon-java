@@ -8,6 +8,8 @@ import io.muoncore.protocol.DynamicRegistrationServerStacks;
 import io.muoncore.protocol.ServerRegistrar;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.protocol.defaultproto.DefaultServerProtocol;
+import io.muoncore.protocol.event.client.DefaultEventStoreClient;
+import io.muoncore.protocol.event.client.EventStoreClient;
 import io.muoncore.protocol.introspection.server.IntrospectionServerProtocolStack;
 import io.muoncore.protocol.reactivestream.server.DefaultPublisherLookup;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
@@ -43,6 +45,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
     private AutoConfiguration configuration;
     private PublisherLookup publisherLookup;
     private ProtocolTimer protocolTimer;
+    private EventStoreClient eventStoreClient;
 
     public MultiTransportMuon(
             AutoConfiguration configuration,
@@ -84,11 +87,19 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
                 transports.stream().map(MuonTransport::getLocalConnectionURI).collect(Collectors.toList())));
 
         discovery.blockUntilReady();
+
+        initEventStore();
     }
 
     @Override
     public ServerRegistrar getProtocolStacks() {
         return registrar;
+    }
+
+    private void initEventStore() {
+        eventStoreClient = new DefaultEventStoreClient(
+              getConfiguration(), getDiscovery(), getCodecs(), transportClient, this
+        );
     }
 
     private void initServerStacks(DynamicRegistrationServerStacks stacks) {
@@ -164,5 +175,10 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
     @Override
     public ProtocolTimer getProtocolTimer() {
         return protocolTimer;
+    }
+
+    @Override
+    public EventStoreClient getEventStoreClient() {
+        return eventStoreClient;
     }
 }

@@ -3,8 +3,6 @@ import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.channel.async.StandardAsyncChannel
-import io.muoncore.codec.Codecs
-import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.event.Event
@@ -38,27 +36,27 @@ class EventClientProtocolStackSpec extends Specification {
             openClientChannel() >> clientChannel
         }
 
-        def eventProto = new EventClientProtocolStack() {
-            @Override
-            TransportClient getTransportClient() {
-                return transportClient
-            }
-
-            @Override
-            Discovery getDiscovery() {
-                discovery
-            }
-
-            @Override
-            Codecs getCodecs() {
-                return new JsonOnlyCodecs()
-            }
-
-            @Override
-            AutoConfiguration getConfiguration() {
-                return config
-            }
-        }
+//        def eventProto = new EventClientProtocolStack() {
+//            @Override
+//            TransportClient getTransportClient() {
+//                return transportClient
+//            }
+//
+//            @Override
+//            Discovery getDiscovery() {
+//                discovery
+//            }
+//
+//            @Override
+//            Codecs getCodecs() {
+//                return new JsonOnlyCodecs()
+//            }
+//
+//            @Override
+//            AutoConfiguration getConfiguration() {
+//                return config
+//            }
+//        }
 
         when:
         def future = eventProto.event(new Event("SomethingHappened", "simples", "myParent", "myService", []))
@@ -102,27 +100,27 @@ class EventClientProtocolStackSpec extends Specification {
             openClientChannel() >> clientChannel
         }
 
-        def eventProto = new EventClientProtocolStack() {
-            @Override
-            TransportClient getTransportClient() {
-                return transportClient
-            }
-
-            @Override
-            Discovery getDiscovery() {
-                discovery
-            }
-
-            @Override
-            Codecs getCodecs() {
-                return new JsonOnlyCodecs()
-            }
-
-            @Override
-            AutoConfiguration getConfiguration() {
-                return config
-            }
-        }
+//        def eventProto = new EventClientProtocolStack() {
+//            @Override
+//            TransportClient getTransportClient() {
+//                return transportClient
+//            }
+//
+//            @Override
+//            Discovery getDiscovery() {
+//                discovery
+//            }
+//
+//            @Override
+//            Codecs getCodecs() {
+//                return new JsonOnlyCodecs()
+//            }
+//
+//            @Override
+//            AutoConfiguration getConfiguration() {
+//                return config
+//            }
+//        }
 
         when:
         eventProto.event(new Event("SomethingHappened", "simples", "myParent", "myService", []))
@@ -145,27 +143,27 @@ class EventClientProtocolStackSpec extends Specification {
             openClientChannel() >> clientChannel
         }
 
-        def eventProto = new EventClientProtocolStack() {
-            @Override
-            TransportClient getTransportClient() {
-                return transportClient
-            }
-
-            @Override
-            Discovery getDiscovery() {
-                discovery
-            }
-
-            @Override
-            Codecs getCodecs() {
-                return new JsonOnlyCodecs()
-            }
-
-            @Override
-            AutoConfiguration getConfiguration() {
-                return config
-            }
-        }
+//        def eventProto = new EventClientProtocolStack() {
+//            @Override
+//            TransportClient getTransportClient() {
+//                return transportClient
+//            }
+//
+//            @Override
+//            Discovery getDiscovery() {
+//                discovery
+//            }
+//
+//            @Override
+//            Codecs getCodecs() {
+//                return new JsonOnlyCodecs()
+//            }
+//
+//            @Override
+//            AutoConfiguration getConfiguration() {
+//                return config
+//            }
+//        }
 
         when:
         def response = eventProto.event(new Event("SomethingHappened2", "simples", "myParent", "myService", [])).get()

@@ -37,15 +37,17 @@ public class EventClientProtocol<X> {
 
             switch(message.getType()) {
                 case TransportEvents.SERVICE_NOT_FOUND:
-                    result = new EventResult(EventResult.EventResultStatus.FAILED);
+                    result = new EventResult(EventResult.EventResultStatus.FAILED,
+                            "Event Store Service Not Found");
                     break;
 
                 case TransportEvents.PROTOCOL_NOT_FOUND:
-                    result = new EventResult(EventResult.EventResultStatus.FAILED);
+                    result = new EventResult(EventResult.EventResultStatus.FAILED,
+                            "Remote service does not support event sink protocol");
                     break;
 
                 default:
-                    result = new EventResult(EventResult.EventResultStatus.PERSISTED);
+                    result = codecs.decode(message.getPayload(), message.getContentType(), EventResult.class);
             }
 
             //TODO, error handling
@@ -66,7 +68,8 @@ public class EventClientProtocol<X> {
 
             if (!eventService.isPresent()) {
                 //TODO, a failure, no event store available.
-                leftChannelConnection.send(new EventResult(EventResult.EventResultStatus.FAILED));
+                leftChannelConnection.send(new EventResult(EventResult.EventResultStatus.FAILED,
+                        "No Event Store available"));
             } else {
 
                 Codecs.EncodingResult result = codecs.encode(event, eventService.get().getCodecs());

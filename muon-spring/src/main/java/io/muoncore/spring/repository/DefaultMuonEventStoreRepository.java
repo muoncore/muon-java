@@ -19,7 +19,7 @@ public class DefaultMuonEventStoreRepository implements MuonEventStoreRepository
 
     @Override
     public void replay(String streamName, EventReplayMode mode, Subscriber<Event> event) throws UnsupportedEncodingException, URISyntaxException {
-        muon.replay(streamName, mode, event);
+        muon.getEventStoreClient().replay(streamName, mode, event);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class DefaultMuonEventStoreRepository implements MuonEventStoreRepository
 
     @Override
     public void event(String eventType, String streamName, String parentId, Object payload) {
-        muon.event(
+        muon.getEventStoreClient().event(
                 new Event<>(
                         eventType,
                         UUID.randomUUID().toString(),

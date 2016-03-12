@@ -4,6 +4,7 @@ import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
 import io.muoncore.descriptors.ProtocolDescriptor;
 import io.muoncore.protocol.ServerProtocolStack;
+import io.muoncore.transport.TransportEvents;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
@@ -46,7 +47,7 @@ public class DefaultServerProtocol implements ServerProtocolStack {
                 metadata.put("status", "404");
                 metadata.put("message", "Protocol unknown :" + message.getProtocol());
                 func.apply(new TransportOutboundMessage(
-                        "errorSent",
+                        TransportEvents.PROTOCOL_NOT_FOUND,
                         message.getId() + "REPLY",
                         message.getTargetServiceName(),
                         message.getSourceServiceName(),

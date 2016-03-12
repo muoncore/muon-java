@@ -262,20 +262,10 @@ project('muon-core') {
     }
 }
 
-project('muon-config-builder') {
-    apply plugin: 'groovy'
-
-    description = 'Module that constructs a MuonConfiguration for use by muon internal components and services build upon them'
-
-    dependencies {
-        compile project(":muon-core")
-    }
-}
-
 project('muon-examples') {
     apply plugin: 'groovy'
 
-    description = 'Muon TCK Implementation for testing the validity of this Muon library'
+    description = 'Examples of usage'
 
     repositories {
         maven { url 'http://repo.spring.io/libs-milestone' }

@@ -6,7 +6,9 @@ import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
 import io.muoncore.protocol.event.Event
+import io.muoncore.protocol.event.client.EventResult
 import io.muoncore.protocol.event.server.EventServerProtocolStack
+import io.muoncore.protocol.event.server.EventWrapper
 import reactor.Environment
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
@@ -21,24 +23,35 @@ class EventIntegrationSpec extends Specification {
         Environment.initializeIfEmpty()
 
         def data = []
+        List<EventResult> results = []
 
         def muon1 = muon("simples")
-        def muon2 = muonEventStore { Event ev ->
-            println "Event is the awesome ${ev}"
-            data << ev
+        boolean fail = true
+        def muon2 = muonEventStore { EventWrapper ev ->
+            println "Event is the awesome ${ev.event}"
+            data << ev.event
+            if (!fail) {
+                ev.persisted()
+                fail = true
+            } else {
+                ev.failed("Something went wrong")
+                fail = false
+            }
         }
 
         when:
 
-        muon1.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
-        muon1.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
-        muon1.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
-        muon1.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
+        results << muon1.eventStoreClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
+        results << muon1.eventStoreClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
+        results << muon1.eventStoreClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
+        results << muon1.eventStoreClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
 
         then:
-        new PollingConditions(timeout: 20).eventually {
+        new PollingConditions().eventually {
             data.size() == 4
-
+            results.size() == 4
+            results.findAll { it.status == EventResult.EventResultStatus.PERSISTED }.size() == 2
+            results.findAll { it.status == EventResult.EventResultStatus.FAILED }.size() == 2
         }
     }
 
@@ -47,24 +60,25 @@ class EventIntegrationSpec extends Specification {
         def data = []
 
         def muon1 = muon("simples")
-        def muon2 = muonEventStore { Event ev ->
-            println "Event is the awesome ${ev}"
-            data << ev
+        def muon2 = muonEventStore { EventWrapper ev ->
+            println "Event is the awesome ${ev.event}"
+            data << ev.event
+            ev.persisted()
         }
 
         when:
         200.times {
-            muon1.event(new Event("SomethingHappened", "${it}", "none", "muon1", "HELLO WORLD"))
-        }
-        sleep(5000)
-
-        def sorted = new ArrayList<Event>(data).sort {
-            Integer.parseInt(it.id)
+            muon1.eventStoreClient.event(new Event("SomethingHappened", "${it}", "none", "muon1", "HELLO WORLD"))
         }
 
         then:
-
-        data == sorted
+        new PollingConditions().eventually {
+            data.size() == 200
+            def sorted = new ArrayList<Event>(data).sort {
+                Integer.parseInt(it.id)
+            }
+            data == sorted
+        }
     }
 
     Muon muon(name) {
