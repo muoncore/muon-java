@@ -1,3 +1,6 @@
+---
+---
+
 = Muon Java Configuration Reference
 
 == Sources of configuration

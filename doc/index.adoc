@@ -1,4 +1,12 @@
+---
+---
+:title: Muon Java
+:layout: documentation
+:date: 2015-01-05 11:40
+:comments: true
+:sharing: true
 :source-highlighter: pygments
+:toc: right
 
 = Muon Java
 
