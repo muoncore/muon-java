@@ -6,5 +6,6 @@ include 'muon-core',
         'muon-discovery-multicast',
         'muon-codec-kryo',
         'muon-examples',
+        'muon-event',
         'muon-spring',
         "doc"

@@ -3,6 +3,7 @@ package io.muoncore.protocol.reactivestream.client;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
+import io.muoncore.exception.MuonEncodingException;
 import io.muoncore.exception.MuonException;
 import io.muoncore.protocol.reactivestream.ProtocolMessages;
 import io.muoncore.protocol.reactivestream.ReactiveStreamSubscriptionRequest;
@@ -42,7 +43,7 @@ public class ReactiveStreamClientProtocol<T> {
         this.configuration = configuration;
     }
 
-    public void start() throws UnsupportedEncodingException  {
+    public void start()  {
         transportConnection.receive( msg -> handleMessage(msg));
 
         ReactiveStreamSubscriptionRequest request = new ReactiveStreamSubscriptionRequest();
@@ -52,7 +53,7 @@ public class ReactiveStreamClientProtocol<T> {
         sendSubscribe(request);
     }
 
-    public static Map<String, String> splitQuery(URI url) throws UnsupportedEncodingException {
+    public static Map<String, String> splitQuery(URI url) {
         Map<String, String> query_pairs = new LinkedHashMap<>();
         String query = url.getQuery();
         if (query == null || query.trim().length() == 0) return query_pairs;
@@ -60,7 +61,11 @@ public class ReactiveStreamClientProtocol<T> {
         String[] pairs = query.split("&");
         for (String pair : pairs) {
             int idx = pair.indexOf("=");
-            query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+            try {
+                query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                throw new MuonEncodingException("Unable to decode data " + e.getMessage(), e);
+            }
         }
         return query_pairs;
     }

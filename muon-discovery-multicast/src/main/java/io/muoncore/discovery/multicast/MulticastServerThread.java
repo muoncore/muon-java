@@ -46,6 +46,11 @@ public class MulticastServerThread extends Thread {
                 } catch (InterruptedException e) { }
             } catch (IOException e) {
                 e.printStackTrace();
+                try {
+                    sleep((long)(Math.random() * FIVE_SECONDS));
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
         socket.close();

@@ -1,17 +1,9 @@
 package io.muoncore.extension.amqp.discovery.externalbroker
-import io.muoncore.Discovery
+
 import io.muoncore.Muon
-import io.muoncore.MultiTransportMuon
+import io.muoncore.MuonBuilder
 import io.muoncore.channel.async.StandardAsyncChannel
-import io.muoncore.codec.json.JsonOnlyCodecs
-import io.muoncore.config.AutoConfiguration
-import io.muoncore.extension.amqp.AMQPMuonTransport
-import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
-import io.muoncore.extension.amqp.DefaultServiceQueue
-import io.muoncore.extension.amqp.discovery.AmqpDiscovery
-import io.muoncore.transport.ServiceCache
-import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
-import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
+import io.muoncore.config.MuonConfigBuilder
 import io.muoncore.protocol.requestresponse.Response
 import io.muoncore.transport.TransportMessage
 import org.reactivestreams.Subscriber
@@ -77,30 +69,10 @@ class FullStackSpec extends Specification {
 
     private Muon createMuon(serviceName) {
 
-        def discovery = createDiscovery()
-        def connection = new RabbitMq09ClientAmqpConnection("amqp://muon:microservices@localhost")
-        def queueFactory = new RabbitMq09QueueListenerFactory(connection.channel)
-        def serviceQueue = new DefaultServiceQueue(serviceName, connection)
-        def channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection)
+        def config = MuonConfigBuilder.withServiceIdentifier(serviceName).build()
 
-        def svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
 
-        def config = new AutoConfiguration(serviceName:serviceName, aesEncryptionKey: "abcde12345678906")
-        def muon = new MultiTransportMuon(config, discovery, [svc1])
-
-        muon
-    }
-
-    private Discovery createDiscovery() {
-
-        def connection = new RabbitMq09ClientAmqpConnection("amqp://muon:microservices@localhost")
-        def queueFactory = new RabbitMq09QueueListenerFactory(connection.channel)
-        def codecs = new JsonOnlyCodecs()
-
-        def discovery = new AmqpDiscovery(queueFactory, connection, new ServiceCache(), codecs)
-        discovery.start()
-        discovery
+        MuonBuilder.withConfig(config).build()
     }
 
     def testTap(muon, Closure output) {

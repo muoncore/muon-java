@@ -58,14 +58,21 @@ public class EventStoreInMem {
         });
 
         muon.getProtocolStacks().registerServerProtocol(new EventServerProtocolStack(event -> {
-            subs.stream().forEach(q -> {
-                synchronized (q.queue) {q.queue.add(event);}
-            });
-            synchronized (history) {
-                history.add(event);
-            }
-            synchronized (exec) {
-                exec.notifyAll();
+            try {
+                subs.stream().forEach(q -> {
+                    synchronized (q.queue) {
+                        q.queue.add(event.getEvent());
+                    }
+                });
+                synchronized (history) {
+                    history.add(event.getEvent());
+                }
+                synchronized (exec) {
+                    exec.notifyAll();
+                }
+                event.persisted();
+            } catch (Exception ex) {
+                event.failed(ex.getMessage());
             }
         }, muon.getCodecs()));
 

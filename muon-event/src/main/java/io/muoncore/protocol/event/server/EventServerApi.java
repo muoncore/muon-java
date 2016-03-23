@@ -1,5 +1,6 @@
 package io.muoncore.protocol.event.server;
 
+import io.muoncore.protocol.event.EventProtocolMessages;
 import io.muoncore.ServerRegistrarSource;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.CodecsSource;

@@ -1,6 +1,5 @@
 package io.muoncore;
 
-import io.muoncore.protocol.event.client.EventClientProtocolStack;
 import io.muoncore.protocol.introspection.client.IntrospectionClientProtocolStack;
 import io.muoncore.protocol.reactivestream.client.ReactiveStreamClientProtocolStack;
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerHandlerApi;
@@ -13,8 +12,6 @@ import io.muoncore.transport.TransportControl;
  * Default set of protocol stacks.
  */
 public interface Muon extends
-        EventClientProtocolStack,
-//        EventServerApi,
         RequestResponseHandlersSource,
         RequestResponseClientProtocolStack,
         RequestResponseServerHandlerApi,

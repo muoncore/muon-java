@@ -1,4 +1,5 @@
 package io.muoncore.protocol.event.client
+
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
@@ -132,38 +133,11 @@ class EventClientProtocolStackSpec extends Specification {
 
     def "Sends a 404 response if no eventstore service found"() {
 
-        def discovery = Mock(Discovery) {
-            findService(_) >> Optional.empty()
-        }
         def config = new AutoConfiguration(serviceName: "tombola")
 
         def clientChannel = Mock(ChannelConnection)
 
-        def transportClient = Mock(TransportClient) {
-            openClientChannel() >> clientChannel
-        }
-
-//        def eventProto = new EventClientProtocolStack() {
-//            @Override
-//            TransportClient getTransportClient() {
-//                return transportClient
-//            }
-//
-//            @Override
-//            Discovery getDiscovery() {
-//                discovery
-//            }
-//
-//            @Override
-//            Codecs getCodecs() {
-//                return new JsonOnlyCodecs()
-//            }
-//
-//            @Override
-//            AutoConfiguration getConfiguration() {
-//                return config
-//            }
-//        }
+        def eventStore = new DefaultEventClient()
 
         when:
         def response = eventProto.event(new Event("SomethingHappened2", "simples", "myParent", "myService", [])).get()
@@ -171,5 +145,9 @@ class EventClientProtocolStackSpec extends Specification {
         then:
         response
         response.status == EventResult.EventResultStatus.FAILED
+    }
+
+    def muon() {
+        Muon
     }
 }

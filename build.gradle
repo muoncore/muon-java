@@ -277,8 +277,16 @@ project('muon-examples') {
         compile project(":muon-discovery-amqp")
         compile project(":muon-codec-kryo")
         compile project(":muon-spring")
+        compile project(":muon-event")
         compile "io.projectreactor:reactor-stream:$reactorVersion"
 //        compile 'org.slf4j:slf4j-jdk14:1.7.12'
+    }
+}
+
+project('muon-event') {
+    description = 'Event handling'
+    dependencies {
+        compile project(":muon-core")
     }
 }
 
@@ -319,6 +327,7 @@ project('muon-spring') {
         compile project(":muon-core"), {
             exclude module:"slf4j-jdk14"
         }
+        compile project(":muon-event")
         compile("io.projectreactor:reactor-stream:$reactorVersion")
         compile('org.springframework:spring-context:4.1.6.RELEASE')
 
@@ -340,6 +349,7 @@ project('muon-spring') {
 project('doc') {
     description = 'Documentation project'
     dependencies {
+        compile project(":muon-event")
         compile project(":muon-spring")
         compile project(":muon-transport-amqp")
         compile project(":muon-discovery-amqp")

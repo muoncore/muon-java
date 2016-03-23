@@ -4,15 +4,15 @@ import java.util.List;
 
 public class EventNode {
     private String id;
-    private String parentId;
     private String serviceId;
     private String eventType;
 
+    private EventNode parent;
     private List<EventNode> children;
 
-    public EventNode(String id, String parentId, String serviceId, String eventType, List<EventNode> children) {
+    public EventNode(String id, String serviceId, String eventType, EventNode parent, List<EventNode> children) {
         this.id = id;
-        this.parentId = parentId;
+        this.parent= parent;
         this.serviceId = serviceId;
         this.eventType = eventType;
         this.children = children;
@@ -22,16 +22,16 @@ public class EventNode {
         return id;
     }
 
-    public String getParentId() {
-        return parentId;
-    }
-
     public String getServiceId() {
         return serviceId;
     }
 
     public String getEventType() {
         return eventType;
+    }
+
+    public EventNode getParent() {
+        return parent;
     }
 
     public List<EventNode> getChildren() {

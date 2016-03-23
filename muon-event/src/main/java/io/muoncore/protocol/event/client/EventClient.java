@@ -2,11 +2,10 @@ package io.muoncore.protocol.event.client;
 
 import io.muoncore.api.MuonFuture;
 import io.muoncore.protocol.event.Event;
+import io.muoncore.protocol.event.graph.EventNode;
 import org.reactivestreams.Subscriber;
 
-import java.net.URISyntaxException;
-
-public interface EventStoreClient {
+public interface EventClient {
 
     /**
      * Emit an event into the remote event store.
@@ -15,6 +14,11 @@ public interface EventStoreClient {
      * @return
      */
     <X> MuonFuture<EventResult> event(Event<X> event);
+
+    /**
+     * Load an event by id
+     */
+    <X> MuonFuture<Event<X>> loadEvent(String id, Class<X> type);
 
     /**
      * Replay an event stream, allowing the creation of an aggregated data structure (a reduction or projection)
@@ -30,6 +34,20 @@ public interface EventStoreClient {
      * @param mode Whether to replay just the future data, or request to load historical data, if supported on the remote stream
      * @param subscriber The reactive streams subscriber that will listen to the event stream.
      */
-    void replay(String streamName, EventReplayMode mode,  Subscriber<Event> subscriber) throws URISyntaxException;
+    void replay(String streamName, EventReplayMode mode, Subscriber<Event> subscriber);
 
+
+    /**
+     * Emit an event into the remote event store.
+     * @param event
+     * @param <X>
+     * @return
+     */
+    <X> MuonFuture<EventNode> loadChain(String eventId);
+
+
+    /*
+    <X> MuonFuture<EventProjection<X>> lookupProjection(String name, Type type);
+
+    */
 }

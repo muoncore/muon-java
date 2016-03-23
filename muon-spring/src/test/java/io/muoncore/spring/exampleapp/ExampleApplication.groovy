@@ -1,4 +1,5 @@
 package io.muoncore.spring.exampleapp
+
 import io.muoncore.protocol.event.Event
 import io.muoncore.spring.annotations.EnableMuon
 import io.muoncore.spring.annotations.EventSourceListener

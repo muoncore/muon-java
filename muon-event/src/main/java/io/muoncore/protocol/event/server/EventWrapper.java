@@ -1,8 +1,9 @@
 package io.muoncore.protocol.event.server;
 
-import io.muoncore.channel.ChannelConnection;
 import io.muoncore.protocol.event.Event;
+import io.muoncore.channel.ChannelConnection;
 import io.muoncore.protocol.event.client.EventResult;
+import io.muoncore.protocol.event.Event;
 
 public class EventWrapper {
 

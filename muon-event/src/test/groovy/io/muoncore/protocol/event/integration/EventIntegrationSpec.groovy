@@ -1,11 +1,13 @@
 package io.muoncore.protocol.event.integration
+
 import com.google.common.eventbus.EventBus
-import io.muoncore.Muon
 import io.muoncore.MultiTransportMuon
+import io.muoncore.Muon
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
 import io.muoncore.protocol.event.Event
+import io.muoncore.protocol.event.client.DefaultEventClient
 import io.muoncore.protocol.event.client.EventResult
 import io.muoncore.protocol.event.server.EventServerProtocolStack
 import io.muoncore.protocol.event.server.EventWrapper
@@ -26,6 +28,7 @@ class EventIntegrationSpec extends Specification {
         List<EventResult> results = []
 
         def muon1 = muon("simples")
+        def evClient = new DefaultEventClient(muon1)
         boolean fail = true
         def muon2 = muonEventStore { EventWrapper ev ->
             println "Event is the awesome ${ev.event}"
@@ -41,10 +44,10 @@ class EventIntegrationSpec extends Specification {
 
         when:
 
-        results << muon1.eventStoreClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
-        results << muon1.eventStoreClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
-        results << muon1.eventStoreClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
-        results << muon1.eventStoreClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
+        results << evClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
+        results << evClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
+        results << evClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
+        results << evClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
 
         then:
         new PollingConditions().eventually {
@@ -60,6 +63,7 @@ class EventIntegrationSpec extends Specification {
         def data = []
 
         def muon1 = muon("simples")
+        def evClient = new DefaultEventClient(muon1)
         def muon2 = muonEventStore { EventWrapper ev ->
             println "Event is the awesome ${ev.event}"
             data << ev.event
@@ -68,7 +72,7 @@ class EventIntegrationSpec extends Specification {
 
         when:
         200.times {
-            muon1.eventStoreClient.event(new Event("SomethingHappened", "${it}", "none", "muon1", "HELLO WORLD"))
+            evClient.event(new Event("SomethingHappened", "${it}", "none", "muon1", "HELLO WORLD"))
         }
 
         then:

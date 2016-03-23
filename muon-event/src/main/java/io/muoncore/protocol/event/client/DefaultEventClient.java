@@ -1,6 +1,7 @@
 package io.muoncore.protocol.event.client;
 
 import io.muoncore.Discovery;
+import io.muoncore.Muon;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.api.ChannelFutureAdapter;
 import io.muoncore.api.MuonFuture;
@@ -17,12 +18,12 @@ import io.muoncore.transport.TransportOutboundMessage;
 import io.muoncore.transport.client.TransportClient;
 import org.reactivestreams.Subscriber;
 
-import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
 
-public class DefaultEventStoreClient implements EventStoreClient {
+public class DefaultEventClient implements EventClient {
 
     private AutoConfiguration config;
     private Discovery discovery;
@@ -32,12 +33,17 @@ public class DefaultEventStoreClient implements EventStoreClient {
 
     private ChannelConnection<TransportOutboundMessage, TransportInboundMessage> eventChannelConnection;
 
-    public DefaultEventStoreClient(AutoConfiguration config, Discovery discovery, Codecs codecs, TransportClient transportClient, ReactiveStreamClientProtocolStack reactiveStreamClientProtocolStack) {
-        this.config = config;
-        this.discovery = discovery;
-        this.codecs = codecs;
-        this.transportClient = transportClient;
-        this.reactiveStreamClientProtocolStack = reactiveStreamClientProtocolStack;
+    public DefaultEventClient(Muon muon) {
+        this.config = muon.getConfiguration();
+        this.discovery = muon.getDiscovery();
+        this.codecs = muon.getCodecs();
+        this.transportClient = muon.getTransportClient();
+        this.reactiveStreamClientProtocolStack = muon;
+    }
+
+    @Override
+    public <X> MuonFuture<Event<X>> loadEvent(String id, Class<X> type) {
+        return null;
     }
 
     @Override
@@ -62,7 +68,7 @@ public class DefaultEventStoreClient implements EventStoreClient {
     }
 
     @Override
-    public void replay(String streamName, EventReplayMode mode, Subscriber<Event> subscriber) throws URISyntaxException {
+    public void replay(String streamName, EventReplayMode mode, Subscriber<Event> subscriber) {
 
 //TODO, introduce params.
         Optional<ServiceDescriptor> eventStore = discovery.findService(svc -> svc.getTags().contains("eventstore"));
@@ -70,11 +76,17 @@ public class DefaultEventStoreClient implements EventStoreClient {
             String eventStoreName = eventStore.get().getIdentifier();
             try {
                 reactiveStreamClientProtocolStack.subscribe(new URI("stream://" + eventStoreName + "/" + streamName), Event.class, subscriber);
-            } catch (UnsupportedEncodingException e) {
+            } catch (URISyntaxException  e) {
                 throw new MuonException("The name provided [" + eventStoreName + "] is invalid");
             }
         } else {
             throw new MuonException("There is no event store present in the distributed system");
         }
     }
+
+    @Override
+    public <X> MuonFuture<EventProjection<X>> lookupProjection(String name, Type type) {
+        return null;
+    }
+
 }

@@ -3,8 +3,10 @@ package io.muoncore.discovery.multicast
 import io.muoncore.ServiceDescriptor
 import io.muoncore.transport.ServiceCache
 import spock.lang.Specification
+import spock.lang.Timeout
 import spock.util.concurrent.PollingConditions
 
+@Timeout(10)
 class MulticastDiscoverySpec extends Specification {
 
     def "can fire up multiple multicast discoveries and have them interact"() {
