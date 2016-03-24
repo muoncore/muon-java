@@ -19,7 +19,6 @@ import io.muoncore.transport.TransportOutboundMessage;
 import io.muoncore.transport.client.TransportClient;
 import org.reactivestreams.Subscriber;
 
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
@@ -90,9 +89,9 @@ public class DefaultEventClient implements EventClient {
         }
     }
 
-    @Override
-    public <X> MuonFuture<EventProjection<X>> lookupProjection(String name, Type type) {
-        return null;
-    }
+//    @Override
+//    public <X> MuonFuture<EventProjection<X>> lookupProjection(String name, Type type) {
+//        return null;
+//    }
 
 }
