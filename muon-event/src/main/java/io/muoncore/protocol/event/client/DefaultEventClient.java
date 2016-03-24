@@ -12,6 +12,7 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.exception.MuonException;
 import io.muoncore.protocol.event.Event;
+import io.muoncore.protocol.event.graph.EventNode;
 import io.muoncore.protocol.reactivestream.client.ReactiveStreamClientProtocolStack;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
@@ -39,6 +40,11 @@ public class DefaultEventClient implements EventClient {
         this.codecs = muon.getCodecs();
         this.transportClient = muon.getTransportClient();
         this.reactiveStreamClientProtocolStack = muon;
+    }
+
+    @Override
+    public <X> MuonFuture<EventNode> loadChain(String eventId) {
+        return null;
     }
 
     @Override
