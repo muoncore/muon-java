@@ -10,6 +10,8 @@ layout: documentation
 :toc-title: Muon Java
 :toclevels: 6
 
+
+include::java/SNAPSHOT/intro.adoc[leveloffset=+1]
 # Muon Java
 
 .Contributing
@@ -17,7 +19,6 @@ layout: documentation
 Muon and the ecosystem services are open source.
 Contribute to Muon Java and this documentation at http://github.com/microserviceux/muon-java
 ****
-
-include::java/SNAPSHOT/main.adoc[leveloffset=+1]
+include::java/SNAPSHOT/core.adoc[leveloffset=+1]
 include::java/SNAPSHOT/eventsystem.adoc[leveloffset=+1]
 include::java/SNAPSHOT/spring.adoc[leveloffset=+1]

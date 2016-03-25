@@ -1,4 +1,6 @@
 
+= Event Data
+
 === Event Sourcing
 
 TODO, link core event sourcing docs.
