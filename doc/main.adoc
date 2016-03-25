@@ -135,19 +135,6 @@ include::src/main/java/io/muoncore/example/ReactiveStreams.java[]
 Again, this example uses Java and shows two separate services communicating using a reactive message stream, with back pressure support
 managed by Reactor.
 
-=== Event Sourcing
-
-TODO, link core event sourcing docs.
-
-Apart from the recommended event store, Photon, Muon Java provides an in memory, simplified event store that only implements
- the core ingest and stream functionality of a muon compatible event store. You can read more about it link:InMemEventStore.html[here]
-
-This is most useful during building tests.
-
-=== Event Based Testing
-
-If you adopt the Event system (which requires an event store such as _Photon_), then you will design your system domains
-as a set of _Events_, and your business processes as a set of causal relationships between them.
 
 === Wiretap
 
@@ -194,39 +181,6 @@ to receive all the messages required.
 [source,java]
 ----
 include::src/main/java/io/muoncore/example/Wiretap.java[tags=wiretap2]
-----
-
-== Spring Support
-
-Muon Java does not require Spring Core to run, however it does have a set of integrations for Spring and in particular, Spring Boot.
-
-=== Create an new Muon Spring Boot Microservice
-
-To create a new Muon Spring Boot Microservice, you need to
-
-[source,java]
-----
-include::src/main/java/io/muoncore/example/springexample/AutowireMuon.java[tags=autowire]
-----
-
-=== Provide an RPC endpoint
-
-=== Create a Spring Repository
-
-=== Subscribe to a Remote Stream
-
-=== Obtain the Muon object
-
-Currently, not all features of Muon are fully exposed in the spring support.
-
-You can obtain the current Muon instance that has been automatically created via a simple @Autowire and then perform
-any of the actions you find in the rest of the documentation on it.
-
-Here is an example of this, combined with a @PostConstruct to allow a wiretap to be set up.
-
-[source,java]
-----
-include::src/main/java/io/muoncore/example/springexample/AutowireMuon.java[tags=autowire]
 ----
 
 == Extending Muon Java
