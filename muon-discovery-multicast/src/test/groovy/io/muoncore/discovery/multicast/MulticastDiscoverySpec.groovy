@@ -2,10 +2,12 @@ package io.muoncore.discovery.multicast
 
 import io.muoncore.ServiceDescriptor
 import io.muoncore.transport.ServiceCache
+import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Timeout
 import spock.util.concurrent.PollingConditions
 
+@IgnoreIf({ System.getenv("BUILD_NUMBER") })
 @Timeout(10)
 class MulticastDiscoverySpec extends Specification {
 
