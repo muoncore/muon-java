@@ -40,6 +40,7 @@ class SimpleTransportMessageDispatcherSpec extends Specification {
         dispatcher.dispatch(inbound())
         dispatcher.dispatch(inbound())
         dispatcher.dispatch(inbound())
+        dispatcher.shutdown()
 
         then:
         new PollingConditions().eventually {
@@ -150,6 +151,7 @@ class SimpleTransportMessageDispatcherSpec extends Specification {
             @Override
             void onComplete() {}
         })
+        sleep(500)
 
         when:
         dispatcher.dispatch(inbound())
@@ -159,9 +161,12 @@ class SimpleTransportMessageDispatcherSpec extends Specification {
         dispatcher.dispatch(inbound())
 
         then:
-        new PollingConditions().eventually {
+        new PollingConditions(timeout: 5).eventually {
             data.size() == 15
         }
+
+        cleanup:
+        dispatcher.shutdown()
     }
 
     def inbound() {

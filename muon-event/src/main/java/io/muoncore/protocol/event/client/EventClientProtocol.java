@@ -1,7 +1,5 @@
 package io.muoncore.protocol.event.client;
 
-import io.muoncore.protocol.event.Event;
-import io.muoncore.protocol.event.EventProtocolMessages;
 import io.muoncore.Discovery;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.ChannelConnection;

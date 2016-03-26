@@ -1,9 +1,11 @@
 package io.muoncore.protocol.event.client
 
 import io.muoncore.Discovery
+import io.muoncore.Muon
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.channel.async.StandardAsyncChannel
+import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.event.Event
@@ -32,35 +34,25 @@ class EventClientProtocolStackSpec extends Specification {
                 capturedFunction = new ChannelFunctionExecShimBecauseGroovyCantCallLambda(func[0])
             }
         }
-
         def transportClient = Mock(TransportClient) {
             openClientChannel() >> clientChannel
         }
 
-//        def eventProto = new EventClientProtocolStack() {
-//            @Override
-//            TransportClient getTransportClient() {
-//                return transportClient
-//            }
-//
-//            @Override
-//            Discovery getDiscovery() {
-//                discovery
-//            }
-//
-//            @Override
-//            Codecs getCodecs() {
-//                return new JsonOnlyCodecs()
-//            }
-//
-//            @Override
-//            AutoConfiguration getConfiguration() {
-//                return config
-//            }
-//        }
+        def muon = Mock(Muon) {
+            getTransportClient() >> transportClient
+            getDiscovery() >> discovery
+            getConfiguration() >> config
+            getCodecs() >> Mock(Codecs) {
+                getAvailableCodecs() >> ([] as String[])
+                encode(_, _) >> new Codecs.EncodingResult(new byte[0], "application/json")
+                decode(_, _, _ ) >> new EventResult(EventResult.EventResultStatus.PERSISTED, "")
+            }
+        }
+
+        def evClient = new DefaultEventClient(muon)
 
         when:
-        def future = eventProto.event(new Event("SomethingHappened", "simples", "myParent", "myService", []))
+        def future = evClient.event(new Event("SomethingHappened", "simples", "myParent", "myService", []))
 
         and: "A response comes back from the remote"
         Thread.start {
@@ -86,65 +78,76 @@ class EventClientProtocolStackSpec extends Specification {
             future.get() instanceof EventResult
             future.get().status == EventResult.EventResultStatus.PERSISTED
         }
+
+        cleanup:
+        StandardAsyncChannel.echoOut = false
     }
 
     def "Stack sends all with the event protocol set"() {
 
+        StandardAsyncChannel.echoOut=true
+        def config = new AutoConfiguration(serviceName: "tombola")
+
         def discovery = Mock(Discovery) {
             findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], [], []))
         }
-        def config = new AutoConfiguration(serviceName: "tombola")
 
         def clientChannel = Mock(ChannelConnection)
-
         def transportClient = Mock(TransportClient) {
             openClientChannel() >> clientChannel
         }
 
-//        def eventProto = new EventClientProtocolStack() {
-//            @Override
-//            TransportClient getTransportClient() {
-//                return transportClient
-//            }
-//
-//            @Override
-//            Discovery getDiscovery() {
-//                discovery
-//            }
-//
-//            @Override
-//            Codecs getCodecs() {
-//                return new JsonOnlyCodecs()
-//            }
-//
-//            @Override
-//            AutoConfiguration getConfiguration() {
-//                return config
-//            }
-//        }
+        def muon = Mock(Muon) {
+            getTransportClient() >> transportClient
+            getDiscovery() >> discovery
+            getConfiguration() >> config
+            getCodecs() >> Mock(Codecs) {
+                getAvailableCodecs() >> ([] as String[])
+                encode(_, _) >> new Codecs.EncodingResult(new byte[0], "application/json")
+            }
+        }
+
+        def eventStore = new DefaultEventClient(muon)
 
         when:
-        eventProto.event(new Event("SomethingHappened", "simples", "myParent", "myService", []))
+        eventStore.event(new Event("SomethingHappened", "simples", "myParent", "myService", []))
         sleep(50)
 
         then:
         1 * clientChannel.send({ it.protocol == "event" })
+
+        cleanup:
+        StandardAsyncChannel.echoOut=false
     }
 
     def "Sends a 404 response if no eventstore service found"() {
 
-        def config = new AutoConfiguration(serviceName: "tombola")
+        StandardAsyncChannel.echoOut=true
 
+        def discovery = Mock(Discovery) {
+            findService(_) >> Optional.empty()
+        }
         def clientChannel = Mock(ChannelConnection)
+        def transportClient = Mock(TransportClient) {
+            openClientChannel() >> clientChannel
+        }
 
-        def eventStore = new DefaultEventClient()
+        def muon = Mock(Muon) {
+            getTransportClient() >> transportClient
+            getDiscovery() >> discovery
+        }
+
+        def eventStore = new DefaultEventClient(muon)
 
         when:
-        def response = eventProto.event(new Event("SomethingHappened2", "simples", "myParent", "myService", [])).get()
+        def response = eventStore.event(new Event("SomethingHappened2", "simples", "myParent", "myService", [])).get()
 
         then:
         response
         response.status == EventResult.EventResultStatus.FAILED
+
+        cleanup:
+        StandardAsyncChannel.echoOut=false
     }
 
     def muon() {
