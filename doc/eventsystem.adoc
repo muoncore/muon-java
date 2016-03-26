@@ -1,5 +1,7 @@
 
-= Event Data
+== Event Based Systems
+
+
 
 === Event Sourcing
 
@@ -14,3 +16,4 @@ This is most useful during building tests.
 
 If you adopt the Event system (which requires an event store such as _Photon_), then you will design your system domains
 as a set of _Events_, and your business processes as a set of causal relationships between them.
+
