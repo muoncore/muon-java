@@ -98,7 +98,7 @@ is particularly useful when designing and building a new communication protocol.
 Image a service with a single RPC endpoint that accepts an undefined object data structure, which represent using a Map.
  It then responds inline wth the number 42. A very simple service.
 
-[source,java]
+[source,java,indent=0]
 ----
 include::src/main/java/io/muoncore/example/Wiretap.java[tags=setupRPC]
 ----
@@ -108,7 +108,7 @@ We would like to generate a list of all the services that are calling this one, 
 We could implement this using a wiretap, this will extract a stream of all the requests that match a particular filter.
 The stream interface provided implements the Reactive Stream interface.
 
-[source,java]
+[source,java,indent=0]
 ----
 include::src/main/java/io/muoncore/example/Wiretap.java[tags=wiretap]
 ----
@@ -120,7 +120,7 @@ include::src/main/java/io/muoncore/example/Wiretap.java[tags=wiretap]
 Whenever you then perform an RPC communication, the Request ```TransportMessage``` events will be selected by your wiretap
  and passed into the Subscriber, in this case the Reactor Broadcaster.
 
-[source,java]
+[source,java,indent=0]
 ----
 include::src/main/java/io/muoncore/example/Wiretap.java[tags=fireRPC]
 ----
@@ -128,7 +128,7 @@ include::src/main/java/io/muoncore/example/Wiretap.java[tags=fireRPC]
 As many wiretaps as you like can be active. You may add another Wiretap later on to select the Response messages, and it will then begin
 to receive all the messages required.
 
-[source,java]
+[source,java,indent=0]
 ----
 include::src/main/java/io/muoncore/example/Wiretap.java[tags=wiretap2]
 ----

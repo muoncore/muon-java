@@ -10,10 +10,9 @@ later in this guide.
 
 You can install this by following the instructions at spring.io or using _SDK Man_
 
-[source,bash]
+[source,shell]
 ```
-curl -s get.sdkman.io | bash
-source "$HOME/.sdkman/bin/sdkman-init.sh"
+curl -s get.sdkman.io | bash source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 sdk install springboot
 ```
