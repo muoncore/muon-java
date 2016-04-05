@@ -1,17 +1,17 @@
 
-== Extending Muon Java
+= Extending Muon Java
 
 In common with all Muon libraries, Muon Java is a restricted implementation of Communicating Sequential Processes.
 Extension then mostly involves creating and exposing various combinations of processes and channels.
 
-=== Encoding
+== Encoding
 
-=== Transports
+== Transports
 
-=== Discovery
+== Discovery
 
 
-=== Adding a new interaction protocol
+== Adding a new interaction protocol
 
 Before reading on, many systems won't need to do this. The baked in protocols (RPC, Streaming etc) are generally good enough
 in most circumstances. If you do have a specific need to control the way your services interact in a more granular way then read on!
@@ -23,16 +23,16 @@ This guide focuses on how to implement this in Muon-Java. For a fuller discussio
 
 TODO, link to main guide on protocols
 
-==== Designing a Protocol
+=== Designing a Protocol
 
-==== Client Side
+=== Client Side
 
-===== Designing Building a Muon Client Process
+==== Designing Building a Muon Client Process
 
-===== Designing the User API and Protocol Stack
+==== Designing the User API and Protocol Stack
 
-==== Server Side
+=== Server Side
 
-===== Designing Building a Muon Server Process
+==== Designing Building a Muon Server Process
 
-===== Registering the ServerStack
+==== Registering the ServerStack

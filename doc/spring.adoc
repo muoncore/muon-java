@@ -1,9 +1,9 @@
 
-== Spring Support
+= Spring Support
 
 Muon Java does not require Spring Core to run, however it does have a set of integrations for Spring and in particular, Spring Boot.
 
-=== Create an new Muon Spring Boot Microservice
+== Create an new Muon Spring Boot Microservice
 
 To create a new Muon Spring Boot Microservice, you need to
 
@@ -12,13 +12,13 @@ To create a new Muon Spring Boot Microservice, you need to
 include::src/main/java/io/muoncore/example/springexample/AutowireMuon.java[tags=autowire]
 ----
 
-=== Provide an RPC endpoint
+== Provide an RPC endpoint
 
-=== Create a Spring Repository
+== Create a Spring Repository
 
-=== Subscribe to a Remote Stream
+== Subscribe to a Remote Stream
 
-=== Obtain the Muon object
+== Obtain the Muon object
 
 Currently, not all features of Muon are fully exposed in the spring support.
 
