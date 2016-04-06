@@ -94,7 +94,7 @@ class SimpleTransportMessageDispatcherSpec extends Specification {
 
         given:
 
-        def data = []
+        def data = Collections.synchronizedList([])
 
         def dispatcher = new SimpleTransportMessageDispatcher()
         dispatcher.observe({ true }).subscribe(new Subscriber<TransportMessage>() {

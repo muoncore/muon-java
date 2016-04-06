@@ -11,15 +11,21 @@ public class Event<X> {
     private String serviceId;
 
     private String eventType;
+    private String streamName;
 
     private X payload;
 
-    public Event(String eventType, String id, String parentId, String serviceId, X payload) {
+    public Event(String streamName, String eventType, String id, String parentId, String serviceId, X payload) {
+        this.streamName = streamName;
         this.id = id;
         this.parentId = parentId;
         this.serviceId = serviceId;
         this.payload = payload;
         this.eventType = eventType;
+    }
+
+    public String getStreamName() {
+        return streamName;
     }
 
     public String getEventType() {

@@ -13,7 +13,6 @@ import io.muoncore.transport.TransportOutboundMessage;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -22,7 +21,6 @@ import java.util.Optional;
 public class EventClientProtocol<X> {
 
     public EventClientProtocol(
-            String streamName,
             AutoConfiguration configuration,
             Discovery discovery,
             Codecs codecs,
@@ -74,11 +72,7 @@ public class EventClientProtocol<X> {
                         "No Event Store available"));
             } else {
 
-                Map<String, Object> data = new HashMap<>();
-                data.put("stream-name", streamName);
-                data.put("payload", event);
-
-                Codecs.EncodingResult result = codecs.encode(data, eventService.get().getCodecs());
+                Codecs.EncodingResult result = codecs.encode(event, eventService.get().getCodecs());
 
                 TransportOutboundMessage msg = new TransportOutboundMessage(
                         event.getEventType(),
