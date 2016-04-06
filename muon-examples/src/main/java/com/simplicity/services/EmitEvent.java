@@ -2,7 +2,6 @@ package com.simplicity.services;
 
 import io.muoncore.Muon;
 import io.muoncore.MuonBuilder;
-import io.muoncore.api.MuonFuture;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
 import io.muoncore.protocol.event.Event;
@@ -37,9 +36,8 @@ public class EmitEvent {
         data.put("hello", "world");
 
         for(int i=0; i < 500; i++ ) {
-            MuonFuture<EventResult> res = client.event(new Event<>("awesome", "123", null, config.getServiceName(), data));
-            EventResult result = res.get();
-            System.out.println("Restul is " + result.getStatus() + " " + result.getCause());
+            EventResult res = client.event("awesome", new Event<>("awesome", "123", null, config.getServiceName(), data));
+            System.out.println("Restul is " + res.getStatus() + " " + res.getCause());
         }
 
         muon.shutdown();

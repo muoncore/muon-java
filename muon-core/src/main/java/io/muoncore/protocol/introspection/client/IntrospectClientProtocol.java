@@ -58,5 +58,4 @@ public class IntrospectClientProtocol<X,R> {
          *
          */
     }
-
 }

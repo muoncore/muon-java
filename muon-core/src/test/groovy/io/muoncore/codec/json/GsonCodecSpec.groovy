@@ -17,6 +17,18 @@ class GsonCodecSpec extends Specification {
     new String(val) == """{"someValue":"hello","someOtherValue":43}"""
   }
 
+  def "when passed incompatible type, throws DecodingFailureException"() {
+    def codec = new GsonCodec()
+
+    when:
+    def value = codec.decode("""{"someValue":"hello","someOtherValue":43}""".bytes
+            , MyTestClass)
+
+    then:
+    assertMyTestClass(value, "hello", 43)
+  }
+
+
   def "gson codec converts json string to object"() {
     def codec = new GsonCodec()
 

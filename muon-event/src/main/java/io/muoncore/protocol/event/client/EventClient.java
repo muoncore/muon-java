@@ -1,8 +1,6 @@
 package io.muoncore.protocol.event.client;
 
-import io.muoncore.api.MuonFuture;
 import io.muoncore.protocol.event.Event;
-import io.muoncore.protocol.event.graph.EventNode;
 import org.reactivestreams.Subscriber;
 
 public interface EventClient {
@@ -13,12 +11,12 @@ public interface EventClient {
      * @param <X>
      * @return
      */
-    <X> MuonFuture<EventResult> event(Event<X> event);
+    <X> EventResult event(String streamName, Event<X> event);
 
     /**
      * Load an event by id
      */
-    <X> MuonFuture<Event<X>> loadEvent(String id, Class<X> type);
+//    <X> MuonFuture<Event<X>> loadEvent(String id, Class<X> type);
 
     /**
      * Replay an event stream, allowing the creation of an aggregated data structure (a reduction or projection)
@@ -39,11 +37,8 @@ public interface EventClient {
 
     /**
      * Emit an event into the remote event store.
-     * @param event
-     * @param <X>
-     * @return
      */
-    <X> MuonFuture<EventNode> loadChain(String eventId);
+//    <X> MuonFuture<EventNode> loadChain(String eventId);
 
 
     /*

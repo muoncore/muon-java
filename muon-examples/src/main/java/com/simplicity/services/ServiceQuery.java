@@ -2,12 +2,10 @@ package com.simplicity.services;
 
 import io.muoncore.Muon;
 import io.muoncore.MuonBuilder;
-import io.muoncore.api.MuonFuture;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
 import io.muoncore.protocol.event.client.DefaultEventClient;
 import io.muoncore.protocol.event.client.EventClient;
-import io.muoncore.protocol.event.client.EventProjection;
 import io.muoncore.protocol.requestresponse.Response;
 
 import java.io.IOException;
@@ -36,7 +34,7 @@ public class ServiceQuery {
 
         Map data = new HashMap<>();
 
-        MuonFuture<EventProjection<Map>> projection = eventClient.lookupProjection("SimpleProjection", Map.class);
+//        MuonFuture<EventProjection<Map>> projection = eventClient.lookupProjection("SimpleProjection", Map.class);
 
         Response ret = muon.request("request://photon", data, String.class).get();
 
