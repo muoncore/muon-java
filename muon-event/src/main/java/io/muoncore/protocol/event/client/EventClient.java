@@ -11,7 +11,7 @@ public interface EventClient {
      * @param <X>
      * @return
      */
-    <X> EventResult event(String streamName, Event<X> event);
+    <X> EventResult event(Event<X> event);
 
     /**
      * Load an event by id

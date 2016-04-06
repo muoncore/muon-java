@@ -87,21 +87,21 @@ public class DefaultEventClient implements EventClient {
 //    }
 
     @Override
-    public EventResult event(String streamName, Event event) {
+    public EventResult event(Event event) {
         try {
             if (useEventProtocol) {
-                return emitUsingEventProtocol(streamName, event);
+                return emitUsingEventProtocol(event);
             }
-            return emitUsingLegacyRpcProtocol(streamName, event);
+            return emitUsingLegacyRpcProtocol(event);
         } catch (InterruptedException | ExecutionException e) {
             throw new MuonException(e);
         }
     }
 
-    private EventResult emitUsingLegacyRpcProtocol(String streamName, Event event) throws ExecutionException, InterruptedException {
+    private EventResult emitUsingLegacyRpcProtocol(Event event) throws ExecutionException, InterruptedException {
         //simulate the Event structure for the rpc usage.
         Map<String, Object> payload = new HashMap<>();
-        payload.put("stream-name", streamName);
+        payload.put("stream-name", event.getStreamName());
         payload.put("payload", event.getPayload());
         payload.put("eventType", event.getEventType());
         payload.put("parentId", event.getParentId());
@@ -115,7 +115,7 @@ public class DefaultEventClient implements EventClient {
         return new EventResult(EventResult.EventResultStatus.FAILED, (String) resp.getPayload().get("message"));
     }
 
-    private <X> EventResult emitUsingEventProtocol(String streamName, Event<X> event) throws ExecutionException, InterruptedException {
+    private <X> EventResult emitUsingEventProtocol(Event<X> event) throws ExecutionException, InterruptedException {
         Channel<Event<X>, EventResult> api2eventproto = Channels.channel("eventapi", "eventproto");
         Channel<TransportOutboundMessage, TransportInboundMessage> rrp2transport = Channels.channel("eventproto", "transport");
 
@@ -123,7 +123,6 @@ public class DefaultEventClient implements EventClient {
                 new ChannelFutureAdapter<>(api2eventproto.left());
 
         new EventClientProtocol<>(
-                streamName,
                 config,
                 discovery,
                 codecs,
