@@ -141,6 +141,7 @@ class ChannelThroughputSpec extends Specification {
         2  | 200
 //        1  | 10000
         20  | 1000
+        200  | 2000
     }
 
     private AMQPMuonTransport createTransport(serviceName) {

@@ -5,7 +5,6 @@ import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportMessage;
 import io.muoncore.transport.TransportOutboundMessage;
-import reactor.Environment;
 import reactor.core.Dispatcher;
 
 import java.io.IOException;
@@ -40,11 +39,11 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     public DefaultAmqpChannel(AmqpConnection connection,
                               QueueListenerFactory queueListenerFactory,
-                              String localServiceName) {
+                              String localServiceName, Dispatcher dispatcher) {
         this.connection = connection;
         this.listenerFactory = queueListenerFactory;
         this.localServiceName = localServiceName;
-        this.dispatcher = Environment.newDispatcher();
+        this.dispatcher = dispatcher;
     }
 
     @Override
@@ -134,7 +133,6 @@ public class DefaultAmqpChannel implements AmqpChannel {
             connection.deleteQueue(sendQueue);
             connection.deleteQueue(receiveQueue);
         }
-        dispatcher.dispatch("shutdown", msg -> dispatcher.shutdown(), Throwable::printStackTrace);
     }
 
     @Override

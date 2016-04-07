@@ -13,7 +13,7 @@ class DefaultAmqpChannelSpec extends Specification {
         Environment.initializeIfEmpty()
         def listenerfactory = Mock(QueueListenerFactory)
         def connection = Mock(AmqpConnection)
-        def channel = new DefaultAmqpChannel(connection, listenerfactory, "myawesomeservice")
+        def channel = new DefaultAmqpChannel(connection, listenerfactory, "myawesomeservice", Environment.sharedDispatcher())
         def localQueue
 
         when:
@@ -33,7 +33,7 @@ class DefaultAmqpChannelSpec extends Specification {
         Environment.initializeIfEmpty()
         def listenerfactory = Mock(QueueListenerFactory)
         def connection = Mock(AmqpConnection)
-        def channel = new DefaultAmqpChannel(connection, listenerfactory, "awesomeservice")
+        def channel = new DefaultAmqpChannel(connection, listenerfactory, "awesomeservice", Environment.sharedDispatcher())
 
         when:
         Thread.start {
