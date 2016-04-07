@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 
 public class DefaultAmqpChannel implements AmqpChannel {
 
+    public static final String CHANNEL_SHUTDOWN = "ChannelShutdown";
     private String sendQueue;
     private String receiveQueue;
     private QueueListenerFactory listenerFactory;
@@ -97,7 +98,9 @@ public class DefaultAmqpChannel implements AmqpChannel {
         log.log(Level.FINER, "Opening queue to listen " + receiveQueue);
         listener = listenerFactory.listenOnQueue(receiveQueue, msg -> {
             log.log(Level.FINER, "Received inbound channel message of type " + message.getProtocol());
-            if (function != null) {
+            if (msg.getEventType().equals(CHANNEL_SHUTDOWN)) {
+                function.apply(null);
+            } else if (function != null) {
                 function.apply(AmqpMessageTransformers.queueToInbound(msg));
             }
         });
@@ -115,7 +118,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     @Override
     public void shutdown() {
-        send(new TransportOutboundMessage("ChannelShutdown", UUID.randomUUID().toString(),
+        send(new TransportOutboundMessage(CHANNEL_SHUTDOWN, UUID.randomUUID().toString(),
                 "",
                 "",
                 "",
@@ -131,7 +134,6 @@ public class DefaultAmqpChannel implements AmqpChannel {
             connection.deleteQueue(sendQueue);
             connection.deleteQueue(receiveQueue);
         }
-        dispatcher.shutdown();
     }
 
     @Override

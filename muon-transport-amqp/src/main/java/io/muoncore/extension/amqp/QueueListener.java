@@ -19,10 +19,10 @@ public interface QueueListener {
 
         public QueueMessage(String eventType, String queueName, byte[] body, Map<String, String> headers, String contentType) {
 
-            assert queueName != null;
-            assert body != null;
-            assert headers != null;
-            assert contentType != null;
+//            assert queueName != null;
+//            assert body != null;
+//            assert headers != null;
+//            assert contentType != null;
             this.eventType = eventType;
             this.queueName = queueName;
             this.body = body;
