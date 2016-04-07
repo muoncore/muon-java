@@ -134,6 +134,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
             connection.deleteQueue(sendQueue);
             connection.deleteQueue(receiveQueue);
         }
+        dispatcher.dispatch("shutdown", msg -> dispatcher.shutdown(), Throwable::printStackTrace);
     }
 
     @Override
@@ -143,17 +144,17 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     @Override
     public void send(TransportOutboundMessage message) {
-        if (message == null) {
+        if (message != null) {
+            log.log(Level.FINER, "Sending inbound channel message of type " + message.getProtocol() + "||" + message.getType());
+            dispatcher.dispatch(message, msg -> {
+                try {
+                    connection.send(AmqpMessageTransformers.outboundToQueue(sendQueue, message));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }, Throwable::printStackTrace);
+        } else {
             shutdown();
-            return;
         }
-        log.log(Level.FINER, "Sending inbound channel message of type " + message.getProtocol() + "||" + message.getType());
-        dispatcher.dispatch(message, msg -> {
-            try {
-                connection.send(AmqpMessageTransformers.outboundToQueue(sendQueue, message));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }, Throwable::printStackTrace);
     }
 }
