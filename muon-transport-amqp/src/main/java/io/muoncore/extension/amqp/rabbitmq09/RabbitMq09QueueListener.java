@@ -7,6 +7,7 @@ import io.muoncore.extension.amqp.QueueListener;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,6 +19,7 @@ public class RabbitMq09QueueListener implements QueueListener {
     private String queueName;
     private QueueListener.QueueFunction listener;
     private Consumer consumer;
+    private CountDownLatch latch = new CountDownLatch(1);
 
     public RabbitMq09QueueListener(Channel channel, String queueName, QueueListener.QueueFunction function) {
         this.channel = channel;
@@ -26,15 +28,15 @@ public class RabbitMq09QueueListener implements QueueListener {
     }
 
     public void blockUntilReady() {
-        synchronized (this) {
-            try {
-                wait();
-            } catch (InterruptedException e) {}
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            log.log(Level.SEVERE, "Error waiting for amqp listener to start", e);
         }
     }
 
     public void start() {
-        new Thread(RabbitMq09QueueListener.this::run).start();
+        run();
     }
 
     public void run() {
@@ -42,9 +44,7 @@ public class RabbitMq09QueueListener implements QueueListener {
             log.log(Level.FINE, "Opening Queue: " + queueName);
             channel.queueDeclare(queueName, false, false, true, null);
 
-            synchronized (this) {
-                notify();
-            }
+            latch.countDown();
 
             consumer = new DefaultConsumer(channel) {
                 @Override
