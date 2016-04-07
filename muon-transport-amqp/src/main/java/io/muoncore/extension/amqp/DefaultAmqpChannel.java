@@ -98,7 +98,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
         log.log(Level.FINER, "Opening queue to listen " + receiveQueue);
         listener = listenerFactory.listenOnQueue(receiveQueue, msg -> {
             log.log(Level.FINER, "Received inbound channel message of type " + message.getProtocol());
-            if (msg.getEventType().equals(CHANNEL_SHUTDOWN)) {
+            if (msg.getEventType() != null && msg.getEventType().equals(CHANNEL_SHUTDOWN)) {
                 function.apply(null);
             } else if (function != null) {
                 function.apply(AmqpMessageTransformers.queueToInbound(msg));
