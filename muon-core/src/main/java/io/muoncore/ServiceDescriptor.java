@@ -14,6 +14,7 @@ public class ServiceDescriptor {
                              List<String> tags,
                              List<String> codecs,
                              List<URI> connectionUrls) {
+        assert identifier != null;
         this.identifier = identifier;
         this.tags = tags;
         this.codecs = codecs;

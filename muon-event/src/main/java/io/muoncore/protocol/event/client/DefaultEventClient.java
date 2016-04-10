@@ -4,6 +4,8 @@ import io.muoncore.Discovery;
 import io.muoncore.Muon;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.api.ChannelFutureAdapter;
+import io.muoncore.api.ImmediateReturnFuture;
+import io.muoncore.api.MuonFuture;
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
@@ -12,7 +14,9 @@ import io.muoncore.config.AutoConfiguration;
 import io.muoncore.descriptors.ProtocolDescriptor;
 import io.muoncore.descriptors.ServiceExtendedDescriptor;
 import io.muoncore.exception.MuonException;
+import io.muoncore.protocol.event.ClientEvent;
 import io.muoncore.protocol.event.Event;
+import io.muoncore.protocol.event.EventCodec;
 import io.muoncore.protocol.event.EventProtocolMessages;
 import io.muoncore.protocol.reactivestream.client.ReactiveStreamClientProtocolStack;
 import io.muoncore.protocol.requestresponse.Response;
@@ -23,10 +27,9 @@ import org.reactivestreams.Subscriber;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class DefaultEventClient implements EventClient {
 
@@ -61,7 +64,7 @@ public class DefaultEventClient implements EventClient {
     private void detectEventEmitProtocol(Muon muon) {
         Optional<ServiceDescriptor> eventStore = discovery.findService(svc -> svc.getTags().contains("eventstore"));
         if (!eventStore.isPresent()) {
-            throw new MuonException("Unable to locate an event store in the distirbuted system. Is Photon running?");
+            throw new MuonException("Unable to locate an event store in the distributed system. Is Photon running?");
         }
         try {
             ServiceExtendedDescriptor descriptor = muon.introspect(eventStore.get().getIdentifier()).get();
@@ -76,18 +79,8 @@ public class DefaultEventClient implements EventClient {
         }
     }
 
-//    @Override
-//    public <X> MuonFuture<EventNode> loadChain(String eventId) {
-//        return null;
-//    }
-//
-//    @Override
-//    public <X> MuonFuture<Event<X>> loadEvent(String id, Class<X> type) {
-//        return null;
-//    }
-
     @Override
-    public EventResult event(Event event) {
+    public <X> EventResult event(ClientEvent<X> event) {
         try {
             if (useEventProtocol) {
                 return emitUsingEventProtocol(event);
@@ -98,15 +91,9 @@ public class DefaultEventClient implements EventClient {
         }
     }
 
-    private EventResult emitUsingLegacyRpcProtocol(Event event) throws ExecutionException, InterruptedException {
+    private <X> EventResult emitUsingLegacyRpcProtocol(ClientEvent<X> event) throws ExecutionException, InterruptedException {
         //simulate the Event structure for the rpc usage.
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("stream-name", event.getStreamName());
-        payload.put("payload", event.getPayload());
-        payload.put("eventType", event.getEventType());
-        payload.put("parentId", event.getParentId());
-        payload.put("serviceId", event.getServiceId());
-        payload.put("id", event.getId());
+        Map payload = EventCodec.getMapFromClientEvent(event, config);
 
         Response<Map> resp = muon.request("request://photon/events", payload, Map.class).get();
         if (resp.getStatus() == 200) {
@@ -115,11 +102,11 @@ public class DefaultEventClient implements EventClient {
         return new EventResult(EventResult.EventResultStatus.FAILED, (String) resp.getPayload().get("message"));
     }
 
-    private <X> EventResult emitUsingEventProtocol(Event<X> event) throws ExecutionException, InterruptedException {
-        Channel<Event<X>, EventResult> api2eventproto = Channels.channel("eventapi", "eventproto");
+    private <X> EventResult emitUsingEventProtocol(ClientEvent<X> event) throws ExecutionException, InterruptedException {
+        Channel<ClientEvent<X>, EventResult> api2eventproto = Channels.channel("eventapi", "eventproto");
         Channel<TransportOutboundMessage, TransportInboundMessage> rrp2transport = Channels.channel("eventproto", "transport");
 
-        ChannelFutureAdapter<EventResult, Event<X>> adapter =
+        ChannelFutureAdapter<EventResult, ClientEvent<X>> adapter =
                 new ChannelFutureAdapter<>(api2eventproto.left());
 
         new EventClientProtocol<>(
@@ -154,13 +141,40 @@ public class DefaultEventClient implements EventClient {
                 throw new MuonException("The name provided [" + eventStoreName + "] is invalid");
             }
         } else {
-            throw new MuonException("There is no event store present in the distributed system");
+            throw new MuonException("There is no event store present in the distributed system, is Photon running?");
         }
     }
 
-//    @Override
-//    public <X> MuonFuture<EventProjection<X>> lookupProjection(String name, Type type) {
-//        return null;
-//    }
+    @Override
+    public <X> MuonFuture<EventProjectionControl<X>> getProjection(String name, Class<X> type) {
 
+        return new ImmediateReturnFuture<>(new EventProjectionControl<X>() {
+            @Override
+            public X getCurrentState() {
+                try {
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("projection-name", name);
+                    return muon.request("request://photon/projection", data, type).get().getPayload();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        });
+    }
+
+    @Override
+    public MuonFuture<List<EventProjectionDescriptor>> getProjectionList() {
+        try {
+
+            List<String> projectionKeys = (List<String>) muon.request("request://photon/projection-keys", Map.class).get().getPayload().get("projection-keys");
+
+            List<EventProjectionDescriptor> projections = projectionKeys.stream().map(EventProjectionDescriptor::new).collect(Collectors.toList());
+
+            return new ImmediateReturnFuture<>(projections);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

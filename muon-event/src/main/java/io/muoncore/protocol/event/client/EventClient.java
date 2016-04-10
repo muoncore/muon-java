@@ -1,7 +1,11 @@
 package io.muoncore.protocol.event.client;
 
+import io.muoncore.api.MuonFuture;
+import io.muoncore.protocol.event.ClientEvent;
 import io.muoncore.protocol.event.Event;
 import org.reactivestreams.Subscriber;
+
+import java.util.List;
 
 public interface EventClient {
 
@@ -11,7 +15,7 @@ public interface EventClient {
      * @param <X>
      * @return
      */
-    <X> EventResult event(Event<X> event);
+    <X> EventResult event(ClientEvent<X> event);
 
     /**
      * Load an event by id
@@ -40,9 +44,7 @@ public interface EventClient {
      */
 //    <X> MuonFuture<EventNode> loadChain(String eventId);
 
+    <X> MuonFuture<List<EventProjectionDescriptor>> getProjectionList();
 
-    /*
-    <X> MuonFuture<EventProjection<X>> lookupProjection(String name, Type type);
-
-    */
+    <X> MuonFuture<EventProjectionControl<X>> getProjection(String name, Class<X> type);
 }

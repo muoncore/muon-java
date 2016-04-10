@@ -33,7 +33,6 @@ public class SimpleTransportMessageDispatcher implements TransportMessageDispatc
     public void shutdown() {
         dispatch(POISON);
         exec.shutdown();
-        dispatcher.shutdown();
     }
 
     @Override

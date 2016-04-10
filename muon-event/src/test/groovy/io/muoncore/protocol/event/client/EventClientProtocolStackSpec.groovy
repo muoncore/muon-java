@@ -53,15 +53,14 @@ class EventClientProtocolStackSpec extends Specification {
 
         when:
         def future = evClient.event(
-                "awesome",
-                new Event("SomethingHappened", "simples", "myParent", "myService", []))
+                new Event("awesome", "SomethingHappened", "simples", "myParent", "myService", []))
 
         and: "A response comes back from the remote"
         Thread.start {
             Thread.sleep(100)
             capturedFunction(new TransportInboundMessage(
                     "response",
-                    "id",
+                    "localId",
                     "targetService",
                     "sourceServiceName",
                     "fakeproto",
@@ -112,8 +111,8 @@ class EventClientProtocolStackSpec extends Specification {
         def eventStore = new DefaultEventClient(muon)
 
         when:
-        eventStore.event("awesome",
-                new Event("SomethingHappened", "simples", "myParent", "myService", []))
+        eventStore.event(
+                new Event("awesome", "SomethingHappened", "simples", "myParent", "myService", []))
         sleep(50)
 
         then:
@@ -144,8 +143,7 @@ class EventClientProtocolStackSpec extends Specification {
 
         when:
         def response = eventStore.event(
-                "awesome",
-                new Event("SomethingHappened2", "simples", "myParent", "myService", [])).get()
+                new Event("awesome", "SomethingHappened2", "simples", "myParent", "myService", [])).get()
 
         then:
         response

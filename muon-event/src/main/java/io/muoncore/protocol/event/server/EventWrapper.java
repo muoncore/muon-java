@@ -1,9 +1,8 @@
 package io.muoncore.protocol.event.server;
 
-import io.muoncore.protocol.event.Event;
 import io.muoncore.channel.ChannelConnection;
-import io.muoncore.protocol.event.client.EventResult;
 import io.muoncore.protocol.event.Event;
+import io.muoncore.protocol.event.client.EventResult;
 
 public class EventWrapper {
 
@@ -19,9 +18,12 @@ public class EventWrapper {
         return event;
     }
 
-    public void persisted() {
+    public void persisted(
+            String orderId,
+            long eventTime
+    ) {
         channel.send(new EventResult(
-                EventResult.EventResultStatus.PERSISTED, "Event persisted"
+                EventResult.EventResultStatus.PERSISTED, "Event persisted", orderId, eventTime
         ));
     }
 

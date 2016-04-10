@@ -117,14 +117,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     @Override
     public void shutdown() {
-        send(new TransportOutboundMessage(CHANNEL_SHUTDOWN, UUID.randomUUID().toString(),
-                "",
-                "",
-                "",
-                new HashMap<>(),
-                "",
-                null,
-                Collections.emptyList(), TransportMessage.ChannelOperation.CLOSE_CHANNEL));
+
         if (onShutdown != null) {
             this.onShutdown.apply(null);
         }
@@ -151,7 +144,18 @@ public class DefaultAmqpChannel implements AmqpChannel {
                     e.printStackTrace();
                 }
             }, Throwable::printStackTrace);
-        } else {
+        }
+        if (message == null || message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL){
+            if (message != null) {
+                send(new TransportOutboundMessage(CHANNEL_SHUTDOWN, UUID.randomUUID().toString(),
+                        "",
+                        "",
+                        "",
+                        new HashMap<>(),
+                        "",
+                        null,
+                        Collections.emptyList(), TransportMessage.ChannelOperation.CLOSE_CHANNEL));
+            }
             shutdown();
         }
     }

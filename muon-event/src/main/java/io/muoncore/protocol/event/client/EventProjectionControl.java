@@ -1,8 +1,6 @@
 package io.muoncore.protocol.event.client;
 
-import org.reactivestreams.Publisher;
-
-public interface EventProjection<ProjectionType> {
+public interface EventProjectionControl<ProjectionType> {
 
     /**
      * Obtain the latest projection state.
@@ -13,15 +11,6 @@ public interface EventProjection<ProjectionType> {
      */
     ProjectionType getCurrentState();
 
-    /**
-     * Allow direct subscription to versions of the projection as it is updated.
-     * @return
-     */
-    Publisher<ProjectionType> projectionUpdates();
 
-    /**
-     * Stop receiving updates when this projection changes.
-     */
-    void cancelUpdate();
 }
 

@@ -37,6 +37,7 @@ class EventClientProtocolSpec extends Specification {
 
         when:
         leftChannel.left().send(new Event(
+                "awesome",
                 "SomethingHappened",
                 "awesome",
                 "parentId",
@@ -47,7 +48,7 @@ class EventClientProtocolSpec extends Specification {
         then:
         new PollingConditions().eventually {
             ret instanceof TransportOutboundMessage
-            ret.id == "awesome"
+            ret.getLocalId == "awesome"
         }
     }
 }

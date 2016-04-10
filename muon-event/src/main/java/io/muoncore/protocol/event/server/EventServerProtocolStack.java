@@ -8,6 +8,7 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.descriptors.ProtocolDescriptor;
 import io.muoncore.protocol.ServerProtocolStack;
 import io.muoncore.protocol.event.Event;
+import io.muoncore.protocol.event.EventCodec;
 import io.muoncore.protocol.event.EventProtocolMessages;
 import io.muoncore.protocol.event.client.EventResult;
 import io.muoncore.transport.TransportInboundMessage;
@@ -15,6 +16,7 @@ import io.muoncore.transport.TransportOutboundMessage;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * Server side of the event protocol
@@ -42,7 +44,10 @@ public class EventServerProtocolStack implements
             if (message == null) {
                 return;
             }
-            Event ev = codecs.decode(message.getPayload(), message.getContentType(), Event.class);
+
+            Map data = codecs.decode(message.getPayload(), message.getContentType(), Map.class);
+            Event ev = EventCodec.getEventFromMap(data);
+
             Channel<EventResult, EventWrapper> evserver = Channels.channel("eventserverapp", "wrapper");
             EventWrapper wrapper = new EventWrapper(ev, evserver.left());
 

@@ -5,43 +5,60 @@ package io.muoncore.protocol.event;
  */
 public class Event<X> {
 
-    //precedence
-    private String id;
-    private String parentId;
-    private String serviceId;
-
     private String eventType;
     private String streamName;
 
+    private String schema;
+    private String causedById;
+    private String causedByRelation;
+
+    private String service;
+    private String orderId;
+    private Long eventTime;
     private X payload;
 
-    public Event(String streamName, String eventType, String id, String parentId, String serviceId, X payload) {
-        this.streamName = streamName;
-        this.id = id;
-        this.parentId = parentId;
-        this.serviceId = serviceId;
-        this.payload = payload;
+    public Event(String eventType, String streamName, String schema, String causedById, String causedByRelation, String service, String orderId, Long eventTime, X payload) {
         this.eventType = eventType;
-    }
-
-    public String getStreamName() {
-        return streamName;
+        this.streamName = streamName;
+        this.schema = schema;
+        this.causedById = causedById;
+        this.causedByRelation = causedByRelation;
+        this.service = service;
+        this.orderId = orderId;
+        this.eventTime = eventTime;
+        this.payload = payload;
     }
 
     public String getEventType() {
         return eventType;
     }
 
-    public String getId() {
-        return id;
+    public String getStreamName() {
+        return streamName;
     }
 
-    public String getParentId() {
-        return parentId;
+    public String getSchema() {
+        return schema;
     }
 
-    public String getServiceId() {
-        return serviceId;
+    public String getCausedById() {
+        return causedById;
+    }
+
+    public String getCausedByRelation() {
+        return causedByRelation;
+    }
+
+    public String getService() {
+        return service;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public Long getEventTime() {
+        return eventTime;
     }
 
     public X getPayload() {
@@ -51,8 +68,14 @@ public class Event<X> {
     @Override
     public String toString() {
         return "Event{" +
-                "id='" + id + '\'' +
-                ", eventType='" + eventType + '\'' +
+                "eventType='" + eventType + '\'' +
+                ", streamName='" + streamName + '\'' +
+                ", schema='" + schema + '\'' +
+                ", causedById='" + causedById + '\'' +
+                ", causedByRelation='" + causedByRelation + '\'' +
+                ", service='" + service + '\'' +
+                ", orderId='" + orderId + '\'' +
+                ", eventTime=" + eventTime +
                 '}';
     }
 }

@@ -27,9 +27,8 @@ class EventIntegrationSpec extends Specification {
         def data = []
         List<EventResult> results = []
 
-        def muon1 = muon("simples")
-        def evClient = new DefaultEventClient(muon1)
         boolean fail = true
+
         def muon2 = muonEventStore { EventWrapper ev ->
             println "Event is the awesome ${ev.event}"
             data << ev.event
@@ -42,12 +41,17 @@ class EventIntegrationSpec extends Specification {
             }
         }
 
+        def muon1 = muon("simples")
+
+        def evClient = new DefaultEventClient(muon1)
+
+
         when:
 
-        results << evClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
-        results << evClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
-        results << evClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
-        results << evClient.event(new Event("SomethingHappened", "myid", "none", "muon1", "HELLO WORLD")).get()
+        results << evClient.event(new Event("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
+        results << evClient.event(new Event("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
+        results << evClient.event(new Event("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
+        results << evClient.event(new Event("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
 
         then:
         new PollingConditions().eventually {
@@ -62,24 +66,25 @@ class EventIntegrationSpec extends Specification {
 
         def data = []
 
-        def muon1 = muon("simples")
-        def evClient = new DefaultEventClient(muon1)
         def muon2 = muonEventStore { EventWrapper ev ->
             println "Event is the awesome ${ev.event}"
             data << ev.event
             ev.persisted()
         }
 
+        def muon1 = muon("simples")
+        def evClient = new DefaultEventClient(muon1)
+
         when:
         200.times {
-            evClient.event(new Event("SomethingHappened", "${it}", "none", "muon1", "HELLO WORLD"))
+            evClient.event(new Event("awesome", "SomethingHappened", "${it}", "none", "muon1", "HELLO WORLD"))
         }
 
         then:
-        new PollingConditions().eventually {
+        new PollingConditions(timeout: 30).eventually {
             data.size() == 200
             def sorted = new ArrayList<Event>(data).sort {
-                Integer.parseInt(it.id)
+                Integer.parseInt(it.localId)
             }
             data == sorted
         }

@@ -1,4 +1,5 @@
 package io.muoncore.extension.amqp.perftest
+
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.json.GsonCodec
@@ -18,6 +19,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.concurrent.PollingConditions
 
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -101,11 +103,13 @@ class ChannelThroughputSpec extends Specification {
             channel.receive({
                 println "Hello ${it}"
             })
+            def counterLatch = new CountDownLatch(numRequests)
 
             numRequests.times {
                 pool.submit {
-                println "Sending data .."
-                channel.send(new TransportOutboundMessage(
+                    println "Sending data .."
+
+                    channel.send(new TransportOutboundMessage(
                         "somethingHappened",
                         "${id.addAndGet(1)}",
                         "tombola",
@@ -114,8 +118,12 @@ class ChannelThroughputSpec extends Specification {
                         [:],
                         "application/json",
                         new GsonCodec().encode([:]), ["application/json"]))
+                    counterLatch.countDown()
                 }
+
             }
+            counterLatch.await()
+            channel.shutdown()
         }
         sleep(5000)
 
@@ -139,9 +147,10 @@ class ChannelThroughputSpec extends Specification {
         5   | 5
         5  | 30
         2  | 200
-//        1  | 10000
+        1  | 10000
         20  | 1000
         200  | 2000
+        4000  | 3
     }
 
     private AMQPMuonTransport createTransport(serviceName) {

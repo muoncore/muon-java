@@ -5,7 +5,8 @@ import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
-import io.muoncore.protocol.event.Event;
+import io.muoncore.protocol.event.ClientEvent;
+import io.muoncore.protocol.event.EventCodec;
 import io.muoncore.protocol.event.EventProtocolMessages;
 import io.muoncore.transport.TransportEvents;
 import io.muoncore.transport.TransportInboundMessage;
@@ -13,6 +14,7 @@ import io.muoncore.transport.TransportOutboundMessage;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -24,7 +26,7 @@ public class EventClientProtocol<X> {
             AutoConfiguration configuration,
             Discovery discovery,
             Codecs codecs,
-            ChannelConnection<EventResult, Event<X>> leftChannelConnection,
+            ChannelConnection<EventResult, ClientEvent<X>> leftChannelConnection,
             ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection) {
 
         rightChannelConnection.receive( message -> {
@@ -72,11 +74,13 @@ public class EventClientProtocol<X> {
                         "No Event Store available"));
             } else {
 
-                Codecs.EncodingResult result = codecs.encode(event, eventService.get().getCodecs());
+                Map<String, Object> payload = EventCodec.getMapFromClientEvent(event, configuration);
+
+                Codecs.EncodingResult result = codecs.encode(payload, eventService.get().getCodecs());
 
                 TransportOutboundMessage msg = new TransportOutboundMessage(
                         event.getEventType(),
-                        event.getId(),
+                        configuration.getServiceName(),
                         eventService.get().getIdentifier(),
                         configuration.getServiceName(),
                         EventProtocolMessages.PROTOCOL,
