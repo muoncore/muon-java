@@ -5,7 +5,7 @@ include 'muon-core',
         'muon-discovery-amqp',
         'muon-discovery-multicast',
         'muon-codec-kryo',
-        'muon-examples',
+//        'muon-examples',
         'muon-event',
 //        'muon-spring',
         "doc"

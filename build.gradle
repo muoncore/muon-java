@@ -262,26 +262,26 @@ project('muon-core') {
     }
 }
 
-project('muon-examples') {
-    apply plugin: 'groovy'
-
-    description = 'Examples of usage'
-
-    repositories {
-        maven { url 'http://repo.spring.io/libs-milestone' }
-    }
-
-    dependencies {
-        compile project(":muon-core")
-        compile project(":muon-transport-amqp")
-        compile project(":muon-discovery-amqp")
-        compile project(":muon-codec-kryo")
-        compile project(":muon-spring")
-        compile project(":muon-event")
-        compile "io.projectreactor:reactor-stream:$reactorVersion"
-//        compile 'org.slf4j:slf4j-jdk14:1.7.12'
-    }
-}
+//project('muon-examples') {
+//    apply plugin: 'groovy'
+//
+//    description = 'Examples of usage'
+//
+//    repositories {
+//        maven { url 'http://repo.spring.io/libs-milestone' }
+//    }
+//
+//    dependencies {
+//        compile project(":muon-core")
+//        compile project(":muon-transport-amqp")
+//        compile project(":muon-discovery-amqp")
+//        compile project(":muon-codec-kryo")
+//        compile project(":muon-spring")
+//        compile project(":muon-event")
+//        compile "io.projectreactor:reactor-stream:$reactorVersion"
+////        compile 'org.slf4j:slf4j-jdk14:1.7.12'
+//    }
+//}
 
 project('muon-event') {
     description = 'Event handling'
