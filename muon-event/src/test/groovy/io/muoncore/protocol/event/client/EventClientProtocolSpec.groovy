@@ -1,10 +1,11 @@
 package io.muoncore.protocol.event.client
+
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.Channels
 import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
-import io.muoncore.protocol.event.Event
+import io.muoncore.protocol.event.ClientEvent
 import io.muoncore.transport.TransportOutboundMessage
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
@@ -36,7 +37,7 @@ class EventClientProtocolSpec extends Specification {
                 leftChannel.right(), rightChannel.left())
 
         when:
-        leftChannel.left().send(new Event(
+        leftChannel.left().send(new ClientEvent(
                 "awesome",
                 "SomethingHappened",
                 "awesome",
@@ -48,7 +49,7 @@ class EventClientProtocolSpec extends Specification {
         then:
         new PollingConditions().eventually {
             ret instanceof TransportOutboundMessage
-            ret.getLocalId == "awesome"
+            ret.type== "awesome"
         }
     }
 }

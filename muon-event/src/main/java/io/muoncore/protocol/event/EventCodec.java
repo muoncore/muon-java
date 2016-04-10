@@ -12,7 +12,7 @@ public class EventCodec {
     private static final String EVENT_TYPE = "event-type";
     private static final String CAUSED_BY = "caused-by";
     private static final String CAUSED_BY_RELATION = "caused-by-relation";
-    private static final String SERVICE = "service";
+    private static final String SERVICE = "service-id";
     private static final String ORDER_ID = "order-id";
     private static final String EVENT_TIME = "event-time";
     private static final String SCHEMA = "schema";

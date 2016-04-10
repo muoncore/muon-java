@@ -6,6 +6,7 @@ import io.muoncore.Muon
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
+import io.muoncore.protocol.event.ClientEvent
 import io.muoncore.protocol.event.Event
 import io.muoncore.protocol.event.client.DefaultEventClient
 import io.muoncore.protocol.event.client.EventResult
@@ -33,7 +34,7 @@ class EventIntegrationSpec extends Specification {
             println "Event is the awesome ${ev.event}"
             data << ev.event
             if (!fail) {
-                ev.persisted()
+                ev.persisted("ORDERID", System.currentTimeMillis())
                 fail = true
             } else {
                 ev.failed("Something went wrong")
@@ -48,10 +49,10 @@ class EventIntegrationSpec extends Specification {
 
         when:
 
-        results << evClient.event(new Event("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
-        results << evClient.event(new Event("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
-        results << evClient.event(new Event("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
-        results << evClient.event(new Event("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
 
         then:
         new PollingConditions().eventually {
@@ -69,7 +70,7 @@ class EventIntegrationSpec extends Specification {
         def muon2 = muonEventStore { EventWrapper ev ->
             println "Event is the awesome ${ev.event}"
             data << ev.event
-            ev.persisted()
+            ev.persisted("ORDERID", System.currentTimeMillis())
         }
 
         def muon1 = muon("simples")
@@ -77,14 +78,14 @@ class EventIntegrationSpec extends Specification {
 
         when:
         200.times {
-            evClient.event(new Event("awesome", "SomethingHappened", "${it}", "none", "muon1", "HELLO WORLD"))
+            evClient.event(new ClientEvent("${it}", "SomethingHappened", "1.0", "none", "muon1", "HELLO WORLD"))
         }
 
         then:
         new PollingConditions(timeout: 30).eventually {
             data.size() == 200
             def sorted = new ArrayList<Event>(data).sort {
-                Integer.parseInt(it.localId)
+                Integer.parseInt(it.eventType)
             }
             data == sorted
         }

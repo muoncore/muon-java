@@ -12,10 +12,7 @@ import io.muoncore.transport.TransportEvents;
 import io.muoncore.transport.TransportInboundMessage;
 import io.muoncore.transport.TransportOutboundMessage;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * This middleware will accept an Event. It will then attempt to locate an event store to send a persistence Request to
@@ -80,7 +77,7 @@ public class EventClientProtocol<X> {
 
                 TransportOutboundMessage msg = new TransportOutboundMessage(
                         event.getEventType(),
-                        configuration.getServiceName(),
+                        UUID.randomUUID().toString(),
                         eventService.get().getIdentifier(),
                         configuration.getServiceName(),
                         EventProtocolMessages.PROTOCOL,

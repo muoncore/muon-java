@@ -8,7 +8,7 @@ import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
-import io.muoncore.protocol.event.Event
+import io.muoncore.protocol.event.ClientEvent
 import io.muoncore.transport.TransportInboundMessage
 import io.muoncore.transport.TransportMessage
 import io.muoncore.transport.client.TransportClient
@@ -53,7 +53,7 @@ class EventClientProtocolStackSpec extends Specification {
 
         when:
         def future = evClient.event(
-                new Event("awesome", "SomethingHappened", "simples", "myParent", "myService", []))
+                new ClientEvent("awesome", "SomethingHappened", "simples", "myParent", "myService", []))
 
         and: "A response comes back from the remote"
         Thread.start {
@@ -112,7 +112,7 @@ class EventClientProtocolStackSpec extends Specification {
 
         when:
         eventStore.event(
-                new Event("awesome", "SomethingHappened", "simples", "myParent", "myService", []))
+                new ClientEvent("awesome", "SomethingHappened", "simples", "myParent", "myService", []))
         sleep(50)
 
         then:
@@ -143,7 +143,7 @@ class EventClientProtocolStackSpec extends Specification {
 
         when:
         def response = eventStore.event(
-                new Event("awesome", "SomethingHappened2", "simples", "myParent", "myService", [])).get()
+                new ClientEvent("awesome", "SomethingHappened2", "simples", "myParent", "myService", []))
 
         then:
         response
