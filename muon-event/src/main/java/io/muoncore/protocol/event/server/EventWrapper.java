@@ -19,7 +19,7 @@ public class EventWrapper {
     }
 
     public void persisted(
-            String orderId,
+            long orderId,
             long eventTime
     ) {
         channel.send(new EventResult(

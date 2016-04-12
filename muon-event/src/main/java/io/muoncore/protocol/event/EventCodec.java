@@ -23,11 +23,11 @@ public class EventCodec {
                 (String) data.get(EVENT_TYPE),
                 (String) data.get(STREAM_NAME),
                 (String) data.get(SCHEMA),
-                (String) data.get(CAUSED_BY),
+                (Long)   data.get(CAUSED_BY),
                 (String) data.get(CAUSED_BY_RELATION),
                 (String) data.get(SERVICE),
-                (String) data.get(ORDER_ID),
-                (Long) data.get(EVENT_TIME),
+                (Long)   data.get(ORDER_ID),
+                (Long)   data.get(EVENT_TIME),
                 data.get(PAYLOAD)
         );
     }

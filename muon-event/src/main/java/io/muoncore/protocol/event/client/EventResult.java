@@ -3,7 +3,7 @@ package io.muoncore.protocol.event.client;
 public class EventResult {
 
     private long eventTime;
-    private String orderId;
+    private long orderId;
     private EventResultStatus status;
     private String cause;
 
@@ -12,7 +12,7 @@ public class EventResult {
         this.cause = cause;
     }
 
-    public EventResult(EventResultStatus status, String cause, String orderId, long eventTime) {
+    public EventResult(EventResultStatus status, String cause, long orderId, long eventTime) {
         this.status = status;
         this.cause = cause;
         this.orderId = orderId;
@@ -23,7 +23,7 @@ public class EventResult {
         return eventTime;
     }
 
-    public String getOrderId() {
+    public long getOrderId() {
         return orderId;
     }
 

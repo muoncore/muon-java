@@ -13,7 +13,6 @@ public class ClientEvent<X> {
     private Long causedById;
     private String causedByRelation;
     private String schema;
-    private String service;
 
     public ClientEvent(
             String eventType,
@@ -21,7 +20,6 @@ public class ClientEvent<X> {
             String schema,
             Long   causedById,
             String causedByRelation,
-            String service,
             X payload) {
         this.schema = schema;
         this.eventType = eventType;
@@ -29,7 +27,6 @@ public class ClientEvent<X> {
         this.payload = payload;
         this.causedById = causedById;
         this.causedByRelation = causedByRelation;
-        this.service = service;
     }
 
     public String getSchema() {
@@ -56,10 +53,6 @@ public class ClientEvent<X> {
         return causedByRelation;
     }
 
-    public String getService() {
-        return service;
-    }
-
     @Override
     public String toString() {
         return "ClientEvent{" +
@@ -68,7 +61,6 @@ public class ClientEvent<X> {
                 ", causedById=" + causedById +
                 ", causedByRelation='" + causedByRelation + '\'' +
                 ", schema='" + schema + '\'' +
-                ", service='" + service + '\'' +
                 '}';
     }
 }

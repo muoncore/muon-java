@@ -204,8 +204,8 @@ subprojects { subproject ->
         publish {
             repository {
                 repoKey = 'muon'   //The Artifactory repository key to publish to
-                username = artifactory_user          //The publisher user name
-                password = artifactory_password       //The publisher password
+                username = 'sergio'          //The publisher user name
+                password = 'cistechfutures'       //The publisher password
             }
             defaults {
                 publications ('mavenJava')
