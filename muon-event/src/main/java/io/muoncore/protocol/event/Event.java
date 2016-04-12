@@ -9,15 +9,15 @@ public class Event<X> {
     private String streamName;
 
     private String schema;
-    private String causedById;
+    private Long causedById;
     private String causedByRelation;
 
     private String service;
-    private String orderId;
+    private Long orderId;
     private Long eventTime;
     private X payload;
 
-    public Event(String eventType, String streamName, String schema, String causedById, String causedByRelation, String service, String orderId, Long eventTime, X payload) {
+    public Event(String eventType, String streamName, String schema, Long causedById, String causedByRelation, String service, Long orderId, Long eventTime, X payload) {
         this.eventType = eventType;
         this.streamName = streamName;
         this.schema = schema;
@@ -41,7 +41,7 @@ public class Event<X> {
         return schema;
     }
 
-    public String getCausedById() {
+    public Long getCausedById() {
         return causedById;
     }
 
@@ -53,7 +53,7 @@ public class Event<X> {
         return service;
     }
 
-    public String getOrderId() {
+    public Long getOrderId() {
         return orderId;
     }
 
@@ -71,10 +71,10 @@ public class Event<X> {
                 "eventType='" + eventType + '\'' +
                 ", streamName='" + streamName + '\'' +
                 ", schema='" + schema + '\'' +
-                ", causedById='" + causedById + '\'' +
+                ", causedById=" + causedById +
                 ", causedByRelation='" + causedByRelation + '\'' +
                 ", service='" + service + '\'' +
-                ", orderId='" + orderId + '\'' +
+                ", orderId=" + orderId +
                 ", eventTime=" + eventTime +
                 '}';
     }

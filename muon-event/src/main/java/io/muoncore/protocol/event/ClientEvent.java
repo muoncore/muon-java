@@ -10,16 +10,18 @@ public class ClientEvent<X> {
     private String streamName;
     private X payload;
 
-    private String causedById;
+    private Long causedById;
     private String causedByRelation;
     private String schema;
+    private String service;
 
     public ClientEvent(
             String eventType,
             String streamName,
             String schema,
-            String causedById,
+            Long   causedById,
             String causedByRelation,
+            String service,
             X payload) {
         this.schema = schema;
         this.eventType = eventType;
@@ -27,6 +29,7 @@ public class ClientEvent<X> {
         this.payload = payload;
         this.causedById = causedById;
         this.causedByRelation = causedByRelation;
+        this.service = service;
     }
 
     public String getSchema() {
@@ -45,7 +48,7 @@ public class ClientEvent<X> {
         return payload;
     }
 
-    public String getCausedById() {
+    public Long getCausedById() {
         return causedById;
     }
 
@@ -53,14 +56,19 @@ public class ClientEvent<X> {
         return causedByRelation;
     }
 
+    public String getService() {
+        return service;
+    }
+
     @Override
     public String toString() {
         return "ClientEvent{" +
                 "eventType='" + eventType + '\'' +
                 ", streamName='" + streamName + '\'' +
-                ", causedById='" + causedById + '\'' +
+                ", causedById=" + causedById +
                 ", causedByRelation='" + causedByRelation + '\'' +
                 ", schema='" + schema + '\'' +
+                ", service='" + service + '\'' +
                 '}';
     }
 }
