@@ -82,7 +82,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
             throw new MuonTransportFailureException("Unable to initiate handshake", e);
         }
         try {
-            if (!handshakeControl.await(500, TimeUnit.MILLISECONDS)) throw new MuonException("The handshake took too long!");
+            if (!handshakeControl.await(3000, TimeUnit.MILLISECONDS)) throw new MuonException("The handshake took too long! target " + serviceName + " / " + protocol + " || " + receiveQueue);
         } catch (InterruptedException e) {
             throw new MuonException("The handskahe took too long!", e);
         }
@@ -91,7 +91,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
     @Override
     public void respondToHandshake(AmqpHandshakeMessage message) {
         ownsQueues = false;
-        log.log(Level.FINER, "Handshake received " + message.getProtocol());
+        log.log(Level.FINE, "Handshake received " + message.getProtocol());
         receiveQueue = message.getReceiveQueue();
         sendQueue = message.getReplyQueue();
         log.log(Level.FINER, "Opening queue to listen " + receiveQueue);
@@ -107,11 +107,12 @@ public class DefaultAmqpChannel implements AmqpChannel {
         Map<String, String> headers = new HashMap<>();
         headers.put(AMQPMuonTransport.HEADER_PROTOCOL, message.getProtocol());
 
-        handshakeControl.countDown();
         try {
             connection.send(new QueueListener.QueueMessage("handshakeAccepted", message.getReplyQueue(), new byte[0], headers, "text/plain"));
         } catch (IOException e) {
             throw new MuonTransportFailureException("Unable to respond to handshake", e);
+        } finally {
+            handshakeControl.countDown();
         }
     }
 

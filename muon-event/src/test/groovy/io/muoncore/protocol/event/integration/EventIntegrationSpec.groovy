@@ -34,7 +34,7 @@ class EventIntegrationSpec extends Specification {
             println "Event is the awesome ${ev.event}"
             data << ev.event
             if (!fail) {
-                ev.persisted("ORDERID", System.currentTimeMillis())
+                ev.persisted(12345, System.currentTimeMillis())
                 fail = true
             } else {
                 ev.failed("Something went wrong")
@@ -49,10 +49,10 @@ class EventIntegrationSpec extends Specification {
 
         when:
 
-        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
-        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
-        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
-        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", "none", "muon1", "HELLO WORLD"))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", 1234, "muon1", "HELLO WORLD"))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", 1234, "muon1", "HELLO WORLD"))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", 1234, "muon1", "HELLO WORLD"))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", 1234, "muon1", "HELLO WORLD"))
 
         then:
         new PollingConditions().eventually {
@@ -78,7 +78,7 @@ class EventIntegrationSpec extends Specification {
 
         when:
         200.times {
-            evClient.event(new ClientEvent("${it}", "SomethingHappened", "1.0", "none", "muon1", "HELLO WORLD"))
+            evClient.event(new ClientEvent("${it}", "SomethingHappened", "1.0", 1234, "muon1", "HELLO WORLD"))
         }
 
         then:

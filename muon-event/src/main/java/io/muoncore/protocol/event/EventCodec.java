@@ -23,13 +23,21 @@ public class EventCodec {
                 (String) data.get(EVENT_TYPE),
                 (String) data.get(STREAM_NAME),
                 (String) data.get(SCHEMA),
-                (Long)   data.get(CAUSED_BY),
+                getCausedByIdAsLong(data.get(CAUSED_BY)),
                 (String) data.get(CAUSED_BY_RELATION),
                 (String) data.get(SERVICE),
                 (Long)   data.get(ORDER_ID),
                 (Long)   data.get(EVENT_TIME),
                 data.get(PAYLOAD)
         );
+    }
+
+    private static Long getCausedByIdAsLong(Object val) {
+        if (val instanceof Double) {
+            Double dat = (Double) val;
+            return dat.longValue();
+        }
+        return (Long) val;
     }
 
     public static Map<String, Object> getMapFromClientEvent(ClientEvent event, AutoConfiguration config) {

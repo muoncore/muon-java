@@ -3,10 +3,13 @@ package io.muoncore.protocol.event.client
 import io.muoncore.Discovery
 import io.muoncore.Muon
 import io.muoncore.ServiceDescriptor
+import io.muoncore.api.MuonFuture
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
+import io.muoncore.descriptors.ProtocolDescriptor
+import io.muoncore.descriptors.ServiceExtendedDescriptor
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.event.ClientEvent
 import io.muoncore.transport.TransportInboundMessage
@@ -47,13 +50,16 @@ class EventClientProtocolStackSpec extends Specification {
                 encode(_, _) >> new Codecs.EncodingResult(new byte[0], "application/json")
                 decode(_, _, _ ) >> new EventResult(EventResult.EventResultStatus.PERSISTED, "")
             }
+            introspect(_) >> Mock(MuonFuture) {
+                get() >> new ServiceExtendedDescriptor("tombola", [new ProtocolDescriptor("event", "", "", [])])
+            }
         }
 
         def evClient = new DefaultEventClient(muon)
 
         when:
         def future = evClient.event(
-                new ClientEvent("awesome", "SomethingHappened", "simples", "myParent", "myService", []))
+                new ClientEvent("awesome", "SomethingHappened", "simples", 1234, "myService", []))
 
         and: "A response comes back from the remote"
         Thread.start {
@@ -112,7 +118,7 @@ class EventClientProtocolStackSpec extends Specification {
 
         when:
         eventStore.event(
-                new ClientEvent("awesome", "SomethingHappened", "simples", "myParent", "myService", []))
+                new ClientEvent("awesome", "SomethingHappened", "simples", 1234, "myService", []))
         sleep(50)
 
         then:
@@ -143,7 +149,7 @@ class EventClientProtocolStackSpec extends Specification {
 
         when:
         def response = eventStore.event(
-                new ClientEvent("awesome", "SomethingHappened2", "simples", "myParent", "myService", []))
+                new ClientEvent("awesome", "SomethingHappened2", "simples", 1234, "myService", []))
 
         then:
         response

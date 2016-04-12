@@ -44,8 +44,6 @@ public class RabbitMq09QueueListener implements QueueListener {
             log.log(Level.FINE, "Opening Queue: " + queueName);
             channel.queueDeclare(queueName, false, false, true, null);
 
-            latch.countDown();
-
             consumer = new DefaultConsumer(channel) {
                 @Override
                 public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
@@ -83,6 +81,8 @@ public class RabbitMq09QueueListener implements QueueListener {
             };
 
             channel.basicConsume(queueName, false, consumer);
+
+            latch.countDown();
 
             log.log(Level.FINE, "Queue ready: " + queueName);
 
