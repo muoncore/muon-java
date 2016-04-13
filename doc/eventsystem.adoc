@@ -35,7 +35,7 @@ include::src/main/java/io/muoncore/example/event/EventClientExample.java[tags=em
 
 [source,java,indent=0]
 ----
-include::src/main/java/io/muoncore/example/event/EventClientExample.java[tags=]
+include::src/main/java/io/muoncore/example/event/EventClientExample.java[tags=replay]
 ----
 
 === Event Sourcing
