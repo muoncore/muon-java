@@ -16,6 +16,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public class AMQPMuonTransport implements MuonTransport {
@@ -52,8 +53,12 @@ public class AMQPMuonTransport implements MuonTransport {
 
     @Override
     public boolean canConnectToService(String name) {
-        ServiceDescriptor descriptor = discovery.getKnownServices().stream().filter( svc -> svc.getIdentifier().equals(name)).findFirst().get();
-        return descriptor.getConnectionUrls().stream().anyMatch( url -> url.getScheme().equals(getUrlScheme()));
+        Optional<ServiceDescriptor> descriptor = discovery.getKnownServices().stream().filter(svc ->
+                svc.getIdentifier().equals(name)).findFirst();
+        if (!descriptor.isPresent()) {
+            return false;
+        }
+        return descriptor.get().getConnectionUrls().stream().anyMatch( url -> url.getScheme().equals(getUrlScheme()));
     }
 
     @Override
