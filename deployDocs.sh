@@ -19,8 +19,8 @@ fi
 mkdir tempdocumentation
 cd  tempdocumentation
 rm -rf muon-documentation
-git clone git@github.com:microserviceux/muon-documentation.git
-cd  muon-documentation
+git clone git@github.com:microserviceux/documentation.git
+cd  documentation
 mkdir -p java
 rsync -avr --delete ../../doc/ java/$DOCPATH
 git add java/
