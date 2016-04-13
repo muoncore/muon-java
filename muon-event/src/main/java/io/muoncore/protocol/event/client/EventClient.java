@@ -36,7 +36,7 @@ public interface EventClient {
      * @param mode Whether to replay just the future data, or request to load historical data, if supported on the remote stream
      * @param subscriber The reactive streams subscriber that will listen to the event stream.
      */
-    void replay(String streamName, EventReplayMode mode, Subscriber<Event> subscriber);
+    <X> void replay(String streamName, EventReplayMode mode, Class<X> payloadType, Subscriber<Event<X>> subscriber);
 
 
     /**

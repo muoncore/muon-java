@@ -27,7 +27,10 @@ import org.reactivestreams.Subscriber;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -122,7 +125,7 @@ public class DefaultEventClient implements EventClient {
     }
 
     @Override
-    public void replay(String streamName, EventReplayMode mode, Subscriber<Event> subscriber) {
+    public <X> void replay(String streamName, EventReplayMode mode, Class<X> payloadType, Subscriber<Event<X>> subscriber) {
 
         String replayType;
         if (mode == EventReplayMode.LIVE_ONLY) {
@@ -136,7 +139,7 @@ public class DefaultEventClient implements EventClient {
             String eventStoreName = eventStore.get().getIdentifier();
             try {
                 reactiveStreamClientProtocolStack.subscribe(new URI("stream://" + eventStoreName + "/stream?stream-type=" + replayType + "&stream-name=" + streamName),
-                        Map.class, subscriber);
+                        new EventParameterizedType(payloadType), subscriber);
             } catch (URISyntaxException e) {
                 throw new MuonException("The name provided [" + eventStoreName + "] is invalid");
             }
