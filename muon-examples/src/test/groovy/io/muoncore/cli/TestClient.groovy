@@ -7,6 +7,7 @@ import io.muoncore.protocol.event.client.DefaultEventClient
 import io.muoncore.protocol.event.client.EventClient
 import io.muoncore.protocol.event.client.EventReplayMode
 import reactor.rx.broadcast.Broadcaster
+
 /**
  * Created by david on 01/04/16.
  */
@@ -23,30 +24,40 @@ class TestClient {
 
         muon.discovery.blockUntilReady()
 
-        muon.introspect("photon").then {
-            it.protocols.each {
-                println "PROTO - ${it.protocolName}"
-                it.operations.each {
-                    println "${it.resource} -- ${it.doc}"
-                }
-            }
-        }
+//        muon.introspect("photon").then {
+//            it.protocols.each {
+//                println "PROTO - ${it.protocolName}"
+//                it.operations.each {
+//                    println "${it.resource} -- ${it.doc}"
+//                }
+//            }
+//        }
 
         evclient = new DefaultEventClient(muon)
 
-//        publishEventRpc()
+//        evclient.getProjectionList().get().each {
+//            println "PROJECTION - ${it}"
+//        }
 
+
+
+//        println "SIMPLE IS ${evclient.getProjection("__streams__", Map).get().currentState["current-value"]}"
+//        println "SIMPLE IS ${evclient.getProjection("counter", Map).get().currentState["current-value"]}"
+
+//
+////        publishEventRpc()
+//
         def sub = Broadcaster.create()
         sub.consume {
             println "EVENT = ${it}"
         }
-        evclient.replay("awesome", EventReplayMode.LIVE_ONLY, sub)
+        evclient.replay("rahrah", EventReplayMode.REPLAY_THEN_LIVE, sub)
 
 //        while(true) {
 //
-//            sleep(500)
-//            evclient.event("awesome", new Event(
-//                    "rahrah", "MYEVENTID", "", "client", [
+////            sleep(500)
+//            evclient.event(new ClientEvent( "awesome",
+//                    "rahrah", null, null, null, [
 //                    "hello": "world",
 //                    "awesome": "times"
 //            ]

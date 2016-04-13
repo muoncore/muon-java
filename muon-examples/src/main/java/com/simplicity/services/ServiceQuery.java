@@ -34,7 +34,7 @@ public class ServiceQuery {
 
         Map data = new HashMap<>();
 
-//        MuonFuture<EventProjection<Map>> projection = eventClient.lookupProjection("SimpleProjection", Map.class);
+//        MuonFuture<EventProjection<Map>> projection = eventClient.getProjection("SimpleProjection", Map.class);
 
         Response ret = muon.request("request://photon", data, String.class).get();
 

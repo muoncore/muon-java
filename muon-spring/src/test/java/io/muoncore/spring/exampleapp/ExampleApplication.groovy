@@ -34,7 +34,7 @@ class ExampleApplication {
      */
     @EventSourceListener
     public void ingestData(Event value) {
-        println "Received event ${value.id}"
+        println "Received event ${value.localId}"
     }
 
     /**

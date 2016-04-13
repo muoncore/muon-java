@@ -70,7 +70,7 @@ public class EventStoreInMem {
                 synchronized (exec) {
                     exec.notifyAll();
                 }
-                event.persisted();
+                event.persisted(12313, System.currentTimeMillis());
             } catch (Exception ex) {
                 event.failed(ex.getMessage());
             }

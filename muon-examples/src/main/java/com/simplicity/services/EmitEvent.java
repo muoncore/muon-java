@@ -4,7 +4,7 @@ import io.muoncore.Muon;
 import io.muoncore.MuonBuilder;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
-import io.muoncore.protocol.event.Event;
+import io.muoncore.protocol.event.ClientEvent;
 import io.muoncore.protocol.event.client.DefaultEventClient;
 import io.muoncore.protocol.event.client.EventClient;
 import io.muoncore.protocol.event.client.EventResult;
@@ -36,7 +36,7 @@ public class EmitEvent {
         data.put("hello", "world");
 
         for(int i=0; i < 500; i++ ) {
-            EventResult res = client.event("awesome", new Event<>("awesome", "123", null, config.getServiceName(), data));
+            EventResult res = client.event(new ClientEvent("awesome", "awesome", "1.0", 12313l, "causedby",  data));
             System.out.println("Restul is " + res.getStatus() + " " + res.getCause());
         }
 

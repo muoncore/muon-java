@@ -1,9 +1,46 @@
 
 == Event Based Systems
 
+Event based architectures have many powerful and useful properties when building distributed and scalable
+systems. The MicroserviceUX ecosystem provides special support for building event based systems, in the form of :=
 
+* Microservices providing optimised event storage, transformation and query.
+* Muon protocols and APIs to interact with event based data.
+
+Eventing in MicroserviceUX is taken to mean persisted event architectures, where the streams of events are stored
+and used at future points. This is often called _event sourcing_.
+
+=== Running an Event Store
+
+To get started with
+
+=== Setting up the event client
+
+[source,java,indent=0]
+----
+include::src/main/java/io/muoncore/example/event/EventClientExample.java[tags=createclient]
+----
+
+=== Emitting Events
+
+
+
+[source,java,indent=0]
+----
+include::src/main/java/io/muoncore/example/event/EventClientExample.java[tags=emitevent]
+----
+
+=== Replaying Events
+
+
+[source,java,indent=0]
+----
+include::src/main/java/io/muoncore/example/event/EventClientExample.java[tags=]
+----
 
 === Event Sourcing
+
+talk about replaying data and ingesting it into some internal model for awesomeness to ensure.
 
 TODO, link core event sourcing docs.
 
@@ -12,8 +49,5 @@ Apart from the recommended event store, Photon, Muon Java provides an in memory,
 
 This is most useful during building tests.
 
-=== Event Based Testing
-
-If you adopt the Event system (which requires an event store such as _Photon_), then you will design your system domains
-as a set of _Events_, and your business processes as a set of causal relationships between them.
+=== Using Event Projections
 
