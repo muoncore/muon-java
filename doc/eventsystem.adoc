@@ -1,4 +1,11 @@
 
+
+Finish this event guide.
+Write up the event guide with a concrete example
+
+Users. regsitering, removing. Simple streaming aggregation. THen with a projection instead.
+
+
 == Event Based Systems
 
 Event based architectures have many powerful and useful properties when building distributed and scalable

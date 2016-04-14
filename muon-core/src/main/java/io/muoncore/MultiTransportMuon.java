@@ -1,5 +1,6 @@
 package io.muoncore;
 
+import io.muoncore.channel.Channels;
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.config.AutoConfiguration;
@@ -148,7 +149,9 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
 
     @Override
     public void shutdown() {
+        discovery.shutdown();
         transportClient.shutdown();
+        Channels.shutdown();
     }
 
     @Override

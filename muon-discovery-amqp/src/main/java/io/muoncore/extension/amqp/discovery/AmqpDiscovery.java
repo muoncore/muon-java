@@ -89,7 +89,7 @@ public class AmqpDiscovery implements Discovery {
                     Thread.sleep(3000);
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+
             }
         });
     }
@@ -130,5 +130,6 @@ public class AmqpDiscovery implements Discovery {
     public void shutdown() {
         spinner.shutdownNow();
         listener.cancel();
+        connection.close();
     }
 }

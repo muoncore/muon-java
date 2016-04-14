@@ -1,19 +1,28 @@
 package io.muoncore.protocol.event;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * A canonical Event for Muon
  */
 public class Event<X> {
 
+    @SerializedName("event-type")
     private String eventType;
+    @SerializedName("stream-name")
     private String streamName;
 
     private String schema;
+    @SerializedName("caused-by-id")
     private Long causedById;
+    @SerializedName("caused-by-relation")
     private String causedByRelation;
 
+    @SerializedName("service-id")
     private String service;
+    @SerializedName("order-id")
     private Long orderId;
+    @SerializedName("server-timestamp")
     private Long eventTime;
     private X payload;
 

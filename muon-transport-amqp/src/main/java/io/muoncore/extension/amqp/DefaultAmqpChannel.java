@@ -119,14 +119,15 @@ public class DefaultAmqpChannel implements AmqpChannel {
     @Override
     public void shutdown() {
 
-        if (onShutdown != null) {
-            this.onShutdown.apply(null);
-        }
         try { listener.cancel(); } catch(Exception e){}
         if (ownsQueues) {
             connection.deleteQueue(sendQueue);
             connection.deleteQueue(receiveQueue);
         }
+        if (onShutdown != null) {
+            this.onShutdown.apply(null);
+        }
+
     }
 
     @Override

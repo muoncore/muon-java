@@ -121,9 +121,12 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
     @Override
     public void close() {
         try {
-            channel.close();
-            connection.close();
-            Thread.sleep(1000);
+            if (channel.isOpen()) {
+                channel.close();
+            }
+            if (connection.isOpen()) {
+                connection.close();
+            }
         } catch (ShutdownSignalException ex) {
             if (ex.isHardError()) {
                 log.log(Level.WARNING, ex.getMessage(), ex);
