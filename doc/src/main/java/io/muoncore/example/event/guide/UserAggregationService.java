@@ -14,13 +14,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by david on 14/04/16.
- */
 public class UserAggregationService {
-
-    //subscribe to the user stream
-    // fold into a user account
 
     public static void main(String[] args) {
 

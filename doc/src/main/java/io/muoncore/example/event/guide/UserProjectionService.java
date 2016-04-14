@@ -14,9 +14,9 @@ import java.util.concurrent.ExecutionException;
 
 public class UserProjectionService {
 
-    //add the projection into photon
+    //TODO - add the projection into photon via the API
 
-    //read the projection on demand
+    //provide an API to read the projection on demand
 
     //read part of the projection for a single account?
 
