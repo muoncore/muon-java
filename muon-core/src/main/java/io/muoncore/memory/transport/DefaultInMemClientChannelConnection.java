@@ -51,7 +51,9 @@ public class DefaultInMemClientChannelConnection implements InMemClientChannelCo
 
     @Override
     public void shutdown() {
-        serverChannel.shutdown();
+        if (serverChannel != null) {
+            serverChannel.shutdown();
+        }
     }
 
     @Override
