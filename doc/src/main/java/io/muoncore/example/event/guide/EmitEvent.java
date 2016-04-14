@@ -31,17 +31,29 @@ public class EmitEvent {
                         "Reginald",
                         "Sanders")
         ));
-////
-//        eventClient.event(new ClientEvent<>(
-//                "UserDeleted",
-//                "users",
-//                null,
-//                null,
-//                null,
-//                new UserDeletedEvent("regsanders")
-//        ));
-//
-        System.out.println("User registered");
+
+        eventClient.event(new ClientEvent<>(
+                "UserRegistered",
+                "users",
+                null,
+                null,
+                null,
+                new UserRegisteredEvent(
+                        "derek",
+                        "Derek",
+                        "Blimby")
+        ));
+
+        eventClient.event(new ClientEvent<>(
+                "UserDeleted",
+                "users",
+                null,
+                null,
+                null,
+                new UserDeletedEvent("regsanders")
+        ));
+
+        System.out.println("User data updated");
         muon.shutdown();
     }
 
