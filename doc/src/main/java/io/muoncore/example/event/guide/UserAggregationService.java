@@ -45,40 +45,4 @@ public class UserAggregationService {
         evclient.replay("users", EventReplayMode.REPLAY_THEN_LIVE, Map.class, sub);
 
     }
-
-    static class UserRegisteredEvent {
-        private String username;
-        private String firstname;
-        private String lastname;
-
-        public UserRegisteredEvent(String username, String firstname, String lastname) {
-            this.username = username;
-            this.firstname = firstname;
-            this.lastname = lastname;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public String getFirstname() {
-            return firstname;
-        }
-
-        public String getLastname() {
-            return lastname;
-        }
-    }
-
-    static class UserDeletedEvent {
-        private String username;
-
-        public UserDeletedEvent(String username) {
-            this.username = username;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-    }
 }
