@@ -1,5 +1,7 @@
 package io.muoncore.extension.amqp;
 
+import io.muoncore.Discovery;
+import io.muoncore.codec.Codecs;
 import io.muoncore.transport.client.RingBufferLocalDispatcher;
 import reactor.core.Dispatcher;
 
@@ -9,6 +11,8 @@ public class DefaultAmqpChannelFactory implements AmqpChannelFactory {
     private QueueListenerFactory listenerFactory;
     private AmqpConnection connection;
     private Dispatcher dispatcher = new RingBufferLocalDispatcher("amqp-channel", 32768);
+    private Codecs codecs;
+    private Discovery discovery;
 
     public DefaultAmqpChannelFactory(String localServiceName, QueueListenerFactory listenerFactory, AmqpConnection connection) {
         this.localServiceName = localServiceName;
@@ -18,6 +22,12 @@ public class DefaultAmqpChannelFactory implements AmqpChannelFactory {
 
     @Override
     public AmqpChannel createChannel() {
-        return new DefaultAmqpChannel(connection, listenerFactory, localServiceName, dispatcher);
+        return new DefaultAmqpChannel(connection, listenerFactory, localServiceName, dispatcher, codecs, discovery);
+    }
+
+    @Override
+    public void initialiseEnvironment(Codecs codecs, Discovery discovery) {
+        this.codecs = codecs;
+        this.discovery = discovery;
     }
 }

@@ -14,7 +14,7 @@ public class MuonMessageBuilder {
     private MuonMessage.Status status = MuonMessage.Status.success;
     private byte[] payload;
     private String contentType;
-    private MuonMessage.ChannelOperation channelOperation = MuonMessage.ChannelOperation.NORMAL;
+    private MuonMessage.ChannelOperation channelOperation = MuonMessage.ChannelOperation.normal;
 
     public static MuonMessageBuilder fromService(String service) {
         MuonMessageBuilder builder = new MuonMessageBuilder();
@@ -59,6 +59,10 @@ public class MuonMessageBuilder {
 
     public MuonOutboundMessage build() {
         return new MuonOutboundMessage(
+                id, created, targetServiceName, sourceServiceName, protocol, step, status, payload, contentType, channelOperation);
+    }
+    public MuonInboundMessage buildInbound() {
+        return new MuonInboundMessage(
                 id, created, targetServiceName, sourceServiceName, protocol, step, status, payload, contentType, channelOperation);
     }
 }

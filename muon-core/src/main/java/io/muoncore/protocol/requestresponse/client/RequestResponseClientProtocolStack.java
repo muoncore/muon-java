@@ -9,7 +9,7 @@ import io.muoncore.api.MuonFuture;
 import io.muoncore.protocol.ServiceConfigurationSource;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
-import io.muoncore.protocol.requestresponse.RequestMetaData;
+import io.muoncore.protocol.requestresponse.Headers;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.protocol.support.ProtocolTimerSource;
 import io.muoncore.transport.TransportClientSource;
@@ -49,7 +49,7 @@ public interface RequestResponseClientProtocolStack extends
         if (!uri.getScheme().equals(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)) {
             throw new MuonException("Scheme is invalid: " + uri.getScheme() + ", requires scheme: " + RRPTransformers.REQUEST_RESPONSE_PROTOCOL);
         }
-        return request(new Request<>(new RequestMetaData(uri.getPath(), getConfiguration().getServiceName(), uri.getHost()), payload), responseType);
+        return request(new Request<>(new Headers(uri.getPath(), getConfiguration().getServiceName(), uri.getHost()), payload), responseType);
     }
 
     default <X,R> MuonFuture<Response<R>> request(Request<X> event, Class<R> responseType) {

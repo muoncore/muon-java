@@ -1,6 +1,5 @@
 package io.muoncore.transport;
 
-import io.muoncore.Discovery;
 import io.muoncore.config.AutoConfiguration;
 
 import java.util.Properties;

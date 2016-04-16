@@ -1,16 +1,16 @@
 package io.muoncore.protocol.requestresponse
+
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.Channels
 import io.muoncore.codec.Codecs
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
+import io.muoncore.message.MuonMessageBuilder
+import io.muoncore.message.MuonOutboundMessage
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocolStack
 import io.muoncore.protocol.requestresponse.server.*
 import io.muoncore.protocol.support.ProtocolTimer
-import io.muoncore.message.MuonInboundMessage
-import io.muoncore.message.MuonMessage
-import io.muoncore.message.MuonOutboundMessage
 import io.muoncore.transport.client.TransportClient
 import reactor.Environment
 import spock.lang.Specification
@@ -54,7 +54,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                     }
 
                     @Override
-                    Predicate<RequestMetaData> matcher() {
+                    Predicate<Headers> matcher() {
                         return { it.targetService == "remote" }
                     }
                 }
@@ -81,25 +81,30 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                 channel.left(),
                 { MuonOutboundMessage msg ->
                     if (msg == null) return null
-                    new MuonInboundMessage(
-                            msg.type,
-                            msg.id,
-                            msg.targetServiceName,
-                            msg.sourceServiceName,
-                            msg.protocol,
-                            msg.metadata,
-                            msg.contentType,
-                            msg.payload, msg.sourceAvailableContentTypes, MuonMessage.ChannelOperation.NORMAL)
+                    MuonMessageBuilder
+                            .fromService(msg.targetServiceName)
+                            .toService(msg.targetServiceName)
+                            .step(msg.step)
+                            .status(msg.status)
+                            .protocol(msg.protocol)
+                            .contentType(msg.contentType)
+                            .payload(msg.payload)
+                            .operation(msg.channelOperation)
+                            .buildInbound()
+
                 },
                 { MuonOutboundMessage msg ->
                     if (msg == null) return null
-                    new MuonInboundMessage(msg.type, msg.id,
-                            msg.targetServiceName,
-                            msg.sourceServiceName,
-                            msg.protocol,
-                            msg.metadata,
-                            msg.contentType,
-                            msg.payload, msg.sourceAvailableContentTypes, MuonMessage.ChannelOperation.NORMAL)
+                    MuonMessageBuilder
+                            .fromService(msg.targetServiceName)
+                            .toService(msg.targetServiceName)
+                            .step(msg.step)
+                            .status(msg.status)
+                            .protocol(msg.protocol)
+                            .contentType(msg.contentType)
+                            .payload(msg.payload)
+                            .operation(msg.channelOperation)
+                            .buildInbound()
                 }
         )
 
@@ -131,7 +136,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
 
         when:
         Response response = client.request(
-                new Request(new RequestMetaData("myapp", "someservice", "remote"), [message:"yoyo"]), Map).get()
+                new Request(new Headers("myapp", "someservice", "remote"), [message:"yoyo"]), Map).get()
 
         then:
         response.status == 200

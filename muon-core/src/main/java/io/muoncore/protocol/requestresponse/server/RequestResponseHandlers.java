@@ -1,11 +1,11 @@
 package io.muoncore.protocol.requestresponse.server;
 
-import io.muoncore.protocol.requestresponse.RequestMetaData;
+import io.muoncore.protocol.requestresponse.Headers;
 
 import java.util.List;
 
 public interface RequestResponseHandlers {
     List<RequestResponseServerHandler> getHandlers();
     void addHandler(RequestResponseServerHandler handler);
-    RequestResponseServerHandler findHandler(RequestMetaData inbound);
+    RequestResponseServerHandler findHandler(Headers inbound);
 }

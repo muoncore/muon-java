@@ -1,9 +1,10 @@
 package io.muoncore.protocol.defaultproto
 
+import io.muoncore.Discovery
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.Codecs
-import io.muoncore.message.MuonInboundMessage
-import io.muoncore.message.MuonMessage
+import io.muoncore.config.MuonConfigBuilder
+import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.message.MuonOutboundMessage
 import spock.lang.Specification
 
@@ -13,23 +14,18 @@ class DefaultServerProtocolSpec extends Specification {
 
         def codecs = Mock(Codecs) {
             getAvailableCodecs() >> []
+            encode(_, _) >> new Codecs.EncodingResult(new byte[0], "text/plain")
         }
-        def proto = new DefaultServerProtocol(codecs)
+        def disco = Mock(Discovery)
+        def config = MuonConfigBuilder.withServiceIdentifier("simples").build()
+        def proto = new DefaultServerProtocol(codecs, config, disco)
         def channel = proto.createChannel()
         def receive = Mock(ChannelConnection.ChannelFunction)
 
         channel.receive(receive)
 
         when:
-        channel.send(new MuonInboundMessage(
-                "somethingHappened",
-                "id",
-                "targetService",
-                "sourceServiceName",
-                "fakeproto",
-                [:],
-                "text/plain",
-                new byte[0], ["application/json"], MuonMessage.ChannelOperation.NORMAL))
+        channel.send(MuonMessageBuilder.fromService("tombola").buildInbound())
 
         then:
         1 * receive.apply(_ as MuonOutboundMessage)

@@ -72,7 +72,7 @@ class EventClientProtocolStackSpec extends Specification {
                     "fakeproto",
                     ["status":"200"],
                     "text/plain",
-                    new byte[0], [], MuonMessage.ChannelOperation.NORMAL))
+                    new byte[0], [], MuonMessage.ChannelOperation.normal))
         }
 
         sleep(200)

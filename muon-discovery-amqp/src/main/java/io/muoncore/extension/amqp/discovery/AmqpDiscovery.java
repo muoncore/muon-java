@@ -6,10 +6,10 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.extension.amqp.AmqpConnection;
 import io.muoncore.extension.amqp.QueueListener;
 import io.muoncore.extension.amqp.QueueListenerFactory;
+import io.muoncore.extension.amqp.QueueMessageBuilder;
 import io.muoncore.transport.ServiceCache;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -78,9 +78,11 @@ public class AmqpDiscovery implements Discovery {
 
                         if (!payload.isFailed()) {
                             try {
-                                connection.broadcast(new QueueListener.QueueMessage(
-                                        "broadcast", "discovery", payload.getPayload(), new HashMap<>(), payload.getContentType()
-                                ));
+                                connection.broadcast(
+                                        QueueMessageBuilder.queue("discovery")
+                                            .body(payload.getPayload())
+                                            .contentType(payload.getContentType()).build()
+                                );
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

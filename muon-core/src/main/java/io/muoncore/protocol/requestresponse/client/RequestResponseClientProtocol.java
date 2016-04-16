@@ -2,14 +2,14 @@ package io.muoncore.protocol.requestresponse.client;
 
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.requestresponse.RRPEvents;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.protocol.support.ProtocolTimer;
 import io.muoncore.transport.TransportEvents;
-import io.muoncore.message.MuonInboundMessage;
-import io.muoncore.message.MuonOutboundMessage;
 
 import java.lang.reflect.Type;
 
@@ -50,6 +50,12 @@ public class RequestResponseClientProtocol<X,R> {
                             new Response<>(
                             404,
                             null));
+                    break;
+                default:
+                    leftChannelConnection.send(
+                            new Response<>(
+                                    500,
+                                    null));
             }
         });
 

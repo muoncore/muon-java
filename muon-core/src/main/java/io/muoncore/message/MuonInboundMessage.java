@@ -1,5 +1,7 @@
 package io.muoncore.message;
 
+import io.muoncore.transport.TransportEvents;
+
 public class MuonInboundMessage extends MuonMessage {
 
     public MuonInboundMessage(String id, long created, String targetServiceName, String sourceServiceName, String protocol, String step, Status status, byte[] payload, String contentType, ChannelOperation channelOperation) {
@@ -13,11 +15,11 @@ public class MuonInboundMessage extends MuonMessage {
                 msg.getSourceServiceName(),
                 msg.getTargetServiceName(),
                 msg.getProtocol(),
-                msg.getStep(),
+                TransportEvents.SERVICE_NOT_FOUND,
                 Status.failure,
                 msg.getPayload(),
                 msg.getContentType(),
-                ChannelOperation.NORMAL
+                ChannelOperation.normal
         );
     }
 }

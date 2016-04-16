@@ -27,4 +27,13 @@ public class Response<X> {
     public String getId() {
         return id;
     }
+
+    @Override
+    public String toString() {
+        return "Response{" +
+                "id='" + id + '\'' +
+                ", payload=" + payload +
+                ", status=" + status +
+                '}';
+    }
 }

@@ -1,15 +1,18 @@
 package io.muoncore.protocol.introspection.server
+
+import io.muoncore.Discovery
 import io.muoncore.codec.Codecs
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.descriptors.ServiceExtendedDescriptor
 import io.muoncore.descriptors.ServiceExtendedDescriptorSource
-import io.muoncore.message.MuonInboundMessage
-import io.muoncore.message.MuonMessage
+import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.message.MuonOutboundMessage
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
 class IntrospectionServerProtocolStackSpec extends Specification {
+
+    def discovery = Mock(Discovery)
 
     def "responds with an introspection report"() {
         def descriptorSource = Mock(ServiceExtendedDescriptorSource) {
@@ -17,7 +20,7 @@ class IntrospectionServerProtocolStackSpec extends Specification {
         }
         def codecs = new JsonOnlyCodecs()
 
-        def stack = new IntrospectionServerProtocolStack(descriptorSource, codecs)
+        def stack = new IntrospectionServerProtocolStack(descriptorSource, codecs, discovery)
 
         MuonOutboundMessage outbound
 
@@ -27,17 +30,15 @@ class IntrospectionServerProtocolStackSpec extends Specification {
         })
 
         when:
-        channel.send(new MuonInboundMessage(
-                "introspect",
-                "simples",
-                "someService",
-                "myService",
-                "introspect",
-                [:],
-                "application/json",
-                [] as byte[],
-                ["application/json"], MuonMessage.ChannelOperation.NORMAL
-        ))
+        channel.send(
+                MuonMessageBuilder
+                        .fromService("tombola")
+                        .toService("simples")
+                        .step("Meh")
+                        .protocol(IntrospectionServerProtocolStack.PROTOCOL)
+                        .contentType("application/json")
+                        .payload()
+                        .buildInbound())
 
         then:
         new PollingConditions().eventually {
@@ -51,7 +52,7 @@ class IntrospectionServerProtocolStackSpec extends Specification {
         def descriptorSource = Mock(ServiceExtendedDescriptorSource)
         def codecs = Mock(Codecs)
 
-        def stack = new IntrospectionServerProtocolStack(descriptorSource, codecs)
+        def stack = new IntrospectionServerProtocolStack(descriptorSource, codecs, discovery)
 
         expect:
         stack.protocolDescriptor.operations.size() == 0

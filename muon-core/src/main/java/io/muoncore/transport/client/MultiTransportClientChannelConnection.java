@@ -60,7 +60,7 @@ class MultiTransportClientChannelConnection implements ChannelConnection<MuonOut
                         }
                     }
                     connection.send(message);
-                    if (message.getChannelOperation() == MuonMessage.ChannelOperation.CLOSE_CHANNEL) {
+                    if (message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
                         inbound = null;
                         this.transports = null;
                     }

@@ -3,8 +3,11 @@ package io.muoncore.extension.amqp;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListener;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static io.muoncore.extension.amqp.QueueMessageBuilder.HEADER_PROTOCOL;
+import static io.muoncore.extension.amqp.QueueMessageBuilder.HEADER_RECEIVE_QUEUE;
+import static io.muoncore.extension.amqp.QueueMessageBuilder.HEADER_REPLY_TO;
 
 public class DefaultServiceQueue implements ServiceQueue {
 
@@ -30,30 +33,14 @@ public class DefaultServiceQueue implements ServiceQueue {
 
         listener = new RabbitMq09QueueListener(connection.getChannel(), "service." + serviceName, fun -> {
 
-            if (!isvalid(AMQPMuonTransport.HEADER_PROTOCOL, fun)) {
-                LOG.log(Level.SEVERE, "Handshake header missing " + AMQPMuonTransport.HEADER_PROTOCOL);
-            }
-            if (!isvalid(AMQPMuonTransport.HEADER_SOURCE_SERVICE, fun)) {
-                LOG.log(Level.SEVERE, "Handshake header missing " + AMQPMuonTransport.HEADER_SOURCE_SERVICE);
-            }
-            if (!isvalid(AMQPMuonTransport.HEADER_RECEIVE_QUEUE, fun)) {
-                LOG.log(Level.SEVERE, "Handshake header missing " + AMQPMuonTransport.HEADER_RECEIVE_QUEUE);
-            }
-            if (!isvalid(AMQPMuonTransport.HEADER_REPLY_TO, fun)) {
-                LOG.log(Level.SEVERE, "Handshake header missing " + AMQPMuonTransport.HEADER_REPLY_TO);
-            }
             AmqpHandshakeMessage handshake = new AmqpHandshakeMessage(
-                    fun.getHeaders().get(AMQPMuonTransport.HEADER_PROTOCOL).toString(),
-                    fun.getHeaders().get(AMQPMuonTransport.HEADER_SOURCE_SERVICE).toString(),
-                    fun.getHeaders().get(AMQPMuonTransport.HEADER_REPLY_TO).toString(),
-                    fun.getHeaders().get(AMQPMuonTransport.HEADER_RECEIVE_QUEUE).toString());
+                    fun.getHeaders().get(HEADER_PROTOCOL).toString(),
+                    fun.getHeaders().get(HEADER_REPLY_TO).toString(),
+                    fun.getHeaders().get(HEADER_RECEIVE_QUEUE).toString());
+
             channelFunction.apply(handshake);
         });
         listener.start();
         listener.blockUntilReady();
-    }
-    
-    static boolean isvalid(String name, QueueListener.QueueMessage message) {
-        return message.getHeaders().get(name) != null;
     }
 }

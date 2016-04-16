@@ -1,6 +1,8 @@
 package io.muoncore.transport.client
-import io.muoncore.message.MuonInboundMessage
+
+import io.muoncore.codec.json.GsonCodec
 import io.muoncore.message.MuonMessage
+import io.muoncore.message.MuonMessageBuilder
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import spock.lang.Specification
@@ -170,16 +172,12 @@ class SimpleTransportMessageDispatcherSpec extends Specification {
     }
 
     def inbound() {
-        new MuonInboundMessage(
-                "mydata",
-                "faked",
-                "myTarget",
-                "mySource",
-                "streamish",
-                [:],
-                "application/json+AES",
-                [] as byte[],
-                [], MuonMessage.ChannelOperation.NORMAL
-        )
+        MuonMessageBuilder.fromService("mySource")
+            .toService("myTarget")
+            .step("faked")
+            .protocol("streamish")
+            .contentType("application/json")
+            .payload(new GsonCodec().encode([:]))
+            .buildInbound()
     }
 }

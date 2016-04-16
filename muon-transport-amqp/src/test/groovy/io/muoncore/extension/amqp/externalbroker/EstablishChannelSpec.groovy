@@ -3,15 +3,15 @@ package io.muoncore.extension.amqp.externalbroker
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
-import io.muoncore.codec.json.GsonCodec
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.extension.amqp.AMQPMuonTransport
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
+import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.protocol.ServerStacks
 import io.muoncore.protocol.requestresponse.RRPTransformers
-import io.muoncore.message.MuonOutboundMessage
 import reactor.Environment
 import spock.lang.IgnoreIf
 import spock.lang.Specification
@@ -21,6 +21,7 @@ class EstablishChannelSpec extends Specification {
 
     def serverStacks1 = Mock(ServerStacks)
     def serverStacks2 = Mock(ServerStacks)
+    def codecs = new JsonOnlyCodecs()
 
     def discovery = Mock(Discovery) {
         findService(_) >> Optional.of(new ServiceDescriptor("", [], [], []))
@@ -33,8 +34,8 @@ class EstablishChannelSpec extends Specification {
         AMQPMuonTransport svc1 = createTransport("service1")
         AMQPMuonTransport svc2 = createTransport("tombola")
 
-        svc2.start(discovery, serverStacks2)
-        svc1.start(discovery, serverStacks1)
+        svc2.start(discovery, serverStacks2, codecs)
+        svc1.start(discovery, serverStacks1, codecs)
 
         when:
         def channel = svc1.openClientChannel("tombola", "requestresponse")
@@ -42,15 +43,15 @@ class EstablishChannelSpec extends Specification {
             println "Received a message ... "
         }
 
-        channel.send(new MuonOutboundMessage(
-                "somethingHappened",
-                "1",
-                "tombola",
-                "service1",
-                RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
-                [:],
-                "applicaton/json",
-                new GsonCodec().encode([:]), ["application/json"]))
+        channel.send(
+                MuonMessageBuilder
+                        .fromService("service1")
+                        .step("somethingHappened")
+                        .protocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
+                        .toService("tombola")
+                        .payload([] as byte[])
+                        .contentType("application/json")
+                        .build())
         sleep(50)
 
         then:

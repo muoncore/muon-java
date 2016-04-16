@@ -1,11 +1,11 @@
 package io.muoncore.protocol.requestresponse
+
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.codec.json.GsonCodec
 import io.muoncore.codec.json.JsonOnlyCodecs
+import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.protocol.requestresponse.server.*
-import io.muoncore.message.MuonInboundMessage
-import io.muoncore.message.MuonMessage
 import reactor.Environment
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
@@ -113,16 +113,14 @@ class RequestResponseServerProtocolStackSpec extends Specification {
         }
     }
 
-    def inbound(id, service, protocol) {
-        new MuonInboundMessage(
-                "somethingHappened",
-                id,
-                service,
-                "local",
-                protocol,
-                [:],
-                "application/json",
-                new GsonCodec().encode([:]), ["application/json"], MuonMessage.ChannelOperation.NORMAL)
+    def inbound(id, String service, String protocol) {
+        MuonMessageBuilder.fromService("localService")
+                .toService(service)
+                .step(RRPEvents.REQUEST)
+                .protocol(protocol)
+                .contentType("application/json")
+                .payload(new GsonCodec().encode(new Request(new Headers("myurl", "someservice", "targetseervice"), [:])))
+                .buildInbound()
     }
 }
 

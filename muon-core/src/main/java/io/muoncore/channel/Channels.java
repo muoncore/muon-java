@@ -17,8 +17,8 @@ public class Channels {
     static Dispatcher EVENT_DISPATCHER = new RingBufferLocalDispatcher("channel", 32768);
 
     public static void shutdown() {
-        EVENT_DISPATCHER.shutdown();
-        WORK_DISPATCHER.shutdown();
+//        EVENT_DISPATCHER.shutdown();
+//        WORK_DISPATCHER.shutdown();
     }
 
     /**

@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 import io.muoncore.Discovery;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.protocol.ServerStacks;
@@ -51,7 +52,7 @@ public class InMemTransport implements MuonTransport {
     }
 
     @Override
-    public void start(Discovery discovery, ServerStacks serverStacks) throws MuonTransportFailureException {
+    public void start(Discovery discovery, ServerStacks serverStacks, Codecs codecs) throws MuonTransportFailureException {
         this.discovery = discovery;
         this.inMemServer = new InMemServer(configuration.getServiceName(), bus, serverStacks);
     }

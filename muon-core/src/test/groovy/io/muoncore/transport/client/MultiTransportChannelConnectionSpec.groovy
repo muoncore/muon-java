@@ -1,12 +1,13 @@
 package io.muoncore.transport.client
+
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.json.GsonCodec
 import io.muoncore.exception.NoSuchServiceException
-import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
-import io.muoncore.transport.MuonTransport
 import io.muoncore.message.MuonInboundMessage
 import io.muoncore.message.MuonMessage
-import io.muoncore.message.MuonOutboundMessage
+import io.muoncore.message.MuonMessageBuilder
+import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
+import io.muoncore.transport.MuonTransport
 import reactor.Environment
 import spock.lang.Specification
 
@@ -160,32 +161,30 @@ class MultiTransportChannelConnectionSpec extends Specification {
         sleep(100)
         then:
         1 * receive.apply({ MuonInboundMessage msg ->
-            msg.channelOperation == MuonMessage.ChannelOperation.NORMAL &&
+            msg.channelOperation == MuonMessage.ChannelOperation.normal &&
                     msg.sourceServiceName == "myService1"
         })
     }
 
-    def inbound(id, service, protocol) {
-        new MuonInboundMessage(
-                "somethingHappened",
-                id,
-                service,
-                "localservice",
-                protocol,
-                [:],
-                "application/json",
-                new GsonCodec().encode([:]), ["application/json"], MuonMessage.ChannelOperation.NORMAL)
+    def inbound(id,String service, String protocol) {
+        MuonMessageBuilder
+                .fromService("localService")
+                .toService(service)
+                .step("somethingHappened")
+                .protocol(protocol)
+                .contentType("application/json")
+                .payload(new GsonCodec().encode([:]))
+                .buildInbound()
     }
 
-    def outbound(id, service, protocol) {
-        new MuonOutboundMessage(
-                "somethingHappened",
-                id,
-                service,
-                "localservice",
-                protocol,
-                [:],
-                "application/json",
-                new GsonCodec().encode([:]), ["application/json"])
+    def outbound(id, String service, String protocol) {
+        MuonMessageBuilder.fromService("localService")
+                .toService(service)
+                .step("somethingHappened")
+                .protocol(protocol)
+                .contentType("application/json")
+                .payload(new GsonCodec().encode([:]))
+                .build()
+
     }
 }

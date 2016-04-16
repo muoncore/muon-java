@@ -36,7 +36,7 @@ public class Wiretap {
         });
 
         muon.getTransportControl().tap(                      //<3>
-                msg -> msg.getType().equals(RRPEvents.REQUEST)).subscribe(requests); //<4>
+                msg -> msg.getStep().equals(RRPEvents.REQUEST)).subscribe(requests); //<4>
         // end::wiretap[]
 
         // tag::wiretap2[]
@@ -47,7 +47,7 @@ public class Wiretap {
         });
 
         muon.getTransportControl().tap(
-                msg -> msg.getType().equals(RRPEvents.RESPONSE)).subscribe(responses);
+                msg -> msg.getStep().equals(RRPEvents.RESPONSE)).subscribe(responses);
         // end::wiretap2[]
 
         // tag::fireRPC[]

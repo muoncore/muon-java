@@ -14,9 +14,10 @@ public class MuonMessage {
     private String step;
     private Status status;
     private byte[] payload;
+    @SerializedName("content_type")
     private String contentType;
     @SerializedName("channel_op")
-    private ChannelOperation channelOperation = ChannelOperation.NORMAL;
+    private ChannelOperation channelOperation = ChannelOperation.normal;
 
     public MuonMessage(String id, long created, String targetServiceName, String sourceServiceName, String protocol, String step, Status status, byte[] payload, String contentType, ChannelOperation channelOperation) {
         this.id = id;
@@ -73,8 +74,8 @@ public class MuonMessage {
 
     public enum ChannelOperation {
         /** Cause the channel to be closed after propogating this message **/
-        CLOSE_CHANNEL,
-        NORMAL
+        closed,
+        normal
     }
 
     @Override

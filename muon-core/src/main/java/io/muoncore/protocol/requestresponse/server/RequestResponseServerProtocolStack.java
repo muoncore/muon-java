@@ -11,7 +11,7 @@ import io.muoncore.descriptors.ProtocolDescriptor;
 import io.muoncore.protocol.ServerProtocolStack;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
-import io.muoncore.protocol.requestresponse.RequestMetaData;
+import io.muoncore.protocol.requestresponse.Headers;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonMessage;
@@ -52,14 +52,14 @@ public class RequestResponseServerProtocolStack implements
         Channel<MuonOutboundMessage, MuonInboundMessage> api2 = Channels.workerChannel("rrpserver", "transport");
 
         api2.left().receive( message -> {
-            if (message == null || message.getChannelOperation() == MuonMessage.ChannelOperation.CLOSE_CHANNEL) {
+            if (message == null || message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
                 //shutdown signal.
                 return;
             }
-            RequestMetaData meta = RRPTransformers.toRequestMetaData(message, codecs);
-            RequestResponseServerHandler handler = handlers.findHandler(meta);
+            final Headers meta = RRPTransformers.toRequestMetaData(message, codecs);
+            final RequestResponseServerHandler handler = handlers.findHandler(meta);
 
-            Request request = RRPTransformers.toRequest(message, codecs, handler.getRequestType());
+            final Request request = RRPTransformers.toRequest(message, codecs, handler.getRequestType());
 
             handler.handle(new RequestWrapper() {
                 @Override
@@ -71,17 +71,17 @@ public class RequestResponseServerProtocolStack implements
                 public void answer(Response response) {
                     Optional<ServiceDescriptor> target = discovery.findService(svc ->
                             svc.getIdentifier().equals(
-                                    request.getMetaData().getSourceService()));
+                                    request.getHeaders().getSourceService()));
 
                     String[] codecList;
                     if (target.isPresent()) {
                         codecList = target.get().getCodecs();
                     } else {
-                        LOG.log(Level.WARNING, "Could not locate service " + request.getMetaData().getSourceService() + ", setting response codec to application/json");
+                        LOG.log(Level.WARNING, "Could not locate service " + request.getHeaders().getSourceService() + ", setting response codec to application/json");
                         codecList = new String[]{"application/json"};
                     }
 
-                    MuonOutboundMessage msg = RRPTransformers.toOutbound(request.getMetaData().getTargetService(), request.getMetaData().getSourceService(), response, codecs,
+                    MuonOutboundMessage msg = RRPTransformers.toOutbound(request.getHeaders().getTargetService(), request.getHeaders().getSourceService(), response, codecs,
                             codecList);
 
                     api2.left().send(msg);

@@ -1,10 +1,12 @@
 package io.muoncore.protocol.requestresponse
+
 import io.muoncore.channel.Channels
 import io.muoncore.codec.json.JsonOnlyCodecs
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessageBuilder
+import io.muoncore.message.MuonOutboundMessage
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocol
 import io.muoncore.protocol.support.ProtocolTimer
-import io.muoncore.message.MuonInboundMessage
-import io.muoncore.message.MuonOutboundMessage
 import reactor.Environment
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
@@ -31,7 +33,7 @@ class RequestResponseClientProtocolSpec extends Specification {
                 new JsonOnlyCodecs(), new ProtocolTimer())
 
         when:
-        leftChannel.left().send(new Request(new RequestMetaData("url","service", "remote"),[:]))
+        leftChannel.left().send(new Request(new Headers("url","service", "remote"),[:]))
 
         then:
         new PollingConditions().eventually {
@@ -60,17 +62,14 @@ class RequestResponseClientProtocolSpec extends Specification {
 
         when:
         rightChannel.right().send(MuonInboundMessage.serviceNotFound(
-                new MuonOutboundMessage(
-                        "Meh",
-                        "",
-                        "simples",
-                        "tombola",
-                        RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
-                        [:],
-                        "",
-                        null,
-                        null
-                )
+                MuonMessageBuilder
+                        .fromService("tombole")
+                        .toService("simples")
+                        .step("Meh")
+                        .protocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
+                        .contentType("application/json")
+                        .payload()
+                        .build()
         ))
 
         then:

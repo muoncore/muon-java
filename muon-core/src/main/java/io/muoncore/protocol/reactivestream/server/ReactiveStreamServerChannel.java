@@ -3,7 +3,6 @@ package io.muoncore.protocol.reactivestream.server;
 import io.muoncore.Discovery;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
-import io.muoncore.codec.types.MuonCodecTypes;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.exception.MuonException;
 import io.muoncore.message.MuonInboundMessage;
@@ -78,7 +77,7 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
                 .payload(result.getPayload())
                 .contentType(result.getContentType())
                 .status(MuonMessage.Status.error)
-                .operation(MuonMessage.ChannelOperation.CLOSE_CHANNEL)
+                .operation(MuonMessage.ChannelOperation.closed)
                 .build()
         );
     }
@@ -121,7 +120,7 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
     @SuppressWarnings("unchecked")
     private void handleSubscribe(MuonInboundMessage msg) {
 
-        ReactiveStreamSubscriptionRequest subscriptionMessage  = codecs.decode(msg.getPayload(), msg.getContentType(), MuonCodecTypes.mapOf(String.class, String.class));
+        ReactiveStreamSubscriptionRequest subscriptionMessage  = codecs.decode(msg.getPayload(), msg.getContentType(), ReactiveStreamSubscriptionRequest.class);
 
         Optional<PublisherLookup.PublisherRecord> pub = publisherLookup.lookupPublisher(subscriptionMessage.getStreamName());
 
@@ -168,6 +167,7 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
                             .toService(subscribingServiceName)
                             .payload(result.getPayload())
                             .contentType(result.getContentType())
+                            .operation(MuonMessage.ChannelOperation.closed)
                             .build()
                     );
 
@@ -194,6 +194,7 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
                 .toService(subscribingServiceName)
                 .payload(result.getPayload())
                 .contentType(result.getContentType())
+                .operation(MuonMessage.ChannelOperation.closed)
                 .build()
         );
     }

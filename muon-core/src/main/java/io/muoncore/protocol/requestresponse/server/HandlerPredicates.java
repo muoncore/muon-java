@@ -1,6 +1,6 @@
 package io.muoncore.protocol.requestresponse.server;
 
-import io.muoncore.protocol.requestresponse.RequestMetaData;
+import io.muoncore.protocol.requestresponse.Headers;
 
 import java.util.function.Predicate;
 
@@ -23,7 +23,7 @@ public class HandlerPredicates {
             }
 
             @Override
-            public Predicate<RequestMetaData> matcher() {
+            public Predicate<Headers> matcher() {
                 return meta -> true;
             }
         };
@@ -37,7 +37,7 @@ public class HandlerPredicates {
             }
 
             @Override
-            public Predicate<RequestMetaData> matcher() {
+            public Predicate<Headers> matcher() {
                 return meta -> false;
             }
         };
@@ -58,7 +58,7 @@ public class HandlerPredicates {
             }
 
             @Override
-            public Predicate<RequestMetaData> matcher() {
+            public Predicate<Headers> matcher() {
                 return msg -> msg.getUrl().equals(path);
             }
         };

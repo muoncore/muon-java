@@ -7,6 +7,7 @@ import io.muoncore.config.AutoConfiguration
 import io.muoncore.descriptors.ProtocolDescriptor
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
+import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.protocol.ServerProtocolStack
 import io.muoncore.protocol.requestresponse.Response
 import io.muoncore.message.MuonInboundMessage
@@ -115,17 +116,15 @@ class ChannelPerfSpec extends Specification {
 
         println "Starting message emit"
         numTimes.times {
-            channel.send(new MuonOutboundMessage(
-                    "somethingHappened",
-                    UUID.randomUUID().toString(),
-                    "service-1",
-                    "service-1",
-                    "fake-proto",
-                    [:],
-                    "text/plain",
-                    new byte[0],
-                    ["application/json"]
-            ))
+            channel.send(
+                    MuonMessageBuilder.fromService("service-1")
+                        .toService("service-1")
+                    .protocol("fake-proto")
+                    .contentType("text/plain")
+                    .payload(new byte[0])
+                    .step("somethingHappened")
+                    .build()
+            )
         }
         println "Message emit completed"
 

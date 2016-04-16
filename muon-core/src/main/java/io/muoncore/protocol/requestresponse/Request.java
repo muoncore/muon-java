@@ -7,14 +7,14 @@ public class Request<X> {
     public final static String URL = "url";
 
     private String id;
-    private RequestMetaData metaData;
+    private Headers headers;
     private X payload;
 
     public Request(
-            RequestMetaData metaData,
+            Headers headers,
             X payload) {
         this.id = UUID.randomUUID().toString();
-        this.metaData = metaData;
+        this.headers = headers;
         this.payload = payload;
     }
 
@@ -26,8 +26,8 @@ public class Request<X> {
         this.id = id;
     }
 
-    public RequestMetaData getMetaData() {
-        return metaData;
+    public Headers getHeaders() {
+        return headers;
     }
 
     public X getPayload() {

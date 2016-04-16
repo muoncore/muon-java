@@ -1,7 +1,7 @@
 package io.muoncore.spring.integration.request;
 
 import io.muoncore.Muon;
-import io.muoncore.protocol.requestresponse.RequestMetaData;
+import io.muoncore.protocol.requestresponse.Headers;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.protocol.requestresponse.server.HandlerPredicate;
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandlerApi;
@@ -75,9 +75,9 @@ public class MuonRequestControllerIntegrationTest {
         verifyMuonQuerySetupProcess();
         int i = findMappingIndex(handlerPredicateCaptor, "/getPerson");
 
-        RequestMetaData requestMetaData = new RequestMetaData("/getPerson", "source", "target");
+        Headers headers = new Headers("/getPerson", "source", "target");
 
-        assertThat(handlerPredicateCaptor.getAllValues().get(i).matcher().test(requestMetaData), is(true));
+        assertThat(handlerPredicateCaptor.getAllValues().get(i).matcher().test(headers), is(true));
 
         assertThat(typeCaptor.getAllValues().get(i), equalTo(Object.class));
         RequestResponseServerHandlerApi.Handler handler = handlerCaptor.getAllValues().get(i);

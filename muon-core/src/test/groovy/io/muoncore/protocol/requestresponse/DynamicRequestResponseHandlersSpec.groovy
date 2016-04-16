@@ -20,7 +20,7 @@ class DynamicRequestResponseHandlersSpec extends Specification {
         registry.addHandler(new StubRequestResponseServerHandler(id:4, predicate: predicate(false)))
 
         expect:
-        registry.findHandler(new RequestMetaData("hello", "sourceservice", "target")).id == 3
+        registry.findHandler(new Headers("hello", "sourceservice", "target")).id == 3
 
     }
 
@@ -32,7 +32,7 @@ class DynamicRequestResponseHandlersSpec extends Specification {
         registry.addHandler(new StubRequestResponseServerHandler(id:2, predicate: predicate(false)))
 
         expect:
-        registry.findHandler(new RequestMetaData("hello","sourceservice", "target")).id == 8
+        registry.findHandler(new Headers("hello","sourceservice", "target")).id == 8
 
     }
 
@@ -44,7 +44,7 @@ class DynamicRequestResponseHandlersSpec extends Specification {
             }
 
             @Override
-            Predicate<RequestMetaData> matcher() {
+            Predicate<Headers> matcher() {
                 return { result }
             }
         }

@@ -76,7 +76,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
 
         initServerStacks(stacks);
 
-        transports.forEach(tr -> tr.start(discovery, stacks));
+        transports.forEach(tr -> tr.start(discovery, stacks, codecs));
 
         discovery.advertiseLocalService(new ServiceDescriptor(
                 configuration.getServiceName(),

@@ -2,19 +2,20 @@ package com.simplicity.services;
 
 import io.muoncore.Discovery;
 import io.muoncore.Muon;
+import io.muoncore.MuonBuilder;
 import io.muoncore.ServiceDescriptor;
-import io.muoncore.MultiTransportMuon;
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.config.AutoConfiguration;
-import io.muoncore.extension.amqp.*;
+import io.muoncore.config.MuonConfigBuilder;
+import io.muoncore.extension.amqp.AmqpConnection;
+import io.muoncore.extension.amqp.QueueListenerFactory;
 import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
-import io.muoncore.transport.ServiceCache;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
 import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.transport.MuonTransport;
+import io.muoncore.transport.ServiceCache;
 import org.reactivestreams.Publisher;
 import reactor.rx.Streams;
 
@@ -22,7 +23,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -39,24 +39,11 @@ public class TCKService {
 
         String serviceName = "tckservice";
 
-        AmqpConnection connection = new RabbitMq09ClientAmqpConnection("amqp://muon:microservices@localhost");
-        QueueListenerFactory queueFactory = new RabbitMq09QueueListenerFactory(connection.getChannel());
-        ServiceQueue serviceQueue = new DefaultServiceQueue(serviceName, connection);
-        AmqpChannelFactory channelFactory = new DefaultAmqpChannelFactory(serviceName, queueFactory, connection);
+        AutoConfiguration config = MuonConfigBuilder.withServiceIdentifier(serviceName).build();
 
-        Discovery discovery = createDiscovery();
+        Muon muon = MuonBuilder.withConfig(config).build();
 
-        MuonTransport svc1 = new AMQPMuonTransport(
-                "amqp://muon:microservices@localhost", serviceQueue, channelFactory);
-
-        AutoConfiguration config = new AutoConfiguration();
-        config.setServiceName(serviceName);
-//        config.setAesEncryptionKey("abcde12345678906");
-
-        Muon muon = new MultiTransportMuon(config, discovery, Collections.singletonList(svc1));
-
-        //allow discovery settle time.
-        Thread.sleep(5000);
+        muon.getDiscovery().blockUntilReady();
 
         outboundResourcesSetup(muon);
 

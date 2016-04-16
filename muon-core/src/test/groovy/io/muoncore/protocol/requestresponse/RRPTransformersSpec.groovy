@@ -2,8 +2,9 @@ package io.muoncore.protocol.requestresponse
 
 import io.muoncore.codec.Codecs
 import io.muoncore.codec.json.GsonCodec
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.message.MuonInboundMessage
-import io.muoncore.message.MuonMessage
+import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.message.MuonOutboundMessage
 import spock.lang.Specification
 
@@ -18,15 +19,15 @@ class RRPTransformersSpec extends Specification {
 
 
         when:
-        def ret = RRPTransformers.toRequest(inboundRequest(), codecs, Map)
+        def ret = RRPTransformers.toRequest(inboundRequest(), new JsonOnlyCodecs(), Map)
 
         then:
-        ret.metaData[(Request.URL)] == "hello"
+        ret.headers.url == "hello"
     }
 
     def "TransportInboundMessage to response"() {
         when:
-        def ret = RRPTransformers.toResponse(inbound(), codecs, Map)
+        def ret = RRPTransformers.toResponse(inbound(), new JsonOnlyCodecs(), Map)
 
         then:
         ret.status == 200
@@ -39,7 +40,7 @@ class RRPTransformersSpec extends Specification {
 
         then:
         ret.contentType == "text/plain"
-        ret.metadata[(Request.URL)] == "simples"
+        ret.step == RRPEvents.REQUEST
     }
 
     def "Response to TransportOutboundMessage"() {
@@ -47,49 +48,44 @@ class RRPTransformersSpec extends Specification {
         def ret = RRPTransformers.toOutbound("myservice", "targetService", response(), codecs, ["application/json"] as String[])
 
         then:
-        ret.metadata[(Response.STATUS)] == "200"
+        ret.step == RRPEvents.RESPONSE
     }
 
     Request request() {
-        new Request(new RequestMetaData("simples", "myservice", "remote"), [:])
+        new Request(new Headers("simples", "myservice", "remote"), [:])
     }
     Response response() {
         new Response(200, [message:"hello"])
     }
 
     MuonInboundMessage inbound() {
-        new MuonInboundMessage(
-                "somethingHappened",
-                "1234",
-                "remoteService",
-                "myservice",
-                RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
-                [(Response.STATUS):"200"],
-                "application/json",
-                new GsonCodec().encode([:]), ["application/json"], MuonMessage.ChannelOperation.NORMAL)
+        MuonMessageBuilder.fromService("myservice")
+            .toService("remoteService")
+            .step("somethingHappened")
+            .protocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
+            .contentType("application/json")
+            .payload(new GsonCodec().encode(new Response(200,[:]))).buildInbound()
     }
 
     MuonInboundMessage inboundRequest() {
-        new MuonInboundMessage(
-                "somethingHappened",
-                "1234",
-                "remoteService",
-                "myservice",
-                RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
-                [(Request.URL):"hello"],
-                "application/json",
-                new GsonCodec().encode([:]), ["application/json"], MuonMessage.ChannelOperation.NORMAL)
+        MuonMessageBuilder.fromService("myservice")
+                .toService("remoteService")
+                .step("somethingHappened")
+                .protocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
+                .contentType("application/json")
+                .payload(new GsonCodec().encode(
+                new Request(new Headers("hello", "sourceService", "targetService"), [:])
+        )).buildInbound()
     }
 
 
     MuonOutboundMessage outbound() {
-        new MuonOutboundMessage("somethingHappened","1234",
-                "remoteService",
-                "myservice",
-                RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
-                [:],
-                "application/json",
-                new GsonCodec().encode([:]), ["application/json"])
+        MuonMessageBuilder.fromService("myservice")
+                .toService("remoteService")
+                .step("somethingHappened")
+                .protocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
+                .contentType("application/json")
+                .payload(new GsonCodec().encode([:])).build()
     }
 
 }

@@ -1,7 +1,7 @@
 package io.muoncore.spring.mapping;
 
 import io.muoncore.Muon;
-import io.muoncore.protocol.requestresponse.RequestMetaData;
+import io.muoncore.protocol.requestresponse.Headers;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.protocol.requestresponse.server.HandlerPredicate;
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandlerApi;
@@ -35,7 +35,7 @@ public class MuonRequestListenerService {
             }
 
             @Override
-            public Predicate<RequestMetaData> matcher() {
+            public Predicate<Headers> matcher() {
                 return requestMetaData -> requestMetaData.getUrl().equals(resource);
             }
         };
