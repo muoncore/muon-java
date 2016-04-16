@@ -4,9 +4,9 @@ import io.muoncore.codec.json.GsonCodec
 import io.muoncore.exception.NoSuchServiceException
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.transport.MuonTransport
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportMessage
-import io.muoncore.transport.TransportOutboundMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessage
+import io.muoncore.message.MuonOutboundMessage
 import reactor.Environment
 import spock.lang.Specification
 
@@ -159,14 +159,14 @@ class MultiTransportChannelConnectionSpec extends Specification {
 
         sleep(100)
         then:
-        1 * receive.apply({ TransportInboundMessage msg ->
-            msg.channelOperation == TransportMessage.ChannelOperation.NORMAL &&
+        1 * receive.apply({ MuonInboundMessage msg ->
+            msg.channelOperation == MuonMessage.ChannelOperation.NORMAL &&
                     msg.sourceServiceName == "myService1"
         })
     }
 
     def inbound(id, service, protocol) {
-        new TransportInboundMessage(
+        new MuonInboundMessage(
                 "somethingHappened",
                 id,
                 service,
@@ -174,11 +174,11 @@ class MultiTransportChannelConnectionSpec extends Specification {
                 protocol,
                 [:],
                 "application/json",
-                new GsonCodec().encode([:]), ["application/json"], TransportMessage.ChannelOperation.NORMAL)
+                new GsonCodec().encode([:]), ["application/json"], MuonMessage.ChannelOperation.NORMAL)
     }
 
     def outbound(id, service, protocol) {
-        new TransportOutboundMessage(
+        new MuonOutboundMessage(
                 "somethingHappened",
                 id,
                 service,

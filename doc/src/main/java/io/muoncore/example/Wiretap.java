@@ -2,7 +2,7 @@ package io.muoncore.example;
 
 import io.muoncore.Muon;
 import io.muoncore.protocol.requestresponse.RRPEvents;
-import io.muoncore.transport.TransportMessage;
+import io.muoncore.message.MuonMessage;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.io.UnsupportedEncodingException;
@@ -29,7 +29,7 @@ public class Wiretap {
 
         // tag::wiretap[]
         Set<String> remoteServices = new HashSet<>();     // <1>
-        Broadcaster<TransportMessage> requests = Broadcaster.create();
+        Broadcaster<MuonMessage> requests = Broadcaster.create();
 
         requests.consume(msg -> {
             remoteServices.add(msg.getSourceServiceName());  //<2>
@@ -40,7 +40,7 @@ public class Wiretap {
         // end::wiretap[]
 
         // tag::wiretap2[]
-        Broadcaster<TransportMessage> responses = Broadcaster.create();
+        Broadcaster<MuonMessage> responses = Broadcaster.create();
 
         responses.consume(msg -> {
             System.out.println("Sent a response to " + msg.getTargetServiceName());

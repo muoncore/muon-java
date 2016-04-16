@@ -2,13 +2,13 @@ package io.muoncore.extension.amqp;
 
 import io.muoncore.exception.MuonException;
 import io.muoncore.exception.MuonTransportFailureException;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessage;
+import io.muoncore.message.MuonMessageBuilder;
+import io.muoncore.message.MuonOutboundMessage;
 import reactor.core.Dispatcher;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -23,7 +23,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
     private String sendQueue;
     private String receiveQueue;
     private QueueListenerFactory listenerFactory;
-    private ChannelFunction<TransportInboundMessage> function;
+    private ChannelFunction<MuonInboundMessage> function;
     private AmqpConnection connection;
     private String localServiceName;
     private Logger log = Logger.getLogger(DefaultAmqpChannel.class.getName());
@@ -64,7 +64,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
                 handshakeControl.countDown();
                 return;
             }
-            if(function != null) {
+            if (function != null) {
                 dispatcher.dispatch(AmqpMessageTransformers.queueToInbound(msg),
                         function::apply, Throwable::printStackTrace);
             }
@@ -82,7 +82,8 @@ public class DefaultAmqpChannel implements AmqpChannel {
             throw new MuonTransportFailureException("Unable to initiate handshake", e);
         }
         try {
-            if (!handshakeControl.await(3000, TimeUnit.MILLISECONDS)) throw new MuonException("The handshake took too long! target " + serviceName + " / " + protocol + " || " + receiveQueue);
+            if (!handshakeControl.await(3000, TimeUnit.MILLISECONDS))
+                throw new MuonException("The handshake took too long! target " + serviceName + " / " + protocol + " || " + receiveQueue);
         } catch (InterruptedException e) {
             throw new MuonException("The handskahe took too long!", e);
         }
@@ -119,7 +120,10 @@ public class DefaultAmqpChannel implements AmqpChannel {
     @Override
     public void shutdown() {
 
-        try { listener.cancel(); } catch(Exception e){}
+        try {
+            listener.cancel();
+        } catch (Exception e) {
+        }
         if (ownsQueues) {
             connection.deleteQueue(sendQueue);
             connection.deleteQueue(receiveQueue);
@@ -131,14 +135,14 @@ public class DefaultAmqpChannel implements AmqpChannel {
     }
 
     @Override
-    public void receive(ChannelFunction<TransportInboundMessage> function) {
+    public void receive(ChannelFunction<MuonInboundMessage> function) {
         this.function = function;
     }
 
     @Override
-    public void send(TransportOutboundMessage message) {
+    public void send(MuonOutboundMessage message) {
         if (message != null) {
-            log.log(Level.FINER, "Sending inbound channel message of type " + message.getProtocol() + "||" + message.getType());
+            log.log(Level.FINER, "Sending inbound channel message of type " + message.getProtocol() + "||" + message.getStep());
             dispatcher.dispatch(message, msg -> {
                 try {
                     connection.send(AmqpMessageTransformers.outboundToQueue(sendQueue, message));
@@ -147,16 +151,16 @@ public class DefaultAmqpChannel implements AmqpChannel {
                 }
             }, Throwable::printStackTrace);
         }
-        if (message == null || message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL){
+        if (message == null || message.getChannelOperation() == MuonMessage.ChannelOperation.CLOSE_CHANNEL) {
             if (message != null) {
-                send(new TransportOutboundMessage(CHANNEL_SHUTDOWN, UUID.randomUUID().toString(),
-                        "",
-                        "",
-                        "",
-                        new HashMap<>(),
-                        "",
-                        null,
-                        Collections.emptyList(), TransportMessage.ChannelOperation.CLOSE_CHANNEL));
+
+                send(
+                        MuonMessageBuilder.fromService(localServiceName)
+                                .step(CHANNEL_SHUTDOWN)
+                                .operation(MuonMessage.ChannelOperation.CLOSE_CHANNEL)
+                                .contentType("text/plain")
+                                .payload(new byte[0])
+                                .build());
             }
             shutdown();
         }

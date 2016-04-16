@@ -27,7 +27,7 @@ public interface ReactiveStreamClientProtocolStack extends TransportClientSource
                     subscriber,
                     eventType,
                     getCodecs(),
-                    getConfiguration());
+                    getConfiguration(), getDiscovery());
 
             proto.start();
         } else {

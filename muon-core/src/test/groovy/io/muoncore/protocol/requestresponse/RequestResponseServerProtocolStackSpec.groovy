@@ -4,8 +4,8 @@ import io.muoncore.ServiceDescriptor
 import io.muoncore.codec.json.GsonCodec
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.protocol.requestresponse.server.*
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessage
 import reactor.Environment
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
@@ -114,7 +114,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
     }
 
     def inbound(id, service, protocol) {
-        new TransportInboundMessage(
+        new MuonInboundMessage(
                 "somethingHappened",
                 id,
                 service,
@@ -122,7 +122,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
                 protocol,
                 [:],
                 "application/json",
-                new GsonCodec().encode([:]), ["application/json"], TransportMessage.ChannelOperation.NORMAL)
+                new GsonCodec().encode([:]), ["application/json"], MuonMessage.ChannelOperation.NORMAL)
     }
 }
 

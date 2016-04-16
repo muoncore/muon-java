@@ -9,8 +9,8 @@ import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.exception.NoSuchServiceException;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.transport.MuonTransport;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -62,7 +62,7 @@ public class AMQPMuonTransport implements MuonTransport {
     }
 
     @Override
-    public ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel(String serviceName, String protocol) {
+    public ChannelConnection<MuonOutboundMessage, MuonInboundMessage> openClientChannel(String serviceName, String protocol) {
 
         if (!discovery.findService( svc -> svc.getIdentifier().equals(serviceName))
                 .isPresent()) {
@@ -77,7 +77,7 @@ public class AMQPMuonTransport implements MuonTransport {
 
         channel.initiateHandshake(serviceName, protocol);
         channels.add(channel);
-        Channel<TransportOutboundMessage, TransportInboundMessage> intermediate = Channels.channel("AMQPChannelExternal", "AMQPChannelInternal");
+        Channel<MuonOutboundMessage, MuonInboundMessage> intermediate = Channels.channel("AMQPChannelExternal", "AMQPChannelInternal");
 
         Channels.connect(intermediate.right(), channel);
 
@@ -89,7 +89,7 @@ public class AMQPMuonTransport implements MuonTransport {
         log.info("Booting up transport with stack " + serverStacks);
         serviceQueue.onHandshake( handshake -> {
             log.fine("opening new server channel with " + serverStacks);
-            ChannelConnection<TransportInboundMessage, TransportOutboundMessage> connection =
+            ChannelConnection<MuonInboundMessage, MuonOutboundMessage> connection =
                     serverStacks.openServerChannel(handshake.getProtocol());
             AmqpChannel channel = channelFactory.createChannel();
             channel.respondToHandshake(handshake);

@@ -4,6 +4,8 @@ import io.muoncore.Discovery;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.exception.NoSuchServiceException;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.ServerStacks;
 
 import java.net.URI;
@@ -22,7 +24,7 @@ public interface MuonTransport {
 
     boolean canConnectToService(String name);
 
-    ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel(
+    ChannelConnection<MuonOutboundMessage, MuonInboundMessage> openClientChannel(
             String serviceName,
             String protocol) throws NoSuchServiceException, MuonTransportFailureException;
 }

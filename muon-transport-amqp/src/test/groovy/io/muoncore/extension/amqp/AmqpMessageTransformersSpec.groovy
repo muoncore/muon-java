@@ -1,8 +1,8 @@
 package io.muoncore.extension.amqp
 
 import io.muoncore.protocol.requestresponse.RRPTransformers
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportOutboundMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonOutboundMessage
 import spock.lang.Specification
 
 class AmqpMessageTransformersSpec extends Specification {
@@ -22,8 +22,8 @@ class AmqpMessageTransformersSpec extends Specification {
 
     }
 
-    TransportOutboundMessage outbound() {
-        new TransportOutboundMessage(
+    MuonOutboundMessage outbound() {
+        new MuonOutboundMessage(
                 "somethingHappened",
                 "123",
                 "theirService",
@@ -33,8 +33,8 @@ class AmqpMessageTransformersSpec extends Specification {
                 "application/json",
                 [] as byte[], [])
     }
-    TransportInboundMessage inbound() {
-        new TransportInboundMessage(
+    MuonInboundMessage inbound() {
+        new MuonInboundMessage(
                 "somethingHappened",
                 "123",
                 "theirService",

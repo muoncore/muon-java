@@ -3,8 +3,8 @@ import io.muoncore.channel.Channels
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocol
 import io.muoncore.protocol.support.ProtocolTimer
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportOutboundMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonOutboundMessage
 import reactor.Environment
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
@@ -35,7 +35,7 @@ class RequestResponseClientProtocolSpec extends Specification {
 
         then:
         new PollingConditions().eventually {
-            ret instanceof TransportOutboundMessage
+            ret instanceof MuonOutboundMessage
             ret.protocol == RRPTransformers.REQUEST_RESPONSE_PROTOCOL
         }
     }
@@ -59,8 +59,8 @@ class RequestResponseClientProtocolSpec extends Specification {
                 new JsonOnlyCodecs(), new ProtocolTimer())
 
         when:
-        rightChannel.right().send(TransportInboundMessage.serviceNotFound(
-                new TransportOutboundMessage(
+        rightChannel.right().send(MuonInboundMessage.serviceNotFound(
+                new MuonOutboundMessage(
                         "Meh",
                         "",
                         "simples",

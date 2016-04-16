@@ -4,8 +4,8 @@ import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.reactivestream.ProtocolMessages
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessage
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
@@ -36,7 +36,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
-        channel.send(new TransportInboundMessage(
+        channel.send(new MuonInboundMessage(
                 ProtocolMessages.SUBSCRIBE,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -46,10 +46,10 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
         then: "NACK sent back"
-        1 * function.apply({ TransportMessage msg ->
+        1 * function.apply({ MuonMessage msg ->
             msg.type == ProtocolMessages.ACK
         })
     }
@@ -70,7 +70,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
-        channel.send(new TransportInboundMessage(
+        channel.send(new MuonInboundMessage(
                 ProtocolMessages.SUBSCRIBE,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -80,10 +80,10 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
         then: "NACK sent back"
-        1 * function.apply({ TransportMessage msg ->
+        1 * function.apply({ MuonMessage msg ->
             msg.type == ProtocolMessages.NACK
         })
     }
@@ -110,7 +110,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
-        channel.send(new TransportInboundMessage(
+        channel.send(new MuonInboundMessage(
                 ProtocolMessages.SUBSCRIBE,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -120,9 +120,9 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
-        channel.send(new TransportInboundMessage(
+        channel.send(new MuonInboundMessage(
                 ProtocolMessages.REQUEST,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -132,7 +132,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
         then:
         1 * subscription.request(100)
@@ -160,7 +160,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
-        channel.send(new TransportInboundMessage(
+        channel.send(new MuonInboundMessage(
                 ProtocolMessages.SUBSCRIBE,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -170,9 +170,9 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
-        channel.send(new TransportInboundMessage(
+        channel.send(new MuonInboundMessage(
                 ProtocolMessages.CANCEL,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -182,7 +182,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
         then:
         1 * subscription.cancel()
@@ -211,7 +211,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
-        channel.send(new TransportInboundMessage(
+        channel.send(new MuonInboundMessage(
                 ProtocolMessages.SUBSCRIBE,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -221,15 +221,15 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
         and: "subscriber.onNext is called"
         subscriber.onNext([simple:"message"])
 
         then:
-        1 * function.apply({ TransportMessage msg ->
+        1 * function.apply({ MuonMessage msg ->
             msg.type == ProtocolMessages.DATA &&
-                    msg.channelOperation == TransportMessage.ChannelOperation.NORMAL &&
+                    msg.channelOperation == MuonMessage.ChannelOperation.NORMAL &&
                     msg.targetServiceName == "tombola"
         })
         //TODO, verify data/ codec usage
@@ -258,7 +258,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
-        channel.send(new TransportInboundMessage(
+        channel.send(new MuonInboundMessage(
                 ProtocolMessages.SUBSCRIBE,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -268,15 +268,15 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
         and: "subscriber.onNext is called"
         subscriber.onComplete()
 
         then:
-        1 * function.apply({ TransportMessage msg ->
+        1 * function.apply({ MuonMessage msg ->
             msg.type == ProtocolMessages.COMPLETE &&
-                    msg.channelOperation == TransportMessage.ChannelOperation.CLOSE_CHANNEL &&
+                    msg.channelOperation == MuonMessage.ChannelOperation.CLOSE_CHANNEL &&
                     msg.targetServiceName == "tombola"
         })
     }
@@ -304,7 +304,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
-        channel.send(new TransportInboundMessage(
+        channel.send(new MuonInboundMessage(
                 ProtocolMessages.SUBSCRIBE,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -314,15 +314,15 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
         and: "subscriber.onError is called"
         subscriber.onError(new IllegalStateException("Messed up"))
 
         then:
-        1 * function.apply({ TransportMessage msg ->
+        1 * function.apply({ MuonMessage msg ->
             msg.type == ProtocolMessages.ERROR &&
-            msg.channelOperation == TransportMessage.ChannelOperation.CLOSE_CHANNEL &&
+            msg.channelOperation == MuonMessage.ChannelOperation.CLOSE_CHANNEL &&
                     msg.targetServiceName == "tombola"
         })
     }

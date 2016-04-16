@@ -2,7 +2,7 @@ package io.muoncore.channel;
 
 import io.muoncore.channel.async.StandardAsyncChannel;
 import io.muoncore.channel.async.WiretapChannel;
-import io.muoncore.transport.TransportMessage;
+import io.muoncore.message.MuonMessage;
 import io.muoncore.transport.client.RingBufferLocalDispatcher;
 import io.muoncore.transport.client.TransportMessageDispatcher;
 import reactor.Environment;
@@ -24,7 +24,7 @@ public class Channels {
     /**
      * Create a channel that permits wiretap on the events moving across it.
      */
-    public static <X extends TransportMessage,Y extends TransportMessage> Channel<X, Y> wiretapChannel(TransportMessageDispatcher wiretapDispatch) {
+    public static <X extends MuonMessage,Y extends MuonMessage> Channel<X, Y> wiretapChannel(TransportMessageDispatcher wiretapDispatch) {
         return new WiretapChannel<>(EVENT_DISPATCHER, wiretapDispatch);
     }
 

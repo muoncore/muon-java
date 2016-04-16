@@ -9,8 +9,8 @@ import io.muoncore.protocol.event.ClientEvent;
 import io.muoncore.protocol.event.EventCodec;
 import io.muoncore.protocol.event.EventProtocolMessages;
 import io.muoncore.transport.TransportEvents;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 
 import java.util.*;
 
@@ -24,7 +24,7 @@ public class EventClientProtocol<X> {
             Discovery discovery,
             Codecs codecs,
             ChannelConnection<EventResult, ClientEvent<X>> leftChannelConnection,
-            ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection) {
+            ChannelConnection<MuonOutboundMessage, MuonInboundMessage> rightChannelConnection) {
 
         rightChannelConnection.receive( message -> {
             if (message == null) {
@@ -75,7 +75,7 @@ public class EventClientProtocol<X> {
 
                 Codecs.EncodingResult result = codecs.encode(payload, eventService.get().getCodecs());
 
-                TransportOutboundMessage msg = new TransportOutboundMessage(
+                MuonOutboundMessage msg = new MuonOutboundMessage(
                         event.getEventType(),
                         UUID.randomUUID().toString(),
                         eventService.get().getIdentifier(),

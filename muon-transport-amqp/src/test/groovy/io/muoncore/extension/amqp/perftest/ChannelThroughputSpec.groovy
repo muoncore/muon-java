@@ -11,8 +11,8 @@ import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.protocol.ServerStacks
 import io.muoncore.protocol.requestresponse.RRPTransformers
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportOutboundMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonOutboundMessage
 import reactor.Environment
 import spock.lang.IgnoreIf
 import spock.lang.Specification
@@ -39,16 +39,16 @@ class ChannelThroughputSpec extends Specification {
 
         def stacks = new ServerStacks() {
             @Override
-            ChannelConnection<TransportInboundMessage, TransportOutboundMessage> openServerChannel(String protocol) {
+            ChannelConnection<MuonInboundMessage, MuonOutboundMessage> openServerChannel(String protocol) {
                 println "Opening channel for proto $protocol"
-                return new ChannelConnection<TransportInboundMessage, TransportOutboundMessage>() {
+                return new ChannelConnection<MuonInboundMessage, MuonOutboundMessage>() {
                     @Override
-                    void receive(ChannelConnection.ChannelFunction<TransportOutboundMessage> function) {
+                    void receive(ChannelConnection.ChannelFunction<MuonOutboundMessage> function) {
                         println "eh?"
                     }
 
                     @Override
-                    void send(TransportInboundMessage message) {
+                    void send(MuonInboundMessage message) {
                         received << message
                     }
 
@@ -61,16 +61,16 @@ class ChannelThroughputSpec extends Specification {
         }
         def stacks2 = new ServerStacks() {
             @Override
-            ChannelConnection<TransportInboundMessage, TransportOutboundMessage> openServerChannel(String protocol) {
+            ChannelConnection<MuonInboundMessage, MuonOutboundMessage> openServerChannel(String protocol) {
                 println "SERVICE1 Opening channel for proto $protocol"
-                return new ChannelConnection<TransportInboundMessage, TransportOutboundMessage>() {
+                return new ChannelConnection<MuonInboundMessage, MuonOutboundMessage>() {
                     @Override
-                    void receive(ChannelConnection.ChannelFunction<TransportOutboundMessage> function) {
+                    void receive(ChannelConnection.ChannelFunction<MuonOutboundMessage> function) {
                         println "eh?"
                     }
 
                     @Override
-                    void send(TransportInboundMessage message) {
+                    void send(MuonInboundMessage message) {
                         received << message
                     }
 
@@ -109,7 +109,7 @@ class ChannelThroughputSpec extends Specification {
                 pool.submit {
                     println "Sending data .."
 
-                    channel.send(new TransportOutboundMessage(
+                    channel.send(new MuonOutboundMessage(
                         "somethingHappened",
                         "${id.addAndGet(1)}",
                         "tombola",

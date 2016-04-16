@@ -11,8 +11,8 @@ import io.muoncore.protocol.event.Event;
 import io.muoncore.protocol.event.EventCodec;
 import io.muoncore.protocol.event.EventProtocolMessages;
 import io.muoncore.protocol.event.client.EventResult;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,9 +36,9 @@ public class EventServerProtocolStack implements
 
     @Override
     @SuppressWarnings("unchecked")
-    public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
+    public ChannelConnection<MuonInboundMessage, MuonOutboundMessage> createChannel() {
 
-        Channel<TransportOutboundMessage, TransportInboundMessage> api2 = Channels.channel("eventserver", "transport");
+        Channel<MuonOutboundMessage, MuonInboundMessage> api2 = Channels.channel("eventserver", "transport");
 
         api2.left().receive( message -> {
             if (message == null) {
@@ -56,7 +56,7 @@ public class EventServerProtocolStack implements
                 Codecs.EncodingResult result = codecs.encode(eventResult, message.getSourceAvailableContentTypes().toArray(
                         new String[message.getSourceAvailableContentTypes().size()]));
 
-                api2.left().send(new TransportOutboundMessage(
+                api2.left().send(new MuonOutboundMessage(
                         EventProtocolMessages.PERSISTED,
                         message.getId(),
                         message.getSourceServiceName(),

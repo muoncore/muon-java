@@ -1,16 +1,16 @@
 package io.muoncore.protocol.introspection.client;
 
+import io.muoncore.Discovery;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.descriptors.ServiceExtendedDescriptor;
-import io.muoncore.protocol.introspection.server.IntrospectionServerProtocolStack;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessage;
+import io.muoncore.message.MuonMessageBuilder;
+import io.muoncore.message.MuonOutboundMessage;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.UUID;
+import static io.muoncore.protocol.introspection.server.IntrospectionServerProtocolStack.PROTOCOL;
 
 public class IntrospectClientProtocol<X,R> {
 
@@ -20,8 +20,9 @@ public class IntrospectClientProtocol<X,R> {
             String serviceName,
             AutoConfiguration config,
             final ChannelConnection<ServiceExtendedDescriptor, String> leftChannelConnection,
-            final ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection,
-            final Codecs codecs) {
+            final ChannelConnection<MuonOutboundMessage, MuonInboundMessage> rightChannelConnection,
+            final Codecs codecs,
+            final Discovery discovery) {
 
         rightChannelConnection.receive( message -> {
             if (message == null) {
@@ -37,16 +38,19 @@ public class IntrospectClientProtocol<X,R> {
                 rightChannelConnection.shutdown();
                 return;
             }
-            TransportOutboundMessage msg = new TransportOutboundMessage(
-                    "introspectionRequested",
-                    UUID.randomUUID().toString(),
-                    serviceName,
-                    config.getServiceName(),
-                    IntrospectionServerProtocolStack.PROTOCOL,
-                    new HashMap<>(),
-                    "text/plain",
-                    new byte[0],
-                    Arrays.asList(codecs.getAvailableCodecs()));
+
+            Codecs.EncodingResult result = codecs.encode(new Object(),
+                    discovery.getCodecsForService(serviceName));
+
+            MuonOutboundMessage msg = MuonMessageBuilder
+                    .fromService(config.getServiceName())
+                    .step("introspectionRequested")
+                    .protocol(PROTOCOL)
+                    .toService(serviceName)
+                    .payload(result.getPayload())
+                    .contentType(result.getContentType())
+                    .status(MuonMessage.Status.success)
+                    .build();
 
             rightChannelConnection.send(msg);
         });

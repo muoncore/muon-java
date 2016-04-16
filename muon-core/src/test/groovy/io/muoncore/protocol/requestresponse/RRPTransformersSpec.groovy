@@ -2,9 +2,9 @@ package io.muoncore.protocol.requestresponse
 
 import io.muoncore.codec.Codecs
 import io.muoncore.codec.json.GsonCodec
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportMessage
-import io.muoncore.transport.TransportOutboundMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessage
+import io.muoncore.message.MuonOutboundMessage
 import spock.lang.Specification
 
 class RRPTransformersSpec extends Specification {
@@ -57,8 +57,8 @@ class RRPTransformersSpec extends Specification {
         new Response(200, [message:"hello"])
     }
 
-    TransportInboundMessage inbound() {
-        new TransportInboundMessage(
+    MuonInboundMessage inbound() {
+        new MuonInboundMessage(
                 "somethingHappened",
                 "1234",
                 "remoteService",
@@ -66,11 +66,11 @@ class RRPTransformersSpec extends Specification {
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [(Response.STATUS):"200"],
                 "application/json",
-                new GsonCodec().encode([:]), ["application/json"], TransportMessage.ChannelOperation.NORMAL)
+                new GsonCodec().encode([:]), ["application/json"], MuonMessage.ChannelOperation.NORMAL)
     }
 
-    TransportInboundMessage inboundRequest() {
-        new TransportInboundMessage(
+    MuonInboundMessage inboundRequest() {
+        new MuonInboundMessage(
                 "somethingHappened",
                 "1234",
                 "remoteService",
@@ -78,12 +78,12 @@ class RRPTransformersSpec extends Specification {
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
                 [(Request.URL):"hello"],
                 "application/json",
-                new GsonCodec().encode([:]), ["application/json"], TransportMessage.ChannelOperation.NORMAL)
+                new GsonCodec().encode([:]), ["application/json"], MuonMessage.ChannelOperation.NORMAL)
     }
 
 
-    TransportOutboundMessage outbound() {
-        new TransportOutboundMessage("somethingHappened","1234",
+    MuonOutboundMessage outbound() {
+        new MuonOutboundMessage("somethingHappened","1234",
                 "remoteService",
                 "myservice",
                 RRPTransformers.REQUEST_RESPONSE_PROTOCOL,

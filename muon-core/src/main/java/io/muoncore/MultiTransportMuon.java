@@ -67,7 +67,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
         this.codecs = new JsonOnlyCodecs();
 
         DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(
-                new DefaultServerProtocol(codecs),
+                new DefaultServerProtocol(codecs, configuration, discovery),
                 wiretap);
         this.protocols = stacks;
         this.registrar = stacks;
@@ -96,10 +96,10 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
         stacks.registerServerProtocol(new RequestResponseServerProtocolStack(
                         requestResponseHandlers, codecs, discovery));
 
-        stacks.registerServerProtocol(new ReactiveStreamServerStack(getPublisherLookup(), getCodecs(), configuration));
+        stacks.registerServerProtocol(new ReactiveStreamServerStack(getPublisherLookup(), getCodecs(), configuration, discovery));
         stacks.registerServerProtocol(new IntrospectionServerProtocolStack(
                 () -> new ServiceExtendedDescriptor(configuration.getServiceName(), registrar.getProtocolDescriptors()),
-                codecs));
+                codecs, discovery));
     }
 
     private void initDefaultRequestHandler() {

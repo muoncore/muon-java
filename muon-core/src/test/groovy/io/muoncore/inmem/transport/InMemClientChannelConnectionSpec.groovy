@@ -5,8 +5,8 @@ import io.muoncore.channel.ChannelConnection
 import io.muoncore.memory.transport.DefaultInMemClientChannelConnection
 import io.muoncore.memory.transport.OpenChannelEvent
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportOutboundMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonOutboundMessage
 import spock.lang.Specification
 
 class InMemClientChannelConnectionSpec extends Specification {
@@ -33,7 +33,7 @@ class InMemClientChannelConnectionSpec extends Specification {
         def serverConnection = Mock(ChannelConnection)
         def ret = new DefaultInMemClientChannelConnection("simples", "fakeproto", eventbus)
 
-        def msg = new TransportOutboundMessage(
+        def msg = new MuonOutboundMessage(
                 "anOccurance",
                 "hello123",
                 "tombola",
@@ -53,7 +53,7 @@ class InMemClientChannelConnectionSpec extends Specification {
         ret.send(msg)
 
         then:
-        2 * serverConnection.send({ TransportInboundMessage message ->
+        2 * serverConnection.send({ MuonInboundMessage message ->
             message.id == msg.id
         })
     }
@@ -73,7 +73,7 @@ class InMemClientChannelConnectionSpec extends Specification {
 
         when:
         ret.attachServerConnection(serverConnection)
-        function(new TransportOutboundMessage(
+        function(new MuonOutboundMessage(
                 "anOccurance",
                 "hello123",
                 "tombola",
@@ -84,7 +84,7 @@ class InMemClientChannelConnectionSpec extends Specification {
                 new byte[0], ["applicaton/json"]))
 
         then:
-        1 * localFunction.apply({ TransportInboundMessage msg ->
+        1 * localFunction.apply({ MuonInboundMessage msg ->
             msg.id == "hello123"
         })
     }

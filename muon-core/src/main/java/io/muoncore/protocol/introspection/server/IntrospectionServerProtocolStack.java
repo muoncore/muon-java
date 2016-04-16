@@ -1,64 +1,68 @@
 package io.muoncore.protocol.introspection.server;
 
+import io.muoncore.Discovery;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
 import io.muoncore.descriptors.ProtocolDescriptor;
+import io.muoncore.descriptors.ServiceExtendedDescriptor;
 import io.muoncore.descriptors.ServiceExtendedDescriptorSource;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessage;
+import io.muoncore.message.MuonMessageBuilder;
+import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.ServerProtocolStack;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.UUID;
 
 public class IntrospectionServerProtocolStack implements ServerProtocolStack {
 
     private ServiceExtendedDescriptorSource descriptorSource;
     private Codecs codecs;
+    private Discovery discovery;
     public final static String PROTOCOL = "introspect";
 
-    public IntrospectionServerProtocolStack(ServiceExtendedDescriptorSource descriptorSource, Codecs codecs) {
+    public IntrospectionServerProtocolStack(ServiceExtendedDescriptorSource descriptorSource, Codecs codecs, Discovery discovery) {
         this.descriptorSource = descriptorSource;
         this.codecs = codecs;
+        this.discovery = discovery;
     }
 
     @Override
-    public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
+    public ChannelConnection<MuonInboundMessage, MuonOutboundMessage> createChannel() {
         return new IntrospectionServerChannelConnection();
     }
 
-    private class IntrospectionServerChannelConnection implements ChannelConnection<TransportInboundMessage, TransportOutboundMessage> {
+    private class IntrospectionServerChannelConnection implements ChannelConnection<MuonInboundMessage, MuonOutboundMessage> {
 
-        private ChannelFunction<TransportOutboundMessage> func;
+        private ChannelFunction<MuonOutboundMessage> func;
 
         @Override
-        public void receive(ChannelFunction<TransportOutboundMessage> function) {
+        public void receive(ChannelFunction<MuonOutboundMessage> function) {
             func = function;
         }
 
         @Override
-        public void send(TransportInboundMessage message) {
+        public void send(MuonInboundMessage message) {
             if (message == null) {
                 func.apply(null);
                 return;
             }
-            Codecs.EncodingResult result = codecs.encode(descriptorSource.getServiceExtendedDescriptor(), message.getSourceAvailableContentTypes().toArray(new String[0]));
 
-            TransportOutboundMessage msg = new TransportOutboundMessage(
-                    "introspectionReport",
-                    UUID.randomUUID().toString(),
-                    message.getSourceServiceName(),
-                    message.getTargetServiceName(),
-                    PROTOCOL,
-                    new HashMap<>(),
-                    result.getContentType(),
-                    result.getPayload(),
-                    Arrays.asList(codecs.getAvailableCodecs())
+            ServiceExtendedDescriptor descriptor = descriptorSource.getServiceExtendedDescriptor();
+
+            Codecs.EncodingResult result = codecs.encode(descriptor,
+                    discovery.getCodecsForService(message.getSourceServiceName()));
+
+            func.apply(MuonMessageBuilder
+                    .fromService(descriptor.getServiceName())
+                    .step("introspectionReport")
+                    .protocol(PROTOCOL)
+                    .toService(message.getSourceServiceName())
+                    .payload(result.getPayload())
+                    .contentType(result.getContentType())
+                    .status(MuonMessage.Status.success)
+                    .build()
             );
-
-            func.apply(msg);
         }
 
         @Override

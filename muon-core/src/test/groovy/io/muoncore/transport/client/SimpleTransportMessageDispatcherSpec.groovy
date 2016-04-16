@@ -1,6 +1,6 @@
 package io.muoncore.transport.client
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessage
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import spock.lang.Specification
@@ -15,14 +15,14 @@ class SimpleTransportMessageDispatcherSpec extends Specification {
         def data = []
 
         def dispatcher = new SimpleTransportMessageDispatcher()
-        dispatcher.observe({ true }).subscribe(new Subscriber<TransportMessage>() {
+        dispatcher.observe({ true }).subscribe(new Subscriber<MuonMessage>() {
             @Override
             void onSubscribe(Subscription s) {
                 s.request(100)
             }
 
             @Override
-            void onNext(TransportMessage transportMessage) {
+            void onNext(MuonMessage transportMessage) {
                 println "Got data"
                 data << transportMessage
             }
@@ -56,14 +56,14 @@ class SimpleTransportMessageDispatcherSpec extends Specification {
         def complete = false
 
         def dispatcher = new SimpleTransportMessageDispatcher()
-        dispatcher.observe({ true }).subscribe(new Subscriber<TransportMessage>() {
+        dispatcher.observe({ true }).subscribe(new Subscriber<MuonMessage>() {
             @Override
             void onSubscribe(Subscription s) {
                 s.request(100)
             }
 
             @Override
-            void onNext(TransportMessage transportMessage) {
+            void onNext(MuonMessage transportMessage) {
                 println "Got data"
                 data << transportMessage
             }
@@ -97,14 +97,14 @@ class SimpleTransportMessageDispatcherSpec extends Specification {
         def data = Collections.synchronizedList([])
 
         def dispatcher = new SimpleTransportMessageDispatcher()
-        dispatcher.observe({ true }).subscribe(new Subscriber<TransportMessage>() {
+        dispatcher.observe({ true }).subscribe(new Subscriber<MuonMessage>() {
             @Override
             void onSubscribe(Subscription s) {
                 s.request(100)
             }
 
             @Override
-            void onNext(TransportMessage transportMessage) {
+            void onNext(MuonMessage transportMessage) {
                 println "Got data"
                 data << transportMessage
             }
@@ -115,14 +115,14 @@ class SimpleTransportMessageDispatcherSpec extends Specification {
             @Override
             void onComplete() {}
         })
-        dispatcher.observe({ true }).subscribe(new Subscriber<TransportMessage>() {
+        dispatcher.observe({ true }).subscribe(new Subscriber<MuonMessage>() {
             @Override
             void onSubscribe(Subscription s) {
                 s.request(100)
             }
 
             @Override
-            void onNext(TransportMessage transportMessage) {
+            void onNext(MuonMessage transportMessage) {
                 println "Got data"
                 data << transportMessage
             }
@@ -133,14 +133,14 @@ class SimpleTransportMessageDispatcherSpec extends Specification {
             @Override
             void onComplete() {}
         })
-        dispatcher.observe({ true }).subscribe(new Subscriber<TransportMessage>() {
+        dispatcher.observe({ true }).subscribe(new Subscriber<MuonMessage>() {
             @Override
             void onSubscribe(Subscription s) {
                 s.request(100)
             }
 
             @Override
-            void onNext(TransportMessage transportMessage) {
+            void onNext(MuonMessage transportMessage) {
                 println "Got data"
                 data << transportMessage
             }
@@ -170,7 +170,7 @@ class SimpleTransportMessageDispatcherSpec extends Specification {
     }
 
     def inbound() {
-        new TransportInboundMessage(
+        new MuonInboundMessage(
                 "mydata",
                 "faked",
                 "myTarget",
@@ -179,7 +179,7 @@ class SimpleTransportMessageDispatcherSpec extends Specification {
                 [:],
                 "application/json+AES",
                 [] as byte[],
-                [], TransportMessage.ChannelOperation.NORMAL
+                [], MuonMessage.ChannelOperation.NORMAL
         )
     }
 }

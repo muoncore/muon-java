@@ -8,8 +8,8 @@ import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.protocol.support.ProtocolTimer;
 import io.muoncore.transport.TransportEvents;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 
 import java.lang.reflect.Type;
 
@@ -29,7 +29,7 @@ public class RequestResponseClientProtocol<X,R> {
     public RequestResponseClientProtocol(
             String serviceName,
             final ChannelConnection<Response<R>, Request<X>> leftChannelConnection,
-            final ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection,
+            final ChannelConnection<MuonOutboundMessage, MuonInboundMessage> rightChannelConnection,
             final Type responseType,
             final Codecs codecs,
             final ProtocolTimer timer) {
@@ -40,7 +40,7 @@ public class RequestResponseClientProtocol<X,R> {
                 return;
             }
 
-            switch(message.getType()) {
+            switch(message.getStep()) {
                 case RRPEvents.RESPONSE:
                     leftChannelConnection.send(
                             RRPTransformers.toResponse(message, codecs, responseType));

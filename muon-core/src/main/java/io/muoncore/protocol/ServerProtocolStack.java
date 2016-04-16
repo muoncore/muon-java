@@ -2,8 +2,8 @@ package io.muoncore.protocol;
 
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.descriptors.ProtocolDescriptor;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 
 /**
  * The server side of a communication protocol.
@@ -14,5 +14,5 @@ import io.muoncore.transport.TransportOutboundMessage;
  */
 public interface ServerProtocolStack {
     ProtocolDescriptor getProtocolDescriptor();
-    ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel();
+    ChannelConnection<MuonInboundMessage, MuonOutboundMessage> createChannel();
 }

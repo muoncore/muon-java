@@ -20,8 +20,8 @@ import io.muoncore.protocol.event.EventCodec;
 import io.muoncore.protocol.event.EventProtocolMessages;
 import io.muoncore.protocol.reactivestream.client.ReactiveStreamClientProtocolStack;
 import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.transport.client.TransportClient;
 import org.reactivestreams.Subscriber;
 
@@ -42,7 +42,7 @@ public class DefaultEventClient implements EventClient {
     private TransportClient transportClient;
     private ReactiveStreamClientProtocolStack reactiveStreamClientProtocolStack;
 
-    private ChannelConnection<TransportOutboundMessage, TransportInboundMessage> eventChannelConnection;
+    private ChannelConnection<MuonOutboundMessage, MuonInboundMessage> eventChannelConnection;
 
     private boolean useEventProtocol = false;
     private Muon muon;
@@ -107,7 +107,7 @@ public class DefaultEventClient implements EventClient {
 
     private <X> EventResult emitUsingEventProtocol(ClientEvent<X> event) throws ExecutionException, InterruptedException {
         Channel<ClientEvent<X>, EventResult> api2eventproto = Channels.channel("eventapi", "eventproto");
-        Channel<TransportOutboundMessage, TransportInboundMessage> rrp2transport = Channels.channel("eventproto", "transport");
+        Channel<MuonOutboundMessage, MuonInboundMessage> rrp2transport = Channels.channel("eventproto", "transport");
 
         ChannelFutureAdapter<EventResult, ClientEvent<X>> adapter =
                 new ChannelFutureAdapter<>(api2eventproto.left());

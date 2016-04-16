@@ -3,9 +3,9 @@ package io.muoncore.transport.client;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.exception.NoSuchServiceException;
 import io.muoncore.transport.MuonTransport;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessage;
+import io.muoncore.message.MuonOutboundMessage;
 import reactor.core.Dispatcher;
 
 import java.util.HashMap;
@@ -14,13 +14,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-class MultiTransportClientChannelConnection implements ChannelConnection<TransportOutboundMessage, TransportInboundMessage> {
+class MultiTransportClientChannelConnection implements ChannelConnection<MuonOutboundMessage, MuonInboundMessage> {
 
     private List<MuonTransport> transports;
-    private ChannelFunction<TransportInboundMessage> inbound;
+    private ChannelFunction<MuonInboundMessage> inbound;
     private Dispatcher dispatcher;
 
-    private Map<String, ChannelConnection<TransportOutboundMessage, TransportInboundMessage>> channelConnectionMap = new HashMap<>();
+    private Map<String, ChannelConnection<MuonOutboundMessage, MuonInboundMessage>> channelConnectionMap = new HashMap<>();
     private Logger LOG = Logger.getLogger(MultiTransportClientChannelConnection.class.getCanonicalName());
 
     public MultiTransportClientChannelConnection(
@@ -30,14 +30,14 @@ class MultiTransportClientChannelConnection implements ChannelConnection<Transpo
     }
 
     @Override
-    public void receive(ChannelFunction<TransportInboundMessage> function) {
+    public void receive(ChannelFunction<MuonInboundMessage> function) {
         inbound = arg -> {
             dispatcher.tryDispatch(arg, function::apply, Throwable::printStackTrace);
         };
     }
 
     @Override
-    public synchronized void send(TransportOutboundMessage message) {
+    public synchronized void send(MuonOutboundMessage message) {
         if (inbound == null) {
             throw new IllegalStateException("Transport connection is not in a complete state can cannot send data. The receive function has not been set");
         }
@@ -45,7 +45,7 @@ class MultiTransportClientChannelConnection implements ChannelConnection<Transpo
             shutdown();
         } else {
             dispatcher.dispatch(message, msg -> {
-                ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connection = channelConnectionMap.get(
+                ChannelConnection<MuonOutboundMessage, MuonInboundMessage> connection = channelConnectionMap.get(
                         key(message)
                 );
                 try {
@@ -53,19 +53,19 @@ class MultiTransportClientChannelConnection implements ChannelConnection<Transpo
                         connection = connectChannel(message);
                         if (connection == null) {
                             LOG.warning("Cannot open channel to service " + message.getTargetServiceName() + ", no transport accepted the message");
-                            inbound.apply(TransportInboundMessage.serviceNotFound(msg));
+                            inbound.apply(MuonInboundMessage.serviceNotFound(msg));
                             return;
                         } else {
                             channelConnectionMap.put(key(message), connection);
                         }
                     }
                     connection.send(message);
-                    if (message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL) {
+                    if (message.getChannelOperation() == MuonMessage.ChannelOperation.CLOSE_CHANNEL) {
                         inbound = null;
                         this.transports = null;
                     }
                 } catch (NoSuchServiceException ex) {
-                    inbound.apply(TransportInboundMessage.serviceNotFound(msg));
+                    inbound.apply(MuonInboundMessage.serviceNotFound(msg));
                 }
             }, Throwable::printStackTrace);
         }
@@ -80,12 +80,12 @@ class MultiTransportClientChannelConnection implements ChannelConnection<Transpo
         }, Throwable::printStackTrace);
     }
 
-    private ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connectChannel(TransportOutboundMessage message) {
+    private ChannelConnection<MuonOutboundMessage, MuonInboundMessage> connectChannel(MuonOutboundMessage message) {
 
         Optional<MuonTransport> transport = transports.stream().filter( tr -> tr.canConnectToService(message.getTargetServiceName())).findFirst();
 
         if (transport.isPresent()) {
-            ChannelConnection<TransportOutboundMessage, TransportInboundMessage> connection = transport.get().openClientChannel(message.getTargetServiceName(), message.getProtocol());
+            ChannelConnection<MuonOutboundMessage, MuonInboundMessage> connection = transport.get().openClientChannel(message.getTargetServiceName(), message.getProtocol());
             connection.receive(inbound);
             return connection;
         } else {
@@ -93,7 +93,7 @@ class MultiTransportClientChannelConnection implements ChannelConnection<Transpo
         }
     }
 
-    private static String key(TransportOutboundMessage key) {
+    private static String key(MuonOutboundMessage key) {
         return key.getTargetServiceName() + "_" + key.getProtocol();
     }
 }

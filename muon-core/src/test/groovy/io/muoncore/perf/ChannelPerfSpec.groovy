@@ -9,8 +9,8 @@ import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
 import io.muoncore.protocol.ServerProtocolStack
 import io.muoncore.protocol.requestresponse.Response
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportOutboundMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonOutboundMessage
 import reactor.Environment
 import spock.lang.IgnoreIf
 import spock.lang.Specification
@@ -83,15 +83,15 @@ class ChannelPerfSpec extends Specification {
             }
 
             @Override
-            ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
-                return new ChannelConnection<TransportInboundMessage, TransportOutboundMessage>() {
+            ChannelConnection<MuonInboundMessage, MuonOutboundMessage> createChannel() {
+                return new ChannelConnection<MuonInboundMessage, MuonOutboundMessage>() {
                     @Override
-                    void receive(ChannelConnection.ChannelFunction<TransportOutboundMessage> function) {
+                    void receive(ChannelConnection.ChannelFunction<MuonOutboundMessage> function) {
 
                     }
 
                     @Override
-                    void send(TransportInboundMessage message) {
+                    void send(MuonInboundMessage message) {
                         data << message
                     }
 
@@ -115,7 +115,7 @@ class ChannelPerfSpec extends Specification {
 
         println "Starting message emit"
         numTimes.times {
-            channel.send(new TransportOutboundMessage(
+            channel.send(new MuonOutboundMessage(
                     "somethingHappened",
                     UUID.randomUUID().toString(),
                     "service-1",

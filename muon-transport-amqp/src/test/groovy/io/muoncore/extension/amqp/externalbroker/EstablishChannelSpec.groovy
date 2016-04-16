@@ -11,7 +11,7 @@ import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import io.muoncore.protocol.ServerStacks
 import io.muoncore.protocol.requestresponse.RRPTransformers
-import io.muoncore.transport.TransportOutboundMessage
+import io.muoncore.message.MuonOutboundMessage
 import reactor.Environment
 import spock.lang.IgnoreIf
 import spock.lang.Specification
@@ -42,7 +42,7 @@ class EstablishChannelSpec extends Specification {
             println "Received a message ... "
         }
 
-        channel.send(new TransportOutboundMessage(
+        channel.send(new MuonOutboundMessage(
                 "somethingHappened",
                 "1",
                 "tombola",

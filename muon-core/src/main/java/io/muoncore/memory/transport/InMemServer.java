@@ -4,8 +4,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.protocol.ServerStacks;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 
 public class InMemServer {
 
@@ -20,7 +20,7 @@ public class InMemServer {
 
     @Subscribe public void onOpenChannel(OpenChannelEvent event) {
         if (event.getTargetService().equals(serviceName)) {
-            ChannelConnection<TransportInboundMessage, TransportOutboundMessage> connection =
+            ChannelConnection<MuonInboundMessage, MuonOutboundMessage> connection =
                     serverStacks.openServerChannel(event.getProtocol());
 
             event.getClientChannelConnection().attachServerConnection(connection);

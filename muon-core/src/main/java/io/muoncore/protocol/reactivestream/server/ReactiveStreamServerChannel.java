@@ -1,47 +1,53 @@
 package io.muoncore.protocol.reactivestream.server;
 
+import io.muoncore.Discovery;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
+import io.muoncore.codec.types.MuonCodecTypes;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.exception.MuonException;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessage;
+import io.muoncore.message.MuonMessageBuilder;
+import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.reactivestream.ProtocolMessages;
-import io.muoncore.protocol.reactivestream.ReactiveStreamSubscriptionRequest;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.protocol.reactivestream.messages.ReactiveStreamSubscriptionRequest;
+import io.muoncore.protocol.reactivestream.messages.RequestMessage;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
 import java.util.*;
 
-public class ReactiveStreamServerChannel implements ChannelConnection<TransportInboundMessage, TransportOutboundMessage> {
+public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboundMessage, MuonOutboundMessage> {
 
     private PublisherLookup publisherLookup;
     private Subscription subscription;
     private String subscribingServiceName;
-    private ChannelFunction<TransportOutboundMessage> function;
+    private ChannelFunction<MuonOutboundMessage> function;
     private Codecs codecs;
     private AutoConfiguration configuration;
+    private Discovery discovery;
 
     private List<String> acceptedContentTypes;
 
     public ReactiveStreamServerChannel(
             PublisherLookup publisherLookup,
             Codecs codecs,
-            AutoConfiguration configuration) {
+            AutoConfiguration configuration, Discovery discovery) {
         this.publisherLookup = publisherLookup;
         this.codecs = codecs;
         this.configuration = configuration;
+        this.discovery = discovery;
     }
 
     @Override
-    public void receive(ChannelFunction<TransportOutboundMessage> function) {
+    public void receive(ChannelFunction<MuonOutboundMessage> function) {
         this.function = function;
     }
 
     @Override
-    public void send(TransportInboundMessage message) {
-        switch(message.getType()) {
+    public void send(MuonInboundMessage message) {
+        switch(message.getStep()) {
             case ProtocolMessages.SUBSCRIBE:
                 handleSubscribe(message);
                 break;
@@ -56,106 +62,115 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
         }
     }
 
-    private void sendProtocolFailureException(TransportInboundMessage msg) {
+    private void sendProtocolFailureException(MuonInboundMessage msg) {
         Map<String, String> meta = new HashMap<>();
         meta.put("SourceMessage", msg.getId());
-        meta.put("SourceType", msg.getType());
+        meta.put("SourceType", msg.getSourceServiceName());
 
-        function.apply(new TransportOutboundMessage(
-                ProtocolMessages.PROTOCOL_FAILURE,
-                UUID.randomUUID().toString(),
-                subscribingServiceName,
-                configuration.getServiceName(),
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                meta,
-                "application/json",
-                new byte[0],
-                Arrays.asList(codecs.getAvailableCodecs()),
-                TransportMessage.ChannelOperation.CLOSE_CHANNEL));
+        Codecs.EncodingResult result = codecs.encode(meta,
+                discovery.getCodecsForService(msg.getSourceServiceName()));
+
+        function.apply(MuonMessageBuilder
+                .fromService(configuration.getServiceName())
+                .step(ProtocolMessages.PROTOCOL_FAILURE)
+                .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                .toService(subscribingServiceName)
+                .payload(result.getPayload())
+                .contentType(result.getContentType())
+                .status(MuonMessage.Status.error)
+                .operation(MuonMessage.ChannelOperation.CLOSE_CHANNEL)
+                .build()
+        );
     }
 
-    private void sendNack() {
+    private void sendNack(MuonInboundMessage msg) {
         Map<String, String> meta = new HashMap<>();
 
-        function.apply(new TransportOutboundMessage(
-                ProtocolMessages.NACK,
-                UUID.randomUUID().toString(),
-                subscribingServiceName,
-                configuration.getServiceName(),
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                meta,
-                "application/json",
-                new byte[0],
-                Arrays.asList(codecs.getAvailableCodecs()),
-                TransportMessage.ChannelOperation.NORMAL));
+        Codecs.EncodingResult result = codecs.encode(meta,
+                discovery.getCodecsForService(msg.getSourceServiceName()));
+
+        function.apply(MuonMessageBuilder
+                .fromService(configuration.getServiceName())
+                .step(ProtocolMessages.NACK)
+                .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                .toService(subscribingServiceName)
+                .payload(result.getPayload())
+                .contentType(result.getContentType())
+                .status(MuonMessage.Status.error)
+                .build()
+        );
     }
-    private void sendAck() {
+    private void sendAck(MuonInboundMessage msg) {
         Map<String, String> meta = new HashMap<>();
 
-        function.apply(new TransportOutboundMessage(
-                ProtocolMessages.ACK,
-                UUID.randomUUID().toString(),
-                subscribingServiceName,
-                configuration.getServiceName(),
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                meta,
-                "application/json",
-                new byte[0],
-                Arrays.asList(codecs.getAvailableCodecs()),
-                TransportMessage.ChannelOperation.NORMAL));
+        Codecs.EncodingResult result = codecs.encode(meta,
+                discovery.getCodecsForService(msg.getSourceServiceName()));
+
+        function.apply(MuonMessageBuilder
+                .fromService(configuration.getServiceName())
+                .step(ProtocolMessages.ACK)
+                .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                .toService(subscribingServiceName)
+                .payload(result.getPayload())
+                .contentType(result.getContentType())
+                .build()
+        );
+
     }
 
     @SuppressWarnings("unchecked")
-    private void handleSubscribe(TransportInboundMessage msg) {
+    private void handleSubscribe(MuonInboundMessage msg) {
 
-        Optional<PublisherLookup.PublisherRecord> pub = publisherLookup.lookupPublisher(msg.getMetadata().get("streamName"));
+        ReactiveStreamSubscriptionRequest subscriptionMessage  = codecs.decode(msg.getPayload(), msg.getContentType(), MuonCodecTypes.mapOf(String.class, String.class));
+
+        Optional<PublisherLookup.PublisherRecord> pub = publisherLookup.lookupPublisher(subscriptionMessage.getStreamName());
 
         if (!pub.isPresent()) {
-            sendNack();
+            sendNack(msg);
         } else {
-            acceptedContentTypes = msg.getSourceAvailableContentTypes();
+            acceptedContentTypes = Arrays.asList(discovery.getCodecsForService(msg.getSourceServiceName()));
             subscribingServiceName = msg.getSourceServiceName();
-            ReactiveStreamSubscriptionRequest request = codecs.decode(msg.getPayload(), msg.getContentType(), ReactiveStreamSubscriptionRequest.class);
 
-            pub.get().getPublisher().generatePublisher(request).subscribe(new Subscriber() {
+            pub.get().getPublisher().generatePublisher(subscriptionMessage).subscribe(new Subscriber() {
                 @Override
                 public void onSubscribe(Subscription s) {
                     subscription = s;
-                    sendAck();
+                    sendAck(msg);
                 }
 
                 @Override
                 public void onNext(Object o) {
                     Codecs.EncodingResult result = codecs.encode(o, acceptedContentTypes.toArray(new String[0]));
 
-                    function.apply(
-                            new TransportOutboundMessage(
-                                    ProtocolMessages.DATA,
-                                    UUID.randomUUID().toString(),
-                                    subscribingServiceName,
-                                    configuration.getServiceName(),
-                                    ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                                    Collections.emptyMap(),
-                                    result.getContentType(),
-                                    result.getPayload(),
-                                    Arrays.asList(codecs.getAvailableCodecs()),
-                                    TransportMessage.ChannelOperation.NORMAL));
+                    function.apply(MuonMessageBuilder
+                            .fromService(configuration.getServiceName())
+                            .step(ProtocolMessages.DATA)
+                            .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                            .toService(subscribingServiceName)
+                            .payload(result.getPayload())
+                            .contentType(result.getContentType())
+                            .build()
+                    );
                 }
 
                 @Override
                 public void onError(Throwable t) {
-                    function.apply(
-                            new TransportOutboundMessage(
-                                    ProtocolMessages.ERROR,
-                                    UUID.randomUUID().toString(),
-                                    subscribingServiceName,
-                                    configuration.getServiceName(),
-                                    ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                                    Collections.emptyMap(),
-                                    "text/plain",
-                                    new byte[0],
-                                    Arrays.asList(codecs.getAvailableCodecs()),
-                                    TransportMessage.ChannelOperation.CLOSE_CHANNEL));
+
+                    Map<String, String> meta = new HashMap<>();
+
+                    Codecs.EncodingResult result = codecs.encode(meta,
+                            discovery.getCodecsForService(msg.getSourceServiceName()));
+
+                    function.apply(MuonMessageBuilder
+                            .fromService(configuration.getServiceName())
+                            .step(ProtocolMessages.ERROR)
+                            .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                            .toService(subscribingServiceName)
+                            .payload(result.getPayload())
+                            .contentType(result.getContentType())
+                            .build()
+                    );
+
                 }
 
                 @Override
@@ -167,18 +182,20 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
     }
 
     private void sendComplete() {
-        function.apply(
-                new TransportOutboundMessage(
-                        ProtocolMessages.COMPLETE,
-                        UUID.randomUUID().toString(),
-                        subscribingServiceName,
-                        configuration.getServiceName(),
-                        ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                        Collections.emptyMap(),
-                        "text/plain",
-                        new byte[0],
-                        Arrays.asList(codecs.getAvailableCodecs()),
-                        TransportMessage.ChannelOperation.CLOSE_CHANNEL));
+        Map<String, String> meta = new HashMap<>();
+
+        Codecs.EncodingResult result = codecs.encode(meta,
+                discovery.getCodecsForService(subscribingServiceName));
+
+        function.apply(MuonMessageBuilder
+                .fromService(configuration.getServiceName())
+                .step(ProtocolMessages.COMPLETE)
+                .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                .toService(subscribingServiceName)
+                .payload(result.getPayload())
+                .contentType(result.getContentType())
+                .build()
+        );
     }
 
     @Override
@@ -186,14 +203,18 @@ public class ReactiveStreamServerChannel implements ChannelConnection<TransportI
         sendComplete();
     }
 
-    private void handleRequest(TransportInboundMessage msg) {
+    private void handleRequest(MuonInboundMessage msg) {
+
         if (subscription == null) {
             throw new MuonException("Unable to handle, subscription is not yet set");
         }
-        subscription.request(Long.parseLong(msg.getMetadata().get("request")));
+
+        RequestMessage request = codecs.decode(msg.getPayload(), msg.getContentType(), RequestMessage.class);
+
+        subscription.request(request.getRequest());
     }
 
-    private void handleCancel(TransportInboundMessage msg) {
+    private void handleCancel(MuonInboundMessage msg) {
         subscription.cancel();
     }
 }

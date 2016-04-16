@@ -3,9 +3,9 @@ import io.muoncore.codec.Codecs
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.descriptors.ServiceExtendedDescriptor
 import io.muoncore.descriptors.ServiceExtendedDescriptorSource
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportMessage
-import io.muoncore.transport.TransportOutboundMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessage
+import io.muoncore.message.MuonOutboundMessage
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
@@ -19,7 +19,7 @@ class IntrospectionServerProtocolStackSpec extends Specification {
 
         def stack = new IntrospectionServerProtocolStack(descriptorSource, codecs)
 
-        TransportOutboundMessage outbound
+        MuonOutboundMessage outbound
 
         def channel = stack.createChannel()
         channel.receive({
@@ -27,7 +27,7 @@ class IntrospectionServerProtocolStackSpec extends Specification {
         })
 
         when:
-        channel.send(new TransportInboundMessage(
+        channel.send(new MuonInboundMessage(
                 "introspect",
                 "simples",
                 "someService",
@@ -36,7 +36,7 @@ class IntrospectionServerProtocolStackSpec extends Specification {
                 [:],
                 "application/json",
                 [] as byte[],
-                ["application/json"], TransportMessage.ChannelOperation.NORMAL
+                ["application/json"], MuonMessage.ChannelOperation.NORMAL
         ))
 
         then:

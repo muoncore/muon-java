@@ -6,7 +6,7 @@ import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
 import io.muoncore.protocol.requestresponse.Response
-import io.muoncore.transport.TransportMessage
+import io.muoncore.message.MuonMessage
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import spock.lang.Specification
@@ -27,17 +27,17 @@ class RequestResponseTapSimulationSpec extends Specification {
             createService(it, discovery)
         }
 
-        List<TransportMessage> data = []
+        List<MuonMessage> data = []
         services[0].transportControl.tap({
             true
-        }).subscribe(new Subscriber<TransportMessage>() {
+        }).subscribe(new Subscriber<MuonMessage>() {
             @Override
             void onSubscribe(Subscription s) {
                 s.request(200)
             }
 
             @Override
-            void onNext(TransportMessage transportMessage) {
+            void onNext(MuonMessage transportMessage) {
                 data << transportMessage
             }
 

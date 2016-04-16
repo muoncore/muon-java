@@ -8,9 +8,9 @@ import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocolStack
 import io.muoncore.protocol.requestresponse.server.*
 import io.muoncore.protocol.support.ProtocolTimer
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportMessage
-import io.muoncore.transport.TransportOutboundMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessage
+import io.muoncore.message.MuonOutboundMessage
 import io.muoncore.transport.client.TransportClient
 import reactor.Environment
 import spock.lang.Specification
@@ -79,9 +79,9 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
         Channels.connectAndTransform(
                 server.createChannel(),
                 channel.left(),
-                { TransportOutboundMessage msg ->
+                { MuonOutboundMessage msg ->
                     if (msg == null) return null
-                    new TransportInboundMessage(
+                    new MuonInboundMessage(
                             msg.type,
                             msg.id,
                             msg.targetServiceName,
@@ -89,17 +89,17 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                             msg.protocol,
                             msg.metadata,
                             msg.contentType,
-                            msg.payload, msg.sourceAvailableContentTypes, TransportMessage.ChannelOperation.NORMAL)
+                            msg.payload, msg.sourceAvailableContentTypes, MuonMessage.ChannelOperation.NORMAL)
                 },
-                { TransportOutboundMessage msg ->
+                { MuonOutboundMessage msg ->
                     if (msg == null) return null
-                    new TransportInboundMessage(msg.type, msg.id,
+                    new MuonInboundMessage(msg.type, msg.id,
                             msg.targetServiceName,
                             msg.sourceServiceName,
                             msg.protocol,
                             msg.metadata,
                             msg.contentType,
-                            msg.payload, msg.sourceAvailableContentTypes, TransportMessage.ChannelOperation.NORMAL)
+                            msg.payload, msg.sourceAvailableContentTypes, MuonMessage.ChannelOperation.NORMAL)
                 }
         )
 

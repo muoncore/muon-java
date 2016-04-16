@@ -3,6 +3,9 @@ package io.muoncore.transport.client;
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessage;
+import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.transport.*;
 import org.reactivestreams.Publisher;
 import reactor.core.Dispatcher;
@@ -27,8 +30,8 @@ public class MultiTransportClient implements TransportClient, TransportControl {
     }
 
     @Override
-    public ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel() {
-        Channel<TransportOutboundMessage, TransportInboundMessage> tapChannel = Channels.wiretapChannel(taps);
+    public ChannelConnection<MuonOutboundMessage, MuonInboundMessage> openClientChannel() {
+        Channel<MuonOutboundMessage, MuonInboundMessage> tapChannel = Channels.wiretapChannel(taps);
 
         Channels.connect(
                 tapChannel.right(),
@@ -46,7 +49,7 @@ public class MultiTransportClient implements TransportClient, TransportControl {
     }
 
     @Override
-    public Publisher<TransportMessage> tap(Predicate<TransportMessage> msg) {
+    public Publisher<MuonMessage> tap(Predicate<MuonMessage> msg) {
         return taps.observe(msg);
     }
 }

@@ -3,7 +3,7 @@ package io.muoncore.example.springexample;
 import io.muoncore.Muon;
 import io.muoncore.spring.annotations.EnableMuon;
 import io.muoncore.spring.annotations.MuonController;
-import io.muoncore.transport.TransportMessage;
+import io.muoncore.message.MuonMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,7 +21,7 @@ public class AutowireMuon {
 
     @PostConstruct
     public void tapTransport() {
-        Broadcaster<TransportMessage> broadcaster = Broadcaster.create();
+        Broadcaster<MuonMessage> broadcaster = Broadcaster.create();
         broadcaster.consume( msg -> {
             System.out.println("Message seen from " + msg.getSourceServiceName());
         });

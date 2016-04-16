@@ -5,7 +5,7 @@ import io.muoncore.MuonBuilder
 import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.config.MuonConfigBuilder
 import io.muoncore.protocol.requestresponse.Response
-import io.muoncore.transport.TransportMessage
+import io.muoncore.message.MuonMessage
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import reactor.Environment
@@ -76,14 +76,14 @@ class FullStackSpec extends Specification {
     }
 
     def testTap(muon, Closure output) {
-        muon.transportControl.tap({ true }).subscribe(new Subscriber<TransportMessage>() {
+        muon.transportControl.tap({ true }).subscribe(new Subscriber<MuonMessage>() {
             @Override
             void onSubscribe(Subscription s) {
                 s.request(500)
             }
 
             @Override
-            void onNext(TransportMessage transportMessage) {
+            void onNext(MuonMessage transportMessage) {
                 output(transportMessage)
             }
 

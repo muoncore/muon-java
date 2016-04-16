@@ -1,15 +1,15 @@
 package io.muoncore.protocol.reactivestream.server;
 
+import io.muoncore.Discovery;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.descriptors.OperationDescriptor;
 import io.muoncore.descriptors.ProtocolDescriptor;
 import io.muoncore.protocol.ServerProtocolStack;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,19 +20,21 @@ public class ReactiveStreamServerStack implements ServerProtocolStack {
     private PublisherLookup publisherLookup;
     private Codecs codecs;
     private AutoConfiguration configuration;
+    private Discovery discovery;
 
     public ReactiveStreamServerStack(
             PublisherLookup publisherLookup,
             Codecs codecs,
-            AutoConfiguration configuration) {
+            AutoConfiguration configuration, Discovery discovery) {
         this.publisherLookup = publisherLookup;
         this.codecs = codecs;
         this.configuration = configuration;
+        this.discovery = discovery;
     }
 
     @Override
-    public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
-        return new ReactiveStreamServerChannel(publisherLookup, codecs, configuration);
+    public ChannelConnection<MuonInboundMessage, MuonOutboundMessage> createChannel() {
+        return new ReactiveStreamServerChannel(publisherLookup, codecs, configuration, discovery);
     }
 
     @Override

@@ -1,77 +1,57 @@
 package io.muoncore.protocol.requestresponse;
 
 import io.muoncore.codec.Codecs;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessage;
+import io.muoncore.message.MuonMessageBuilder;
+import io.muoncore.message.MuonOutboundMessage;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public class RRPTransformers {
 
     public final static String REQUEST_RESPONSE_PROTOCOL = "request";
 
-    public static RequestMetaData toRequestMetaData(TransportInboundMessage msg) {
-        return new RequestMetaData(
-                msg.getMetadata().get(Request.URL),
-                msg.getSourceServiceName(),
-                msg.getTargetServiceName());
+    public static RequestMetaData toRequestMetaData(MuonInboundMessage msg, Codecs codecs) {
+        return codecs.decode(msg.getPayload(), msg.getContentType(), RequestMetaData.class);
     }
 
-    public static Request toRequest(TransportInboundMessage msg, Codecs codecs, Type type) {
-        Request ret = new Request<>(
-                new RequestMetaData(
-                        msg.getMetadata().get(Request.URL),
-                        msg.getSourceServiceName(),
-                        msg.getTargetServiceName()),
-                codecs.decode(msg.getPayload(), msg.getContentType(), type)
-        );
-        ret.setId(msg.getId());
-        return ret;
+    public static Request toRequest(MuonInboundMessage msg, Codecs codecs, Type type) {
+        return codecs.decode(msg.getPayload(), msg.getContentType(), new RequestParameterizedType(type));
     }
 
-    public static <T> Response<T> toResponse(TransportInboundMessage msg, Codecs codecs, Type type) {
-        return new Response<>(
-                Integer.parseInt(msg.getMetadata().get(Response.STATUS)),
-                codecs.decode(msg.getPayload(),
-                        msg.getContentType(), type));
+    public static <T> Response<T> toResponse(MuonInboundMessage msg, Codecs codecs, Type type) {
+        return codecs.decode(msg.getPayload(), msg.getContentType(), new RequestParameterizedType(type));
     }
 
-    public static TransportOutboundMessage toOutbound(String thisService, Request request, Codecs codecs, String[] acceptEncodings) {
-
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put(Request.URL, request.getMetaData().getUrl());
+    public static MuonOutboundMessage toOutbound(String thisService, Request request, Codecs codecs, String[] acceptEncodings) {
 
         Codecs.EncodingResult payload = codecs.encode(request.getPayload(), acceptEncodings);
 
-        return new TransportOutboundMessage(
-                RRPEvents.REQUEST,
-                request.getId(),
-                request.getMetaData().getTargetService(),
-                thisService,
-                REQUEST_RESPONSE_PROTOCOL,
-                metadata,
-                payload.getContentType(),
-                payload.getPayload(), Arrays.asList(codecs.getAvailableCodecs()));
+        return MuonMessageBuilder
+                .fromService(thisService)
+                .step("introspectionRequested")
+                .protocol(REQUEST_RESPONSE_PROTOCOL)
+                .toService(request.getMetaData().getTargetService())
+                .payload(payload.getPayload())
+                .contentType(payload.getContentType())
+                .status(MuonMessage.Status.success)
+                .build();
     }
 
-    public static TransportOutboundMessage toOutbound(String thisService, String targetService, Response response, Codecs codecs, String[] acceptEncodings) {
+    public static MuonOutboundMessage toOutbound(String thisService, String targetService, Response response, Codecs codecs, String[] acceptEncodings) {
 
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put(Response.STATUS, String.valueOf(response.getStatus()));
+        Codecs.EncodingResult payload = codecs.encode(response, acceptEncodings);
 
-        Codecs.EncodingResult payload = codecs.encode(response.getPayload(), acceptEncodings);
-
-        return new TransportOutboundMessage(
-                RRPEvents.RESPONSE,
-                response.getId(),
-                targetService,
-                thisService,
-                REQUEST_RESPONSE_PROTOCOL,
-                metadata,
-                payload.getContentType(),
-                payload.getPayload(), Arrays.asList(codecs.getAvailableCodecs()));
+        return MuonMessageBuilder
+                .fromService(thisService)
+                .toService(targetService)
+                .protocol(REQUEST_RESPONSE_PROTOCOL)
+                .step(RRPEvents.RESPONSE)
+                .contentType(payload.getContentType())
+                .payload(payload.getPayload())
+                .status(MuonMessage.Status.success)
+                .operation(MuonMessage.ChannelOperation.CLOSE_CHANNEL)
+                .build();
     }
 }

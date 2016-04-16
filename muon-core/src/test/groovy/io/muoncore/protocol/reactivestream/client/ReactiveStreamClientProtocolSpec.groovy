@@ -5,12 +5,12 @@ import io.muoncore.config.AutoConfiguration
 import io.muoncore.exception.MuonException
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.reactivestream.ProtocolMessages
-import io.muoncore.protocol.reactivestream.ReactiveStreamSubscriptionRequest
+import io.muoncore.protocol.reactivestream.messages.ReactiveStreamSubscriptionRequest
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack
 import io.muoncore.transport.TransportEvents
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportMessage
-import io.muoncore.transport.TransportOutboundMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessage
+import io.muoncore.message.MuonOutboundMessage
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import spock.lang.Specification
@@ -40,8 +40,8 @@ class ReactiveStreamClientProtocolSpec extends Specification {
         client.start()
 
         then:
-        1 * connection.send({ TransportOutboundMessage msg ->
-            msg.channelOperation == TransportMessage.ChannelOperation.NORMAL &&
+        1 * connection.send({ MuonOutboundMessage msg ->
+            msg.channelOperation == MuonMessage.ChannelOperation.NORMAL &&
                     msg.protocol == ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL &&
                     msg.type == ProtocolMessages.SUBSCRIBE &&
                     msg.metadata.streamName == "/streamname" &&
@@ -83,7 +83,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
 
         when:
         client.start()
-        function(new TransportInboundMessage(
+        function(new MuonInboundMessage(
                 ProtocolMessages.ACK,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -93,7 +93,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
         sleep(50)
 
@@ -127,7 +127,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
 
         when:
         client.start()
-        function(new TransportInboundMessage(
+        function(new MuonInboundMessage(
                 ProtocolMessages.NACK,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -137,7 +137,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
         then:
         1 * sub.onError(_ as MuonException)
@@ -169,7 +169,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
 
         when:
         client.start()
-        function(new TransportInboundMessage(
+        function(new MuonInboundMessage(
                 TransportEvents.SERVICE_NOT_FOUND,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -179,7 +179,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
         then:
         1 * sub.onError(_ as MuonException)
@@ -219,7 +219,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
         client.start()
 
         and: "The subscription is ACKed"
-        function(new TransportInboundMessage(
+        function(new MuonInboundMessage(
                 ProtocolMessages.ACK,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -229,15 +229,15 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
         and: "the subscription is cancelled"
         subscription.cancel()
 
         then:
-        1 * connection.send({ TransportOutboundMessage msg ->
+        1 * connection.send({ MuonOutboundMessage msg ->
             msg.type == ProtocolMessages.CANCEL
-        } as TransportOutboundMessage)
+        } as MuonOutboundMessage)
 
     }
 
@@ -274,7 +274,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
         client.start()
 
         and: "The subscription is ACKed"
-        function(new TransportInboundMessage(
+        function(new MuonInboundMessage(
                 ProtocolMessages.ACK,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -284,16 +284,16 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
         and: "more data is requested off the subscription"
         subscription.request(100)
 
         then:
-        1 * connection.send({ TransportOutboundMessage msg ->
+        1 * connection.send({ MuonOutboundMessage msg ->
             msg.type == ProtocolMessages.REQUEST &&
                     msg.metadata.request == "100"
-        } as TransportOutboundMessage)
+        } as MuonOutboundMessage)
     }
 
     def "on DATA, calls subscriber onNext"() {
@@ -327,7 +327,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
         client.start()
 
         and: "data arrives from the remote"
-        function(new TransportInboundMessage(
+        function(new MuonInboundMessage(
                 ProtocolMessages.DATA,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -337,7 +337,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+                MuonMessage.ChannelOperation.NORMAL))
 
         then:
         1 * sub.onNext([helloworld:"awesome"])
@@ -375,7 +375,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
         client.start()
 
         and: "data arrives from the remote"
-        function(new TransportInboundMessage(
+        function(new MuonInboundMessage(
                 ProtocolMessages.COMPLETE,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -385,7 +385,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.CLOSE_CHANNEL))
+                MuonMessage.ChannelOperation.CLOSE_CHANNEL))
 
         then:
         1 * sub.onComplete()
@@ -422,7 +422,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
         client.start()
 
         and: "data arrives from the remote"
-        function(new TransportInboundMessage(
+        function(new MuonInboundMessage(
                 ProtocolMessages.ERROR,
                 UUID.randomUUID().toString(),
                 "awesome",
@@ -432,7 +432,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 "application/json",
                 [] as byte[],
                 ["application/json"],
-                TransportMessage.ChannelOperation.CLOSE_CHANNEL))
+                MuonMessage.ChannelOperation.CLOSE_CHANNEL))
 
         then:
         1 * sub.onError(_ as MuonException)

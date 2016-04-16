@@ -13,9 +13,9 @@ import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.RequestMetaData;
 import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessage;
+import io.muoncore.message.MuonOutboundMessage;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,16 +47,16 @@ public class RequestResponseServerProtocolStack implements
 
     @Override
     @SuppressWarnings("unchecked")
-    public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
+    public ChannelConnection<MuonInboundMessage, MuonOutboundMessage> createChannel() {
 
-        Channel<TransportOutboundMessage, TransportInboundMessage> api2 = Channels.workerChannel("rrpserver", "transport");
+        Channel<MuonOutboundMessage, MuonInboundMessage> api2 = Channels.workerChannel("rrpserver", "transport");
 
         api2.left().receive( message -> {
-            if (message == null || message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL) {
+            if (message == null || message.getChannelOperation() == MuonMessage.ChannelOperation.CLOSE_CHANNEL) {
                 //shutdown signal.
                 return;
             }
-            RequestMetaData meta = RRPTransformers.toRequestMetaData(message);
+            RequestMetaData meta = RRPTransformers.toRequestMetaData(message, codecs);
             RequestResponseServerHandler handler = handlers.findHandler(meta);
 
             Request request = RRPTransformers.toRequest(message, codecs, handler.getRequestType());
@@ -81,7 +81,7 @@ public class RequestResponseServerProtocolStack implements
                         codecList = new String[]{"application/json"};
                     }
 
-                    TransportOutboundMessage msg = RRPTransformers.toOutbound(request.getMetaData().getTargetService(), request.getMetaData().getSourceService(), response, codecs,
+                    MuonOutboundMessage msg = RRPTransformers.toOutbound(request.getMetaData().getTargetService(), request.getMetaData().getSourceService(), response, codecs,
                             codecList);
 
                     api2.left().send(msg);

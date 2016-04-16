@@ -3,11 +3,11 @@ package io.muoncore.channel.async;
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.exception.MuonException;
-import io.muoncore.transport.TransportMessage;
+import io.muoncore.message.MuonMessage;
 import io.muoncore.transport.client.TransportMessageDispatcher;
 import reactor.core.Dispatcher;
 
-public class WiretapChannel<GoingLeft extends TransportMessage, GoingRight extends TransportMessage> implements Channel<GoingLeft, GoingRight> {
+public class WiretapChannel<GoingLeft extends MuonMessage, GoingRight extends MuonMessage> implements Channel<GoingLeft, GoingRight> {
 
     private Dispatcher dispatcher;
 

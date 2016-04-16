@@ -1,8 +1,8 @@
 package io.muoncore.extension.amqp;
 
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessage;
+import io.muoncore.message.MuonOutboundMessage;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ public class AmqpMessageTransformers {
     private static Logger LOG = Logger.getLogger(ServiceQueue.class.getCanonicalName());
 
 
-    public static QueueListener.QueueMessage outboundToQueue(String queue, TransportOutboundMessage message) {
+    public static QueueListener.QueueMessage outboundToQueue(String queue, MuonOutboundMessage message) {
 
         Map<String, String> headers = new HashMap<>();
         headers.putAll(message.getMetadata());
@@ -30,10 +30,10 @@ public class AmqpMessageTransformers {
         headers.put("sourceAvailableContentTypes", delimitedContentTypes);
         headers.put("channelOperation", message.getChannelOperation().toString());
 
-        return new QueueListener.QueueMessage(message.getType(), queue, message.getPayload(), headers, message.getContentType());
+        return new QueueListener.QueueMessage(message.getStep(), queue, message.getPayload(), headers, message.getContentType());
     }
 
-    public static TransportInboundMessage queueToInbound(QueueListener.QueueMessage message) {
+    public static MuonInboundMessage queueToInbound(QueueListener.QueueMessage message) {
         Map metadata = new HashMap<>();
         metadata.putAll(message.getHeaders());
 
@@ -59,7 +59,7 @@ public class AmqpMessageTransformers {
             targetService = message.getHeaders().get("targetService");
         }
 
-        return new TransportInboundMessage(
+        return new MuonInboundMessage(
                 message.getEventType(),
                 message.getHeaders().get("id").toString(),
                 targetService,
@@ -68,7 +68,7 @@ public class AmqpMessageTransformers {
                 metadata,
                 message.getContentType(), message.getBody(),
                 Arrays.asList(message.getHeaders().get("sourceAvailableContentTypes").split("|")),
-                TransportMessage.ChannelOperation.valueOf(message.getHeaders().get("channelOperation")));
+                MuonMessage.ChannelOperation.valueOf(message.getHeaders().get("channelOperation")));
     }
     
     static boolean isvalid(String name, QueueListener.QueueMessage message) {

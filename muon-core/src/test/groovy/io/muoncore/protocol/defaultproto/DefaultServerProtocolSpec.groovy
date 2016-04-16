@@ -2,9 +2,9 @@ package io.muoncore.protocol.defaultproto
 
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.Codecs
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportMessage
-import io.muoncore.transport.TransportOutboundMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessage
+import io.muoncore.message.MuonOutboundMessage
 import spock.lang.Specification
 
 class DefaultServerProtocolSpec extends Specification {
@@ -21,7 +21,7 @@ class DefaultServerProtocolSpec extends Specification {
         channel.receive(receive)
 
         when:
-        channel.send(new TransportInboundMessage(
+        channel.send(new MuonInboundMessage(
                 "somethingHappened",
                 "id",
                 "targetService",
@@ -29,10 +29,10 @@ class DefaultServerProtocolSpec extends Specification {
                 "fakeproto",
                 [:],
                 "text/plain",
-                new byte[0], ["application/json"], TransportMessage.ChannelOperation.NORMAL))
+                new byte[0], ["application/json"], MuonMessage.ChannelOperation.NORMAL))
 
         then:
-        1 * receive.apply(_ as TransportOutboundMessage)
+        1 * receive.apply(_ as MuonOutboundMessage)
         1 * receive.apply(null)
     }
 }
