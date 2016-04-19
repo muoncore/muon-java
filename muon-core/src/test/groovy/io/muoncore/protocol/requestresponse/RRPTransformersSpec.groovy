@@ -6,6 +6,7 @@ import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.message.MuonInboundMessage
 import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.message.MuonOutboundMessage
+import io.muoncore.protocol.requestresponse.server.ServerResponse
 import spock.lang.Specification
 
 class RRPTransformersSpec extends Specification {
@@ -19,15 +20,15 @@ class RRPTransformersSpec extends Specification {
 
 
         when:
-        def ret = RRPTransformers.toRequest(inboundRequest(), new JsonOnlyCodecs(), Map)
+        def ret = RRPTransformers.toRequest(inboundRequest(), new JsonOnlyCodecs())
 
         then:
-        ret.headers.url == "hello"
+        ret.url == new URI("request://hello")
     }
 
     def "TransportInboundMessage to response"() {
         when:
-        def ret = RRPTransformers.toResponse(inbound(), new JsonOnlyCodecs(), Map)
+        def ret = RRPTransformers.toResponse(inbound(), new JsonOnlyCodecs())
 
         then:
         ret.status == 200
@@ -52,10 +53,10 @@ class RRPTransformersSpec extends Specification {
     }
 
     Request request() {
-        new Request(new Headers("simples", "myservice", "remote"), [:])
+        new Request(new URI("request://something"), [:])
     }
-    Response response() {
-        new Response(200, [message:"hello"])
+    ServerResponse response() {
+        new ServerResponse(200, [message:"hello"])
     }
 
     MuonInboundMessage inbound() {
@@ -64,7 +65,7 @@ class RRPTransformersSpec extends Specification {
             .step("somethingHappened")
             .protocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
             .contentType("application/json")
-            .payload(new GsonCodec().encode(new Response(200,[:]))).buildInbound()
+            .payload(new GsonCodec().encode(new ServerResponse(200,[:]))).buildInbound()
     }
 
     MuonInboundMessage inboundRequest() {
@@ -74,7 +75,7 @@ class RRPTransformersSpec extends Specification {
                 .protocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
                 .contentType("application/json")
                 .payload(new GsonCodec().encode(
-                new Request(new Headers("hello", "sourceService", "targetService"), [:])
+                new Request(new URI("request://hello"), [:])
         )).buildInbound()
     }
 

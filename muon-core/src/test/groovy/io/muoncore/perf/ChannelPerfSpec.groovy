@@ -1,17 +1,17 @@
 package io.muoncore.perf
+
 import com.google.common.eventbus.EventBus
-import io.muoncore.ServiceDescriptor
 import io.muoncore.MultiTransportMuon
+import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.descriptors.ProtocolDescriptor
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
-import io.muoncore.message.MuonMessageBuilder
-import io.muoncore.protocol.ServerProtocolStack
-import io.muoncore.protocol.requestresponse.Response
 import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.message.MuonOutboundMessage
+import io.muoncore.protocol.ServerProtocolStack
 import reactor.Environment
 import spock.lang.IgnoreIf
 import spock.lang.Specification
@@ -45,15 +45,15 @@ class ChannelPerfSpec extends Specification {
         discovery.advertiseLocalService(new ServiceDescriptor("service-1", [], [], []))
         discovery.advertiseLocalService(new ServiceDescriptor("service-2", [], [], []))
 
-        service2.handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc1"]))
+        service2.handleRequest(all()) {
+            it.ok([svc:"svc1"])
         }
 
         when:
         def requests = []
 
         numTimes.times {
-            requests << service1.request("request://service-2/", [], Map)
+            requests << service1.request("request://service-2/", [])
         }
 
         then:

@@ -23,10 +23,8 @@ import io.muoncore.transport.client.TransportClient;
 import io.muoncore.transport.client.TransportMessageDispatcher;
 import reactor.Environment;
 
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -94,7 +92,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
 
     private void initServerStacks(DynamicRegistrationServerStacks stacks) {
         stacks.registerServerProtocol(new RequestResponseServerProtocolStack(
-                        requestResponseHandlers, codecs, discovery));
+                        requestResponseHandlers, codecs, discovery, configuration));
 
         stacks.registerServerProtocol(new ReactiveStreamServerStack(getPublisherLookup(), getCodecs(), configuration, discovery));
         stacks.registerServerProtocol(new IntrospectionServerProtocolStack(
@@ -103,7 +101,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
     }
 
     private void initDefaultRequestHandler() {
-        this.requestResponseHandlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler<Map, Map>() {
+        this.requestResponseHandlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler() {
 
             @Override
             public HandlerPredicate getPredicate() {
@@ -111,13 +109,8 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
             }
 
             @Override
-            public void handle(RequestWrapper<Map> request) {
+            public void handle(RequestWrapper request) {
                 request.notFound();
-            }
-
-            @Override
-            public Type getRequestType() {
-                return Map.class;
             }
         });
     }

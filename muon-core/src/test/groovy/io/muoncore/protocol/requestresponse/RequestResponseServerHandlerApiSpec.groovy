@@ -18,7 +18,7 @@ class RequestResponseServerHandlerApiSpec extends Specification {
         }
 
         when:
-        requestResponseServerHandlerApi.handleRequest(HandlerPredicates.all(), Map, handler)
+        requestResponseServerHandlerApi.handleRequest(HandlerPredicates.all(), handler)
 
         then:
         1 * requestResponseHandlers.addHandler(_)

@@ -26,7 +26,7 @@ public class ParameterEventArgumentTransformer implements MethodArgumentTransfor
     @Override
     public Object extractArgument(Object request) {
         if (request instanceof RequestWrapper) {
-            Object decodedContent = ((RequestWrapper) request).getRequest().getPayload();
+            Object decodedContent = ((RequestWrapper) request).getRequest().getPayload(Object.class);
             if (decodedContent instanceof Map) {
                 Object result = ((Map) decodedContent).get(parameterName);
                 return castNumericTypes(result);

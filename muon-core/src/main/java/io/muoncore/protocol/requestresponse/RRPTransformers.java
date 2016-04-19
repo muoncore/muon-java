@@ -5,44 +5,61 @@ import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonMessage;
 import io.muoncore.message.MuonMessageBuilder;
 import io.muoncore.message.MuonOutboundMessage;
+import io.muoncore.protocol.requestresponse.server.ServerRequest;
+import io.muoncore.protocol.requestresponse.server.ServerResponse;
 
-import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RRPTransformers {
 
     public final static String REQUEST_RESPONSE_PROTOCOL = "request";
 
-    public static Headers toRequestMetaData(MuonInboundMessage msg, Codecs codecs) {
-        HeaderWrapper wrapper = codecs.decode(msg.getPayload(), msg.getContentType(), HeaderWrapper.class);
-        return wrapper.getHeaders();
+    public static ServerRequest toRequest(MuonInboundMessage msg, Codecs codecs) {
+        ServerRequest request = codecs.decode(msg.getPayload(), msg.getContentType(), ServerRequest.class);
+        request.setCodecs(codecs);
+        return request;
     }
 
-    public static Request toRequest(MuonInboundMessage msg, Codecs codecs, Type type) {
-        return codecs.decode(msg.getPayload(), msg.getContentType(), new RequestParameterizedType(type));
+    public static Response toResponse(MuonInboundMessage msg, Codecs codecs) {
+        Response resp = codecs.decode(msg.getPayload(), msg.getContentType(), Response.class);
+        resp.setCodecs(codecs);
+        return resp;
     }
 
-    public static <T> Response<T> toResponse(MuonInboundMessage msg, Codecs codecs, Type type) {
-        return codecs.decode(msg.getPayload(), msg.getContentType(), new ResponseParameterizedType(type));
-    }
-
+    @SuppressWarnings("unchecked")
     public static MuonOutboundMessage toOutbound(String thisService, Request request, Codecs codecs, String[] acceptEncodings) {
 
-        Codecs.EncodingResult payload = codecs.encode(request, acceptEncodings);
+        Codecs.EncodingResult encodedPayload = codecs.encode(request.getPayload(), acceptEncodings);
+
+        Map req = new HashMap<>();
+        req.put("body", encodedPayload.getPayload());
+        req.put("content_type", encodedPayload.getContentType());
+        req.put("url", request.getUrl());
+
+        Codecs.EncodingResult payload = codecs.encode(req, acceptEncodings);
 
         return MuonMessageBuilder
                 .fromService(thisService)
-                .step("RequestMade")
+                .step(RRPEvents.REQUEST)
                 .protocol(REQUEST_RESPONSE_PROTOCOL)
-                .toService(request.getHeaders().getTargetService())
+                .toService(request.getUrl().getHost())
                 .payload(payload.getPayload())
                 .contentType(payload.getContentType())
                 .status(MuonMessage.Status.success)
                 .build();
     }
 
-    public static MuonOutboundMessage toOutbound(String thisService, String targetService, Response response, Codecs codecs, String[] acceptEncodings) {
+    public static MuonOutboundMessage toOutbound(String thisService, String targetService, ServerResponse response, Codecs codecs, String[] acceptEncodings) {
 
-        Codecs.EncodingResult payload = codecs.encode(response, acceptEncodings);
+        Codecs.EncodingResult content = codecs.encode(response.getPayload(), acceptEncodings);
+
+        Map outSchema = new HashMap<>();
+        outSchema.put("status", response.getStatus());
+        outSchema.put("body", content.getPayload());
+        outSchema.put("content_type", content.getContentType());
+
+        Codecs.EncodingResult payload = codecs.encode(outSchema, acceptEncodings);
 
         return MuonMessageBuilder
                 .fromService(thisService)
@@ -54,17 +71,5 @@ public class RRPTransformers {
                 .status(MuonMessage.Status.success)
                 .operation(MuonMessage.ChannelOperation.closed)
                 .build();
-    }
-
-    static class HeaderWrapper {
-        private Headers headers;
-
-        public HeaderWrapper(Headers headers) {
-            this.headers = headers;
-        }
-
-        public Headers getHeaders() {
-            return headers;
-        }
     }
 }

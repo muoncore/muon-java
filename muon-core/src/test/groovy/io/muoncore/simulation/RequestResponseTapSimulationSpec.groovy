@@ -1,12 +1,13 @@
 package io.muoncore.simulation
+
 import com.google.common.eventbus.EventBus
-import io.muoncore.Muon
 import io.muoncore.MultiTransportMuon
+import io.muoncore.Muon
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
-import io.muoncore.protocol.requestresponse.Response
 import io.muoncore.message.MuonMessage
+import io.muoncore.protocol.requestresponse.server.ServerResponse
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import spock.lang.Specification
@@ -52,20 +53,20 @@ class RequestResponseTapSimulationSpec extends Specification {
             }
         })
 
-        services[1].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc1"]))
+        services[1].handleRequest(all()) {
+            it.answer(new ServerResponse(200, [svc:"svc1"]))
         }
-        services[1].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc2"]))
+        services[1].handleRequest(all()) {
+            it.answer(new ServerResponse(200, [svc:"svc2"]))
         }
-        services[3].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc3"]))
+        services[3].handleRequest(all()) {
+            it.answer(new ServerResponse(200, [svc:"svc3"]))
         }
-        services[4].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc4"]))
+        services[4].handleRequest(all()) {
+            it.answer(new ServerResponse(200, [svc:"svc4"]))
         }
-        services[5].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc5"]))
+        services[5].handleRequest(all()) {
+            it.answer(new ServerResponse(200, [svc:"svc5"]))
         }
 
         def dat = []
@@ -73,9 +74,9 @@ class RequestResponseTapSimulationSpec extends Specification {
         when:
 
         dat << services[0].introspect("service-1").get()
-        dat << services[0].request("request://service-1/", [], Map).get()
-        dat << services[0].request("request://service-2/", [], Map).get()
-        dat << services[0].request("request://service-3/", [], Map).get()
+        dat << services[0].request("request://service-1/", []).get()
+        dat << services[0].request("request://service-2/", []).get()
+        dat << services[0].request("request://service-3/", []).get()
 
         then:
         new PollingConditions(timeout: 3).eventually {

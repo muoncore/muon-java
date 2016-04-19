@@ -36,13 +36,9 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
 
             @Override
             void handle(RequestWrapper request) {
-                request.answer(new Response(200, [message:"defaultservice"]))
+                request.answer(new ServerResponse(200, [message:"defaultservice"]))
             }
 
-            @Override
-            Class getRequestType() {
-                return Object
-            }
         })
         handlers.addHandler(new RequestResponseServerHandler() {
             @Override
@@ -54,24 +50,20 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                     }
 
                     @Override
-                    Predicate<Headers> matcher() {
-                        return { it.targetService == "remote" }
+                    Predicate<ServerRequest> matcher() {
+                        return { it.url.host == "someapp" }
                     }
                 }
             }
 
             @Override
             void handle(RequestWrapper request) {
-                request.answer(new Response(200, [message:"hello"]))
+                request.answer(new ServerResponse(200, [message:"hello"]))
             }
 
-            @Override
-            Class getRequestType() {
-                return Object
-            }
         })
 
-        def server = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery)
+        def server = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery, new AutoConfiguration(serviceName: "simples"))
 
         def channel = Channels.channel("left", "right")
 
@@ -136,10 +128,10 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
 
         when:
         Response response = client.request(
-                new Request(new Headers("myapp", "someservice", "remote"), [message:"yoyo"]), Map).get()
+                new Request(new URI("request://someapp"), [message:"yoyo"])).get()
 
         then:
         response.status == 200
-        response.payload?.message == "hello"
+        response.getPayload(Map)?.message == "hello"
     }
 }

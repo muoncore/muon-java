@@ -57,18 +57,18 @@ public class TCKService {
 
         final Map storedata = new HashMap();
 
-        muon.handleRequest(path("/invokeresponse-store"), Map.class, queryEvent -> queryEvent.ok(storedata) );
+        muon.handleRequest(path("/invokeresponse-store"), queryEvent -> queryEvent.ok(storedata) );
 
-        muon.handleRequest(path("/invokeresponse"), Map.class, queryEvent -> {
+        muon.handleRequest(path("/invokeresponse"), queryEvent -> {
 
-                String url = (String) queryEvent.getRequest().getPayload().get("resource");
+                String url = (String) queryEvent.getRequest().getPayload(Map.class).get("resource");
 
-                Response<Map> result = null;
+                Response result = null;
                 try {
                     result = muon.request(url, Map.class).get();
                     storedata.clear();
-                    storedata.putAll(result.getPayload());
-                    queryEvent.ok(result.getPayload());
+                    storedata.putAll(result.getPayload(Map.class));
+                    queryEvent.ok(result.getPayload(Map.class));
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
@@ -82,15 +82,15 @@ public class TCKService {
     }
 
     private static void inboundResourcesSetup(final Muon muon) {
-        muon.handleRequest(path("/echo"), Map.class, queryEvent -> {
-                Map obj = queryEvent.getRequest().getPayload();
+        muon.handleRequest(path("/echo"), queryEvent -> {
+                Map obj = queryEvent.getRequest().getPayload(Map.class);
 
                 obj.put("method", "GET");
 
                 queryEvent.ok(obj);
             });
 
-        muon.handleRequest(path("/discover"), Map.class, request ->
+        muon.handleRequest(path("/discover"), request ->
                 request.ok(
                         muon.getDiscovery().getKnownServices().stream().map(ServiceDescriptor::getIdentifier).collect(Collectors.toList())));
     }

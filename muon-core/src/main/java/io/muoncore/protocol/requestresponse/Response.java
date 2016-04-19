@@ -1,39 +1,49 @@
 package io.muoncore.protocol.requestresponse;
 
-import java.util.UUID;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import io.muoncore.codec.Codecs;
 
-public class Response<X> {
+import java.lang.reflect.Type;
+
+public class Response {
 
     public final static String STATUS = "status";
 
-    private String id;
-    private X payload;
+    @SerializedName("body")
+    private byte[] payload;
+    @Expose(deserialize = false)
+    private transient Codecs codecs;
     private int status;
+    @SerializedName("content_type")
+    private String contentType;
 
-    public Response(int status, X payload) {
-        this.id = UUID.randomUUID().toString();
+    public Response(int status, byte[] payload, String contentType, Codecs codecs) {
         this.payload = payload;
         this.status = status;
+        this.codecs = codecs;
+        this.contentType = contentType;
+    }
+
+    public void setCodecs(Codecs codecs) {
+        this.codecs = codecs;
     }
 
     public int getStatus() {
         return status;
     }
 
-    public X getPayload() {
-        return payload;
+    public <X> X getPayload(Class<X> type) {
+        return codecs.decode(payload, contentType, type) ;
     }
-
-    public String getId() {
-        return id;
+    public <X> X getPayload(Type type) {
+        return codecs.decode(payload, contentType, type) ;
     }
 
     @Override
     public String toString() {
         return "Response{" +
-                "id='" + id + '\'' +
-                ", payload=" + payload +
-                ", status=" + status +
+                "status=" + status +
                 '}';
     }
 }

@@ -29,11 +29,10 @@ class RequestResponseClientProtocolSpec extends Specification {
                 "tombola",
                 leftChannel.right(),
                 rightChannel.left(),
-                Map,
                 new JsonOnlyCodecs(), new ProtocolTimer())
 
         when:
-        leftChannel.left().send(new Request(new Headers("url","service", "remote"),[:]))
+        leftChannel.left().send(new Request(new URI("request://somewhere"),[:]))
 
         then:
         new PollingConditions().eventually {
@@ -57,7 +56,6 @@ class RequestResponseClientProtocolSpec extends Specification {
                 "tombola",
                 leftChannel.right(),
                 rightChannel.left(),
-                Map,
                 new JsonOnlyCodecs(), new ProtocolTimer())
 
         when:

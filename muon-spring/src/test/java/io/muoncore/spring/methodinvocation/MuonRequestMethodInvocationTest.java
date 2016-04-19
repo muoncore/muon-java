@@ -2,6 +2,7 @@ package io.muoncore.spring.methodinvocation;
 
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.server.RequestWrapper;
+import io.muoncore.protocol.requestresponse.server.ServerRequest;
 import io.muoncore.spring.MuonTestUtils;
 import io.muoncore.spring.annotations.parameterhandlers.DecodedContent;
 import io.muoncore.spring.annotations.parameterhandlers.Parameter;
@@ -15,9 +16,7 @@ import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.util.ReflectionUtils.findMethod;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -48,7 +47,7 @@ public class MuonRequestMethodInvocationTest {
 
     @Test
     public void shouldMapRequestWrapperObjectToMethodParameters() throws Exception {
-        RequestWrapper<String> sampleMuonResourceEvent = MuonTestUtils.getSampleMuonRequestWrapper("test");
+        RequestWrapper sampleMuonResourceEvent = MuonTestUtils.getSampleMuonRequestWrapper("test");
         when(methodHolder.muonRequestWrapperParameter(sampleMuonResourceEvent)).thenReturn(SAMPLE_OUTPUT_STRING);
         methodInvocation = new MuonRequestMethodInvocation(
                 findMethod(MethodHolder.class, "muonRequestWrapperParameter", RequestWrapper.class), methodHolder);
@@ -57,7 +56,7 @@ public class MuonRequestMethodInvocationTest {
 
     @Test
     public void shouldMapRequestObjectToMethodParameters() throws Exception {
-        RequestWrapper<String> sampleMuonResourceEvent = MuonTestUtils.getSampleMuonRequestWrapper("test");
+        RequestWrapper sampleMuonResourceEvent = MuonTestUtils.getSampleMuonRequestWrapper("test");
         when(methodHolder.muonRequestParameter(sampleMuonResourceEvent.getRequest())).thenReturn(SAMPLE_OUTPUT_STRING);
         methodInvocation = new MuonRequestMethodInvocation(
                 findMethod(MethodHolder.class, "muonRequestParameter", Request.class), methodHolder);
@@ -68,7 +67,7 @@ public class MuonRequestMethodInvocationTest {
     public void shouldMapSingleMuonParameterToMethodParameters() throws Exception {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("param1", 13);
-        RequestWrapper<Map> sampleMuonResourceEvent = MuonTestUtils.getSampleMuonRequestWrapper(parameters);
+        RequestWrapper sampleMuonResourceEvent = MuonTestUtils.getSampleMuonRequestWrapper(parameters);
         when(methodHolder.muonSingleParameter(13)).thenReturn(SAMPLE_OUTPUT_STRING);
         methodInvocation = new MuonRequestMethodInvocation(
                 findMethod(MethodHolder.class, "muonSingleParameter", int.class), methodHolder);
@@ -80,7 +79,7 @@ public class MuonRequestMethodInvocationTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("param1", 13);
         parameters.put("param2", "test");
-        RequestWrapper<Map> sampleMuonResourceEvent = MuonTestUtils.getSampleMuonRequestWrapper(parameters);
+        RequestWrapper sampleMuonResourceEvent = MuonTestUtils.getSampleMuonRequestWrapper(parameters);
         when(methodHolder.muonMultipleParameters(13, "test")).thenReturn(SAMPLE_OUTPUT_STRING);
         methodInvocation = new MuonRequestMethodInvocation(
                 findMethod(MethodHolder.class, "muonMultipleParameters", int.class, String.class), methodHolder);
@@ -94,7 +93,7 @@ public class MuonRequestMethodInvocationTest {
 
         String muonRequestWrapperParameter(RequestWrapper parameter);
 
-        String muonRequestParameter(Request parameter);
+        String muonRequestParameter(ServerRequest parameter);
 
         String muonSingleParameter(@Parameter("param1") int parameter);
 

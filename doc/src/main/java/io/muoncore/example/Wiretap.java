@@ -1,14 +1,13 @@
 package io.muoncore.example;
 
 import io.muoncore.Muon;
-import io.muoncore.protocol.requestresponse.RRPEvents;
 import io.muoncore.message.MuonMessage;
+import io.muoncore.protocol.requestresponse.RRPEvents;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -21,7 +20,7 @@ public class Wiretap {
         // tag::setupRPC[]
         Broadcaster<String> publisher = Broadcaster.create();
 
-        muon.handleRequest(all(), Map.class, request -> {
+        muon.handleRequest(all(), request -> {
             request.ok(42);
         });
 
@@ -51,7 +50,7 @@ public class Wiretap {
         // end::wiretap2[]
 
         // tag::fireRPC[]
-        int value = muon.request("request://myservice/", Integer.class).get().getPayload();
+        int value = muon.request("request://myservice/").get().getPayload(Integer.class);
         // end::fireRPC[]
     }
 }

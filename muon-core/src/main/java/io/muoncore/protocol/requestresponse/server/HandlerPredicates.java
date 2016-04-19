@@ -1,7 +1,5 @@
 package io.muoncore.protocol.requestresponse.server;
 
-import io.muoncore.protocol.requestresponse.Headers;
-
 import java.util.function.Predicate;
 
 public class HandlerPredicates {
@@ -19,11 +17,11 @@ public class HandlerPredicates {
         return new HandlerPredicate() {
             @Override
             public String resourceString() {
-                return "/*";
+                return "/**";
             }
 
             @Override
-            public Predicate<Headers> matcher() {
+            public Predicate<ServerRequest> matcher() {
                 return meta -> true;
             }
         };
@@ -37,7 +35,7 @@ public class HandlerPredicates {
             }
 
             @Override
-            public Predicate<Headers> matcher() {
+            public Predicate<ServerRequest> matcher() {
                 return meta -> false;
             }
         };
@@ -58,7 +56,7 @@ public class HandlerPredicates {
             }
 
             @Override
-            public Predicate<Headers> matcher() {
+            public Predicate<ServerRequest> matcher() {
                 return msg -> msg.getUrl().equals(path);
             }
         };

@@ -1,9 +1,6 @@
 package io.muoncore.protocol.requestresponse.server;
 
-import java.lang.reflect.Type;
-
-public interface RequestResponseServerHandler<RequestType, ResponseType> {
+public interface RequestResponseServerHandler {
     HandlerPredicate getPredicate();
-    void handle(RequestWrapper<RequestType> request);
-    Type getRequestType();
+    void handle(RequestWrapper request);
 }

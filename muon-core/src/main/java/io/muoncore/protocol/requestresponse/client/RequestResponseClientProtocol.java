@@ -11,15 +11,12 @@ import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.protocol.support.ProtocolTimer;
 import io.muoncore.transport.TransportEvents;
 
-import java.lang.reflect.Type;
-
 /**
  * Request Response client middleware protocol.
- *
+ * <p>
  * Add reliability, timeout etc.
- *
  */
-public class RequestResponseClientProtocol<X,R> {
+public class RequestResponseClientProtocol {
 
     private Codecs codecs;
     private ProtocolTimer timer;
@@ -28,34 +25,39 @@ public class RequestResponseClientProtocol<X,R> {
 
     public RequestResponseClientProtocol(
             String serviceName,
-            final ChannelConnection<Response<R>, Request<X>> leftChannelConnection,
+            final ChannelConnection<Response, Request> leftChannelConnection,
             final ChannelConnection<MuonOutboundMessage, MuonInboundMessage> rightChannelConnection,
-            final Type responseType,
             final Codecs codecs,
             final ProtocolTimer timer) {
 
-        rightChannelConnection.receive( message -> {
+        rightChannelConnection.receive(message -> {
             if (message == null) {
-               leftChannelConnection.shutdown();
+                leftChannelConnection.shutdown();
                 return;
             }
 
-            switch(message.getStep()) {
+            switch (message.getStep()) {
                 case RRPEvents.RESPONSE:
                     leftChannelConnection.send(
-                            RRPTransformers.toResponse(message, codecs, responseType));
+                            RRPTransformers.toResponse(message, codecs));
                     break;
                 case TransportEvents.SERVICE_NOT_FOUND:
+                    Codecs.EncodingResult encoded = codecs.encode("No such service " + message.getSourceServiceName(), codecs.getAvailableCodecs());
                     leftChannelConnection.send(
-                            new Response<>(
-                            404,
-                            null));
+                            new Response(
+                                    404,
+                                    encoded.getPayload(),
+                                    encoded.getContentType(),
+                                    codecs));
                     break;
                 default:
+                    Codecs.EncodingResult encoded500 = codecs.encode("Unknown error sending to " + message.getSourceServiceName(), codecs.getAvailableCodecs());
                     leftChannelConnection.send(
-                            new Response<>(
+                            new Response(
                                     500,
-                                    null));
+                                    encoded500.getPayload(),
+                                    encoded500.getContentType(),
+                                    codecs));
             }
         });
 

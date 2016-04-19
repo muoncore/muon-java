@@ -76,7 +76,7 @@ public class AmqpDiscovery implements Discovery {
                     if (localDescriptor != null) {
                         Codecs.EncodingResult payload = codecs.encode(localDescriptor, new String[] {"application/json" });
 
-                        if (!payload.isFailed()) {
+                        if (payload != null && !payload.isFailed()) {
                             try {
                                 connection.broadcast(
                                         QueueMessageBuilder.queue("discovery")

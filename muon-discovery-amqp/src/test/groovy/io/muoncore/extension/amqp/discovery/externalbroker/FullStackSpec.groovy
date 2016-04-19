@@ -4,8 +4,8 @@ import io.muoncore.Muon
 import io.muoncore.MuonBuilder
 import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.config.MuonConfigBuilder
-import io.muoncore.protocol.requestresponse.Response
 import io.muoncore.message.MuonMessage
+import io.muoncore.protocol.requestresponse.server.ServerResponse
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import reactor.Environment
@@ -31,9 +31,8 @@ class FullStackSpec extends Specification {
         def svc5 = createMuon("tombola4")
         def svc6 = createMuon("tombola5")
 
-        svc2.handleRequest(all(), Map) {
-            it.request.id
-            it.answer(new Response(200, [hi:"there"]))
+        svc2.handleRequest(all()) {
+            it.answer(new ServerResponse(200, [hi:"there"]))
         }
         testTap(svc1) {
             println "Simples Tap ${it}"
@@ -45,7 +44,7 @@ class FullStackSpec extends Specification {
         when:
         Thread.sleep(3500)
         def then = System.currentTimeMillis()
-        def response = svc1.request("request://tombola1/hello", [hello:"world"], Map).get(1500, TimeUnit.MILLISECONDS)
+        def response = svc1.request("request://tombola1/hello", [hello:"world"]).get(1500, TimeUnit.MILLISECONDS)
         def now = System.currentTimeMillis()
 
         println "Latency = ${now - then}"
@@ -55,7 +54,7 @@ class FullStackSpec extends Specification {
 //        discoveredServices.size() == 6
         response != null
         response.status == 200
-        response.payload.hi == "there"
+        response.getPayload(Map).hi == "there"
 
         cleanup:
         StandardAsyncChannel.echoOut = false

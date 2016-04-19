@@ -98,11 +98,11 @@ public class DefaultEventClient implements EventClient {
         //simulate the Event structure for the rpc usage.
         Map payload = EventCodec.getMapFromClientEvent(event, config);
 
-        Response<Map> resp = muon.request("request://photon/events", payload, Map.class).get();
+        Response resp = muon.request("request://photon/events", payload).get();
         if (resp.getStatus() == 200) {
             return new EventResult(EventResult.EventResultStatus.PERSISTED, "Persisted");
         }
-        return new EventResult(EventResult.EventResultStatus.FAILED, (String) resp.getPayload().get("message"));
+        return new EventResult(EventResult.EventResultStatus.FAILED, (String) resp.getPayload(Map.class).get("message"));
     }
 
     private <X> EventResult emitUsingEventProtocol(ClientEvent<X> event) throws ExecutionException, InterruptedException {
@@ -157,7 +157,7 @@ public class DefaultEventClient implements EventClient {
                 try {
                     Map<String, Object> data = new HashMap<>();
                     data.put("projection-name", name);
-                    return muon.request("request://photon/projection", data, type).get().getPayload();
+                    return muon.request("request://photon/projection", data).get().getPayload(type);
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                     return null;
@@ -166,11 +166,12 @@ public class DefaultEventClient implements EventClient {
         });
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public MuonFuture<List<EventProjectionDescriptor>> getProjectionList() {
         try {
 
-            List<String> projectionKeys = (List<String>) muon.request("request://photon/projection-keys", Map.class).get().getPayload().get("projection-keys");
+            List<String> projectionKeys = (List<String>) muon.request("request://photon/projection-keys").get().getPayload(Map.class).get("projection-keys");
 
             List<EventProjectionDescriptor> projections = projectionKeys.stream().map(EventProjectionDescriptor::new).collect(Collectors.toList());
 
