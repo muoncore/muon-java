@@ -1,6 +1,6 @@
 package io.muoncore.protocol.reactivestream.server;
 
-import io.muoncore.protocol.reactivestream.ReactiveStreamSubscriptionRequest;
+import io.muoncore.protocol.reactivestream.messages.ReactiveStreamSubscriptionRequest;
 import org.reactivestreams.Publisher;
 
 public interface ReactiveStreamServerHandlerApi {

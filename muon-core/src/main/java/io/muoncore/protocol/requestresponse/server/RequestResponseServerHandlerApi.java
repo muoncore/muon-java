@@ -6,41 +6,28 @@ public interface RequestResponseServerHandlerApi extends
         RequestResponseHandlersSource {
 
     /**
-     * Simple handler API. Each incoming request will be passed to the handler instance for it
+     * RPC handler API. Each incoming request will be passed to the handler instance for it
      * to reply to.
      *
      * The predicate is used to match requests.
      */
-    default <T> void handleRequest(
+    default void handleRequest(
             final HandlerPredicate predicate,
-            final Class<T> requestType,
-            final Handler<T> handler) {
-        handleRequest(predicate, (Type) requestType, handler);
-    }
-
-    default <T> void handleRequest(
-            final HandlerPredicate predicate,
-            final Type requestType,
-            final Handler<T> handler) {
-        getRequestResponseHandlers().addHandler(new RequestResponseServerHandler<T, Object>() {
+            final Handler handler) {
+        getRequestResponseHandlers().addHandler(new RequestResponseServerHandler() {
             @Override
             public HandlerPredicate getPredicate() {
                 return predicate;
             }
 
             @Override
-            public void handle(RequestWrapper<T> request) {
+            public void handle(RequestWrapper request) {
                 handler.handle(request);
-            }
-
-            @Override
-            public Type getRequestType() {
-                return requestType;
             }
         });
     }
 
-    interface Handler<RequestType> {
-        void handle(RequestWrapper<RequestType> wrapper);
+    interface Handler {
+        void handle(RequestWrapper wrapper);
     }
 }

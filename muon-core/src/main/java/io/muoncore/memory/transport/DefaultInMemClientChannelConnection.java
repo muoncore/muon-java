@@ -3,8 +3,8 @@ package io.muoncore.memory.transport;
 import com.google.common.eventbus.EventBus;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.exception.MuonTransportFailureException;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -12,13 +12,13 @@ import java.util.concurrent.TimeUnit;
 public class DefaultInMemClientChannelConnection implements InMemClientChannelConnection {
 
     private EventBus eventBus;
-    private ChannelFunction<TransportInboundMessage> inboundFunction;
+    private ChannelFunction<MuonInboundMessage> inboundFunction;
 
     private String targetService;
     private String protocol;
 
     private CountDownLatch handshakeControl = new CountDownLatch(1);
-    private ChannelConnection<TransportInboundMessage, TransportOutboundMessage> serverChannel;
+    private ChannelConnection<MuonInboundMessage, MuonOutboundMessage> serverChannel;
 
     public DefaultInMemClientChannelConnection(String targetService, String protocol, EventBus eventBus) {
         this.eventBus = eventBus;
@@ -27,13 +27,13 @@ public class DefaultInMemClientChannelConnection implements InMemClientChannelCo
     }
 
     @Override
-    public void receive(ChannelFunction<TransportInboundMessage> function) {
+    public void receive(ChannelFunction<MuonInboundMessage> function) {
         this.inboundFunction = function;
         eventBus.post(new OpenChannelEvent(targetService, protocol, this));
     }
 
     @Override
-    public void send(TransportOutboundMessage message) {
+    public void send(MuonOutboundMessage message) {
         try {
             handshakeControl.await(1, TimeUnit.SECONDS);
             if (serverChannel == null) {
@@ -57,7 +57,7 @@ public class DefaultInMemClientChannelConnection implements InMemClientChannelCo
     }
 
     @Override
-    public void attachServerConnection(ChannelConnection<TransportInboundMessage, TransportOutboundMessage> serverChannel) {
+    public void attachServerConnection(ChannelConnection<MuonInboundMessage, MuonOutboundMessage> serverChannel) {
         this.serverChannel = serverChannel;
         serverChannel.receive( msg -> {
             if (msg == null) {

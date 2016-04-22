@@ -3,6 +3,7 @@ package io.muoncore.extension.amqp
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.exception.NoSuchServiceException
 import io.muoncore.protocol.ServerStacks
 import reactor.Environment
@@ -10,6 +11,7 @@ import spock.lang.Specification
 
 class AMQPMuonTransportSpec extends Specification {
 
+    def codecs = new JsonOnlyCodecs()
     def discovery = Mock(Discovery) {
         findService(_) >> Optional.of(new ServiceDescriptor("identifier", [], [], []))
     }
@@ -25,7 +27,7 @@ class AMQPMuonTransportSpec extends Specification {
         )
 
         when:
-        transport.start(discovery, serverStacks)
+        transport.start(discovery, serverStacks, codecs)
 
         then:
         1 * serviceQueue.onHandshake(_)
@@ -51,8 +53,8 @@ class AMQPMuonTransportSpec extends Specification {
         Thread.sleep(50)
 
         when:
-        transport.start(discovery, serverStacks)
-        func(new AmqpHandshakeMessage("myfakeproto", "", "", ""))
+        transport.start(discovery, serverStacks, codecs)
+        func(new AmqpHandshakeMessage("myfakeproto", "", ""))
 
         then:
         1 * channelFactory.createChannel() >> mockChannel
@@ -74,7 +76,7 @@ class AMQPMuonTransportSpec extends Specification {
         Thread.sleep(50)
 
         when:
-        transport.start(discovery, serverStacks)
+        transport.start(discovery, serverStacks, codecs)
         transport.openClientChannel("someRemoteService", "fakeproto")
 
         then:
@@ -96,7 +98,7 @@ class AMQPMuonTransportSpec extends Specification {
         Thread.sleep(50)
 
         when:
-        transport.start(discovery, serverStacks)
+        transport.start(discovery, serverStacks, codecs)
         transport.openClientChannel("someRemoteService", "fakeproto")
         transport.openClientChannel("someRemoteService2", "fakeproto")
 
@@ -129,7 +131,7 @@ class AMQPMuonTransportSpec extends Specification {
         Thread.sleep(50)
 
         when:
-        transport.start(discovery, serverStacks)
+        transport.start(discovery, serverStacks, codecs)
         def c = transport.openClientChannel("someRemoteService2", "fakeproto")
 
         and:
@@ -167,10 +169,10 @@ class AMQPMuonTransportSpec extends Specification {
         Thread.sleep(50)
 
         when:
-        transport.start(discovery, serverStacks)
+        transport.start(discovery, serverStacks, codecs)
         def cl = transport.openClientChannel("fakeclient", "myprotoofdoom")
 
-        func(new AmqpHandshakeMessage("myfakeproto", "", "", ""))
+        func(new AmqpHandshakeMessage("myfakeproto", "", ""))
 
         then: "Some error is thrown. but we don't know what yet..."
         thrown(NoSuchServiceException)

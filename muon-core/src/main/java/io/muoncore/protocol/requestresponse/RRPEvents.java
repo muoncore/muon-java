@@ -2,7 +2,7 @@ package io.muoncore.protocol.requestresponse;
 
 public class RRPEvents {
 
-    public final static String REQUEST = "RequestMade";
-    public final static String RESPONSE = "ResponseSent";
+    public final static String REQUEST = "request.made";
+    public final static String RESPONSE = "request.response";
 
 }

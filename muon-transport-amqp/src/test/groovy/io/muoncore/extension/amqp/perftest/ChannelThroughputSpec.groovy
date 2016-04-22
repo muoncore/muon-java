@@ -2,17 +2,18 @@ package io.muoncore.extension.amqp.perftest
 
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
-import io.muoncore.codec.json.GsonCodec
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.extension.amqp.AMQPMuonTransport
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import io.muoncore.memory.discovery.InMemDiscovery
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessageBuilder
+import io.muoncore.message.MuonOutboundMessage
 import io.muoncore.protocol.ServerStacks
 import io.muoncore.protocol.requestresponse.RRPTransformers
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportOutboundMessage
 import reactor.Environment
 import spock.lang.IgnoreIf
 import spock.lang.Specification
@@ -39,16 +40,16 @@ class ChannelThroughputSpec extends Specification {
 
         def stacks = new ServerStacks() {
             @Override
-            ChannelConnection<TransportInboundMessage, TransportOutboundMessage> openServerChannel(String protocol) {
+            ChannelConnection<MuonInboundMessage, MuonOutboundMessage> openServerChannel(String protocol) {
                 println "Opening channel for proto $protocol"
-                return new ChannelConnection<TransportInboundMessage, TransportOutboundMessage>() {
+                return new ChannelConnection<MuonInboundMessage, MuonOutboundMessage>() {
                     @Override
-                    void receive(ChannelConnection.ChannelFunction<TransportOutboundMessage> function) {
+                    void receive(ChannelConnection.ChannelFunction<MuonOutboundMessage> function) {
                         println "eh?"
                     }
 
                     @Override
-                    void send(TransportInboundMessage message) {
+                    void send(MuonInboundMessage message) {
                         received << message
                     }
 
@@ -61,16 +62,16 @@ class ChannelThroughputSpec extends Specification {
         }
         def stacks2 = new ServerStacks() {
             @Override
-            ChannelConnection<TransportInboundMessage, TransportOutboundMessage> openServerChannel(String protocol) {
+            ChannelConnection<MuonInboundMessage, MuonOutboundMessage> openServerChannel(String protocol) {
                 println "SERVICE1 Opening channel for proto $protocol"
-                return new ChannelConnection<TransportInboundMessage, TransportOutboundMessage>() {
+                return new ChannelConnection<MuonInboundMessage, MuonOutboundMessage>() {
                     @Override
-                    void receive(ChannelConnection.ChannelFunction<TransportOutboundMessage> function) {
+                    void receive(ChannelConnection.ChannelFunction<MuonOutboundMessage> function) {
                         println "eh?"
                     }
 
                     @Override
-                    void send(TransportInboundMessage message) {
+                    void send(MuonInboundMessage message) {
                         received << message
                     }
 
@@ -84,8 +85,8 @@ class ChannelThroughputSpec extends Specification {
 
         AMQPMuonTransport tombola = createTransport("tombola")
 
-        tombola.start(discovery, stacks)
-        service1.start(discovery, stacks2)
+        tombola.start(discovery, stacks, new JsonOnlyCodecs())
+        service1.start(discovery, stacks2, new JsonOnlyCodecs())
 
         discovery.advertiseLocalService(new ServiceDescriptor("tombola", [], [], []))
         discovery.advertiseLocalService(new ServiceDescriptor("service1", [], [], []))
@@ -109,15 +110,15 @@ class ChannelThroughputSpec extends Specification {
                 pool.submit {
                     println "Sending data .."
 
-                    channel.send(new TransportOutboundMessage(
-                        "somethingHappened",
-                        "${id.addAndGet(1)}",
-                        "tombola",
-                        "service1",
-                        RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
-                        [:],
-                        "application/json",
-                        new GsonCodec().encode([:]), ["application/json"]))
+                    channel.send(
+                            MuonMessageBuilder
+                                    .fromService("service1")
+                                    .step("somethingHappened")
+                                    .protocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
+                                    .toService("tombola")
+                                    .payload([] as byte[])
+                                    .contentType("application/json")
+                                    .build())
                     counterLatch.countDown()
                 }
 

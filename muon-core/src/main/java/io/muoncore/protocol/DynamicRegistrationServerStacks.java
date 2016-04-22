@@ -4,8 +4,8 @@ import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
 import io.muoncore.descriptors.ProtocolDescriptor;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.transport.client.TransportMessageDispatcher;
 
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class DynamicRegistrationServerStacks implements ServerStacks, ServerRegi
     }
 
     @Override
-    public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> openServerChannel(String protocol) {
+    public ChannelConnection<MuonInboundMessage, MuonOutboundMessage> openServerChannel(String protocol) {
 
         ServerProtocolStack proto = protocols.get(protocol);
 
@@ -35,7 +35,7 @@ public class DynamicRegistrationServerStacks implements ServerStacks, ServerRegi
             proto = defaultProtocol;
         }
 
-        Channel<TransportInboundMessage, TransportOutboundMessage> tap = Channels.wiretapChannel(wiretapDispatch);
+        Channel<MuonInboundMessage, MuonOutboundMessage> tap = Channels.wiretapChannel(wiretapDispatch);
 
         Channels.connect(tap.right(), proto.createChannel());
 

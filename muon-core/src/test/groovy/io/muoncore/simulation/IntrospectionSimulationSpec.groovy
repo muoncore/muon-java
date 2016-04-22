@@ -1,14 +1,14 @@
 package io.muoncore.simulation
 
 import com.google.common.eventbus.EventBus
-import io.muoncore.Muon
 import io.muoncore.MultiTransportMuon
+import io.muoncore.Muon
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
 import io.muoncore.protocol.introspection.server.IntrospectionServerProtocolStack
 import io.muoncore.protocol.requestresponse.RRPTransformers
-import io.muoncore.protocol.requestresponse.Response
+import io.muoncore.protocol.requestresponse.server.ServerResponse
 import spock.lang.Specification
 import spock.lang.Timeout
 
@@ -28,20 +28,20 @@ class IntrospectionSimulationSpec extends Specification {
             createService(it, discovery)
         }
 
-        services[1].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc1"]))
+        services[1].handleRequest(all()) {
+            it.answer(new ServerResponse(200, [svc:"svc1"]))
         }
-        services[1].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc2"]))
+        services[1].handleRequest(all()) {
+            it.answer(new ServerResponse(200, [svc:"svc2"]))
         }
-        services[3].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc3"]))
+        services[3].handleRequest(all()) {
+            it.answer(new ServerResponse(200, [svc:"svc3"]))
         }
-        services[4].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc4"]))
+        services[4].handleRequest(all()) {
+            it.answer(new ServerResponse(200, [svc:"svc4"]))
         }
-        services[5].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc5"]))
+        services[5].handleRequest(all()) {
+            it.answer(new ServerResponse(200, [svc:"svc5"]))
         }
 
         when:

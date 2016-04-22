@@ -24,6 +24,14 @@ public interface Discovery {
         return getKnownServices().stream().filter(predicate).findFirst();
     }
 
+    default String[] getCodecsForService(String name) {
+        Optional<ServiceDescriptor> service = findService( svc -> svc.getIdentifier().equals(name));
+        if (service.isPresent()) {
+            return service.get().getCodecs();
+        }
+        return new String[] { "application/json" };
+    }
+
     /**
      * Return all of the services that are currently visible by this discovery mechanism
      * @return

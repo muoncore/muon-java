@@ -1,8 +1,8 @@
 package io.muoncore.transport.client;
 
 import io.muoncore.channel.ChannelConnection;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 
 /**
  * Front the transport layer.
@@ -10,5 +10,5 @@ import io.muoncore.transport.TransportOutboundMessage;
  * This layer will be used by all protocol channels.
  */
 public interface TransportClient {
-    ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel();
+    ChannelConnection<MuonOutboundMessage, MuonInboundMessage> openClientChannel();
 }

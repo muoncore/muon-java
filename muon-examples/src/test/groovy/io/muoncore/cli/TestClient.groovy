@@ -3,11 +3,7 @@ package io.muoncore.cli
 import io.muoncore.Muon
 import io.muoncore.MuonBuilder
 import io.muoncore.config.MuonConfigBuilder
-import io.muoncore.protocol.event.client.DefaultEventClient
 import io.muoncore.protocol.event.client.EventClient
-import io.muoncore.protocol.event.client.EventReplayMode
-import reactor.rx.broadcast.Broadcaster
-
 /**
  * Created by david on 01/04/16.
  */
@@ -24,6 +20,11 @@ class TestClient {
 
         muon.discovery.blockUntilReady()
 
+        def data = muon.request("request://muon-dev-tools/ping", String).get()
+
+        println "Server says ${data}"
+        println "Server says ${data.payload}"
+
 //        muon.introspect("photon").then {
 //            it.protocols.each {
 //                println "PROTO - ${it.protocolName}"
@@ -33,7 +34,7 @@ class TestClient {
 //            }
 //        }
 
-        evclient = new DefaultEventClient(muon)
+//        evclient = new DefaultEventClient(muon)
 
 //        evclient.getProjectionList().get().each {
 //            println "PROJECTION - ${it}"
@@ -46,12 +47,12 @@ class TestClient {
 
 //
 ////        publishEventRpc()
-//
-        def sub = Broadcaster.create()
-        sub.consume {
-            println "EVENT = ${it}"
-        }
-        evclient.replay("rahrah", EventReplayMode.REPLAY_THEN_LIVE, sub)
+////
+//        def sub = Broadcaster.create()
+//        sub.consume {
+//            println "EVENT = ${it}"
+//        }
+//        evclient.replay("rahrah", EventReplayMode.REPLAY_THEN_LIVE, sub)
 
 //        while(true) {
 //

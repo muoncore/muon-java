@@ -1,7 +1,7 @@
 package io.muoncore.extension.amqp.externalbroker
 
-import io.muoncore.Muon
 import io.muoncore.MultiTransportMuon
+import io.muoncore.Muon
 import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.extension.amqp.AMQPMuonTransport
@@ -15,11 +15,7 @@ import io.muoncore.protocol.reactivestream.server.PublisherLookup
 import reactor.Environment
 import reactor.fn.BiConsumer
 import reactor.rx.broadcast.Broadcaster
-import spock.lang.AutoCleanup
-import spock.lang.Ignore
-import spock.lang.IgnoreIf
-import spock.lang.Shared
-import spock.lang.Specification
+import spock.lang.*
 import spock.util.concurrent.PollingConditions
 
 import static io.muoncore.codec.types.MuonCodecTypes.listOf
@@ -283,8 +279,8 @@ class ReactiveStreamIntegrationSpec extends Specification {
         def svc1 = new AMQPMuonTransport(
                 "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
 
-        def config = new AutoConfiguration(serviceName:serviceName, aesEncryptionKey: "abcde12345678906")
-        def muon = new MultiTransportMuon(config, discovery, svc1)
+        def config = new AutoConfiguration(serviceName:serviceName)
+        def muon = new MultiTransportMuon(config, discovery, [svc1])
 
         muon
     }

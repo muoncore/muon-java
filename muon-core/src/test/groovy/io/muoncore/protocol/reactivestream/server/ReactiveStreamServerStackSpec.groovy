@@ -1,5 +1,6 @@
 package io.muoncore.protocol.reactivestream.server
 
+import io.muoncore.Discovery
 import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
 import org.reactivestreams.Publisher
@@ -10,6 +11,7 @@ class ReactiveStreamServerStackSpec extends Specification {
     def "protocol descriptor is correct"() {
 
         def pub1 = Mock(Publisher)
+        def discovery = Mock(Discovery)
 
         def lookup = Mock(PublisherLookup) {
             getPublishers() >> [
@@ -20,7 +22,7 @@ class ReactiveStreamServerStackSpec extends Specification {
         def codecs = Mock(Codecs)
         def config = new AutoConfiguration()
 
-        def stack = new ReactiveStreamServerStack(lookup, codecs, config)
+        def stack = new ReactiveStreamServerStack(lookup, codecs, config, discovery)
 
         expect:
         stack.protocolDescriptor.protocolScheme == "reactive-stream"

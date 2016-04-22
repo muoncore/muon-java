@@ -1,6 +1,6 @@
 package io.muoncore.transport.client;
 
-import io.muoncore.transport.TransportMessage;
+import io.muoncore.message.MuonMessage;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
 import reactor.Environment;
@@ -20,11 +20,10 @@ public class SimpleTransportMessageDispatcher implements TransportMessageDispatc
     private ExecutorService exec = Executors.newFixedThreadPool(20);
     private Dispatcher dispatcher = Environment.newDispatcher();
 
-
-    private static final TransportMessage POISON = new TransportMessage(null, null, null, null, null, null, null,null,null, null);
+    private static final MuonMessage POISON = new MuonMessage(null, 0, null, null, null, null, null,null,null, null);
 
     @Override
-    public void dispatch(TransportMessage message) {
+    public void dispatch(MuonMessage message) {
         dispatcher.dispatch(message, m ->
                 queues.stream().forEach(msg -> msg.add(m)), Throwable::printStackTrace);
     }
@@ -36,9 +35,9 @@ public class SimpleTransportMessageDispatcher implements TransportMessageDispatc
     }
 
     @Override
-    public Publisher<TransportMessage> observe(Predicate<TransportMessage> filter) {
+    public Publisher<MuonMessage> observe(Predicate<MuonMessage> filter) {
 
-        LinkedBlockingQueue<TransportMessage> queue = new LinkedBlockingQueue<>();
+        LinkedBlockingQueue<MuonMessage> queue = new LinkedBlockingQueue<>();
 
         QueuePredicate wrapper = new QueuePredicate(queue, filter);
         queues.add(wrapper);
@@ -49,7 +48,7 @@ public class SimpleTransportMessageDispatcher implements TransportMessageDispatc
                 exec.execute(() -> {
                     for (int i = 0; i < n; i++) {
                         try {
-                            TransportMessage msg = queue.take();
+                            MuonMessage msg = queue.take();
                             if (msg == POISON) {
                                 s.onComplete();
                                 return;
@@ -72,15 +71,15 @@ public class SimpleTransportMessageDispatcher implements TransportMessageDispatc
     }
 
     static class QueuePredicate {
-        private Queue<TransportMessage> queue;
-        private Predicate<TransportMessage> predicate;
+        private Queue<MuonMessage> queue;
+        private Predicate<MuonMessage> predicate;
 
-        public QueuePredicate(Queue<TransportMessage> queue, Predicate<TransportMessage> predicate) {
+        public QueuePredicate(Queue<MuonMessage> queue, Predicate<MuonMessage> predicate) {
             this.queue = queue;
             this.predicate = predicate;
         }
 
-        public void add(TransportMessage msg) {
+        public void add(MuonMessage msg) {
             if (msg == null) return;
 
             if (predicate.test(msg)) {

@@ -1,32 +1,33 @@
 package io.muoncore.spring.model;
 
-import io.muoncore.protocol.requestresponse.Request;
-import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.protocol.requestresponse.server.RequestWrapper;
+import io.muoncore.protocol.requestresponse.server.ServerRequest;
+import io.muoncore.protocol.requestresponse.server.ServerResponse;
+
 
 /**
  * Created by volod on 11/26/2015.
  */
-public class MuonTestRequestWrapper<T> implements RequestWrapper<T> {
+public class MuonTestRequestWrapper implements RequestWrapper {
 
-    private Request<T> request;
-    private Response<?> response;
+    private ServerRequest request;
+    private ServerResponse response;
 
-    public MuonTestRequestWrapper(Request<T> request) {
+    public MuonTestRequestWrapper(ServerRequest request) {
         this.request = request;
     }
 
     @Override
-    public Request<T> getRequest() {
+    public ServerRequest getRequest() {
         return request;
     }
 
     @Override
-    public void answer(Response<?> response) {
+    public void answer(ServerResponse response) {
         this.response = response;
     }
 
-    public Response<?> getResponse() {
+    public ServerResponse getResponse() {
         return response;
     }
 }

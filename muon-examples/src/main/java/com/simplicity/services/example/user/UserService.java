@@ -14,7 +14,6 @@ import reactor.Environment;
 import reactor.rx.broadcast.Broadcaster;
 
 import javax.annotation.PostConstruct;
-import java.util.Map;
 
 import static io.muoncore.protocol.reactivestream.server.PublisherLookup.PublisherType.HOT;
 
@@ -40,8 +39,7 @@ public class UserService {
     }
 
     @MuonRequestListener(path = "/")
-    public void doSomething(RequestWrapper<Map> wrapper) {
-
+    public void doSomething(RequestWrapper wrapper) {
         wrapper.ok("Hello there");
     }
 

@@ -74,7 +74,7 @@ public class EventStoreInMem {
             } catch (Exception ex) {
                 event.failed(ex.getMessage());
             }
-        }, muon.getCodecs()));
+        }, muon.getCodecs(), muon.getDiscovery()));
 
         muon.publishGeneratedSource("general", PublisherLookup.PublisherType.HOT_COLD, subscriptionRequest -> {
             return subscriber -> {

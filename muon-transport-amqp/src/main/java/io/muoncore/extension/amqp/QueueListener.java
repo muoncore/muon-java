@@ -2,6 +2,8 @@ package io.muoncore.extension.amqp;
 
 import java.util.Map;
 
+import static io.muoncore.extension.amqp.QueueMessageBuilder.*;
+
 public interface QueueListener {
 
     void cancel();
@@ -14,24 +16,15 @@ public interface QueueListener {
         private String queueName;
         private byte[] body;
         private Map<String, String> headers;
-        private String contentType;
-        private String eventType;
 
-        public QueueMessage(String eventType, String queueName, byte[] body, Map<String, String> headers, String contentType) {
+        public QueueMessage(String queueName, byte[] body, Map<String, String> headers) {
 
-//            assert queueName != null;
-//            assert body != null;
-//            assert headers != null;
-//            assert contentType != null;
-            this.eventType = eventType;
+            assert queueName != null;
+            assert body != null;
+            assert headers != null;
             this.queueName = queueName;
             this.body = body;
-            this.headers = headers;
-            this.contentType = contentType;
-        }
-
-        public String getEventType() {
-            return eventType;
+            this.headers= headers;
         }
 
         public String getQueueName() {
@@ -46,8 +39,25 @@ public interface QueueListener {
             return headers;
         }
 
+        public String getProtocol() {
+            return headers.get(HEADER_PROTOCOL);
+        }
+
+        public String getServerReplyTo() {
+            return headers.get(HEADER_REPLY_TO);
+        }
+
+        public String getRecieveQueue() {
+            return headers.get(HEADER_RECEIVE_QUEUE);
+        }
+
         public String getContentType() {
-            return contentType;
+            return headers.get(HEADER_CONTENT_TYPE);
+        }
+
+        public String getHandshakeMessage() {
+            return headers.get(HEADER_HANDSHAKE);
         }
     }
+
 }

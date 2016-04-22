@@ -6,6 +6,7 @@ import com.rabbitmq.client.ConsumerCancelledException;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.ShutdownSignalException;
 import io.muoncore.extension.amqp.QueueListener;
+import io.muoncore.extension.amqp.QueueMessageBuilder;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -70,13 +71,10 @@ public class RabbitMq09BroadcastListener implements QueueListener {
                     }
 
                     Map<String, String> newHeaders = new HashMap<>();
-                    headers.entrySet().stream().forEach( entry -> newHeaders.put(entry.getKey(), entry.getValue().toString()));
 
-                    String contentType = "";
-                    if (newHeaders.get("Content-Type") != null) {
-                        contentType = newHeaders.get("Content-Type");
-                    }
-                    listener.exec(new QueueMessage(newHeaders.get("eventType"), broadcastMessageType, content, newHeaders, contentType));
+                    headers.entrySet().stream().forEach( entry -> newHeaders.put(entry.getKey(), entry.getValue().toString()));
+                    newHeaders.putIfAbsent(QueueMessageBuilder.HEADER_CONTENT_TYPE, headers.get("Content-Type").toString());
+                    listener.exec(new QueueMessage(broadcastMessageType, content, newHeaders));
 
                     channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                 } catch (ShutdownSignalException | ConsumerCancelledException ex) {

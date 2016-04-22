@@ -6,7 +6,7 @@ import io.muoncore.channel.Channels
 import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.protocol.event.ClientEvent
-import io.muoncore.transport.TransportOutboundMessage
+import io.muoncore.message.MuonOutboundMessage
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
@@ -48,7 +48,7 @@ class EventClientProtocolSpec extends Specification {
 
         then:
         new PollingConditions().eventually {
-            ret instanceof TransportOutboundMessage
+            ret instanceof MuonOutboundMessage
             ret.type== "awesome"
         }
     }

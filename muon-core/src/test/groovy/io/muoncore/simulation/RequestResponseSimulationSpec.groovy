@@ -1,13 +1,14 @@
 package io.muoncore.simulation
 
 import com.google.common.eventbus.EventBus
-import io.muoncore.Muon
 import io.muoncore.MultiTransportMuon
+import io.muoncore.Muon
 import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
 import io.muoncore.protocol.requestresponse.Response
+import io.muoncore.protocol.requestresponse.server.ServerResponse
 import reactor.Environment
 import reactor.rx.broadcast.Broadcaster
 import spock.lang.Specification
@@ -48,29 +49,29 @@ class RequestResponseSimulationSpec extends Specification {
             createService(it, discovery, eventbus)
         }
 
-        services[1].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc1"]))
+        services[1].handleRequest(all()) {
+            it.ok([svc:"svc1"])
         }
-        services[2].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc2"]))
+        services[2].handleRequest(all()) {
+            it.ok([svc:"svc2"])
         }
-        services[3].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc3"]))
+        services[3].handleRequest(all()) {
+            it.ok([svc:"svc3"])
         }
-        services[4].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc4"]))
+        services[4].handleRequest(all()) {
+            it.ok([svc:"svc4"])
         }
-        services[5].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc5"]))
+        services[5].handleRequest(all()) {
+            it.ok([svc:"svc5"])
         }
 
         expect:
 
-        services[0].request("request://service-1/", [], Map).get().payload.svc == "svc1"
-        services[0].request("request://service-2/", [], Map).get().payload.svc == "svc2"
-        services[0].request("request://service-3/", [], Map).get().payload.svc == "svc3"
-        services[0].request("request://service-4/", [], Map).get().payload.svc == "svc4"
-        services[0].request("request://service-5/", [], Map).get().payload.svc == "svc5"
+        services[0].request("request://service-1/", []).get().getPayload(Map).svc == "svc1"
+        services[0].request("request://service-2/", []).get().getPayload(Map).svc == "svc2"
+        services[0].request("request://service-3/", []).get().getPayload(Map).svc == "svc3"
+        services[0].request("request://service-4/", []).get().getPayload(Map).svc == "svc4"
+        services[0].request("request://service-5/", []).get().getPayload(Map).svc == "svc5"
 
         cleanup:
         services*.shutdown()
@@ -91,15 +92,15 @@ class RequestResponseSimulationSpec extends Specification {
             createService(it, discovery, eventbus)
         }
 
-        services[1].handleRequest(all(), Map) {
+        services[1].handleRequest(all()) {
             println "Request received, sending response"
-            it.answer(new Response(200, [svc:"svc1"]))
+            it.ok([svc:"svc1"])
         }
 
         when:
-        services[0].request("request://service-1/", [], Map).then {
+        services[0].request("request://service-1/", []).then {
             println "Response says something."
-            data = it.payload
+            data = it.getPayload(Map)
         }
 
         then:
@@ -131,18 +132,18 @@ class RequestResponseSimulationSpec extends Specification {
             createService(it, discovery, eventbus)
         }
 
-        services[1].handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc1"]))
+        services[1].handleRequest(all()) {
+            it.answer(new ServerResponse(200, [svc:"svc1"]))
         }
 
         when:
 
-        def b = Broadcaster.create()
+        def b = Broadcaster.<Response>create()
         b.consume {
-            data = it.payload
+            data = it.getPayload(Map)
         }
 
-        services[0].request("request://service-1/", [], Map).toPublisher().subscribe(b)
+        services[0].request("request://service-1/", []).toPublisher().subscribe(b)
 
         then:
         new PollingConditions().eventually {

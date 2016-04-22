@@ -63,13 +63,9 @@ public class RabbitMq09QueueListener implements QueueListener {
                             newHeaders.put(entry.getKey(), entry.getValue().toString());
                         });
 
-                        String contentType = "";
-                        if (newHeaders.get("Content-Type") != null) {
-                            contentType = newHeaders.get("Content-Type");
-                        }
                         log.log(Level.FINE, "Receiving message on " + queueName + " of type " + newHeaders.get("eventType"));
 
-                        listener.exec(new QueueListener.QueueMessage(newHeaders.get("eventType"), queueName, body, newHeaders, contentType));
+                        listener.exec(new QueueListener.QueueMessage(queueName, body, newHeaders));
 
                         channel.basicAck(envelope.getDeliveryTag(), false);
                     } catch (ShutdownSignalException | ConsumerCancelledException ex) {

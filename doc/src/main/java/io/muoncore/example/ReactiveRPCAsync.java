@@ -17,7 +17,7 @@ public class ReactiveRPCAsync {
         Queue<RequestWrapper> requestQueue = new LinkedList<>();
 
         //request handler
-        muon.handleRequest(all(), Object.class, requestQueue::add);
+        muon.handleRequest(all(), requestQueue::add);
 
         new Thread(() -> {
 
@@ -34,8 +34,8 @@ public class ReactiveRPCAsync {
         });
 
         //request client
-        Response<String> data = muon.request("request://myservice/", String.class).get();
+        Response data = muon.request("request://myservice/").get();
 
-        System.out.println("The Data is " + data.getPayload());
+        System.out.println("The Data is " + data.getPayload(String.class));
     }
 }

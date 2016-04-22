@@ -1,10 +1,10 @@
 package io.muoncore.spring.mapping;
 
 import io.muoncore.Muon;
-import io.muoncore.protocol.requestresponse.RequestMetaData;
-import io.muoncore.protocol.requestresponse.Response;
 import io.muoncore.protocol.requestresponse.server.HandlerPredicate;
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandlerApi;
+import io.muoncore.protocol.requestresponse.server.ServerRequest;
+import io.muoncore.protocol.requestresponse.server.ServerResponse;
 import io.muoncore.spring.methodinvocation.MuonRequestMethodInvocation;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -16,13 +16,13 @@ public class MuonRequestListenerService {
     private Muon muon;
 
     public void addRequestMapping(String resource, final MuonRequestMethodInvocation methodInvocation) {
-        muon.handleRequest(resourcePredicate(resource), methodInvocation.getDecodedParameterType(), resourceHandler(methodInvocation));
+        muon.handleRequest(resourcePredicate(resource), resourceHandler(methodInvocation));
     }
 
     private RequestResponseServerHandlerApi.Handler resourceHandler(MuonRequestMethodInvocation methodInvocation) {
         return wrapper -> {
             Object result = methodInvocation.invoke(wrapper);
-            final Response response = new Response(200, result);
+            final ServerResponse response = new ServerResponse(200, result);
             wrapper.answer(response);
         };
     }
@@ -35,7 +35,7 @@ public class MuonRequestListenerService {
             }
 
             @Override
-            public Predicate<RequestMetaData> matcher() {
+            public Predicate<ServerRequest> matcher() {
                 return requestMetaData -> requestMetaData.getUrl().equals(resource);
             }
         };

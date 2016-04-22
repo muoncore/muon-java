@@ -5,12 +5,13 @@ import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
+import io.muoncore.codec.Codecs;
 import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.exception.NoSuchServiceException;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.transport.MuonTransport;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,17 +22,13 @@ import java.util.logging.Logger;
 
 public class AMQPMuonTransport implements MuonTransport {
 
-    public final static String HEADER_PROTOCOL = "PROTOCOL";
-    public final static String HEADER_REPLY_TO = "REPLY_TO";
-    public final static String HEADER_RECEIVE_QUEUE = "LISTEN_ON";
-    public final static String HEADER_SOURCE_SERVICE = "SOURCE_SERVICE";
-
     private Logger log = Logger.getLogger(AMQPMuonTransport.class.getName());
     private String rabbitUrl;
     private List<AmqpChannel> channels;
     private ServiceQueue serviceQueue;
     private AmqpChannelFactory channelFactory;
     private Discovery discovery;
+    private Codecs codecs;
 
     public AMQPMuonTransport(
             String url,
@@ -53,8 +50,7 @@ public class AMQPMuonTransport implements MuonTransport {
 
     @Override
     public boolean canConnectToService(String name) {
-        Optional<ServiceDescriptor> descriptor = discovery.getKnownServices().stream().filter(svc ->
-                svc.getIdentifier().equals(name)).findFirst();
+        Optional<ServiceDescriptor> descriptor = discovery.findService(svc -> svc.getIdentifier().equals(name));
         if (!descriptor.isPresent()) {
             return false;
         }
@@ -62,7 +58,7 @@ public class AMQPMuonTransport implements MuonTransport {
     }
 
     @Override
-    public ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel(String serviceName, String protocol) {
+    public ChannelConnection<MuonOutboundMessage, MuonInboundMessage> openClientChannel(String serviceName, String protocol) {
 
         if (!discovery.findService( svc -> svc.getIdentifier().equals(serviceName))
                 .isPresent()) {
@@ -77,19 +73,21 @@ public class AMQPMuonTransport implements MuonTransport {
 
         channel.initiateHandshake(serviceName, protocol);
         channels.add(channel);
-        Channel<TransportOutboundMessage, TransportInboundMessage> intermediate = Channels.channel("AMQPChannelExternal", "AMQPChannelInternal");
+        Channel<MuonOutboundMessage, MuonInboundMessage> intermediate = Channels.channel("AMQPChannelExternal", "AMQPChannelInternal");
 
         Channels.connect(intermediate.right(), channel);
 
         return intermediate.left();
     }
 
-    public void start(Discovery discovery, final ServerStacks serverStacks) {
+    public void start(Discovery discovery, final ServerStacks serverStacks, Codecs codecs) {
         this.discovery = discovery;
+        this.codecs = codecs;
+        channelFactory.initialiseEnvironment(codecs, discovery);
         log.info("Booting up transport with stack " + serverStacks);
         serviceQueue.onHandshake( handshake -> {
             log.fine("opening new server channel with " + serverStacks);
-            ChannelConnection<TransportInboundMessage, TransportOutboundMessage> connection =
+            ChannelConnection<MuonInboundMessage, MuonOutboundMessage> connection =
                     serverStacks.openServerChannel(handshake.getProtocol());
             AmqpChannel channel = channelFactory.createChannel();
             channel.respondToHandshake(handshake);

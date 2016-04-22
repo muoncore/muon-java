@@ -5,14 +5,16 @@ import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessageBuilder;
+import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.event.ClientEvent;
 import io.muoncore.protocol.event.EventCodec;
 import io.muoncore.protocol.event.EventProtocolMessages;
 import io.muoncore.transport.TransportEvents;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * This middleware will accept an Event. It will then attempt to locate an event store to send a persistence Request to
@@ -24,7 +26,7 @@ public class EventClientProtocol<X> {
             Discovery discovery,
             Codecs codecs,
             ChannelConnection<EventResult, ClientEvent<X>> leftChannelConnection,
-            ChannelConnection<TransportOutboundMessage, TransportInboundMessage> rightChannelConnection) {
+            ChannelConnection<MuonOutboundMessage, MuonInboundMessage> rightChannelConnection) {
 
         rightChannelConnection.receive( message -> {
             if (message == null) {
@@ -34,7 +36,7 @@ public class EventClientProtocol<X> {
 
             EventResult result;
 
-            switch(message.getType()) {
+            switch(message.getStep()) {
                 case TransportEvents.SERVICE_NOT_FOUND:
                     result = new EventResult(EventResult.EventResultStatus.FAILED,
                             "Event Store Service Not Found");
@@ -74,17 +76,12 @@ public class EventClientProtocol<X> {
                 Map<String, Object> payload = EventCodec.getMapFromClientEvent(event, configuration);
 
                 Codecs.EncodingResult result = codecs.encode(payload, eventService.get().getCodecs());
-
-                TransportOutboundMessage msg = new TransportOutboundMessage(
-                        event.getEventType(),
-                        UUID.randomUUID().toString(),
-                        eventService.get().getIdentifier(),
-                        configuration.getServiceName(),
-                        EventProtocolMessages.PROTOCOL,
-                        new HashMap<>(),
-                        result.getContentType(),
-                        result.getPayload(),
-                        Arrays.asList(codecs.getAvailableCodecs()));
+                MuonOutboundMessage msg = MuonMessageBuilder.fromService(configuration.getServiceName())
+                        .toService(eventService.get().getIdentifier())
+                        .protocol(EventProtocolMessages.PROTOCOL)
+                        .step(EventProtocolMessages.EVENT)
+                        .contentType(result.getContentType())
+                        .payload(result.getPayload()).build();
 
                 rightChannelConnection.send(msg);
             }

@@ -1,14 +1,13 @@
 package io.muoncore.example;
 
 import io.muoncore.Muon;
+import io.muoncore.message.MuonMessage;
 import io.muoncore.protocol.requestresponse.RRPEvents;
-import io.muoncore.transport.TransportMessage;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -21,7 +20,7 @@ public class Wiretap {
         // tag::setupRPC[]
         Broadcaster<String> publisher = Broadcaster.create();
 
-        muon.handleRequest(all(), Map.class, request -> {
+        muon.handleRequest(all(), request -> {
             request.ok(42);
         });
 
@@ -29,29 +28,29 @@ public class Wiretap {
 
         // tag::wiretap[]
         Set<String> remoteServices = new HashSet<>();     // <1>
-        Broadcaster<TransportMessage> requests = Broadcaster.create();
+        Broadcaster<MuonMessage> requests = Broadcaster.create();
 
         requests.consume(msg -> {
             remoteServices.add(msg.getSourceServiceName());  //<2>
         });
 
         muon.getTransportControl().tap(                      //<3>
-                msg -> msg.getType().equals(RRPEvents.REQUEST)).subscribe(requests); //<4>
+                msg -> msg.getStep().equals(RRPEvents.REQUEST)).subscribe(requests); //<4>
         // end::wiretap[]
 
         // tag::wiretap2[]
-        Broadcaster<TransportMessage> responses = Broadcaster.create();
+        Broadcaster<MuonMessage> responses = Broadcaster.create();
 
         responses.consume(msg -> {
             System.out.println("Sent a response to " + msg.getTargetServiceName());
         });
 
         muon.getTransportControl().tap(
-                msg -> msg.getType().equals(RRPEvents.RESPONSE)).subscribe(responses);
+                msg -> msg.getStep().equals(RRPEvents.RESPONSE)).subscribe(responses);
         // end::wiretap2[]
 
         // tag::fireRPC[]
-        int value = muon.request("request://myservice/", Integer.class).get().getPayload();
+        int value = muon.request("request://myservice/").get().getPayload(Integer.class);
         // end::fireRPC[]
     }
 }

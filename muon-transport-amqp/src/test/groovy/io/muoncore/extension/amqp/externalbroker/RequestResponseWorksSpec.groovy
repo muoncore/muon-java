@@ -23,7 +23,8 @@ import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 class RequestResponseWorksSpec extends Specification {
 
     def discovery = Mock(Discovery) {
-        findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], []))
+        findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], [new URI("amqp://muon:microservices@localhost")]))
+        getCodecsForService(_) >> { ["application/json"] as String[]}
     }
 
     def "high level request response protocol works"() {
@@ -109,6 +110,7 @@ class RequestResponseWorksSpec extends Specification {
             it.request.id
             Thread.sleep(4000)
             it.ok([hi:"there"])
+            println "Responded"
         }
 
         sleep(5000)
@@ -117,10 +119,11 @@ class RequestResponseWorksSpec extends Specification {
         def responses = []
         responses << svc2.request("request://simples/hello", [hello:"world"], Map)
         sleep(100)
-        100.times {
+        10.times {
             responses << svc3.request("request://simples/hello", [hello: "world"], Map)
         }
         responses*.get()
+        println "Responses retrieved!"
 
         then: "The timings indicate concurrent access"
 
@@ -195,8 +198,8 @@ class RequestResponseWorksSpec extends Specification {
         def svc1 = new AMQPMuonTransport(
                 "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
 
-        def config = new AutoConfiguration(serviceName:serviceName, aesEncryptionKey: "abcde12345678906")
-        def muon = new MultiTransportMuon(config, discovery, svc1)
+        def config = new AutoConfiguration(serviceName:serviceName)
+        def muon = new MultiTransportMuon(config, discovery, [svc1])
 
         muon
     }

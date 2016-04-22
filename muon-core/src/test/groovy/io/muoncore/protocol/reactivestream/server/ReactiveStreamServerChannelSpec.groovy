@@ -1,17 +1,26 @@
 package io.muoncore.protocol.reactivestream.server
 
+import io.muoncore.Discovery
 import io.muoncore.channel.ChannelConnection
-import io.muoncore.codec.Codecs
+import io.muoncore.codec.json.GsonCodec
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
+import io.muoncore.message.MuonMessage
+import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.protocol.reactivestream.ProtocolMessages
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportMessage
+import io.muoncore.protocol.reactivestream.messages.ReactiveStreamSubscriptionRequest
+import io.muoncore.protocol.reactivestream.messages.RequestMessage
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import spock.lang.Specification
 
 class ReactiveStreamServerChannelSpec extends Specification {
+
+    def discovery = Mock(Discovery) {
+        getCodecsForService(_) >> { ["application/json"] as String[] }
+    }
+    def codecs = new JsonOnlyCodecs()
 
     def "sends ACK if the publisher does exist on SUBSCRIBE"() {
         def subscription = Mock(Subscription)
@@ -28,29 +37,24 @@ class ReactiveStreamServerChannelSpec extends Specification {
             lookupPublisher(_) >> Optional.empty()
         }
         def function = Mock(ChannelConnection.ChannelFunction)
-        def codecs = Mock(Codecs) {
-            getAvailableCodecs() >> []
-        }
 
-        def channel = new ReactiveStreamServerChannel(publookup, codecs, config)
+        def channel = new ReactiveStreamServerChannel(publookup, codecs, config, discovery)
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
-        channel.send(new TransportInboundMessage(
-                ProtocolMessages.SUBSCRIBE,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [streamName:"simpleStream"],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        channel.send(
+                MuonMessageBuilder
+                        .fromService("tombola")
+                        .toService("awesome")
+                        .step(ProtocolMessages.SUBSCRIBE)
+                        .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                        .contentType("application/json")
+                        .payload(new GsonCodec().encode(new ReactiveStreamSubscriptionRequest("simpleStream")))
+                        .buildInbound())
 
         then: "NACK sent back"
-        1 * function.apply({ TransportMessage msg ->
-            msg.type == ProtocolMessages.ACK
+        1 * function.apply({ MuonMessage msg ->
+            msg.step == ProtocolMessages.ACK
         })
     }
 
@@ -62,29 +66,23 @@ class ReactiveStreamServerChannelSpec extends Specification {
         }
         def function = Mock(ChannelConnection.ChannelFunction)
         def config = new AutoConfiguration(serviceName: "awesome")
-        def codecs = Mock(Codecs) {
-            getAvailableCodecs() >> []
-        }
 
-        def channel = new ReactiveStreamServerChannel(publookup, codecs, config)
+        def channel = new ReactiveStreamServerChannel(publookup, codecs, config, discovery)
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
-        channel.send(new TransportInboundMessage(
-                ProtocolMessages.SUBSCRIBE,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [streamName:"simpleStream"],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        channel.send(MuonMessageBuilder
+                .fromService("tombola")
+                .toService("awesome")
+                .step(ProtocolMessages.SUBSCRIBE)
+                .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                .contentType("application/json")
+                .payload(new GsonCodec().encode(new ReactiveStreamSubscriptionRequest("simpleStream")))
+                .buildInbound())
 
         then: "NACK sent back"
-        1 * function.apply({ TransportMessage msg ->
-            msg.type == ProtocolMessages.NACK
+        1 * function.apply({ MuonMessage msg ->
+            msg.step == ProtocolMessages.NACK
         })
     }
 
@@ -102,37 +100,29 @@ class ReactiveStreamServerChannelSpec extends Specification {
             lookupPublisher(_) >> Optional.empty()
         }
         def function = Mock(ChannelConnection.ChannelFunction)
-        def codecs = Mock(Codecs) {
-            getAvailableCodecs() >> []
-        }
 
-        def channel = new ReactiveStreamServerChannel(publookup, codecs, config)
+        def channel = new ReactiveStreamServerChannel(publookup, codecs, config, discovery)
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
-        channel.send(new TransportInboundMessage(
-                ProtocolMessages.SUBSCRIBE,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [streamName:"simpleStream"],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        channel.send(MuonMessageBuilder
+                .fromService("tombola")
+                .toService("awesome")
+                .step(ProtocolMessages.SUBSCRIBE)
+                .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                .contentType("application/json")
+                .payload(new GsonCodec().encode(new ReactiveStreamSubscriptionRequest("simpleStream")))
+                .buildInbound())
 
-        channel.send(new TransportInboundMessage(
-                ProtocolMessages.REQUEST,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [request:"100"],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        channel.send(
+                MuonMessageBuilder
+                        .fromService("tombola")
+                        .toService("awesome")
+                        .step(ProtocolMessages.REQUEST)
+                        .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                        .contentType("application/json")
+                        .payload(new GsonCodec().encode(new RequestMessage(100)))
+                        .buildInbound())
 
         then:
         1 * subscription.request(100)
@@ -152,37 +142,30 @@ class ReactiveStreamServerChannelSpec extends Specification {
             lookupPublisher(_) >> Optional.empty()
         }
         def function = Mock(ChannelConnection.ChannelFunction)
-        def codecs = Mock(Codecs) {
-            getAvailableCodecs() >> []
-        }
 
-        def channel = new ReactiveStreamServerChannel(publookup, codecs, config)
+        def channel = new ReactiveStreamServerChannel(publookup, codecs, config, discovery)
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
-        channel.send(new TransportInboundMessage(
-                ProtocolMessages.SUBSCRIBE,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [streamName:"simpleStream"],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        channel.send(
+                MuonMessageBuilder
+                        .fromService("tombola")
+                        .toService("awesome")
+                        .step(ProtocolMessages.SUBSCRIBE)
+                        .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                        .contentType("application/json")
+                        .payload(new GsonCodec().encode(new ReactiveStreamSubscriptionRequest("simpleStream")))
+                        .buildInbound())
 
-        channel.send(new TransportInboundMessage(
-                ProtocolMessages.CANCEL,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [:],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        channel.send(
+                MuonMessageBuilder
+                        .fromService("tombola")
+                        .toService("awesome")
+                        .step(ProtocolMessages.CANCEL)
+                        .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                        .contentType("application/json")
+                        .payload(new GsonCodec().encode([:]))
+                        .buildInbound())
 
         then:
         1 * subscription.cancel()
@@ -202,34 +185,28 @@ class ReactiveStreamServerChannelSpec extends Specification {
             lookupPublisher(_) >> Optional.empty()
         }
         def function = Mock(ChannelConnection.ChannelFunction)
-        def codecs = Mock(Codecs) {
-            getAvailableCodecs() >> []
-            encode(_, _) >> new Codecs.EncodingResult([] as byte[], "application/json")
-        }
 
-        def channel = new ReactiveStreamServerChannel(publookup, codecs, config)
+        def channel = new ReactiveStreamServerChannel(publookup, codecs, config, discovery)
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
-        channel.send(new TransportInboundMessage(
-                ProtocolMessages.SUBSCRIBE,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [streamName:"simpleStream"],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        channel.send(
+                MuonMessageBuilder
+                .fromService("tombola")
+                .toService("awesome")
+                .step(ProtocolMessages.SUBSCRIBE)
+                .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                .contentType("application/json")
+                .payload(new GsonCodec().encode(new ReactiveStreamSubscriptionRequest("simpleStream")))
+                .buildInbound())
 
         and: "subscriber.onNext is called"
         subscriber.onNext([simple:"message"])
 
         then:
-        1 * function.apply({ TransportMessage msg ->
-            msg.type == ProtocolMessages.DATA &&
-                    msg.channelOperation == TransportMessage.ChannelOperation.NORMAL &&
+        1 * function.apply({ MuonMessage msg ->
+            msg.step == ProtocolMessages.DATA &&
+                    msg.channelOperation == MuonMessage.ChannelOperation.normal &&
                     msg.targetServiceName == "tombola"
         })
         //TODO, verify data/ codec usage
@@ -249,34 +226,28 @@ class ReactiveStreamServerChannelSpec extends Specification {
             lookupPublisher(_) >> Optional.empty()
         }
         def function = Mock(ChannelConnection.ChannelFunction)
-        def codecs = Mock(Codecs) {
-            getAvailableCodecs() >> []
-            encode(_, _) >> new Codecs.EncodingResult([] as byte[], "application/json")
-        }
 
-        def channel = new ReactiveStreamServerChannel(publookup, codecs, config)
+        def channel = new ReactiveStreamServerChannel(publookup, codecs, config, discovery)
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
-        channel.send(new TransportInboundMessage(
-                ProtocolMessages.SUBSCRIBE,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [streamName:"simpleStream"],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        channel.send(
+                MuonMessageBuilder
+                        .fromService("tombola")
+                        .toService("awesome")
+                        .step(ProtocolMessages.SUBSCRIBE)
+                        .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                        .contentType("application/json")
+                        .payload(new GsonCodec().encode(new ReactiveStreamSubscriptionRequest("simpleStream")))
+                        .buildInbound())
 
         and: "subscriber.onNext is called"
         subscriber.onComplete()
 
         then:
-        1 * function.apply({ TransportMessage msg ->
-            msg.type == ProtocolMessages.COMPLETE &&
-                    msg.channelOperation == TransportMessage.ChannelOperation.CLOSE_CHANNEL &&
+        1 * function.apply({ MuonMessage msg ->
+            msg.step == ProtocolMessages.COMPLETE &&
+                    msg.channelOperation == MuonMessage.ChannelOperation.closed &&
                     msg.targetServiceName == "tombola"
         })
     }
@@ -295,34 +266,28 @@ class ReactiveStreamServerChannelSpec extends Specification {
             lookupPublisher(_) >> Optional.empty()
         }
         def function = Mock(ChannelConnection.ChannelFunction)
-        def codecs = Mock(Codecs) {
-            getAvailableCodecs() >> []
-            encode(_, _) >> new Codecs.EncodingResult([] as byte[], "application/json")
-        }
 
-        def channel = new ReactiveStreamServerChannel(publookup, codecs, config)
+        def channel = new ReactiveStreamServerChannel(publookup, codecs, config, discovery)
         channel.receive(function)
 
         when: "SUBSCRIBE from client"
-        channel.send(new TransportInboundMessage(
-                ProtocolMessages.SUBSCRIBE,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [streamName:"simpleStream"],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        channel.send(
+                MuonMessageBuilder
+                        .fromService("tombola")
+                        .toService("awesome")
+                        .step(ProtocolMessages.SUBSCRIBE)
+                        .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                        .contentType("application/json")
+                        .payload(new GsonCodec().encode(new ReactiveStreamSubscriptionRequest("simpleStream")))
+                        .buildInbound())
 
         and: "subscriber.onError is called"
         subscriber.onError(new IllegalStateException("Messed up"))
 
         then:
-        1 * function.apply({ TransportMessage msg ->
-            msg.type == ProtocolMessages.ERROR &&
-            msg.channelOperation == TransportMessage.ChannelOperation.CLOSE_CHANNEL &&
+        1 * function.apply({ MuonMessage msg ->
+            msg.step == ProtocolMessages.ERROR &&
+            msg.channelOperation == MuonMessage.ChannelOperation.closed &&
                     msg.targetServiceName == "tombola"
         })
     }

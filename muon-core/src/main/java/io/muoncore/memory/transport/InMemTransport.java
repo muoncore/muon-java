@@ -4,12 +4,13 @@ import com.google.common.eventbus.EventBus;
 import io.muoncore.Discovery;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.transport.MuonTransport;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -51,7 +52,7 @@ public class InMemTransport implements MuonTransport {
     }
 
     @Override
-    public void start(Discovery discovery, ServerStacks serverStacks) throws MuonTransportFailureException {
+    public void start(Discovery discovery, ServerStacks serverStacks, Codecs codecs) throws MuonTransportFailureException {
         this.discovery = discovery;
         this.inMemServer = new InMemServer(configuration.getServiceName(), bus, serverStacks);
     }
@@ -71,7 +72,7 @@ public class InMemTransport implements MuonTransport {
     }
 
     @Override
-    public ChannelConnection<TransportOutboundMessage, TransportInboundMessage> openClientChannel(String serviceName, String protocol) {
+    public ChannelConnection<MuonOutboundMessage, MuonInboundMessage> openClientChannel(String serviceName, String protocol) {
         return new DefaultInMemClientChannelConnection(serviceName, protocol, bus);
     }
 }

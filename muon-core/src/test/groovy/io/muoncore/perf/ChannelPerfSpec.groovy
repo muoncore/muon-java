@@ -1,16 +1,17 @@
 package io.muoncore.perf
+
 import com.google.common.eventbus.EventBus
-import io.muoncore.ServiceDescriptor
 import io.muoncore.MultiTransportMuon
+import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.descriptors.ProtocolDescriptor
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessageBuilder
+import io.muoncore.message.MuonOutboundMessage
 import io.muoncore.protocol.ServerProtocolStack
-import io.muoncore.protocol.requestresponse.Response
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportOutboundMessage
 import reactor.Environment
 import spock.lang.IgnoreIf
 import spock.lang.Specification
@@ -44,15 +45,15 @@ class ChannelPerfSpec extends Specification {
         discovery.advertiseLocalService(new ServiceDescriptor("service-1", [], [], []))
         discovery.advertiseLocalService(new ServiceDescriptor("service-2", [], [], []))
 
-        service2.handleRequest(all(), Map) {
-            it.answer(new Response(200, [svc:"svc1"]))
+        service2.handleRequest(all()) {
+            it.ok([svc:"svc1"])
         }
 
         when:
         def requests = []
 
         numTimes.times {
-            requests << service1.request("request://service-2/", [], Map)
+            requests << service1.request("request://service-2/", [])
         }
 
         then:
@@ -83,15 +84,15 @@ class ChannelPerfSpec extends Specification {
             }
 
             @Override
-            ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
-                return new ChannelConnection<TransportInboundMessage, TransportOutboundMessage>() {
+            ChannelConnection<MuonInboundMessage, MuonOutboundMessage> createChannel() {
+                return new ChannelConnection<MuonInboundMessage, MuonOutboundMessage>() {
                     @Override
-                    void receive(ChannelConnection.ChannelFunction<TransportOutboundMessage> function) {
+                    void receive(ChannelConnection.ChannelFunction<MuonOutboundMessage> function) {
 
                     }
 
                     @Override
-                    void send(TransportInboundMessage message) {
+                    void send(MuonInboundMessage message) {
                         data << message
                     }
 
@@ -115,17 +116,15 @@ class ChannelPerfSpec extends Specification {
 
         println "Starting message emit"
         numTimes.times {
-            channel.send(new TransportOutboundMessage(
-                    "somethingHappened",
-                    UUID.randomUUID().toString(),
-                    "service-1",
-                    "service-1",
-                    "fake-proto",
-                    [:],
-                    "text/plain",
-                    new byte[0],
-                    ["application/json"]
-            ))
+            channel.send(
+                    MuonMessageBuilder.fromService("service-1")
+                        .toService("service-1")
+                    .protocol("fake-proto")
+                    .contentType("text/plain")
+                    .payload(new byte[0])
+                    .step("somethingHappened")
+                    .build()
+            )
         }
         println "Message emit completed"
 

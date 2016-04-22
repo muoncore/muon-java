@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all;
 
@@ -24,10 +23,9 @@ public class ServiceAsapConsumer {
 
         Muon muon = MuonBuilder.withConfig(config).build();
 
-        //allow discovery settle time.
-        Thread.sleep(5000);
+        muon.getDiscovery().blockUntilReady();
 
-        muon.handleRequest(all(), Map.class, response -> {
+        muon.handleRequest(all(), response -> {
             response.ok("Hellow");
         });
     }

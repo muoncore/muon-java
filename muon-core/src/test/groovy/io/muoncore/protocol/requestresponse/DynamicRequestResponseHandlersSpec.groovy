@@ -3,6 +3,7 @@ import io.muoncore.protocol.requestresponse.server.DynamicRequestResponseHandler
 import io.muoncore.protocol.requestresponse.server.HandlerPredicate
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandler
 import io.muoncore.protocol.requestresponse.server.RequestWrapper
+import io.muoncore.protocol.requestresponse.server.ServerRequest
 import spock.lang.Specification
 
 import java.util.function.Predicate
@@ -20,7 +21,7 @@ class DynamicRequestResponseHandlersSpec extends Specification {
         registry.addHandler(new StubRequestResponseServerHandler(id:4, predicate: predicate(false)))
 
         expect:
-        registry.findHandler(new RequestMetaData("hello", "sourceservice", "target")).id == 3
+        registry.findHandler(new ServerRequest(new URI("request://hello1"), null, null, null)).id == 3
 
     }
 
@@ -32,7 +33,7 @@ class DynamicRequestResponseHandlersSpec extends Specification {
         registry.addHandler(new StubRequestResponseServerHandler(id:2, predicate: predicate(false)))
 
         expect:
-        registry.findHandler(new RequestMetaData("hello","sourceservice", "target")).id == 8
+        registry.findHandler(new ServerRequest(new URI("request://hello1"), null, null, null)).id == 8
 
     }
 
@@ -44,7 +45,7 @@ class DynamicRequestResponseHandlersSpec extends Specification {
             }
 
             @Override
-            Predicate<RequestMetaData> matcher() {
+            Predicate<ServerRequest> matcher() {
                 return { result }
             }
         }
@@ -58,10 +59,5 @@ class StubRequestResponseServerHandler implements RequestResponseServerHandler {
     @Override
     void handle(RequestWrapper request) {
         throw new IllegalStateException("Not implemented in stub!")
-    }
-
-    @Override
-    Class getRequestType() {
-        return Object.class;
     }
 }

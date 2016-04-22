@@ -84,17 +84,12 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void send(QueueListener.QueueMessage message) throws IOException {
 
-        log.log(Level.FINER, "Sending message on " + message.getQueueName() + " of type " + message.getEventType());
-
-        Map<String, Object> headers = new HashMap<>(message.getHeaders());
-        headers.put("eventType", message.getEventType());
-        headers.put("Content-Type", message.getContentType());
-
         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
-                .contentType(message.getContentType())
-                .headers(headers).build();
+//                .contentType(message.getContentType())
+                .headers((Map) message.getHeaders()).build();
 
         channel.basicPublish("", message.getQueueName(), props, message.getBody());
     }

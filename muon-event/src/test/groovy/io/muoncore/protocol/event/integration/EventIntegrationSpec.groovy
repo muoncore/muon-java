@@ -70,7 +70,7 @@ class EventIntegrationSpec extends Specification {
         def muon2 = muonEventStore { EventWrapper ev ->
             println "Event is the awesome ${ev.event}"
             data << ev.event
-            ev.persisted("ORDERID", System.currentTimeMillis())
+            ev.persisted(54321, System.currentTimeMillis())
         }
 
         def muon1 = muon("simples")
@@ -103,7 +103,7 @@ class EventIntegrationSpec extends Specification {
 
         def muon = new MultiTransportMuon(config, discovery, [transport])
 
-        muon.protocolStacks.registerServerProtocol(new EventServerProtocolStack(handler, muon.codecs))
+        muon.protocolStacks.registerServerProtocol(new EventServerProtocolStack(handler, muon.codecs, discovery))
 
         muon
     }

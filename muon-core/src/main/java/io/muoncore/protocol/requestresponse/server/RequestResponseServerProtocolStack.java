@@ -6,16 +6,14 @@ import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
 import io.muoncore.codec.Codecs;
+import io.muoncore.config.AutoConfiguration;
 import io.muoncore.descriptors.OperationDescriptor;
 import io.muoncore.descriptors.ProtocolDescriptor;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessage;
+import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.ServerProtocolStack;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
-import io.muoncore.protocol.requestresponse.Request;
-import io.muoncore.protocol.requestresponse.RequestMetaData;
-import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportMessage;
-import io.muoncore.transport.TransportOutboundMessage;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,52 +34,55 @@ public class RequestResponseServerProtocolStack implements
     private final RequestResponseHandlers handlers;
     private Codecs codecs;
     private Discovery discovery;
+    private AutoConfiguration config;
 
     public RequestResponseServerProtocolStack(RequestResponseHandlers handlers,
                                               Codecs codecs,
-                                              Discovery discover) {
+                                              Discovery discover,
+                                              AutoConfiguration config) {
         this.codecs = codecs;
         this.handlers = handlers;
         this.discovery = discover;
+        this.config = config;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
+    public ChannelConnection<MuonInboundMessage, MuonOutboundMessage> createChannel() {
 
-        Channel<TransportOutboundMessage, TransportInboundMessage> api2 = Channels.workerChannel("rrpserver", "transport");
+        Channel<MuonOutboundMessage, MuonInboundMessage> api2 = Channels.workerChannel("rrpserver", "transport");
 
         api2.left().receive( message -> {
-            if (message == null || message.getChannelOperation() == TransportMessage.ChannelOperation.CLOSE_CHANNEL) {
+            if (message == null || message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
                 //shutdown signal.
                 return;
             }
-            RequestMetaData meta = RRPTransformers.toRequestMetaData(message);
-            RequestResponseServerHandler handler = handlers.findHandler(meta);
 
-            Request request = RRPTransformers.toRequest(message, codecs, handler.getRequestType());
+            final ServerRequest request = RRPTransformers.toRequest(message, codecs);
+            final RequestResponseServerHandler handler = handlers.findHandler(request);
 
             handler.handle(new RequestWrapper() {
                 @Override
-                public Request getRequest() {
+                public ServerRequest getRequest() {
                     return request;
                 }
 
                 @Override
-                public void answer(Response response) {
+                public void answer(ServerResponse response) {
                     Optional<ServiceDescriptor> target = discovery.findService(svc ->
                             svc.getIdentifier().equals(
-                                    request.getMetaData().getSourceService()));
+                                    config.getServiceName()));
 
                     String[] codecList;
                     if (target.isPresent()) {
                         codecList = target.get().getCodecs();
                     } else {
-                        LOG.log(Level.WARNING, "Could not locate service " + request.getMetaData().getSourceService() + ", setting response codec to application/json");
+                        LOG.log(Level.WARNING, "Could not locate service " + request.getUrl().getHost() + ", setting response codec to application/json");
                         codecList = new String[]{"application/json"};
                     }
 
-                    TransportOutboundMessage msg = RRPTransformers.toOutbound(request.getMetaData().getTargetService(), request.getMetaData().getSourceService(), response, codecs,
+                    MuonOutboundMessage msg = RRPTransformers.toOutbound(config.getServiceName(),
+                            request.getUrl().getHost(), response, codecs,
                             codecList);
 
                     api2.left().send(msg);

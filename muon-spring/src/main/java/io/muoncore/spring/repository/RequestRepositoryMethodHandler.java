@@ -118,11 +118,11 @@ public class RequestRepositoryMethodHandler implements RepositoryMethodHandler {
 
     private Object processMuonOperation(Object payload) {
         try {
-            MuonFuture<Response<Object>> future = executeMuonOperation(payload);
+            MuonFuture<Response> future = executeMuonOperation(payload);
             if (keepMuonFuture) {
                 return future;
             } else {
-                return future.get(queryTimeout, timeoutUnit).getPayload();
+                return future.get(queryTimeout, timeoutUnit).getPayload(Object.class);
             }
         } catch (InterruptedException | ExecutionException | TimeoutException | URISyntaxException e) {
             throw new MuonException("Error performing query " + muonUrl + "\nParameters: " + payload
@@ -130,8 +130,8 @@ public class RequestRepositoryMethodHandler implements RepositoryMethodHandler {
         }
     }
 
-    protected MuonFuture<Response<Object>> executeMuonOperation(Object payload) throws URISyntaxException {
-        return muon.request(muonUrl, payload, returnType);
+    protected MuonFuture<Response> executeMuonOperation(Object payload) throws URISyntaxException {
+        return muon.request(muonUrl, payload);
     }
 
     private Object processObjectQuery(Object[] args) {

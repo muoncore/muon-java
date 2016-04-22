@@ -1,7 +1,5 @@
 package io.muoncore.protocol.requestresponse.server;
 
-import io.muoncore.protocol.requestresponse.RequestMetaData;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +19,7 @@ public class DynamicRequestResponseHandlers implements RequestResponseHandlers {
     }
 
     @Override
-    public RequestResponseServerHandler findHandler(RequestMetaData inbound) {
+    public RequestResponseServerHandler findHandler(ServerRequest inbound) {
         assert inbound != null;
         return handlers.stream().filter( handler -> {
             return handler.getPredicate().matcher().test(inbound);

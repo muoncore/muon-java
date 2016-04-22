@@ -4,6 +4,7 @@ import io.muoncore.protocol.requestresponse.server.RequestWrapper;
 
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.Map;
 
 public class PayloadArgumentTransformer implements MethodArgumentTransformer {
     private Parameter parameter;
@@ -20,7 +21,7 @@ public class PayloadArgumentTransformer implements MethodArgumentTransformer {
     @Override
     public Object extractArgument(Object muonRequest) {
         if (muonRequest instanceof RequestWrapper) {
-            return ((RequestWrapper) muonRequest).getRequest().getPayload();
+            return ((RequestWrapper) muonRequest).getRequest().getPayload(Map.class);
         } else {
             throw new IllegalStateException("@DecodedContent annotation should be used only on resource handlers");
         }

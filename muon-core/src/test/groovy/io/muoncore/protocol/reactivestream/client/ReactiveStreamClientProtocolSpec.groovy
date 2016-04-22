@@ -1,22 +1,29 @@
 package io.muoncore.protocol.reactivestream.client
+
+import io.muoncore.Discovery
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.Codecs
+import io.muoncore.codec.json.GsonCodec
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.exception.MuonException
+import io.muoncore.message.MuonMessage
+import io.muoncore.message.MuonMessageBuilder
+import io.muoncore.message.MuonOutboundMessage
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.reactivestream.ProtocolMessages
-import io.muoncore.protocol.reactivestream.ReactiveStreamSubscriptionRequest
+import io.muoncore.protocol.reactivestream.messages.ReactiveStreamSubscriptionRequest
+import io.muoncore.protocol.reactivestream.messages.RequestMessage
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack
+import io.muoncore.protocol.requestresponse.RRPTransformers
 import io.muoncore.transport.TransportEvents
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportMessage
-import io.muoncore.transport.TransportOutboundMessage
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import spock.lang.Specification
 
 class ReactiveStreamClientProtocolSpec extends Specification {
 
+    def discovery = Mock(Discovery)
 
     def "sends SUBSCRIBE when the proto is started"() {
 
@@ -34,17 +41,16 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 sub,
                 Map,
                 codecs,
-                config)
+                config, discovery)
 
         when:
         client.start()
 
         then:
-        1 * connection.send({ TransportOutboundMessage msg ->
-            msg.channelOperation == TransportMessage.ChannelOperation.NORMAL &&
+        1 * connection.send({ MuonOutboundMessage msg ->
+            msg.channelOperation == MuonMessage.ChannelOperation.normal &&
                     msg.protocol == ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL &&
-                    msg.type == ProtocolMessages.SUBSCRIBE &&
-                    msg.metadata.streamName == "/streamname" &&
+                    msg.step == ProtocolMessages.SUBSCRIBE &&
                     msg.targetServiceName == "targetService"
         })
 
@@ -79,21 +85,19 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 sub,
                 Map,
                 codecs,
-                config)
+                config, discovery)
 
         when:
         client.start()
-        function(new TransportInboundMessage(
-                ProtocolMessages.ACK,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [:],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        function(
+                MuonMessageBuilder
+                        .fromService("tombola")
+                        .toService("awesome")
+                        .step(ProtocolMessages.ACK)
+                        .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                        .contentType("application/json")
+                        .payload(new GsonCodec().encode([:]))
+                        .buildInbound())
 
         sleep(50)
 
@@ -123,21 +127,18 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 sub,
                 Map,
                 codecs,
-                config)
+                config, discovery)
 
         when:
         client.start()
-        function(new TransportInboundMessage(
-                ProtocolMessages.NACK,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [:],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        function(MuonMessageBuilder
+                .fromService("tombola")
+                .toService("awesome")
+                .step(ProtocolMessages.NACK)
+                .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                .contentType("application/json")
+                .payload(new GsonCodec().encode([:]))
+                .buildInbound())
 
         then:
         1 * sub.onError(_ as MuonException)
@@ -165,21 +166,18 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 sub,
                 Map,
                 codecs,
-                config)
+                config, discovery)
 
         when:
         client.start()
-        function(new TransportInboundMessage(
-                TransportEvents.SERVICE_NOT_FOUND,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [:],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        function(MuonMessageBuilder
+                .fromService("tombola")
+                .toService("awesome")
+                .step(TransportEvents.SERVICE_NOT_FOUND)
+                .protocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
+                .contentType("application/json")
+                .payload(new GsonCodec().encode([:]))
+                .buildInbound())
 
         then:
         1 * sub.onError(_ as MuonException)
@@ -213,31 +211,29 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 sub,
                 Map,
                 codecs,
-                config)
+                config, discovery)
 
         when:
         client.start()
 
         and: "The subscription is ACKed"
-        function(new TransportInboundMessage(
-                ProtocolMessages.ACK,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [:],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        function(
+                MuonMessageBuilder
+                        .fromService("tombola")
+                        .toService("awesome")
+                        .step(ProtocolMessages.ACK)
+                        .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                        .contentType("application/json")
+                        .payload(new GsonCodec().encode([:]))
+                        .buildInbound())
 
         and: "the subscription is cancelled"
         subscription.cancel()
 
         then:
-        1 * connection.send({ TransportOutboundMessage msg ->
-            msg.type == ProtocolMessages.CANCEL
-        } as TransportOutboundMessage)
+        1 * connection.send({ MuonOutboundMessage msg ->
+            msg.step == ProtocolMessages.CANCEL
+        } as MuonOutboundMessage)
 
     }
 
@@ -256,10 +252,9 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 subscription = args[0]
             }
         }
-        def codecs = Mock(Codecs) {
-            encode(_, _) >> new Codecs.EncodingResult([0] as byte[], "application/json")
-            getAvailableCodecs() >> []
-        }
+
+        def codecs = new JsonOnlyCodecs()
+
         def config = new AutoConfiguration(serviceName: "awesome")
 
         def client = new ReactiveStreamClientProtocol(
@@ -268,32 +263,31 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 sub,
                 Map,
                 codecs,
-                config)
+                config, discovery)
 
         when:
         client.start()
 
         and: "The subscription is ACKed"
-        function(new TransportInboundMessage(
-                ProtocolMessages.ACK,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [:],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        function(
+                MuonMessageBuilder
+                        .fromService("tombola")
+                        .toService("awesome")
+                        .step(ProtocolMessages.ACK)
+                        .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                        .contentType("application/json")
+                        .payload(new GsonCodec().encode([:]))
+                        .buildInbound())
 
         and: "more data is requested off the subscription"
         subscription.request(100)
 
         then:
-        1 * connection.send({ TransportOutboundMessage msg ->
-            msg.type == ProtocolMessages.REQUEST &&
-                    msg.metadata.request == "100"
-        } as TransportOutboundMessage)
+        1 * connection.send({ MuonOutboundMessage msg ->
+            RequestMessage request = codecs.decode(msg.payload, msg.contentType, RequestMessage)
+            msg.step == ProtocolMessages.REQUEST &&
+                    request.request == 100
+        } as MuonOutboundMessage)
     }
 
     def "on DATA, calls subscriber onNext"() {
@@ -321,23 +315,21 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 sub,
                 Map,
                 codecs,
-                config)
+                config, discovery)
 
         when:
         client.start()
 
         and: "data arrives from the remote"
-        function(new TransportInboundMessage(
-                ProtocolMessages.DATA,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [:],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.NORMAL))
+        function(
+                MuonMessageBuilder
+                        .fromService("tombola")
+                        .toService("awesome")
+                        .step(ProtocolMessages.DATA)
+                        .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                        .contentType("application/json")
+                        .payload(new GsonCodec().encode([:]))
+                        .buildInbound())
 
         then:
         1 * sub.onNext([helloworld:"awesome"])
@@ -369,23 +361,21 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 sub,
                 Map,
                 codecs,
-                config)
+                config, discovery)
 
         when:
         client.start()
 
         and: "data arrives from the remote"
-        function(new TransportInboundMessage(
-                ProtocolMessages.COMPLETE,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [:],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.CLOSE_CHANNEL))
+        function(
+                MuonMessageBuilder
+                        .fromService("tombola")
+                        .toService("awesome")
+                        .step(ProtocolMessages.COMPLETE)
+                        .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                        .contentType("application/json")
+                        .payload(new GsonCodec().encode([:]))
+                        .buildInbound())
 
         then:
         1 * sub.onComplete()
@@ -416,23 +406,22 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 sub,
                 Map,
                 codecs,
-                config)
+                config, discovery)
 
         when:
         client.start()
 
         and: "data arrives from the remote"
-        function(new TransportInboundMessage(
-                ProtocolMessages.ERROR,
-                UUID.randomUUID().toString(),
-                "awesome",
-                "tombola",
-                ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL,
-                [:],
-                "application/json",
-                [] as byte[],
-                ["application/json"],
-                TransportMessage.ChannelOperation.CLOSE_CHANNEL))
+        function(
+                MuonMessageBuilder
+                        .fromService("tombola")
+                        .toService("awesome")
+                        .step(ProtocolMessages.ERROR)
+                        .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                        .contentType("application/json")
+                        .payload(new GsonCodec().encode([:]))
+                        .operation(MuonMessage.ChannelOperation.closed)
+                        .buildInbound())
 
         then:
         1 * sub.onError(_ as MuonException)

@@ -23,10 +23,8 @@ import io.muoncore.transport.client.TransportClient;
 import io.muoncore.transport.client.TransportMessageDispatcher;
 import reactor.Environment;
 
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -67,7 +65,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
         this.codecs = new JsonOnlyCodecs();
 
         DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(
-                new DefaultServerProtocol(codecs),
+                new DefaultServerProtocol(codecs, configuration, discovery),
                 wiretap);
         this.protocols = stacks;
         this.registrar = stacks;
@@ -76,7 +74,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
 
         initServerStacks(stacks);
 
-        transports.forEach(tr -> tr.start(discovery, stacks));
+        transports.forEach(tr -> tr.start(discovery, stacks, codecs));
 
         discovery.advertiseLocalService(new ServiceDescriptor(
                 configuration.getServiceName(),
@@ -94,16 +92,16 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
 
     private void initServerStacks(DynamicRegistrationServerStacks stacks) {
         stacks.registerServerProtocol(new RequestResponseServerProtocolStack(
-                        requestResponseHandlers, codecs, discovery));
+                        requestResponseHandlers, codecs, discovery, configuration));
 
-        stacks.registerServerProtocol(new ReactiveStreamServerStack(getPublisherLookup(), getCodecs(), configuration));
+        stacks.registerServerProtocol(new ReactiveStreamServerStack(getPublisherLookup(), getCodecs(), configuration, discovery));
         stacks.registerServerProtocol(new IntrospectionServerProtocolStack(
                 () -> new ServiceExtendedDescriptor(configuration.getServiceName(), registrar.getProtocolDescriptors()),
-                codecs));
+                codecs, discovery));
     }
 
     private void initDefaultRequestHandler() {
-        this.requestResponseHandlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler<Map, Map>() {
+        this.requestResponseHandlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler() {
 
             @Override
             public HandlerPredicate getPredicate() {
@@ -111,13 +109,8 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
             }
 
             @Override
-            public void handle(RequestWrapper<Map> request) {
+            public void handle(RequestWrapper request) {
                 request.notFound();
-            }
-
-            @Override
-            public Type getRequestType() {
-                return Map.class;
             }
         });
     }

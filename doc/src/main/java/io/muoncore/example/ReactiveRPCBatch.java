@@ -16,7 +16,7 @@ public class ReactiveRPCBatch {
         Queue<RequestWrapper> requestQueue = new LinkedList<>();
 
         //request handler
-        muon.handleRequest(all(), Object.class, requestQueue::add);
+        muon.handleRequest(all(), requestQueue::add);
 
 
         //TODO, a good eaxmple of the pattern

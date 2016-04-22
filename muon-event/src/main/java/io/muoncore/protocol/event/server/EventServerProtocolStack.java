@@ -6,15 +6,15 @@ import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
 import io.muoncore.codec.Codecs;
 import io.muoncore.descriptors.ProtocolDescriptor;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessageBuilder;
+import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.ServerProtocolStack;
 import io.muoncore.protocol.event.Event;
 import io.muoncore.protocol.event.EventCodec;
 import io.muoncore.protocol.event.EventProtocolMessages;
 import io.muoncore.protocol.event.client.EventResult;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
@@ -29,16 +29,17 @@ public class EventServerProtocolStack implements
     private Discovery discovery;
 
     public EventServerProtocolStack(ChannelConnection.ChannelFunction<EventWrapper> handler,
-                                    Codecs codecs) {
+                                    Codecs codecs, Discovery discovery) {
         this.codecs = codecs;
         this.handler = handler;
+        this.discovery = discovery;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public ChannelConnection<TransportInboundMessage, TransportOutboundMessage> createChannel() {
+    public ChannelConnection<MuonInboundMessage, MuonOutboundMessage> createChannel() {
 
-        Channel<TransportOutboundMessage, TransportInboundMessage> api2 = Channels.channel("eventserver", "transport");
+        Channel<MuonOutboundMessage, MuonInboundMessage> api2 = Channels.channel("eventserver", "transport");
 
         api2.left().receive( message -> {
             if (message == null) {
@@ -53,19 +54,16 @@ public class EventServerProtocolStack implements
 
             evserver.right().receive( eventResult -> {
 
-                Codecs.EncodingResult result = codecs.encode(eventResult, message.getSourceAvailableContentTypes().toArray(
-                        new String[message.getSourceAvailableContentTypes().size()]));
+                Codecs.EncodingResult result = codecs.encode(eventResult, discovery.getCodecsForService(message.getSourceServiceName()));
 
-                api2.left().send(new TransportOutboundMessage(
-                        EventProtocolMessages.PERSISTED,
-                        message.getId(),
-                        message.getSourceServiceName(),
-                        message.getTargetServiceName(),
-                        EventProtocolMessages.PROTOCOL,
-                        Collections.EMPTY_MAP,
-                        result.getContentType(),
-                        result.getPayload(),
-                        Arrays.asList(codecs.getAvailableCodecs())));
+                MuonOutboundMessage msg = MuonMessageBuilder.fromService(message.getTargetServiceName())
+                        .toService(message.getSourceServiceName())
+                        .protocol(EventProtocolMessages.PROTOCOL)
+                        .step(EventProtocolMessages.EVENT)
+                        .contentType(result.getContentType())
+                        .payload(result.getPayload()).build();
+
+                api2.left().send(msg);
             });
 
             handler.apply(wrapper);

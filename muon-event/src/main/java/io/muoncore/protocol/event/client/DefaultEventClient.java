@@ -20,8 +20,8 @@ import io.muoncore.protocol.event.EventCodec;
 import io.muoncore.protocol.event.EventProtocolMessages;
 import io.muoncore.protocol.reactivestream.client.ReactiveStreamClientProtocolStack;
 import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.transport.TransportInboundMessage;
-import io.muoncore.transport.TransportOutboundMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.transport.client.TransportClient;
 import org.reactivestreams.Subscriber;
 
@@ -42,7 +42,7 @@ public class DefaultEventClient implements EventClient {
     private TransportClient transportClient;
     private ReactiveStreamClientProtocolStack reactiveStreamClientProtocolStack;
 
-    private ChannelConnection<TransportOutboundMessage, TransportInboundMessage> eventChannelConnection;
+    private ChannelConnection<MuonOutboundMessage, MuonInboundMessage> eventChannelConnection;
 
     private boolean useEventProtocol = false;
     private Muon muon;
@@ -98,16 +98,16 @@ public class DefaultEventClient implements EventClient {
         //simulate the Event structure for the rpc usage.
         Map payload = EventCodec.getMapFromClientEvent(event, config);
 
-        Response<Map> resp = muon.request("request://photon/events", payload, Map.class).get();
+        Response resp = muon.request("request://photon/events", payload).get();
         if (resp.getStatus() == 200) {
             return new EventResult(EventResult.EventResultStatus.PERSISTED, "Persisted");
         }
-        return new EventResult(EventResult.EventResultStatus.FAILED, (String) resp.getPayload().get("message"));
+        return new EventResult(EventResult.EventResultStatus.FAILED, (String) resp.getPayload(Map.class).get("message"));
     }
 
     private <X> EventResult emitUsingEventProtocol(ClientEvent<X> event) throws ExecutionException, InterruptedException {
         Channel<ClientEvent<X>, EventResult> api2eventproto = Channels.channel("eventapi", "eventproto");
-        Channel<TransportOutboundMessage, TransportInboundMessage> rrp2transport = Channels.channel("eventproto", "transport");
+        Channel<MuonOutboundMessage, MuonInboundMessage> rrp2transport = Channels.channel("eventproto", "transport");
 
         ChannelFutureAdapter<EventResult, ClientEvent<X>> adapter =
                 new ChannelFutureAdapter<>(api2eventproto.left());
@@ -157,7 +157,7 @@ public class DefaultEventClient implements EventClient {
                 try {
                     Map<String, Object> data = new HashMap<>();
                     data.put("projection-name", name);
-                    return muon.request("request://photon/projection", data, type).get().getPayload();
+                    return muon.request("request://photon/projection", data).get().getPayload(type);
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                     return null;
@@ -166,11 +166,12 @@ public class DefaultEventClient implements EventClient {
         });
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public MuonFuture<List<EventProjectionDescriptor>> getProjectionList() {
         try {
 
-            List<String> projectionKeys = (List<String>) muon.request("request://photon/projection-keys", Map.class).get().getPayload().get("projection-keys");
+            List<String> projectionKeys = (List<String>) muon.request("request://photon/projection-keys").get().getPayload(Map.class).get("projection-keys");
 
             List<EventProjectionDescriptor> projections = projectionKeys.stream().map(EventProjectionDescriptor::new).collect(Collectors.toList());
 

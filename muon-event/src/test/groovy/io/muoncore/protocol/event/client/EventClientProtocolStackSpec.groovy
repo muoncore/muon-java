@@ -12,8 +12,8 @@ import io.muoncore.descriptors.ProtocolDescriptor
 import io.muoncore.descriptors.ServiceExtendedDescriptor
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.event.ClientEvent
-import io.muoncore.transport.TransportInboundMessage
-import io.muoncore.transport.TransportMessage
+import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessage
 import io.muoncore.transport.client.TransportClient
 import spock.lang.Specification
 import spock.lang.Timeout
@@ -64,7 +64,7 @@ class EventClientProtocolStackSpec extends Specification {
         and: "A response comes back from the remote"
         Thread.start {
             Thread.sleep(100)
-            capturedFunction(new TransportInboundMessage(
+            capturedFunction(new MuonInboundMessage(
                     "response",
                     "localId",
                     "targetService",
@@ -72,14 +72,14 @@ class EventClientProtocolStackSpec extends Specification {
                     "fakeproto",
                     ["status":"200"],
                     "text/plain",
-                    new byte[0], [], TransportMessage.ChannelOperation.NORMAL))
+                    new byte[0], [], MuonMessage.ChannelOperation.normal))
         }
 
         sleep(200)
 
         then:
         capturedFunction != null
-        1 * clientChannel.send(_ as TransportMessage)
+        1 * clientChannel.send(_ as MuonMessage)
         1 * clientChannel.send(null)
         new PollingConditions().eventually {
             future.get() instanceof EventResult

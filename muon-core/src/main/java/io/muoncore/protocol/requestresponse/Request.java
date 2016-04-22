@@ -1,36 +1,24 @@
 package io.muoncore.protocol.requestresponse;
 
-import java.util.UUID;
+import java.net.URI;
 
-public class Request<X> {
+public class Request {
 
-    public final static String URL = "url";
-
-    private String id;
-    private RequestMetaData metaData;
-    private X payload;
+    private URI url;
+    private Object payload;
 
     public Request(
-            RequestMetaData metaData,
-            X payload) {
-        this.id = UUID.randomUUID().toString();
-        this.metaData = metaData;
+            URI url,
+            Object payload) {
+        this.url = url;
         this.payload = payload;
     }
 
-    public String getId() {
-        return id;
+    public URI getUrl() {
+        return url;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public RequestMetaData getMetaData() {
-        return metaData;
-    }
-
-    public X getPayload() {
+    public Object getPayload() {
         return payload;
     }
 }
