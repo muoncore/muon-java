@@ -50,6 +50,7 @@ public class RRPTransformers {
                 .build();
     }
 
+    @SuppressWarnings("unchecked")
     public static MuonOutboundMessage toOutbound(String thisService, String targetService, ServerResponse response, Codecs codecs, String[] acceptEncodings) {
 
         Codecs.EncodingResult content = codecs.encode(response.getPayload(), acceptEncodings);

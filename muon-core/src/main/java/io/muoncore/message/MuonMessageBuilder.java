@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public class MuonMessageBuilder {
 
-    private String id = UUID.randomUUID().toString();
+    private String id;
     private long created = System.currentTimeMillis();
 
     private String targetServiceName;
@@ -18,6 +18,7 @@ public class MuonMessageBuilder {
 
     public static MuonMessageBuilder fromService(String service) {
         MuonMessageBuilder builder = new MuonMessageBuilder();
+        builder.id = UUID.randomUUID().toString();
         builder.sourceServiceName = service;
         return builder;
     }

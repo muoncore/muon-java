@@ -2,7 +2,6 @@ package com.simplicity.services;
 
 import io.muoncore.Muon;
 import io.muoncore.MuonBuilder;
-import io.muoncore.codec.types.MuonCodecTypes;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
 
@@ -10,6 +9,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -27,8 +27,13 @@ public class ServiceQuery {
         Muon muon = MuonBuilder.withConfig(config).build();
 
 
-        Map data = muon.request("request://hello").get().getPayload(MuonCodecTypes.mapOf(String.class, Integer.class));
+        Map send = new HashMap<>();
+        send.put("hello", "world");
 
+//        String data = muon.request("request://muon-dev-tools/ping", "Hello").get().getPayload(String.class);
+        Map data = muon.request("request://tckservice/echo", send).get().getPayload(Map.class);
+
+        System.out.println("Data is " + data);
 
 /*        EventClient eventClient = new DefaultEventClient(muon);
         //allow discovery settle time.

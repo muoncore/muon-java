@@ -41,6 +41,10 @@ public class RequestResponseClientProtocol {
                     leftChannelConnection.send(
                             RRPTransformers.toResponse(message, codecs));
                     break;
+                case RRPEvents.RESPONSE_FAILED:
+                    leftChannelConnection.send(
+                            RRPTransformers.toResponse(message, codecs));
+                    break;
                 case TransportEvents.SERVICE_NOT_FOUND:
                     Codecs.EncodingResult encoded = codecs.encode("No such service " + message.getSourceServiceName(), codecs.getAvailableCodecs());
                     leftChannelConnection.send(

@@ -155,9 +155,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
                 }
             }, Throwable::printStackTrace);
         }
-        if (message == null || message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
-            if (message != null) {
-
+        if (message == null) {
                 send(
                         MuonMessageBuilder.fromService(localServiceName)
                                 .step(CHANNEL_SHUTDOWN)
@@ -165,8 +163,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
                                 .contentType("text/plain")
                                 .payload(new byte[0])
                                 .build());
-            }
-            shutdown();
         }
+        shutdown();
     }
 }
