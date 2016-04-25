@@ -41,13 +41,10 @@ public class EventClientExample {
 
         // tag::emitevent[]
         evclient.event(
-                new ClientEvent<>(
-                        "UserRegistered",
-                        "users",
-                        null,
-                        null,
-                        null,
-                        new MyDataPayload()));
+                ClientEvent.ofType("UserRegistered")
+                        .payload(new MyDataPayload())
+                        .stream("users")
+                        .build());
 
         // end::emitevent[]
 
