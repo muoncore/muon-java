@@ -57,7 +57,7 @@ public class HandlerPredicates {
 
             @Override
             public Predicate<ServerRequest> matcher() {
-                return msg -> msg.getUrl().equals(path);
+                return msg -> msg.getUrl().getPath().equals(path);
             }
         };
     }
