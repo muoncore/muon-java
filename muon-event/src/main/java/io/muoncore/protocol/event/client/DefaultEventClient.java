@@ -74,7 +74,7 @@ public class DefaultEventClient implements EventClient {
     }
 
     @Override
-    public <X> void replay(String streamName, EventReplayMode mode, Class<X> payloadType, Subscriber<Event<X>> subscriber) {
+    public <X> MuonFuture<EventReplayControl> replay(String streamName, EventReplayMode mode, Class<X> payloadType, Subscriber<Event<X>> subscriber) {
 
         String replayType;
         if (mode == EventReplayMode.LIVE_ONLY) {
@@ -95,6 +95,8 @@ public class DefaultEventClient implements EventClient {
         } else {
             throw new MuonException("There is no event store present in the distributed system, is Photon running?");
         }
+
+        return null;
     }
 
     @Override
