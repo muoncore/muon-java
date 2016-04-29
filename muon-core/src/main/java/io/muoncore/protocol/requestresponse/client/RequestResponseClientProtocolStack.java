@@ -31,7 +31,7 @@ public interface RequestResponseClientProtocolStack extends
     }
 
     default MuonFuture<Response> request(URI uri, Object payload) {
-        if (!uri.getScheme().equals(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)) {
+        if (!uri.getScheme().equals(RRPTransformers.REQUEST_RESPONSE_PROTOCOL) && !uri.getScheme().equals("request")) {
             throw new MuonException("Scheme is invalid: " + uri.getScheme() + ", requires scheme: " + RRPTransformers.REQUEST_RESPONSE_PROTOCOL);
         }
         return request(new Request(uri, payload));
