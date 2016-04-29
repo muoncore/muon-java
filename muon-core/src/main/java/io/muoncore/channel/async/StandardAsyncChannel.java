@@ -5,6 +5,8 @@ import io.muoncore.channel.ChannelConnection;
 import io.muoncore.exception.MuonException;
 import reactor.core.Dispatcher;
 
+import java.util.Date;
+
 public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<GoingLeft, GoingRight> {
 
     private Dispatcher dispatcher;
@@ -33,7 +35,7 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
                     throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
                 }
                 dispatcher.dispatch(message, msg -> {
-                    if (echoOut) System.out.println("Channel[" + leftname + " >>>>> " + rightname + "]: Sending " + msg + " to " + leftFunction);
+                    if (echoOut) System.out.println(new Date() + ": Channel[" + leftname + " >>>>> " + rightname + "]: Sending " + msg + " to " + leftFunction);
                     leftFunction.apply(message); }
                         ,  Throwable::printStackTrace);
             }
@@ -42,7 +44,7 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
             public void shutdown() {
                 dispatcher.dispatch(this, msg -> {
                     if (echoOut)
-                        System.out.println("Channel[" + rightname + " <<<< " + leftFunction+ "]: SHUTDOWN to " + leftFunction);
+                        System.out.println(new Date() + ": Channel[" + rightname + " <<<< " + leftFunction+ "]: SHUTDOWN to " + leftFunction);
                     leftFunction.apply(null);
                 }, Throwable::printStackTrace);
             }
@@ -61,7 +63,7 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
                 }
                 dispatcher.dispatch(message, msg -> {
                     if (echoOut)
-                        System.out.println("Channel[" + leftname + " <<<< " + rightname + "]: " + msg + " to " + rightFunction);
+                        System.out.println(new Date() + ": Channel[" + leftname + " <<<< " + rightname + "]: " + msg + " to " + rightFunction);
                     rightFunction.apply(message);
                 }, Throwable::printStackTrace);
             }
@@ -70,7 +72,7 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
             public void shutdown() {
                 dispatcher.dispatch(this, msg -> {
                     if (echoOut)
-                        System.out.println("Channel[" + leftname + " <<<< " + rightname + "]: SHUTDOWN to " + rightFunction);
+                        System.out.println(new Date() + ": Channel[" + leftname + " <<<< " + rightname + "]: SHUTDOWN to " + rightFunction);
                     rightFunction.apply(null);
                 }, Throwable::printStackTrace);
             }

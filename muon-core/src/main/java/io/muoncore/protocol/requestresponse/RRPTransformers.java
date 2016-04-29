@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class RRPTransformers {
 
-    public final static String REQUEST_RESPONSE_PROTOCOL = "request";
+    public final static String REQUEST_RESPONSE_PROTOCOL = "rpc";
 
     public static ServerRequest toRequest(MuonInboundMessage msg, Codecs codecs) {
         ServerRequest request = codecs.decode(msg.getPayload(), msg.getContentType(), ServerRequest.class);

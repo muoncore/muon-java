@@ -1,21 +1,12 @@
 package com.simplicity.services;
 
-import io.muoncore.Discovery;
 import io.muoncore.Muon;
 import io.muoncore.MuonBuilder;
 import io.muoncore.ServiceDescriptor;
-import io.muoncore.codec.Codecs;
-import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
-import io.muoncore.extension.amqp.AmqpConnection;
-import io.muoncore.extension.amqp.QueueListenerFactory;
-import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
-import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection;
-import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
 import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.transport.ServiceCache;
 import org.reactivestreams.Publisher;
 import reactor.rx.Streams;
 
@@ -93,17 +84,6 @@ public class TCKService {
         muon.handleRequest(path("/discover"), request ->
                 request.ok(
                         muon.getDiscovery().getKnownServices().stream().map(ServiceDescriptor::getIdentifier).collect(Collectors.toList())));
-    }
-
-    private static Discovery createDiscovery() throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, IOException {
-
-        AmqpConnection connection = new RabbitMq09ClientAmqpConnection("amqp://muon:microservices@localhost");
-        QueueListenerFactory queueFactory = new RabbitMq09QueueListenerFactory(connection.getChannel());
-        Codecs codecs = new JsonOnlyCodecs();
-
-        AmqpDiscovery discovery = new AmqpDiscovery(queueFactory, connection, new ServiceCache(), codecs);
-        discovery.start();
-        return discovery;
     }
 
 }

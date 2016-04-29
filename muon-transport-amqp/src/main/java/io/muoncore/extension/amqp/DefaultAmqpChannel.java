@@ -1,6 +1,7 @@
 package io.muoncore.extension.amqp;
 
 import io.muoncore.Discovery;
+import io.muoncore.channel.async.StandardAsyncChannel;
 import io.muoncore.codec.Codecs;
 import io.muoncore.exception.MuonException;
 import io.muoncore.exception.MuonTransportFailureException;
@@ -11,6 +12,7 @@ import io.muoncore.message.MuonOutboundMessage;
 import reactor.core.Dispatcher;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -102,6 +104,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
         listener = listenerFactory.listenOnQueue(receiveQueue, msg -> {
             log.log(Level.FINER, "Received inbound channel message of type " + message.getProtocol());
             MuonInboundMessage inboundMessage = AmqpMessageTransformers.queueToInbound(msg, codecs);
+            if (StandardAsyncChannel.echoOut) System.out.println(new Date() + ": Channel[ AMQP Wire >>>>> DefaultAMQPChannel]: Received " + inboundMessage);
             if (inboundMessage.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
                 function.apply(null);
             } else if (function != null) {
@@ -145,6 +148,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     @Override
     public void send(MuonOutboundMessage message) {
+        if (StandardAsyncChannel.echoOut) System.out.println(new Date() + ": Channel[ DefaultAMQPChannel >>>>> AMQP Wire]: Sending " + message);
         if (message != null) {
             log.log(Level.FINER, "Sending inbound channel message of type " + message.getProtocol() + "||" + message.getStep());
             dispatcher.dispatch(message, msg -> {
