@@ -3,15 +3,12 @@ package io.muoncore.extension.amqp;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListener;
 
-import java.util.logging.Logger;
-
 import static io.muoncore.extension.amqp.QueueMessageBuilder.HEADER_PROTOCOL;
 import static io.muoncore.extension.amqp.QueueMessageBuilder.HEADER_RECEIVE_QUEUE;
 import static io.muoncore.extension.amqp.QueueMessageBuilder.HEADER_REPLY_TO;
 
 public class DefaultServiceQueue implements ServiceQueue {
 
-    private Logger LOG = Logger.getLogger(ServiceQueue.class.getCanonicalName());
     private RabbitMq09QueueListener listener;
     private String serviceName;
     private AmqpConnection connection;

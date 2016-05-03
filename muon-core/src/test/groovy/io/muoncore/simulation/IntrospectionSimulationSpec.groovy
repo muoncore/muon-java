@@ -3,6 +3,7 @@ package io.muoncore.simulation
 import com.google.common.eventbus.EventBus
 import io.muoncore.MultiTransportMuon
 import io.muoncore.Muon
+import io.muoncore.channel.async.StandardAsyncChannel
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
@@ -14,11 +15,12 @@ import spock.lang.Timeout
 
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
-@Timeout(1)
+
 class IntrospectionSimulationSpec extends Specification {
 
     def eventbus = new EventBus()
 
+    @Timeout(1)
     def "many services can run and be introspected"() {
         given: "some services"
 
@@ -54,6 +56,38 @@ class IntrospectionSimulationSpec extends Specification {
         descriptor.protocols.find { it.protocolScheme == RRPTransformers.REQUEST_RESPONSE_PROTOCOL }.operations.size() == 2
         cleanup:
         services*.shutdown()
+    }
+
+    def "im mem doesn't blow up when run twice"() {
+        given: "some services"
+        StandardAsyncChannel.echoOut=true
+
+        def discovery = new InMemDiscovery()
+
+        def service = createService("service-1", discovery)
+        def service1 = createService("tombola", discovery)
+
+        service.handleRequest(all()) {
+            it.answer(new ServerResponse(200, [svc:"svc1"]))
+        }
+
+        Thread.sleep(4000)
+
+        when:
+        def descriptor = service.introspect("tombola").get()
+        service.shutdown()
+
+        sleep(40000)
+
+        println "Starting second run"
+        service = createService("service-1", discovery)
+        service1 = createService("tombola", discovery)
+
+        then:
+        service.introspect("service-1").get()
+
+        cleanup:
+        service.shutdown()
     }
 
     Muon createService(ident, discovery) {

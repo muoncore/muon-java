@@ -14,11 +14,11 @@ import io.muoncore.message.MuonMessage;
 import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.ServerProtocolStack;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class RequestResponseServerProtocolStack implements
         ServerProtocolStack {
 
-    private static final Logger LOG = Logger.getLogger(RequestResponseServerProtocolStack.class.getCanonicalName());
+    private static final Logger LOG = LoggerFactory.getLogger(RequestResponseServerProtocolStack.class.getCanonicalName());
     private final RequestResponseHandlers handlers;
     private Codecs codecs;
     private Discovery discovery;
@@ -77,7 +77,7 @@ public class RequestResponseServerProtocolStack implements
                     if (target.isPresent()) {
                         codecList = target.get().getCodecs();
                     } else {
-                        LOG.log(Level.WARNING, "Could not locate service " + request.getUrl().getHost() + ", setting response codec to application/json");
+                        LOG.warn("Could not locate service " + request.getUrl().getHost() + ", setting response codec to application/json");
                         codecList = new String[]{"application/json"};
                     }
 

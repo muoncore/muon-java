@@ -83,7 +83,7 @@ class RequestResponseTapSimulationSpec extends Specification {
             dat.size() > 0 &&
             data.size() == 8 &&
             data[0].protocol == "introspect" &&
-            data[2].protocol == "request"
+            data[2].protocol == "rpc"
         }
 
         cleanup:

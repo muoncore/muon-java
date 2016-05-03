@@ -9,6 +9,8 @@ import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonMessage;
 import io.muoncore.message.MuonMessageBuilder;
 import io.muoncore.message.MuonOutboundMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.Dispatcher;
 
 import java.io.IOException;
@@ -16,8 +18,6 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class DefaultAmqpChannel implements AmqpChannel {
 
@@ -28,7 +28,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
     private ChannelFunction<MuonInboundMessage> function;
     private AmqpConnection connection;
     private String localServiceName;
-    private Logger log = Logger.getLogger(DefaultAmqpChannel.class.getName());
+    private Logger log = LoggerFactory.getLogger(DefaultAmqpChannel.class.getName());
     private Dispatcher dispatcher;
     private Codecs codecs;
     private Discovery discovery;
@@ -64,9 +64,9 @@ public class DefaultAmqpChannel implements AmqpChannel {
         sendQueue = serviceName + "-receive-" + UUID.randomUUID().toString();
 
         listener = listenerFactory.listenOnQueue(receiveQueue, msg -> {
-            log.log(Level.FINE, "Received a message on the receive queue " + msg.getQueueName());
+            log.info("Received a message on the receive queue " + msg.getQueueName());
             if ("accepted".equals(msg.getHandshakeMessage())) {
-                log.log(Level.FINE, "Handshake completed");
+                log.info("Handshake completed");
                 handshakeControl.countDown();
                 return;
             }
@@ -97,12 +97,12 @@ public class DefaultAmqpChannel implements AmqpChannel {
     @Override
     public void respondToHandshake(AmqpHandshakeMessage message) {
         ownsQueues = false;
-        log.log(Level.FINE, "Handshake received " + message.getProtocol());
+        log.debug("Handshake received " + message.getProtocol());
         receiveQueue = message.getReceiveQueue();
         sendQueue = message.getReplyQueue();
-        log.log(Level.FINER, "Opening queue to listen " + receiveQueue);
+        log.debug("Opening queue to listen " + receiveQueue);
         listener = listenerFactory.listenOnQueue(receiveQueue, msg -> {
-            log.log(Level.FINER, "Received inbound channel message of type " + message.getProtocol());
+            log.debug("Received inbound channel message of type " + message.getProtocol());
             MuonInboundMessage inboundMessage = AmqpMessageTransformers.queueToInbound(msg, codecs);
             if (StandardAsyncChannel.echoOut) System.out.println(new Date() + ": Channel[ AMQP Wire >>>>> DefaultAMQPChannel]: Received " + inboundMessage);
             if (inboundMessage.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
@@ -150,7 +150,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
     public void send(MuonOutboundMessage message) {
         if (StandardAsyncChannel.echoOut) System.out.println(new Date() + ": Channel[ DefaultAMQPChannel >>>>> AMQP Wire]: Sending " + message);
         if (message != null) {
-            log.log(Level.FINER, "Sending inbound channel message of type " + message.getProtocol() + "||" + message.getStep());
+            log.debug("Sending inbound channel message of type " + message.getProtocol() + "||" + message.getStep());
             dispatcher.dispatch(message, msg -> {
                 try {
                     connection.send(AmqpMessageTransformers.outboundToQueue(sendQueue, message, codecs, discovery));
@@ -168,6 +168,5 @@ public class DefaultAmqpChannel implements AmqpChannel {
                                 .payload(new byte[0])
                                 .build());
         }
-        shutdown();
     }
 }

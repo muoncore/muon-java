@@ -4,17 +4,18 @@ import com.simplicity.services.spring.PersonRecord;
 import io.muoncore.spring.annotations.MuonController;
 import io.muoncore.spring.annotations.MuonRequestListener;
 import io.muoncore.spring.annotations.parameterhandlers.Parameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static com.simplicity.services.spring.PersonDb.PERSON_DB;
 
 @MuonController
 public class Controller {
 
-    private static final Logger LOG = Logger.getLogger(Controller.class.getCanonicalName());
+    private static final Logger LOG = LoggerFactory.getLogger(Controller.class.getCanonicalName());
 
     @MuonRequestListener(path = "/getPerson")
     public PersonRecord getPersonById(@Parameter("id") long id) {

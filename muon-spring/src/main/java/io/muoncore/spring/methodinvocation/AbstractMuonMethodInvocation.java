@@ -1,20 +1,21 @@
 package io.muoncore.spring.methodinvocation;
 
-import io.muoncore.spring.methodinvocation.parameterhandlers.MethodArgumentTransformer;
 import io.muoncore.spring.mapping.MuonMappingException;
+import io.muoncore.spring.methodinvocation.parameterhandlers.MethodArgumentTransformer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 abstract public class AbstractMuonMethodInvocation<T> {
     protected final Method method;
     protected final Object bean;
     final List<MethodArgumentTransformer> argumentTransformers;
 
-    private Logger log = Logger.getLogger(AbstractMuonMethodInvocation.class.getName());
+    private Logger log = LoggerFactory.getLogger(AbstractMuonMethodInvocation.class.getName());
 
     public AbstractMuonMethodInvocation(Object bean, Method method) {
         this.bean = bean;
@@ -24,7 +25,7 @@ abstract public class AbstractMuonMethodInvocation<T> {
 
     public Object invoke(T arg) {
         try {
-            log.finer("Executing method " + method + " with event " + arg);
+            log.debug("Executing method " + method + " with event " + arg);
             return method.invoke(bean, transformArguments(arg));
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new MuonMappingException(e);

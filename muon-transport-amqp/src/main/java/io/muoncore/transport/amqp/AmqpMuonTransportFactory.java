@@ -6,15 +6,15 @@ import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.MuonTransportFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class AmqpMuonTransportFactory implements MuonTransportFactory {
 
-    private static final String TRANSPORT_URL_PROPERTY_NAME = "amqp.transport.url";
-    private static Logger LOG = Logger.getLogger(AmqpMuonTransportFactory.class.getName());
+    public static final String TRANSPORT_URL_PROPERTY_NAME = "amqp.transport.url";
+    private static Logger LOG = LoggerFactory.getLogger(AmqpMuonTransportFactory.class.getName());
     private AutoConfiguration autoConfiguration;
 
     @Override
@@ -24,7 +24,7 @@ public class AmqpMuonTransportFactory implements MuonTransportFactory {
             String amqpUrl = properties.getProperty(TRANSPORT_URL_PROPERTY_NAME);
             if (amqpUrl == null || amqpUrl.trim().length() == 0) {
                 amqpUrl = "amqp://localhost";
-                LOG.log(Level.WARNING, TRANSPORT_URL_PROPERTY_NAME + " is not set, defaulting to 'amqp://localhost' for AMQP transport connection");
+                LOG.warn(TRANSPORT_URL_PROPERTY_NAME + " is not set, defaulting to 'amqp://localhost' for AMQP transport connection");
             }
 
             String serviceName = autoConfiguration.getServiceName();
@@ -35,7 +35,7 @@ public class AmqpMuonTransportFactory implements MuonTransportFactory {
 
             muonTransport = new AMQPMuonTransport(amqpUrl, serviceQueue, channelFactory);
         } catch (Exception e) {
-            LOG.log(Level.WARNING, "Error creating AMQP muon transport", e);
+            LOG.warn("Error creating AMQP muon transport", e);
         }
         return muonTransport;
     }

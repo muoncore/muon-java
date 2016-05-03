@@ -7,18 +7,18 @@ import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.ShutdownSignalException;
 import io.muoncore.extension.amqp.QueueListener;
 import io.muoncore.extension.amqp.QueueMessageBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class RabbitMq09BroadcastListener implements QueueListener {
 
     private boolean running;
     private Channel channel;
-    private Logger log = Logger.getLogger(RabbitMq09BroadcastListener.class.getName());
+    private Logger log = LoggerFactory.getLogger(RabbitMq09BroadcastListener.class.getName());
     private String broadcastMessageType;
     private String queueName;
     private QueueFunction listener;
@@ -78,15 +78,15 @@ public class RabbitMq09BroadcastListener implements QueueListener {
 
                     channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                 } catch (ShutdownSignalException | ConsumerCancelledException ex) {
-                    log.log(Level.FINER, ex.getMessage(), ex);
+                    log.debug("Channel shuts down");
                 } catch (Exception e) {
-                    log.log(Level.WARNING, e.getMessage(), e);
+                    log.warn(e.getMessage(), e);
                 }
             }
         } catch (Exception e) {
-            log.log(Level.WARNING, e.getMessage(), e);
+            log.warn(e.getMessage(), e);
         }
-        log.log(Level.FINE, "Broadcast Listener exits: " + broadcastMessageType);
+        log.debug("Broadcast Listener exits: " + broadcastMessageType);
     }
 
     public void cancel() {

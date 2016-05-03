@@ -9,29 +9,30 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 public class ServiceQuery {
 
-    public static void main(String[] args) throws URISyntaxException, InterruptedException, NoSuchAlgorithmException, KeyManagementException, IOException, ExecutionException {
+    public static void main(String[] args) throws URISyntaxException, InterruptedException, NoSuchAlgorithmException, KeyManagementException, IOException, ExecutionException, TimeoutException {
 
         String serviceName = "awesomeServiceQuery";
 
+        String url = "amqp://ymqxzfst:ujdmabicJHTj3JJtitZXSIafDtO9AVF8@spotted-monkey.rmq.cloudamqp.com/ymqxzfst";
+
         AutoConfiguration config = MuonConfigBuilder
                 .withServiceIdentifier(serviceName)
+//                .addWriter(c -> {
+//                    c.getProperties().setProperty(AmqpMuonTransportFactory.TRANSPORT_URL_PROPERTY_NAME, url);
+//                    c.getProperties().setProperty(AmqpDiscoveryFactory.DISCOVERY_URL_PROPERTY_NAME, url);
+//                })
                 .withTags("node", "awesome")
                 .build();
 
         Muon muon = MuonBuilder.withConfig(config).build();
 
-
-        Map send = new HashMap<>();
-        send.put("hello", "world");
-
-//        String data = muon.request("request://muon-dev-tools/ping", "Hello").get().getPayload(String.class);
-        Map data = muon.request("request://tckservice/echo", send).get().getPayload(Map.class);
+        Map data = muon.request("rpc://tckservice/echo").get().getPayload(Map.class);
 
         System.out.println("Data is " + data);
 

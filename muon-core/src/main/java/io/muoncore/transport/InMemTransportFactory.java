@@ -1,20 +1,19 @@
 package io.muoncore.transport;
 
 import com.google.common.eventbus.EventBus;
-import io.muoncore.Discovery;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.memory.transport.InMemTransport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class InMemTransportFactory implements MuonTransportFactory {
 
     private static final String IN_MEM_TRANSPORT_ENABLED_PROPERTY_NAME = "transport.inmem.enabled";
     public static EventBus EVENT_BUS = new EventBus();
 
-    private static Logger LOG = Logger.getLogger(InMemTransportFactory.class.getName());
+    private static Logger LOG = LoggerFactory.getLogger(InMemTransportFactory.class.getName());
     private AutoConfiguration autoConfiguration;
 
     @Override
@@ -25,7 +24,7 @@ public class InMemTransportFactory implements MuonTransportFactory {
                 transport = new InMemTransport(autoConfiguration, getSharedEventBus());
 //            }
         } catch (Exception e) {
-            LOG.log(Level.INFO, "Error creating InMemTransport", e);
+            LOG.info("Error creating InMemTransport", e);
         }
         return transport;
     }

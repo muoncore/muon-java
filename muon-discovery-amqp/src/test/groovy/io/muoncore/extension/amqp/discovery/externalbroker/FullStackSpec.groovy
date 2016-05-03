@@ -12,8 +12,6 @@ import reactor.Environment
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 
-import java.util.concurrent.TimeUnit
-
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
 @IgnoreIf({ System.getenv("BUILD_NUMBER") })
@@ -44,7 +42,8 @@ class FullStackSpec extends Specification {
         when:
         Thread.sleep(3500)
         def then = System.currentTimeMillis()
-        def response = svc1.request("request://tombola1/hello", [hello:"world"]).get(1500, TimeUnit.MILLISECONDS)
+//        def response = svc1.request("request://tombola1/hello", [hello:"world"]).get(1500, TimeUnit.MILLISECONDS)
+        def response = svc1.request("request://tombola1/hello", [hello:"world"]).get()
         def now = System.currentTimeMillis()
 
         println "Latency = ${now - then}"

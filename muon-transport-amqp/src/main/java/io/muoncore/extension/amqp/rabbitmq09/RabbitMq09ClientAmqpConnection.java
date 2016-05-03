@@ -4,6 +4,8 @@ import com.rabbitmq.client.*;
 import io.muoncore.exception.MuonException;
 import io.muoncore.extension.amqp.AmqpConnection;
 import io.muoncore.extension.amqp.QueueListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -12,12 +14,10 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
 
-    private Logger log = Logger.getLogger(RabbitMq09ClientAmqpConnection.class.getName());
+    private Logger log = LoggerFactory.getLogger(RabbitMq09ClientAmqpConnection.class.getName());
 
     private Connection connection;
     private Channel channel;
@@ -56,7 +56,7 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
                         factory.notify();
                     }
                 } catch (ConnectException e) {
-                    log.warning("Unable to connect to rabbit server " + rabbitUrl + " retrying");
+                    log.warn("Unable to connect to rabbit server " + rabbitUrl + " retrying");
                     try {
                         Thread.sleep(3000);
                     } catch (InterruptedException e1) {
@@ -124,10 +124,10 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
             }
         } catch (ShutdownSignalException ex) {
             if (ex.isHardError()) {
-                log.log(Level.WARNING, ex.getMessage(), ex);
+                log.warn(ex.getMessage(), ex);
             }
         } catch (Exception e) {
-            log.log(Level.WARNING, e.getMessage(), e);
+            log.warn(e.getMessage(), e);
         }
     }
 }

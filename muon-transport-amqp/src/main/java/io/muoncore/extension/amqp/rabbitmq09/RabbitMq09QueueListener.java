@@ -3,19 +3,19 @@ package io.muoncore.extension.amqp.rabbitmq09;
 
 import com.rabbitmq.client.*;
 import io.muoncore.extension.amqp.QueueListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class RabbitMq09QueueListener implements QueueListener {
 
     private boolean running;
     private Channel channel;
-    private Logger log = Logger.getLogger(RabbitMq09QueueListener.class.getName());
+    private Logger log = LoggerFactory.getLogger(RabbitMq09QueueListener.class.getName());
     private String queueName;
     private QueueListener.QueueFunction listener;
     private Consumer consumer;
@@ -31,7 +31,7 @@ public class RabbitMq09QueueListener implements QueueListener {
         try {
             latch.await();
         } catch (InterruptedException e) {
-            log.log(Level.SEVERE, "Error waiting for amqp listener to start", e);
+            log.error("Error waiting for amqp listener to start", e);
         }
     }
 
@@ -41,7 +41,7 @@ public class RabbitMq09QueueListener implements QueueListener {
 
     public void run() {
         try {
-            log.log(Level.FINE, "Opening Queue: " + queueName);
+            log.debug("Opening Queue: " + queueName);
             channel.queueDeclare(queueName, false, false, true, null);
 
             consumer = new DefaultConsumer(channel) {
@@ -63,33 +63,34 @@ public class RabbitMq09QueueListener implements QueueListener {
                             newHeaders.put(entry.getKey(), entry.getValue().toString());
                         });
 
-                        log.log(Level.FINE, "Receiving message on " + queueName + " of type " + newHeaders.get("eventType"));
+                        log.debug("Receiving message on " + queueName + " of type " + newHeaders.get("eventType"));
 
                         listener.exec(new QueueListener.QueueMessage(queueName, body, newHeaders));
 
                         channel.basicAck(envelope.getDeliveryTag(), false);
                     } catch (ShutdownSignalException | ConsumerCancelledException ex) {
-                        log.log(Level.FINER, ex.getMessage(), ex);
+                        log.debug(ex.getMessage(), ex);
                     } catch (Exception e) {
-                        log.log(Level.WARNING, e.getMessage(), e);
+                        log.warn(e.getMessage(), e);
                     }
                 }
             };
+
+            Thread.sleep(500);
 
             channel.basicConsume(queueName, false, consumer);
 
             latch.countDown();
 
-            log.log(Level.FINE, "Queue ready: " + queueName);
+            log.debug("Queue ready: " + queueName);
 
         } catch (Exception e) {
-            log.log(Level.WARNING, e.getMessage(), e);
+            log.warn(e.getMessage(), e);
         }
-        log.log(Level.FINE, "Queue Listener exits: " + queueName);
     }
 
     public void cancel() {
-        log.log(Level.FINE, "Queue listener is cancelled:" + queueName);
+        log.debug("Queue listener is cancelled:" + queueName);
         running = false;
         try {
             consumer.handleCancel("Muon-Cancel");

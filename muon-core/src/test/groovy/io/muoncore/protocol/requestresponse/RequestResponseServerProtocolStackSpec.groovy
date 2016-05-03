@@ -104,7 +104,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
         def protocolDescriptor = stack.protocolDescriptor
 
         then:
-        protocolDescriptor.protocolScheme == "request"
+        protocolDescriptor.protocolScheme == "rpc"
         protocolDescriptor.operations.size() == 3
 
     }

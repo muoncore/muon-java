@@ -11,14 +11,14 @@ import io.muoncore.extension.amqp.discovery.AmqpDiscovery;
 import io.muoncore.transport.ServiceCache;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection;
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class AmqpDiscoveryFactory implements DiscoveryFactory {
-    private static final String DISCOVERY_URL_PROPERTY_NAME = "amqp.discovery.url";
-    private static Logger LOG = Logger.getLogger(AmqpDiscoveryFactory.class.getName());
+    public static final String DISCOVERY_URL_PROPERTY_NAME = "amqp.discovery.url";
+    private static Logger LOG = LoggerFactory.getLogger(AmqpDiscoveryFactory.class.getName());
 
     @Override
     public Discovery build(Properties properties) {
@@ -36,7 +36,7 @@ public class AmqpDiscoveryFactory implements DiscoveryFactory {
             }
 
         } catch (Exception e) {
-            LOG.log(Level.WARNING, "Error creating AMQP discovery", e);
+            LOG.info("Error creating AMQP discovery", e);
         }
         return discovery;
     }

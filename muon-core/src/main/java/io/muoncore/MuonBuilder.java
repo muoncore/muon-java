@@ -6,14 +6,15 @@ import io.muoncore.discovery.MultiDiscovery;
 import io.muoncore.exception.MuonException;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.MuonTransportFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class MuonBuilder {
 
-    private Logger LOG = Logger.getLogger(MuonBuilder.class.getSimpleName());
+    private Logger LOG = LoggerFactory.getLogger(MuonBuilder.class.getSimpleName());
 
     private AutoConfiguration config;
 

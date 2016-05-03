@@ -12,17 +12,18 @@ import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.transport.MuonTransport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 public class AMQPMuonTransport implements MuonTransport {
 
-    private Logger log = Logger.getLogger(AMQPMuonTransport.class.getName());
+    private Logger log = LoggerFactory.getLogger(AMQPMuonTransport.class.getName());
     private String rabbitUrl;
     private List<AmqpChannel> channels;
     private ServiceQueue serviceQueue;
@@ -86,7 +87,7 @@ public class AMQPMuonTransport implements MuonTransport {
         channelFactory.initialiseEnvironment(codecs, discovery);
         log.info("Booting up transport with stack " + serverStacks);
         serviceQueue.onHandshake( handshake -> {
-            log.fine("opening new server channel with " + serverStacks);
+            log.debug("opening new server channel with " + serverStacks);
             ChannelConnection<MuonInboundMessage, MuonOutboundMessage> connection =
                     serverStacks.openServerChannel(handshake.getProtocol());
             AmqpChannel channel = channelFactory.createChannel();

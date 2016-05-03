@@ -3,6 +3,8 @@ package io.muoncore.spring.mapping;
 import io.muoncore.Muon;
 import io.muoncore.spring.controllers.MuonControllersConfigurationHolder;
 import io.muoncore.spring.methodinvocation.MuonStreamMethodInvocation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
@@ -12,8 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MuonStreamSubscriptionService {
 
@@ -26,12 +26,12 @@ public class MuonStreamSubscriptionService {
     @Autowired
     private MuonControllersConfigurationHolder muonControllersConfigurationHolder;
 
-    private static Logger LOG = Logger.getLogger(MuonStreamSubscriptionService.class.getName());
+    private static Logger LOG = LoggerFactory.getLogger(MuonStreamSubscriptionService.class.getName());
 
     @PostConstruct
     public void startMonitoring() {
         monitor.scheduleAtFixedRate(() -> {
-                    LOG.log(Level.FINE, "Checking connections");
+                    LOG.debug("Checking connections");
             for (StreamConnector streamConnector : streamConnectors) {
                 if (!streamConnector.isConnected()) {
                     try {

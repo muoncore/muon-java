@@ -6,13 +6,14 @@ import io.muoncore.transport.MuonTransport;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonMessage;
 import io.muoncore.message.MuonOutboundMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.Dispatcher;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 class MultiTransportClientChannelConnection implements ChannelConnection<MuonOutboundMessage, MuonInboundMessage> {
 
@@ -21,7 +22,7 @@ class MultiTransportClientChannelConnection implements ChannelConnection<MuonOut
     private Dispatcher dispatcher;
 
     private Map<String, ChannelConnection<MuonOutboundMessage, MuonInboundMessage>> channelConnectionMap = new HashMap<>();
-    private Logger LOG = Logger.getLogger(MultiTransportClientChannelConnection.class.getCanonicalName());
+    private Logger LOG = LoggerFactory.getLogger(MultiTransportClientChannelConnection.class.getCanonicalName());
 
     public MultiTransportClientChannelConnection(
             List<MuonTransport> transports, Dispatcher dispatcher) {
@@ -52,7 +53,7 @@ class MultiTransportClientChannelConnection implements ChannelConnection<MuonOut
                     if (connection == null) {
                         connection = connectChannel(message);
                         if (connection == null) {
-                            LOG.warning("Cannot open channel to service " + message.getTargetServiceName() + ", no transport accepted the message");
+                            LOG.warn("Cannot open channel to service " + message.getTargetServiceName() + ", no transport accepted the message");
                             inbound.apply(MuonInboundMessage.serviceNotFound(msg));
                             return;
                         } else {
