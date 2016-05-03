@@ -76,8 +76,6 @@ public class RabbitMq09QueueListener implements QueueListener {
                 }
             };
 
-            Thread.sleep(500);
-
             channel.basicConsume(queueName, false, consumer);
 
             latch.countDown();
