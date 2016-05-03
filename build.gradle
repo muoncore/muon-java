@@ -259,7 +259,7 @@ project('muon-core') {
         compile 'com.google.code.gson:gson:2.3.1'
         compile "io.projectreactor:reactor-stream:$reactorVersion"
         compile 'org.slf4j:slf4j-api:1.7.21'
-        optional 'org.slf4j:slf4j-jdk14:1.7.12'
+//        optional 'org.slf4j:slf4j-jdk14:1.7.12'
     }
 }
 
