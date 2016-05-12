@@ -20,38 +20,26 @@ public class EmitEvent {
 
         EventClient eventClient = new DefaultEventClient(muon);
 
-        eventClient.event(new ClientEvent<>(
-                "UserRegistered",
-                "users",
-                null,
-                null,
-                null,
-                new UserRegisteredEvent(
+        eventClient.event(
+                ClientEvent.ofType("UserRegistered")
+                .stream("users")
+                .payload(new UserRegisteredEvent(
                         "regsanders",
                         "Reginald",
-                        "Sanders")
-        ));
+                        "Sanders")).build());
 
-        eventClient.event(new ClientEvent<>(
-                "UserRegistered",
-                "users",
-                null,
-                null,
-                null,
-                new UserRegisteredEvent(
+        eventClient.event(
+                ClientEvent.ofType("UserRegistered")
+                .stream("users")
+                .payload(new UserRegisteredEvent(
                         "derek",
                         "Derek",
-                        "Blimby")
-        ));
+                        "Blimby")).build());
 
-        eventClient.event(new ClientEvent<>(
-                "UserDeleted",
-                "users",
-                null,
-                null,
-                null,
-                new UserDeletedEvent("regsanders")
-        ));
+        eventClient.event(
+                ClientEvent.ofType("UserRegistered")
+                        .stream("users")
+                        .payload(new UserDeletedEvent("regsanders")).build());
 
         System.out.println("User data updated");
         muon.shutdown();
