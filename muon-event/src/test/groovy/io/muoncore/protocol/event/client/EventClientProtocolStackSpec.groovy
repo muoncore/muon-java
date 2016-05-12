@@ -10,10 +10,10 @@ import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.descriptors.ProtocolDescriptor
 import io.muoncore.descriptors.ServiceExtendedDescriptor
+import io.muoncore.message.MuonMessage
+import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.protocol.event.ClientEvent
-import io.muoncore.message.MuonInboundMessage
-import io.muoncore.message.MuonMessage
 import io.muoncore.transport.client.TransportClient
 import spock.lang.Specification
 import spock.lang.Timeout
@@ -59,23 +59,22 @@ class EventClientProtocolStackSpec extends Specification {
 
         when:
         def future = evClient.event(
-                new ClientEvent("awesome", "SomethingHappened", "simples", 1234, "myService", []))
+                ClientEvent.ofType("SomethingHappened").stream("awesome").payload([]).build())
 
         and: "A response comes back from the remote"
         Thread.start {
             Thread.sleep(100)
-            capturedFunction(new MuonInboundMessage(
-                    "response",
-                    "localId",
-                    "targetService",
-                    "sourceServiceName",
-                    "fakeproto",
-                    ["status":"200"],
-                    "text/plain",
-                    new byte[0], [], MuonMessage.ChannelOperation.normal))
+            println("Message came back!")
+            capturedFunction(MuonMessageBuilder.fromService("sourceServiceName")
+                    .toService("targetService")
+                    .protocol("fakeproto")
+                    .contentType("text/plain")
+                    .step("response")
+                    .payload(new byte[0])
+                    .buildInbound())
         }
 
-        sleep(200)
+        sleep(500)
 
         then:
         capturedFunction != null
@@ -118,7 +117,7 @@ class EventClientProtocolStackSpec extends Specification {
 
         when:
         eventStore.event(
-                new ClientEvent("awesome", "SomethingHappened", "simples", 1234, "myService", []))
+                ClientEvent.ofType("SomethingHappened").stream("awesome").payload([]).build())
         sleep(50)
 
         then:

@@ -18,7 +18,7 @@ public class ClientEvent<X> {
             String eventType,
             String streamName,
             String schema,
-            Long   causedById,
+            Long causedById,
             String causedByRelation,
             X payload) {
         this.schema = schema;
@@ -63,4 +63,9 @@ public class ClientEvent<X> {
                 ", schema='" + schema + '\'' +
                 '}';
     }
+
+    public static <X> EventBuilder<X> ofType(String type) {
+        return new EventBuilder<X>().eventType(type);
+    }
+
 }

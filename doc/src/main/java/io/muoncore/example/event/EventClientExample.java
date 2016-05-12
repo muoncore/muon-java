@@ -29,25 +29,22 @@ public class EventClientExample {
         // end::createclient[]
 
         // tag::replay[]
-        Broadcaster<Event<MyDataPayload>> sub = Broadcaster.create();
+        Broadcaster<Event<UserRegistered>> sub = Broadcaster.create();
         sub.consume( msg -> {
 //            println "EVENT = ${it}"
 
         });
 
-        evclient.replay("users", EventReplayMode.REPLAY_THEN_LIVE, MyDataPayload.class, sub);
+        evclient.replay("users", EventReplayMode.REPLAY_THEN_LIVE, UserRegistered.class, sub);
         // end::replay[]
 
 
         // tag::emitevent[]
         evclient.event(
-                new ClientEvent<>(
-                        "UserRegistered",
-                        "users",
-                        null,
-                        null,
-                        null,
-                        new MyDataPayload()));
+                ClientEvent.ofType("UserRegistered")
+                        .payload(new UserRegistered("Roger", "Rabbit"))
+                        .stream("users")
+                        .build());
 
         // end::emitevent[]
 
@@ -55,19 +52,32 @@ public class EventClientExample {
 
         Set<String> userList = new HashSet<>();
 
-        Broadcaster<Event<MyDataPayload>> eventsourceSubscriber = Broadcaster.create();
+        Broadcaster<Event<UserRegistered>> eventsourceSubscriber = Broadcaster.create();
         eventsourceSubscriber.consume( event -> {
-            event.getPayload();  // (1)
-
+            System.out.printf("User was registered %s %s", event.getPayload().getFirstname(), event.getPayload().getLastname());
+            userList.add(event.getPayload().getFirstname() + " " + event.getPayload().getLastname());
         });
 
-        evclient.replay("users", EventReplayMode.REPLAY_THEN_LIVE, MyDataPayload.class, eventsourceSubscriber);
+        evclient.replay("users", EventReplayMode.REPLAY_THEN_LIVE, UserRegistered.class, eventsourceSubscriber);
 
         // end::eventsource[]
-
     }
 
-    static class MyDataPayload {
-//        private String
+    static class UserRegistered {
+        private String firstname;
+        private String lastname;
+
+        public UserRegistered(String firstname, String lastname) {
+            this.firstname = firstname;
+            this.lastname = lastname;
+        }
+
+        public String getFirstname() {
+            return firstname;
+        }
+
+        public String getLastname() {
+            return lastname;
+        }
     }
 }
