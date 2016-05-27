@@ -22,7 +22,7 @@ public class Event<X> {
     private String service;
     @SerializedName("order-id")
     private Long orderId;
-    @SerializedName("server-timestamp")
+    @SerializedName("event-time")
     private Long eventTime;
     private X payload;
 
