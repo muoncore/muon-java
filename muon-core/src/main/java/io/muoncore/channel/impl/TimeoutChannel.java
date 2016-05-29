@@ -4,31 +4,42 @@ import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.support.Scheduler;
 import io.muoncore.exception.MuonException;
-import io.muoncore.message.MuonMessage;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessageBuilder;
+import io.muoncore.message.MuonOutboundMessage;
 import reactor.core.Dispatcher;
 
-public class TimeoutChannel<GoingLeft extends MuonMessage, GoingRight extends MuonMessage> implements Channel<GoingLeft, GoingRight> {
+import java.util.concurrent.TimeUnit;
 
-    private ChannelConnection<GoingLeft, GoingRight> left;
-    private ChannelConnection<GoingRight, GoingLeft> right;
+public class TimeoutChannel implements Channel<MuonOutboundMessage, MuonInboundMessage> {
 
-    private ChannelConnection.ChannelFunction<GoingLeft> leftFunction;
-    private ChannelConnection.ChannelFunction<GoingRight> rightFunction;
-    private long timeout;
+    public final static String TIMEOUT_STEP = "TIMEOUT";
+
+    private ChannelConnection<MuonOutboundMessage, MuonInboundMessage> left;
+    private ChannelConnection<MuonInboundMessage, MuonOutboundMessage> right;
+
+    private ChannelConnection.ChannelFunction<MuonOutboundMessage> leftFunction;
+    private ChannelConnection.ChannelFunction<MuonInboundMessage> rightFunction;
+
+    private final long timeout;
+    private final Scheduler scheduler;
+    private Scheduler.TimerControl timerControl;
 
     public TimeoutChannel(Dispatcher dispatcher, Scheduler scheduler, long timeout) {
         this.timeout = timeout;
+        this.scheduler = scheduler;
         String leftname = "left";
         String rightname = "right";
 
-        left = new ChannelConnection<GoingLeft, GoingRight>() {
+        left = new ChannelConnection<MuonOutboundMessage, MuonInboundMessage>() {
             @Override
-            public void receive(ChannelFunction<GoingRight> function) {
+            public void receive(ChannelFunction<MuonInboundMessage> function) {
                 rightFunction = function;
             }
 
             @Override
-            public void send(GoingLeft message) {
+            public void send(MuonOutboundMessage message) {
+                resetTimeout();
                 if (leftFunction == null) {
                     throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
                 }
@@ -40,18 +51,19 @@ public class TimeoutChannel<GoingLeft extends MuonMessage, GoingRight extends Mu
 
             @Override
             public void shutdown() {
+                timerControl.cancel();
                 leftFunction.apply(null);
             }
         };
 
-        right = new ChannelConnection<GoingRight, GoingLeft>() {
+        right = new ChannelConnection<MuonInboundMessage, MuonOutboundMessage>() {
             @Override
-            public void receive(ChannelFunction<GoingLeft> function) {
+            public void receive(ChannelFunction<MuonOutboundMessage> function) {
                 leftFunction = function;
             }
 
             @Override
-            public void send(GoingRight message) {
+            public void send(MuonInboundMessage message) {
                 if (rightFunction == null) {
                     throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
                 }
@@ -64,18 +76,31 @@ public class TimeoutChannel<GoingLeft extends MuonMessage, GoingRight extends Mu
 
             @Override
             public void shutdown() {
+                timerControl.cancel();
                 rightFunction.apply(null);
             }
         };
     }
 
     @Override
-    public ChannelConnection<GoingRight, GoingLeft> right() {
+    public ChannelConnection<MuonInboundMessage, MuonOutboundMessage> right() {
         return right;
     }
 
     @Override
-    public ChannelConnection<GoingLeft, GoingRight> left() {
+    public ChannelConnection<MuonOutboundMessage, MuonInboundMessage> left() {
         return left;
+    }
+
+    private void resetTimeout() {
+        if (timerControl != null) {
+            timerControl.cancel();
+        }
+        timerControl = scheduler.executeIn(timeout, TimeUnit.MILLISECONDS, () -> {
+            rightFunction.apply(
+                    MuonMessageBuilder.fromService("local")
+                    .protocol("timeout")
+                    .step(TIMEOUT_STEP).buildInbound());
+        });
     }
 }

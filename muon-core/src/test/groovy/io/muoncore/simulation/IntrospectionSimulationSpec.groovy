@@ -15,7 +15,6 @@ import spock.lang.Timeout
 
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
-
 class IntrospectionSimulationSpec extends Specification {
 
     def eventbus = new EventBus()

@@ -1,7 +1,9 @@
 package io.muoncore.channel;
 
 import io.muoncore.channel.impl.StandardAsyncChannel;
+import io.muoncore.channel.impl.TimeoutChannel;
 import io.muoncore.channel.impl.WiretapChannel;
+import io.muoncore.channel.support.Scheduler;
 import io.muoncore.message.MuonMessage;
 import io.muoncore.transport.client.RingBufferLocalDispatcher;
 import io.muoncore.transport.client.TransportMessageDispatcher;
@@ -19,6 +21,13 @@ public class Channels {
     public static void shutdown() {
 //        EVENT_DISPATCHER.shutdown();
 //        WORK_DISPATCHER.shutdown();
+    }
+
+    /**
+     * Create a channel that will issue a timeout to the left if no messages come from the right within the period.
+     */
+    public static TimeoutChannel timeout(Scheduler scheduler, long timeout) {
+        return new TimeoutChannel(EVENT_DISPATCHER, scheduler, timeout);
     }
 
     /**

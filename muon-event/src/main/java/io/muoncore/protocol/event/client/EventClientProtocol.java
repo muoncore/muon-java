@@ -3,6 +3,7 @@ package io.muoncore.protocol.event.client;
 import io.muoncore.Discovery;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.channel.impl.TimeoutChannel;
 import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.message.MuonInboundMessage;
@@ -47,14 +48,13 @@ public class EventClientProtocol<X> {
                             "Remote service does not support event sink protocol");
                     break;
 
+                case TimeoutChannel.TIMEOUT_STEP:
+                    result = new EventResult(EventResult.EventResultStatus.FAILED,
+                            "A timeout occurred, the remote service did not send a response");
+                    break;
                 default:
                     result = codecs.decode(message.getPayload(), message.getContentType(), EventResult.class);
             }
-
-            //TODO, error handling
-            /*
-              timeout?
-             */
 
             leftChannelConnection.send(result);
             leftChannelConnection.shutdown();

@@ -53,19 +53,20 @@ public class DefaultEventClient implements EventClient {
     public <X> EventResult event(ClientEvent<X> event) {
         try {
             Channel<ClientEvent<X>, EventResult> api2eventproto = Channels.channel("eventapi", "eventproto");
-            Channel<MuonOutboundMessage, MuonInboundMessage> rrp2transport = Channels.channel("eventproto", "transport");
 
             ChannelFutureAdapter<EventResult, ClientEvent<X>> adapter =
                     new ChannelFutureAdapter<>(api2eventproto.left());
+
+            Channel<MuonOutboundMessage, MuonInboundMessage> timeoutChannel = Channels.timeout(muon.getScheduler(), 1000);
 
             new EventClientProtocol<>(
                     config,
                     discovery,
                     codecs,
                     api2eventproto.right(),
-                    rrp2transport.left());
+                    timeoutChannel.left());
 
-            Channels.connect(rrp2transport.right(), transportClient.openClientChannel());
+            Channels.connect(timeoutChannel.right(), transportClient.openClientChannel());
 
             return adapter.request(event).get();
         } catch (InterruptedException | ExecutionException e) {

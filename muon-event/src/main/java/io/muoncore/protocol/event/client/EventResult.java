@@ -38,5 +38,15 @@ public class EventResult {
     public enum EventResultStatus {
         PERSISTED, FAILED
     }
+
+    @Override
+    public String toString() {
+        return "EventResult{" +
+                "eventTime=" + eventTime +
+                ", orderId=" + orderId +
+                ", status=" + status +
+                ", cause='" + cause + '\'' +
+                '}';
+    }
 }
 

@@ -24,6 +24,117 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
         findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], []))
     }
 
+    @Timeout(15)
+    def "client gets a timeout if the server is slow"() {
+        given:
+        Environment.initializeIfEmpty()
+        def handlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler() {
+            @Override
+            HandlerPredicate getPredicate() {
+                return HandlerPredicates.none()
+            }
+
+            @Override
+            void handle(RequestWrapper request) {
+                request.answer(new ServerResponse(200, [message:"defaultservice"]))
+            }
+
+        })
+        handlers.addHandler(new RequestResponseServerHandler() {
+            @Override
+            HandlerPredicate getPredicate() {
+                return new HandlerPredicate() {
+                    @Override
+                    String resourceString() {
+                        return ""
+                    }
+
+                    @Override
+                    Predicate<ServerRequest> matcher() {
+                        return { it.url.host == "someapp" }
+                    }
+                }
+            }
+
+            @Override
+            void handle(RequestWrapper request) {
+                sleep(11000)
+                request.answer(new ServerResponse(200, [message:"hello"]))
+            }
+
+        })
+
+        def server = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery, new AutoConfiguration(serviceName: "simples"))
+
+        def channel = Channels.channel("left", "right")
+
+        //does the conversion from outbound<=>inbound that the transport pair would ordinarily do.
+        Channels.connectAndTransform(
+                server.createChannel(),
+                channel.left(),
+                { MuonOutboundMessage msg ->
+                    if (msg == null) return null
+                    MuonMessageBuilder
+                            .fromService(msg.targetServiceName)
+                            .toService(msg.targetServiceName)
+                            .step(msg.step)
+                            .status(msg.status)
+                            .protocol(msg.protocol)
+                            .contentType(msg.contentType)
+                            .payload(msg.payload)
+                            .operation(msg.channelOperation)
+                            .buildInbound()
+
+                },
+                { MuonOutboundMessage msg ->
+                    if (msg == null) return null
+                    MuonMessageBuilder
+                            .fromService(msg.targetServiceName)
+                            .toService(msg.targetServiceName)
+                            .step(msg.step)
+                            .status(msg.status)
+                            .protocol(msg.protocol)
+                            .contentType(msg.contentType)
+                            .payload(msg.payload)
+                            .operation(msg.channelOperation)
+                            .buildInbound()
+                }
+        )
+
+        def transportClient = Mock(TransportClient) {
+            openClientChannel() >> channel.right()
+        }
+
+        def client = new RequestResponseClientProtocolStack() {
+            @Override
+            TransportClient getTransportClient() {
+                return transportClient
+            }
+
+            @Override
+            Codecs getCodecs() {
+                return new JsonOnlyCodecs()
+            }
+
+            @Override
+            AutoConfiguration getConfiguration() {
+                return new AutoConfiguration(serviceName: "remote")
+            }
+
+            @Override
+            Scheduler getScheduler() {
+                return new Scheduler()
+            }
+        }
+
+        when:
+        Response response = client.request(
+                new Request(new URI("request://someapp"), [message:"yoyo"])).get()
+
+        then:
+        response.status == 408
+    }
+
     @Timeout(2)
     def "client and server can communicate"() {
         given:

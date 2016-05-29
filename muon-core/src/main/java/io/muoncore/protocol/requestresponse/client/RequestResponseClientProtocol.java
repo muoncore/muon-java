@@ -1,6 +1,8 @@
 package io.muoncore.protocol.requestresponse.client;
 
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.channel.impl.TimeoutChannel;
+import io.muoncore.channel.support.Scheduler;
 import io.muoncore.codec.Codecs;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonOutboundMessage;
@@ -8,7 +10,6 @@ import io.muoncore.protocol.requestresponse.RRPEvents;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.channel.support.Scheduler;
 import io.muoncore.transport.TransportEvents;
 
 /**
@@ -50,6 +51,15 @@ public class RequestResponseClientProtocol {
                     leftChannelConnection.send(
                             new Response(
                                     404,
+                                    encoded.getPayload(),
+                                    encoded.getContentType(),
+                                    codecs));
+                    break;
+                case TimeoutChannel.TIMEOUT_STEP:
+                    encoded = codecs.encode("Client timeout, no data received from the remote", codecs.getAvailableCodecs());
+                    leftChannelConnection.send(
+                            new Response(
+                                    408,
                                     encoded.getPayload(),
                                     encoded.getContentType(),
                                     codecs));

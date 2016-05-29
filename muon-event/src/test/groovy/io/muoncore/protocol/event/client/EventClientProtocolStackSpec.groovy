@@ -6,6 +6,7 @@ import io.muoncore.ServiceDescriptor
 import io.muoncore.api.MuonFuture
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.channel.impl.StandardAsyncChannel
+import io.muoncore.channel.support.Scheduler
 import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.descriptors.ProtocolDescriptor
@@ -142,6 +143,44 @@ class EventClientProtocolStackSpec extends Specification {
         def muon = Mock(Muon) {
             getTransportClient() >> transportClient
             getDiscovery() >> discovery
+        }
+
+        def eventStore = new DefaultEventClient(muon)
+
+        when:
+        def response = eventStore.event(
+                new ClientEvent("awesome", "SomethingHappened2", "simples", 1234, "myService", []))
+
+        then:
+        response
+        response.status == EventResult.EventResultStatus.FAILED
+
+        cleanup:
+        StandardAsyncChannel.echoOut=false
+    }
+
+    @Timeout(30)
+    def "Sends a failed response if timeout occurs"() {
+
+        StandardAsyncChannel.echoOut=true
+        def config = new AutoConfiguration(serviceName: "tombola")
+        def discovery = Mock(Discovery) {
+            findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], [], []))
+        }
+        def clientChannel = Mock(ChannelConnection)
+        def transportClient = Mock(TransportClient) {
+            openClientChannel() >> clientChannel
+        }
+
+        def muon = Mock(Muon) {
+            getScheduler() >> new Scheduler()
+            getConfiguration() >> config
+            getTransportClient() >> transportClient
+            getDiscovery() >> discovery
+            getCodecs() >> Mock(Codecs) {
+                getAvailableCodecs() >> ([] as String[])
+                encode(_, _) >> new Codecs.EncodingResult(new byte[0], "application/json")
+            }
         }
 
         def eventStore = new DefaultEventClient(muon)

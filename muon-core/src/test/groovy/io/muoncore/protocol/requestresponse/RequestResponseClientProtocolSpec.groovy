@@ -1,6 +1,7 @@
 package io.muoncore.protocol.requestresponse
 
 import io.muoncore.channel.Channels
+import io.muoncore.channel.impl.TimeoutChannel
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.message.MuonInboundMessage
 import io.muoncore.message.MuonMessageBuilder
@@ -74,6 +75,43 @@ class RequestResponseClientProtocolSpec extends Specification {
         new PollingConditions().eventually {
             ret instanceof Response
             ret.status==404
+        }
+    }
+
+    def "when receiving a TIMEOUT, returns a 408 response"() {
+
+        Environment.initializeIfEmpty()
+        Response ret
+
+        def leftChannel = Channels.channel("left", "right")
+        def rightChannel = Channels.channel("left", "right")
+
+        leftChannel.left().receive({
+            ret = it
+        })
+
+        def proto = new RequestResponseClientProtocol(
+                "tombola",
+                leftChannel.right(),
+                rightChannel.left(),
+                new JsonOnlyCodecs(), new Scheduler())
+
+        when:
+        rightChannel.right().send(
+                MuonMessageBuilder
+                        .fromService("tombole")
+                        .toService("simples")
+                        .step(TimeoutChannel.TIMEOUT_STEP)
+                        .protocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
+                        .contentType("application/json")
+                        .payload()
+                        .buildInbound()
+        )
+
+        then:
+        new PollingConditions().eventually {
+            ret instanceof Response
+            ret.status==408
         }
     }
 }

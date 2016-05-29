@@ -3,14 +3,17 @@ package io.muoncore.protocol.requestresponse.client;
 import io.muoncore.api.ChannelFutureAdapter;
 import io.muoncore.api.MuonFuture;
 import io.muoncore.channel.Channel;
+import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
+import io.muoncore.channel.support.SchedulerSource;
 import io.muoncore.codec.CodecsSource;
 import io.muoncore.exception.MuonException;
+import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.ServiceConfigurationSource;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.channel.support.SchedulerSource;
 import io.muoncore.transport.TransportClientSource;
 
 import java.net.URI;
@@ -44,10 +47,16 @@ public interface RequestResponseClientProtocolStack extends
         ChannelFutureAdapter<Response, Request> adapter =
                 new ChannelFutureAdapter<>(api2rrp.left());
 
+
+        Channel<MuonOutboundMessage, MuonInboundMessage> timeoutChannel = Channels.timeout(getScheduler(), 10000);
+
+        ChannelConnection<MuonOutboundMessage, MuonInboundMessage> connection = getTransportClient().openClientChannel();
+        Channels.connect(timeoutChannel.right(), connection);
+
         new RequestResponseClientProtocol(
                 getConfiguration().getServiceName(),
                 api2rrp.right(),
-                getTransportClient().openClientChannel(),
+                timeoutChannel.left(),
                 getCodecs(),
                 getScheduler());
 
