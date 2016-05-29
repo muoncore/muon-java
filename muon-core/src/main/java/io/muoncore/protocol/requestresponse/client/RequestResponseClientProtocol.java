@@ -64,6 +64,15 @@ public class RequestResponseClientProtocol {
                                     encoded.getContentType(),
                                     codecs));
                     break;
+                case TransportEvents.CONNECTION_FAILURE:
+                    encoded = codecs.encode("The channel has failed, no data received from the remote and the connection is now broken", codecs.getAvailableCodecs());
+                    leftChannelConnection.send(
+                            new Response(
+                                    408,
+                                    encoded.getPayload(),
+                                    encoded.getContentType(),
+                                    codecs));
+                    break;
                 default:
                     Codecs.EncodingResult encoded500 = codecs.encode("Unknown error sending to " + message.getSourceServiceName(), codecs.getAvailableCodecs());
                     leftChannelConnection.send(
