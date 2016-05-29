@@ -95,9 +95,6 @@ public class ReactiveStreamClientProtocol<T> {
             case ProtocolMessages.NACK:
                 subscriber.onError(new MuonException("Stream does not exist"));
                 break;
-            case TransportEvents.SERVICE_NOT_FOUND:
-                subscriber.onError(new MuonException("Service " + msg.getSourceServiceName() + " does not exist"));
-                break;
             case ProtocolMessages.DATA:
                 subscriber.onNext(codecs.decode(msg.getPayload(), msg.getContentType(), type));
                 break;
@@ -106,6 +103,16 @@ public class ReactiveStreamClientProtocol<T> {
                 break;
             case ProtocolMessages.COMPLETE:
                 subscriber.onComplete();
+                break;
+            case TransportEvents.SERVICE_NOT_FOUND:
+                subscriber.onError(new MuonException("Service " + msg.getSourceServiceName() + " does not exist"));
+                break;
+            case TransportEvents.CONNECTION_FAILURE:
+                subscriber.onError(new MuonException("Connection lost to remote service, the channel has shut down due to a transport failure"));
+                break;
+            default:
+                subscriber.onError(new MuonException("An unknown step in the protocol [" + msg.getStep() + "] has been sent, this is a bug"));
+                break;
         }
     }
 
