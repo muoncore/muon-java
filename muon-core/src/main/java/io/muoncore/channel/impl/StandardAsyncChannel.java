@@ -1,14 +1,15 @@
-package io.muoncore.channel.async;
+package io.muoncore.channel.impl;
 
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.exception.MuonException;
-import io.muoncore.message.MuonMessage;
-import io.muoncore.transport.client.RingBufferLocalDispatcher;
-import io.muoncore.transport.client.TransportMessageDispatcher;
 import reactor.core.Dispatcher;
 
-public class WiretapChannel<GoingLeft extends MuonMessage, GoingRight extends MuonMessage> implements Channel<GoingLeft, GoingRight> {
+import java.util.Date;
+
+public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<GoingLeft, GoingRight> {
+
+    private Dispatcher dispatcher;
 
     private ChannelConnection<GoingLeft, GoingRight> left;
     private ChannelConnection<GoingRight, GoingLeft> right;
@@ -18,10 +19,9 @@ public class WiretapChannel<GoingLeft extends MuonMessage, GoingRight extends Mu
 
     public static boolean echoOut = false;
 
-    public WiretapChannel(Dispatcher dispatcher, TransportMessageDispatcher transportMessageDispatcher) {
+    public StandardAsyncChannel(String leftname, String rightname, Dispatcher dispatcher) {
 
-        String leftname = "left";
-        String rightname = "right";
+        this.dispatcher = dispatcher;
 
         left = new ChannelConnection<GoingLeft, GoingRight>() {
             @Override
@@ -35,15 +35,18 @@ public class WiretapChannel<GoingLeft extends MuonMessage, GoingRight extends Mu
                     throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
                 }
                 dispatcher.dispatch(message, msg -> {
-                    if (echoOut) System.out.println("WiretapChannel[" + leftname + " >>>>> " + rightname + "]: Sending " + msg + " to " + leftFunction);
-                    transportMessageDispatcher.dispatch(msg);
+                    if (echoOut) System.out.println(new Date() + ": Channel[" + leftname + " >>>>> " + rightname + "]: Sending " + msg + " to " + leftFunction);
                     leftFunction.apply(message); }
                         ,  Throwable::printStackTrace);
             }
 
             @Override
             public void shutdown() {
-                leftFunction.apply(null);
+                dispatcher.dispatch(this, msg -> {
+                    if (echoOut)
+                        System.out.println(new Date() + ": Channel[" + rightname + " <<<< " + leftFunction+ "]: SHUTDOWN to " + leftFunction);
+                    leftFunction.apply(null);
+                }, Throwable::printStackTrace);
             }
         };
 
@@ -60,15 +63,18 @@ public class WiretapChannel<GoingLeft extends MuonMessage, GoingRight extends Mu
                 }
                 dispatcher.dispatch(message, msg -> {
                     if (echoOut)
-                        System.out.println("WiretapChannel[" + leftname + " <<<< " + rightname + "]: " + msg + " to " + rightFunction);
-                    transportMessageDispatcher.dispatch(msg);
+                        System.out.println(new Date() + ": Channel[" + leftname + " <<<< " + rightname + "]: " + msg + " to " + rightFunction);
                     rightFunction.apply(message);
                 }, Throwable::printStackTrace);
             }
 
             @Override
             public void shutdown() {
-                rightFunction.apply(null);
+                dispatcher.dispatch(this, msg -> {
+                    if (echoOut)
+                        System.out.println(new Date() + ": Channel[" + leftname + " <<<< " + rightname + "]: SHUTDOWN to " + rightFunction);
+                    rightFunction.apply(null);
+                }, Throwable::printStackTrace);
             }
         };
     }

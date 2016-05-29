@@ -2,7 +2,7 @@ package io.muoncore.extension.amqp.externalbroker
 
 import io.muoncore.MultiTransportMuon
 import io.muoncore.Muon
-import io.muoncore.channel.async.StandardAsyncChannel
+import io.muoncore.channel.impl.StandardAsyncChannel
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.extension.amqp.AMQPMuonTransport
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory

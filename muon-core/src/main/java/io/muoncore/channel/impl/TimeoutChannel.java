@@ -1,27 +1,25 @@
-package io.muoncore.channel.async;
+package io.muoncore.channel.impl;
 
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.channel.support.Scheduler;
 import io.muoncore.exception.MuonException;
+import io.muoncore.message.MuonMessage;
 import reactor.core.Dispatcher;
 
-import java.util.Date;
-
-public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<GoingLeft, GoingRight> {
-
-    private Dispatcher dispatcher;
+public class TimeoutChannel<GoingLeft extends MuonMessage, GoingRight extends MuonMessage> implements Channel<GoingLeft, GoingRight> {
 
     private ChannelConnection<GoingLeft, GoingRight> left;
     private ChannelConnection<GoingRight, GoingLeft> right;
 
     private ChannelConnection.ChannelFunction<GoingLeft> leftFunction;
     private ChannelConnection.ChannelFunction<GoingRight> rightFunction;
+    private long timeout;
 
-    public static boolean echoOut = false;
-
-    public StandardAsyncChannel(String leftname, String rightname, Dispatcher dispatcher) {
-
-        this.dispatcher = dispatcher;
+    public TimeoutChannel(Dispatcher dispatcher, Scheduler scheduler, long timeout) {
+        this.timeout = timeout;
+        String leftname = "left";
+        String rightname = "right";
 
         left = new ChannelConnection<GoingLeft, GoingRight>() {
             @Override
@@ -35,18 +33,14 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
                     throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
                 }
                 dispatcher.dispatch(message, msg -> {
-                    if (echoOut) System.out.println(new Date() + ": Channel[" + leftname + " >>>>> " + rightname + "]: Sending " + msg + " to " + leftFunction);
+                    if (StandardAsyncChannel.echoOut) System.out.println("WiretapChannel[" + leftname + " >>>>> " + rightname + "]: Sending " + msg + " to " + leftFunction);
                     leftFunction.apply(message); }
                         ,  Throwable::printStackTrace);
             }
 
             @Override
             public void shutdown() {
-                dispatcher.dispatch(this, msg -> {
-                    if (echoOut)
-                        System.out.println(new Date() + ": Channel[" + rightname + " <<<< " + leftFunction+ "]: SHUTDOWN to " + leftFunction);
-                    leftFunction.apply(null);
-                }, Throwable::printStackTrace);
+                leftFunction.apply(null);
             }
         };
 
@@ -62,19 +56,15 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
                     throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
                 }
                 dispatcher.dispatch(message, msg -> {
-                    if (echoOut)
-                        System.out.println(new Date() + ": Channel[" + leftname + " <<<< " + rightname + "]: " + msg + " to " + rightFunction);
+                    if (StandardAsyncChannel.echoOut)
+                        System.out.println("WiretapChannel[" + leftname + " <<<< " + rightname + "]: " + msg + " to " + rightFunction);
                     rightFunction.apply(message);
                 }, Throwable::printStackTrace);
             }
 
             @Override
             public void shutdown() {
-                dispatcher.dispatch(this, msg -> {
-                    if (echoOut)
-                        System.out.println(new Date() + ": Channel[" + leftname + " <<<< " + rightname + "]: SHUTDOWN to " + rightFunction);
-                    rightFunction.apply(null);
-                }, Throwable::printStackTrace);
+                rightFunction.apply(null);
             }
         };
     }

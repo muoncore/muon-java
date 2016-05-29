@@ -5,7 +5,7 @@ import io.muoncore.Muon
 import io.muoncore.ServiceDescriptor
 import io.muoncore.api.MuonFuture
 import io.muoncore.channel.ChannelConnection
-import io.muoncore.channel.async.StandardAsyncChannel
+import io.muoncore.channel.impl.StandardAsyncChannel
 import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.descriptors.ProtocolDescriptor

@@ -10,7 +10,7 @@ import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.message.MuonOutboundMessage
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocolStack
 import io.muoncore.protocol.requestresponse.server.*
-import io.muoncore.protocol.support.ProtocolTimer
+import io.muoncore.channel.support.Scheduler
 import io.muoncore.transport.client.TransportClient
 import reactor.Environment
 import spock.lang.Specification
@@ -121,8 +121,8 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
             }
 
             @Override
-            ProtocolTimer getProtocolTimer() {
-                return new ProtocolTimer()
+            Scheduler getScheduler() {
+                return new Scheduler()
             }
         }
 

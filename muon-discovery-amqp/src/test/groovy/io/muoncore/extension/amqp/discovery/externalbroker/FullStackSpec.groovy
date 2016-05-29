@@ -2,7 +2,7 @@ package io.muoncore.extension.amqp.discovery.externalbroker
 
 import io.muoncore.Muon
 import io.muoncore.MuonBuilder
-import io.muoncore.channel.async.StandardAsyncChannel
+import io.muoncore.channel.impl.StandardAsyncChannel
 import io.muoncore.config.MuonConfigBuilder
 import io.muoncore.message.MuonMessage
 import io.muoncore.protocol.requestresponse.server.ServerResponse

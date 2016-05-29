@@ -1,7 +1,7 @@
 package io.muoncore.channel;
 
-import io.muoncore.channel.async.StandardAsyncChannel;
-import io.muoncore.channel.async.WiretapChannel;
+import io.muoncore.channel.impl.StandardAsyncChannel;
+import io.muoncore.channel.impl.WiretapChannel;
 import io.muoncore.message.MuonMessage;
 import io.muoncore.transport.client.RingBufferLocalDispatcher;
 import io.muoncore.transport.client.TransportMessageDispatcher;

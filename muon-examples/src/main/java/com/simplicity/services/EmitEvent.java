@@ -26,6 +26,7 @@ public class EmitEvent {
                 .withTags("node", "awesome")
                 .build();
 
+
         Muon muon = MuonBuilder.withConfig(config).build();
 
         EventClient client = new DefaultEventClient(muon);
@@ -35,10 +36,17 @@ public class EmitEvent {
         Map data = new HashMap<>();
         data.put("hello", "world");
 
-        for(int i=0; i < 500; i++ ) {
-            EventResult res = client.event(new ClientEvent("awesome", "awesome", "1.0", 12313l, "causedby",  data));
+//        for(int i=0; i < 500; i++ ) {
+
+            EventResult res = client.event(
+                    ClientEvent.ofType("SomethingHappened")
+                            .schema("17")
+                        .stream("something").payload(data).build()
+
+            );
             System.out.println("Restul is " + res.getStatus() + " " + res.getCause());
-        }
+            System.out.println("Restul is " + res.getEventTime() + " " + res.getOrderId());
+//        }
 
         muon.shutdown();
     }

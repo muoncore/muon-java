@@ -8,7 +8,7 @@ import io.muoncore.protocol.requestresponse.RRPEvents;
 import io.muoncore.protocol.requestresponse.RRPTransformers;
 import io.muoncore.protocol.requestresponse.Request;
 import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.protocol.support.ProtocolTimer;
+import io.muoncore.channel.support.Scheduler;
 import io.muoncore.transport.TransportEvents;
 
 /**
@@ -19,16 +19,16 @@ import io.muoncore.transport.TransportEvents;
 public class RequestResponseClientProtocol {
 
     private Codecs codecs;
-    private ProtocolTimer timer;
+    private Scheduler timer;
 
-    private ProtocolTimer.TimerControl localTimeoutEvent;
+    private Scheduler.TimerControl localTimeoutEvent;
 
     public RequestResponseClientProtocol(
             String serviceName,
             final ChannelConnection<Response, Request> leftChannelConnection,
             final ChannelConnection<MuonOutboundMessage, MuonInboundMessage> rightChannelConnection,
             final Codecs codecs,
-            final ProtocolTimer timer) {
+            final Scheduler timer) {
 
         rightChannelConnection.receive(message -> {
             if (message == null) {

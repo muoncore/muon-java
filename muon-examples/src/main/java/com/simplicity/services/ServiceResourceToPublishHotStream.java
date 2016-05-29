@@ -1,30 +1,38 @@
 package com.simplicity.services;
 
+import io.muoncore.Muon;
+import io.muoncore.MuonBuilder;
+import io.muoncore.config.AutoConfiguration;
+import io.muoncore.config.MuonConfigBuilder;
+import io.muoncore.protocol.reactivestream.server.PublisherLookup;
+import reactor.rx.broadcast.Broadcaster;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+
+import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.path;
+
 public class ServiceResourceToPublishHotStream {
 
-//    public static void main(String[] args) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException {
-//
-//        final OldMuon muon = new OldMuon(
-//                new AmqpDiscovery("amqp://localhost:5672"));
-//
-//        muon.setServiceIdentifer("resourcePublisher");
-//        new AmqpTransportExtension("amqp://localhost:5672").extend(muon);
-//        muon.start();
-//
-//        final Broadcaster<Map> stream = Broadcaster.create();
-//
-//        muon.onQuery("/data", Map.class, new MuonService.MuonQueryListener<Map>() {
-//            @Override
-//            public MuonFuture onQuery(MuonResourceEvent queryEvent) {
-//
-//                Map<String, String> data = new HashMap<String, String>();
-//
-//                stream.accept(data);
-//
-//                return MuonFutures.immediately(data);
-//            }
-//        });
-//
-//        muon.streamSource("/livedata", Map.class, stream);
-//    }
+    public static void main(String[] args) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException {
+
+        AutoConfiguration config = MuonConfigBuilder.withServiceIdentifier("stream-test").build();
+
+        Muon muon = MuonBuilder.withConfig(config).build();
+
+        muon.getDiscovery().blockUntilReady();
+
+        final Broadcaster<Map> stream = Broadcaster.create();
+
+        muon.handleRequest(path("/in"), wrapper -> {
+            Map data = wrapper.getRequest().getPayload(Map.class);
+            stream.accept(data);
+            wrapper.ok("thanks!");
+        });
+
+        muon.publishSource("/livedata", PublisherLookup.PublisherType.HOT, stream);
+    }
 }

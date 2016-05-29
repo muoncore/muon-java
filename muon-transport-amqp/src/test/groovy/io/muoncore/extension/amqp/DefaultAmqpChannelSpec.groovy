@@ -13,6 +13,22 @@ class DefaultAmqpChannelSpec extends Specification {
     def discovery = Mock(Discovery)
     def codecs = new JsonOnlyCodecs()
 
+    def "if no message received by server channel, close and send transport error to protocol"() {
+
+    }
+
+    def "if no message received by client channel, close and send transport error to protocol"() {
+
+    }
+
+    def "client sends a keep alive every second if no data"() {
+
+    }
+
+    def "server sends a keep alive every second if no other data"() {
+
+    }
+
     def "respondToHandshake opens a new queue and sends a handshake response"() {
         given:
         Environment.initializeIfEmpty()

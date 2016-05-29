@@ -6,7 +6,7 @@ import io.muoncore.message.MuonInboundMessage
 import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.message.MuonOutboundMessage
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocol
-import io.muoncore.protocol.support.ProtocolTimer
+import io.muoncore.channel.support.Scheduler
 import reactor.Environment
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
@@ -29,7 +29,7 @@ class RequestResponseClientProtocolSpec extends Specification {
                 "tombola",
                 leftChannel.right(),
                 rightChannel.left(),
-                new JsonOnlyCodecs(), new ProtocolTimer())
+                new JsonOnlyCodecs(), new Scheduler())
 
         when:
         leftChannel.left().send(new Request(new URI("request://somewhere"),[:]))
@@ -56,7 +56,7 @@ class RequestResponseClientProtocolSpec extends Specification {
                 "tombola",
                 leftChannel.right(),
                 rightChannel.left(),
-                new JsonOnlyCodecs(), new ProtocolTimer())
+                new JsonOnlyCodecs(), new Scheduler())
 
         when:
         rightChannel.right().send(MuonInboundMessage.serviceNotFound(

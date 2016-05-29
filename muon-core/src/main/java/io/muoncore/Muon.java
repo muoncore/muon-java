@@ -17,7 +17,7 @@ public interface Muon extends
         RequestResponseServerHandlerApi,
         ReactiveStreamClientProtocolStack,
         ReactiveStreamServerHandlerApi,
-        IntrospectionClientProtocolStack {
+        IntrospectionClientProtocolStack{
 
         void shutdown();
         TransportControl getTransportControl();

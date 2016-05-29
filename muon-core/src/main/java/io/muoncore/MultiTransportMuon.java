@@ -14,7 +14,7 @@ import io.muoncore.protocol.reactivestream.server.DefaultPublisherLookup;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack;
 import io.muoncore.protocol.requestresponse.server.*;
-import io.muoncore.protocol.support.ProtocolTimer;
+import io.muoncore.channel.support.Scheduler;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.TransportControl;
 import io.muoncore.transport.client.MultiTransportClient;
@@ -41,7 +41,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
     private Codecs codecs;
     private AutoConfiguration configuration;
     private PublisherLookup publisherLookup;
-    private ProtocolTimer protocolTimer;
+    private Scheduler protocolTimer;
 
     public MultiTransportMuon(
             AutoConfiguration configuration,
@@ -55,12 +55,8 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
         this.transportClient = client;
         this.transportControl = client;
         this.discovery = discovery;
-        this.protocolTimer = new ProtocolTimer();
+        this.protocolTimer = new Scheduler();
         this.publisherLookup = new DefaultPublisherLookup();
-
-//        this.codecs = new EncryptingCodecs(
-//                new JsonOnlyCodecs(),
-//                new SymmetricAESEncryptionAlgorithm(configuration.getAesEncryptionKey()));
 
         this.codecs = new JsonOnlyCodecs();
 
@@ -158,7 +154,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
     }
 
     @Override
-    public ProtocolTimer getProtocolTimer() {
+    public Scheduler getScheduler() {
         return protocolTimer;
     }
 }

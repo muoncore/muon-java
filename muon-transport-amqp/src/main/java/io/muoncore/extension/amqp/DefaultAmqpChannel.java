@@ -1,7 +1,7 @@
 package io.muoncore.extension.amqp;
 
 import io.muoncore.Discovery;
-import io.muoncore.channel.async.StandardAsyncChannel;
+import io.muoncore.channel.impl.StandardAsyncChannel;
 import io.muoncore.codec.Codecs;
 import io.muoncore.exception.MuonException;
 import io.muoncore.exception.MuonTransportFailureException;

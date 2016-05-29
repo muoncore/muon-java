@@ -6,10 +6,12 @@ import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
 import io.muoncore.exception.MuonException;
 import io.muoncore.protocol.event.Event;
+import io.muoncore.protocol.event.client.DefaultEventClient;
+import io.muoncore.protocol.event.client.EventClient;
+import io.muoncore.protocol.event.client.EventReplayMode;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -29,8 +31,7 @@ public class StreamSubscribe {
 
         Muon muon = MuonBuilder.withConfig(config).build();
 
-        //allow discovery settle time.
-        Thread.sleep(4000);
+        muon.getDiscovery().blockUntilReady();
 
         Broadcaster<Event<Map>> b = Broadcaster.create();
 
@@ -47,9 +48,11 @@ public class StreamSubscribe {
         });
         b.observeCancel(aVoid -> System.out.println("Cancelled by remote"));
 
-//        muon.replay("awesome", EventReplayMode.REPLAY_THEN_LIVE, b);
+        EventClient ev = new DefaultEventClient(muon);
 
-        muon.subscribe(new URI("stream://photon/awesome"), Map.class, b);
+        ev.replay("something", EventReplayMode.REPLAY_THEN_LIVE, Map.class, b);
+
+//        muon.subscribe(new URI("stream://photon/awesome"), Map.class, b);
 
         //muon.shutdown();
     }

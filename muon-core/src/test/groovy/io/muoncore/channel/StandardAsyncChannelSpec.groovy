@@ -1,5 +1,5 @@
 package io.muoncore.channel
-import io.muoncore.channel.async.StandardAsyncChannel
+import io.muoncore.channel.impl.StandardAsyncChannel
 import reactor.Environment
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions

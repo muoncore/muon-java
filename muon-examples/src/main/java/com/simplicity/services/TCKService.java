@@ -68,7 +68,7 @@ public class TCKService {
     }
 
     private static void streamPublisher(Muon muon) {
-        Publisher<Long> pub = Streams.range(1, 10);
+        Publisher<Long> pub = Streams.range(1, 100);
         muon.publishSource("/myStream", PublisherLookup.PublisherType.COLD, pub);
     }
 
