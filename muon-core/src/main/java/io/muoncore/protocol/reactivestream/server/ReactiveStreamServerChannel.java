@@ -12,6 +12,7 @@ import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.reactivestream.ProtocolMessages;
 import io.muoncore.protocol.reactivestream.messages.ReactiveStreamSubscriptionRequest;
 import io.muoncore.protocol.reactivestream.messages.RequestMessage;
+import io.muoncore.transport.TransportEvents;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -56,6 +57,8 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
             case ProtocolMessages.CANCEL:
                 handleCancel(message);
                 break;
+            case TransportEvents.CONNECTION_FAILURE:
+                handleError(message);
             default:
                 sendProtocolFailureException(message);
         }
@@ -216,6 +219,10 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
     }
 
     private void handleCancel(MuonInboundMessage msg) {
+        subscription.cancel();
+    }
+
+    private void handleError(MuonInboundMessage msg) {
         subscription.cancel();
     }
 }

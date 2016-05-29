@@ -1,6 +1,7 @@
 package io.muoncore.inmem.transport
 import com.google.common.eventbus.EventBus
 import io.muoncore.Discovery
+import io.muoncore.channel.support.Scheduler
 import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.transport.InMemClientChannelConnection
@@ -21,7 +22,7 @@ class InMemTransportSpec extends Specification {
         def serverStacks = Mock(ServerStacks)
 
         def transport = new InMemTransport(new AutoConfiguration(serviceName: "tombola"), eventbus)
-        transport.start(Mock(Discovery), serverStacks, codecs)
+        transport.start(Mock(Discovery), serverStacks, codecs, new Scheduler())
 
         when:
         def ret = transport.openClientChannel("tombola", RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
@@ -36,7 +37,7 @@ class InMemTransportSpec extends Specification {
         def clientConnection = Mock(InMemClientChannelConnection)
 
         def transport = new InMemTransport(new AutoConfiguration(serviceName: "tombola"), eventbus)
-        transport.start(Mock(Discovery), serverStacks, codecs)
+        transport.start(Mock(Discovery), serverStacks, codecs, new Scheduler())
 
         when:
         eventbus.post(new OpenChannelEvent(

@@ -7,6 +7,8 @@ import io.muoncore.exception.MuonException;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonMessageBuilder;
 import io.muoncore.message.MuonOutboundMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.Dispatcher;
 
 import java.util.concurrent.TimeUnit;
@@ -32,12 +34,14 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
     private ChannelConnection.ChannelFunction<MuonOutboundMessage> leftFunction;
     private ChannelConnection.ChannelFunction<MuonInboundMessage> rightFunction;
 
-    private static final long KEEP_ALIVE_TIMEOUT = 2000;
+    private static final long KEEP_ALIVE_TIMEOUT = 2500;
     private static final long KEEP_ALIVE_PERIOD = 1000;
     private final Scheduler scheduler;
     private Scheduler.TimerControl timeoutTimerControl;
     private Scheduler.TimerControl keepAliveTimerControl;
+    private boolean channelFailed = false;
     private String protocol;
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     public KeepAliveChannel(Dispatcher dispatcher, String protocol, Scheduler scheduler) {
         this.protocol = protocol;
@@ -124,10 +128,14 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
     }
 
     private void resetTimeout() {
+        if (channelFailed) return;
         if (timeoutTimerControl != null) {
             timeoutTimerControl.cancel();
         }
         timeoutTimerControl = scheduler.executeIn(KEEP_ALIVE_TIMEOUT, TimeUnit.MILLISECONDS, () -> {
+            System.out.println("FAILED TO STAY ALIVE!");
+            logger.warn("Connection has failed to stay alive, sending failure to protocol level");
+            channelFailed = true;
             right().send(
                     MuonMessageBuilder.fromService("local")
                     .protocol(protocol)

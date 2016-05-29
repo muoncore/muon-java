@@ -2,6 +2,7 @@ package io.muoncore.transport;
 
 import io.muoncore.Discovery;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.channel.support.Scheduler;
 import io.muoncore.codec.Codecs;
 import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.exception.NoSuchServiceException;
@@ -17,7 +18,7 @@ public interface MuonTransport {
 
     void start(
             Discovery discovery,
-            ServerStacks serverStacks, Codecs codecs) throws MuonTransportFailureException;
+            ServerStacks serverStacks, Codecs codecs, Scheduler scheduler) throws MuonTransportFailureException;
 
     String getUrlScheme();
 

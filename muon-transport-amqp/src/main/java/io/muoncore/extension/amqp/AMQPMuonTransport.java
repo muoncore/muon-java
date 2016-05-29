@@ -5,6 +5,8 @@ import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
+import io.muoncore.channel.impl.KeepAliveChannel;
+import io.muoncore.channel.support.Scheduler;
 import io.muoncore.codec.Codecs;
 import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.exception.NoSuchServiceException;
@@ -30,6 +32,7 @@ public class AMQPMuonTransport implements MuonTransport {
     private AmqpChannelFactory channelFactory;
     private Discovery discovery;
     private Codecs codecs;
+    private Scheduler scheduler;
 
     public AMQPMuonTransport(
             String url,
@@ -74,28 +77,38 @@ public class AMQPMuonTransport implements MuonTransport {
 
         channel.initiateHandshake(serviceName, protocol);
         channels.add(channel);
-        Channel<MuonOutboundMessage, MuonInboundMessage> intermediate = Channels.channel("AMQPChannelExternal", "AMQPChannelInternal");
+        Channel<MuonOutboundMessage, MuonInboundMessage> intermediate = new KeepAliveChannel(Channels.EVENT_DISPATCHER, protocol, scheduler);
 
         Channels.connect(intermediate.right(), channel);
 
         return intermediate.left();
     }
 
-    public void start(Discovery discovery, final ServerStacks serverStacks, Codecs codecs) {
+    public void start(Discovery discovery, final ServerStacks serverStacks, Codecs codecs, Scheduler scheduler) {
         this.discovery = discovery;
         this.codecs = codecs;
+        this.scheduler = scheduler;
+
         channelFactory.initialiseEnvironment(codecs, discovery);
         log.info("Booting up transport with stack " + serverStacks);
         serviceQueue.onHandshake( handshake -> {
             log.debug("opening new server channel with " + serverStacks);
-            ChannelConnection<MuonInboundMessage, MuonOutboundMessage> connection =
+
+            ChannelConnection<MuonInboundMessage, MuonOutboundMessage> serverChannelConnection =
                     serverStacks.openServerChannel(handshake.getProtocol());
-            AmqpChannel channel = channelFactory.createChannel();
-            channel.respondToHandshake(handshake);
 
-            Channels.connect(channel, connection);
+            Channel<MuonOutboundMessage, MuonInboundMessage> keepAliveChannel =
+                    new KeepAliveChannel(Channels.EVENT_DISPATCHER, handshake.getProtocol(), scheduler);
 
-            channels.add(channel);
+            AmqpChannel amqpChannel = channelFactory.createChannel();
+
+            Channels.connect(amqpChannel, keepAliveChannel.right());
+            Channels.connect(serverChannelConnection, keepAliveChannel.left());
+
+            amqpChannel.respondToHandshake(handshake);
+
+
+            channels.add(amqpChannel);
         });
     }
 

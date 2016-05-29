@@ -16,7 +16,7 @@ import java.util.function.Function;
 public class Channels {
 
     static Dispatcher WORK_DISPATCHER = Environment.newDispatcher(32768, 200, DispatcherType.THREAD_POOL_EXECUTOR);
-    static Dispatcher EVENT_DISPATCHER = new RingBufferLocalDispatcher("channel", 32768);
+    public static Dispatcher EVENT_DISPATCHER = new RingBufferLocalDispatcher("channel", 32768);
 
     public static void shutdown() {
 //        EVENT_DISPATCHER.shutdown();

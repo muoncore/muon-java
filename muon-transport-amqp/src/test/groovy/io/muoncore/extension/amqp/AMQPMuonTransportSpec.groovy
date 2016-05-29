@@ -3,6 +3,7 @@ package io.muoncore.extension.amqp
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
+import io.muoncore.channel.support.Scheduler
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.exception.NoSuchServiceException
 import io.muoncore.protocol.ServerStacks
@@ -27,7 +28,7 @@ class AMQPMuonTransportSpec extends Specification {
         )
 
         when:
-        transport.start(discovery, serverStacks, codecs)
+        transport.start(discovery, serverStacks, codecs, new Scheduler())
 
         then:
         1 * serviceQueue.onHandshake(_)
@@ -53,7 +54,7 @@ class AMQPMuonTransportSpec extends Specification {
         Thread.sleep(50)
 
         when:
-        transport.start(discovery, serverStacks, codecs)
+        transport.start(discovery, serverStacks, codecs, new Scheduler())
         func(new AmqpHandshakeMessage("myfakeproto", "", ""))
 
         then:
@@ -76,7 +77,7 @@ class AMQPMuonTransportSpec extends Specification {
         Thread.sleep(50)
 
         when:
-        transport.start(discovery, serverStacks, codecs)
+        transport.start(discovery, serverStacks, codecs, new Scheduler())
         transport.openClientChannel("someRemoteService", "fakeproto")
 
         then:
@@ -98,7 +99,7 @@ class AMQPMuonTransportSpec extends Specification {
         Thread.sleep(50)
 
         when:
-        transport.start(discovery, serverStacks, codecs)
+        transport.start(discovery, serverStacks, codecs, new Scheduler())
         transport.openClientChannel("someRemoteService", "fakeproto")
         transport.openClientChannel("someRemoteService2", "fakeproto")
 
@@ -131,7 +132,7 @@ class AMQPMuonTransportSpec extends Specification {
         Thread.sleep(50)
 
         when:
-        transport.start(discovery, serverStacks, codecs)
+        transport.start(discovery, serverStacks, codecs, new Scheduler())
         def c = transport.openClientChannel("someRemoteService2", "fakeproto")
 
         and:
@@ -169,7 +170,7 @@ class AMQPMuonTransportSpec extends Specification {
         Thread.sleep(50)
 
         when:
-        transport.start(discovery, serverStacks, codecs)
+        transport.start(discovery, serverStacks, codecs, new Scheduler())
         def cl = transport.openClientChannel("fakeclient", "myprotoofdoom")
 
         func(new AmqpHandshakeMessage("myfakeproto", "", ""))

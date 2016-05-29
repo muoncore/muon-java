@@ -3,6 +3,7 @@ package io.muoncore.extension.amqp.externalbroker
 import io.muoncore.Discovery
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
+import io.muoncore.channel.support.Scheduler
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.extension.amqp.AMQPMuonTransport
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
@@ -34,8 +35,8 @@ class EstablishChannelSpec extends Specification {
         AMQPMuonTransport svc1 = createTransport("service1")
         AMQPMuonTransport svc2 = createTransport("tombola")
 
-        svc2.start(discovery, serverStacks2, codecs)
-        svc1.start(discovery, serverStacks1, codecs)
+        svc2.start(discovery, serverStacks2, codecs, new Scheduler())
+        svc1.start(discovery, serverStacks1, codecs, new Scheduler())
 
         when:
         def channel = svc1.openClientChannel("tombola", "requestresponse")
