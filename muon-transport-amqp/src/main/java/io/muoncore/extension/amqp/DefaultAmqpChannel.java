@@ -2,6 +2,7 @@ package io.muoncore.extension.amqp;
 
 import io.muoncore.Discovery;
 import io.muoncore.channel.impl.StandardAsyncChannel;
+import io.muoncore.channel.support.Scheduler;
 import io.muoncore.codec.Codecs;
 import io.muoncore.exception.MuonException;
 import io.muoncore.exception.MuonTransportFailureException;
@@ -32,6 +33,7 @@ public class DefaultAmqpChannel implements AmqpChannel {
     private Dispatcher dispatcher;
     private Codecs codecs;
     private Discovery discovery;
+    private Scheduler scheduler;
 
     private CountDownLatch handshakeControl = new CountDownLatch(1);
 
@@ -43,13 +45,17 @@ public class DefaultAmqpChannel implements AmqpChannel {
 
     public DefaultAmqpChannel(AmqpConnection connection,
                               QueueListenerFactory queueListenerFactory,
-                              String localServiceName, Dispatcher dispatcher, Codecs codecs, Discovery discovery) {
+                              String localServiceName, Dispatcher dispatcher,
+                              Codecs codecs,
+                              Discovery discovery,
+                              Scheduler scheduler) {
         this.connection = connection;
         this.listenerFactory = queueListenerFactory;
         this.localServiceName = localServiceName;
         this.dispatcher = dispatcher;
         this.codecs = codecs;
         this.discovery = discovery;
+        this.scheduler = scheduler;
     }
 
     @Override
@@ -158,8 +164,10 @@ public class DefaultAmqpChannel implements AmqpChannel {
                     e.printStackTrace();
                 }
             }, Throwable::printStackTrace);
-        }
-        if (message == null) {
+
+            scheduler.executeIn(200, TimeUnit.MILLISECONDS, this::shutdown);
+
+        } else {
                 send(
                         MuonMessageBuilder.fromService(localServiceName)
                                 .step(CHANNEL_SHUTDOWN)
@@ -167,6 +175,8 @@ public class DefaultAmqpChannel implements AmqpChannel {
                                 .contentType("text/plain")
                                 .payload(new byte[0])
                                 .build());
+
+
         }
     }
 }

@@ -47,6 +47,11 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
 
     @Override
     public void send(MuonInboundMessage message) {
+        if (message == null) {
+            handleError();
+            return;
+        }
+
         switch(message.getStep()) {
             case ProtocolMessages.SUBSCRIBE:
                 handleSubscribe(message);
@@ -58,13 +63,15 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
                 handleCancel(message);
                 break;
             case TransportEvents.CONNECTION_FAILURE:
-                handleError(message);
+                handleError();
+                break;
             default:
                 sendProtocolFailureException(message);
         }
     }
 
     private void sendProtocolFailureException(MuonInboundMessage msg) {
+        System.out.println("Don't understand " + msg.getStep());
         Map<String, String> meta = new HashMap<>();
         meta.put("SourceMessage", msg.getId());
         meta.put("SourceType", msg.getSourceServiceName());
@@ -98,6 +105,7 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
                 .toService(subscribingServiceName)
                 .payload(result.getPayload())
                 .contentType(result.getContentType())
+                .operation(MuonMessage.ChannelOperation.closed)
                 .status(MuonMessage.Status.error)
                 .build()
         );
@@ -222,7 +230,7 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
         subscription.cancel();
     }
 
-    private void handleError(MuonInboundMessage msg) {
+    private void handleError() {
         subscription.cancel();
     }
 }

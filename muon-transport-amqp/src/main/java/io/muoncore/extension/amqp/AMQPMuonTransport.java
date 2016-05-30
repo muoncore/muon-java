@@ -89,7 +89,7 @@ public class AMQPMuonTransport implements MuonTransport {
         this.codecs = codecs;
         this.scheduler = scheduler;
 
-        channelFactory.initialiseEnvironment(codecs, discovery);
+        channelFactory.initialiseEnvironment(codecs, discovery, scheduler);
         log.info("Booting up transport with stack " + serverStacks);
         serviceQueue.onHandshake( handshake -> {
             log.debug("opening new server channel with " + serverStacks);

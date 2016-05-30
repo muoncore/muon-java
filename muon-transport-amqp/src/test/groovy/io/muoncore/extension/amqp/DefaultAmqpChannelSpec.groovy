@@ -1,7 +1,10 @@
 package io.muoncore.extension.amqp
 
 import io.muoncore.Discovery
+import io.muoncore.channel.support.Scheduler
 import io.muoncore.codec.json.JsonOnlyCodecs
+import io.muoncore.message.MuonMessage
+import io.muoncore.message.MuonMessageBuilder
 import reactor.Environment
 import spock.lang.Specification
 
@@ -10,23 +13,30 @@ import static io.muoncore.extension.amqp.QueueListener.QueueMessage
 
 class DefaultAmqpChannelSpec extends Specification {
 
-    def discovery = Mock(Discovery)
+    def discovery = Mock(Discovery) {
+        getCodecsForService(_) >> ["application/json"]
+    }
     def codecs = new JsonOnlyCodecs()
 
-    def "if no message received by server channel, close and send transport error to protocol"() {
+    def "when channel_op=closed received from left, cleanup the queues"() {
+        given:
+        Environment.initializeIfEmpty()
+        QueueListener listener = Mock(QueueListener)
+        def listenerfactory = Mock(QueueListenerFactory) {
+            listenOnQueue(_, _ as QueueFunction) >> listener
+        }
+        def connection = Mock(AmqpConnection)
+        def channel = new DefaultAmqpChannel(connection, listenerfactory, "myawesomeservice", Environment.sharedDispatcher(), codecs, discovery, new Scheduler())
 
-    }
+        channel.respondToHandshake(new AmqpHandshakeMessage("fakeproto", "my-reply-queue", "receive-queue"))
 
-    def "if no message received by client channel, close and send transport error to protocol"() {
+        when:
+        channel.send(MuonMessageBuilder.fromService("tombola").operation(MuonMessage.ChannelOperation.closed).build())
 
-    }
+        sleep(250)
 
-    def "client sends a keep alive every second if no data"() {
-
-    }
-
-    def "server sends a keep alive every second if no other data"() {
-
+        then:
+        1 * listener.cancel()
     }
 
     def "respondToHandshake opens a new queue and sends a handshake response"() {
@@ -34,7 +44,7 @@ class DefaultAmqpChannelSpec extends Specification {
         Environment.initializeIfEmpty()
         def listenerfactory = Mock(QueueListenerFactory)
         def connection = Mock(AmqpConnection)
-        def channel = new DefaultAmqpChannel(connection, listenerfactory, "myawesomeservice", Environment.sharedDispatcher(), codecs, discovery)
+        def channel = new DefaultAmqpChannel(connection, listenerfactory, "myawesomeservice", Environment.sharedDispatcher(), codecs, discovery, new Scheduler())
         def localQueue
 
         when:
@@ -54,7 +64,7 @@ class DefaultAmqpChannelSpec extends Specification {
         Environment.initializeIfEmpty()
         def listenerfactory = Mock(QueueListenerFactory)
         def connection = Mock(AmqpConnection)
-        def channel = new DefaultAmqpChannel(connection, listenerfactory, "awesomeservice", Environment.sharedDispatcher(), codecs, discovery)
+        def channel = new DefaultAmqpChannel(connection, listenerfactory, "awesomeservice", Environment.sharedDispatcher(), codecs, discovery, new Scheduler())
 
         when:
         Thread.start {

@@ -5,6 +5,7 @@ import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.support.Scheduler;
 import io.muoncore.exception.MuonException;
 import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessage;
 import io.muoncore.message.MuonMessageBuilder;
 import io.muoncore.message.MuonOutboundMessage;
 import org.slf4j.Logger;
@@ -61,6 +62,10 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
             @Override
             public void send(MuonOutboundMessage message) {
                 resetKeepAlivePing();
+                if (message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
+                    shutdown();
+                    return;
+                }
                 if (leftFunction == null) {
                     throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
                 }
@@ -73,6 +78,7 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
             @Override
             public void shutdown() {
                 timeoutTimerControl.cancel();
+                keepAliveTimerControl.cancel();
                 leftFunction.apply(null);
             }
         };
@@ -86,6 +92,10 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
             @Override
             public void send(MuonInboundMessage message) {
                 resetTimeout();
+                if (message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
+                    shutdown();
+                    return;
+                }
                 if (rightFunction == null) {
                     throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
                 }
@@ -101,6 +111,7 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
             @Override
             public void shutdown() {
                 timeoutTimerControl.cancel();
+                keepAliveTimerControl.cancel();
                 rightFunction.apply(null);
             }
         };
@@ -117,6 +128,7 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
     }
 
     private void resetKeepAlivePing() {
+        if (channelFailed) return;
         if (keepAliveTimerControl != null) {
             keepAliveTimerControl.cancel();
         }
@@ -133,14 +145,15 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
             timeoutTimerControl.cancel();
         }
         timeoutTimerControl = scheduler.executeIn(KEEP_ALIVE_TIMEOUT, TimeUnit.MILLISECONDS, () -> {
-            System.out.println("FAILED TO STAY ALIVE!");
-            logger.warn("Connection has failed to stay alive, sending failure to protocol level");
+            keepAliveTimerControl.cancel();
+            logger.warn("Connection has failed to stay alive, sending failure to protocol level: " + protocol);
             channelFailed = true;
             right().send(
                     MuonMessageBuilder.fromService("local")
-                    .protocol(protocol)
-                    .step(CONNECTION_FAILURE).buildInbound());
-            left().shutdown();
+                            .protocol(protocol)
+                            .operation(MuonMessage.ChannelOperation.closed)
+                            .step(CONNECTION_FAILURE).buildInbound());
+            leftFunction.apply(null);
         });
     }
 }
