@@ -70,9 +70,9 @@ public class DefaultAmqpChannel implements AmqpChannel {
         sendQueue = serviceName + "-receive-" + UUID.randomUUID().toString();
 
         listener = listenerFactory.listenOnQueue(receiveQueue, msg -> {
-            log.info("Received a message on the receive queue " + msg.getQueueName());
+            log.trace("Received a message on the receive queue " + msg.getQueueName());
             if ("accepted".equals(msg.getHandshakeMessage())) {
-                log.info("Handshake completed");
+                log.trace("Handshake completed");
                 handshakeControl.countDown();
                 return;
             }
