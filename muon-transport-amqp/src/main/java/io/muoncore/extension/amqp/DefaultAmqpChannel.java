@@ -137,10 +137,10 @@ public class DefaultAmqpChannel implements AmqpChannel {
             listener.cancel();
         } catch (Exception e) {
         }
-        if (ownsQueues) {
+//        if (ownsQueues) {
             connection.deleteQueue(sendQueue);
             connection.deleteQueue(receiveQueue);
-        }
+//        }
         if (onShutdown != null) {
             this.onShutdown.apply(null);
         }
@@ -164,8 +164,6 @@ public class DefaultAmqpChannel implements AmqpChannel {
                     e.printStackTrace();
                 }
             }, Throwable::printStackTrace);
-
-            scheduler.executeIn(200, TimeUnit.MILLISECONDS, this::shutdown);
 
         } else {
                 send(

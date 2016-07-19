@@ -20,10 +20,10 @@ class TestClient {
 
         muon.discovery.blockUntilReady()
 
-        def data = muon.request("request://muon-dev-tools/ping", String).get()
+        def data = muon.request("rpc://config-service/uuid").get()
 
         println "Server says ${data}"
-        println "Server says ${data.payload}"
+        println "Server says ${data.getPayload(String)}"
 
 //        muon.introspect("photon").then {
 //            it.protocols.each {

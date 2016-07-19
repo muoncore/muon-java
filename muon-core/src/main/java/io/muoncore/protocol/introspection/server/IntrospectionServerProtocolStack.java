@@ -44,7 +44,7 @@ public class IntrospectionServerProtocolStack implements ServerProtocolStack {
         @Override
         public void send(MuonInboundMessage message) {
             if (message == null) {
-                func.apply(null);
+                if (func != null) func.apply(null);
                 return;
             }
 
@@ -61,8 +61,10 @@ public class IntrospectionServerProtocolStack implements ServerProtocolStack {
                     .payload(result.getPayload())
                     .contentType(result.getContentType())
                     .status(MuonMessage.Status.success)
+//                    .operation(MuonMessage.ChannelOperation.closed)
                     .build()
             );
+            shutdown();
         }
 
         @Override

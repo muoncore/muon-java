@@ -33,6 +33,10 @@ public class ServiceResourceToPublishHotStream {
             wrapper.ok("thanks!");
         });
 
+        muon.handleRequest(path("/hello"), wrapper -> {
+            wrapper.ok("thanks!");
+        });
+
         muon.publishSource("/livedata", PublisherLookup.PublisherType.HOT, stream);
     }
 }

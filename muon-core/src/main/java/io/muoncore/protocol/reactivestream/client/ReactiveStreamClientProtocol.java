@@ -78,6 +78,10 @@ public class ReactiveStreamClientProtocol<T> {
     }
 
     private void handleMessage(MuonInboundMessage msg) {
+        if (msg == null) {
+            subscriber.onComplete();
+            return;
+        }
         switch(msg.getStep()) {
             case ProtocolMessages.ACK:
                 subscriber.onSubscribe(new Subscription() {

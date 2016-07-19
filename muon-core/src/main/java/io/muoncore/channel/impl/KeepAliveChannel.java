@@ -61,6 +61,10 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
 
             @Override
             public void send(MuonOutboundMessage message) {
+                if (message == null) {
+                    shutdown();
+                    return;
+                }
                 resetKeepAlivePing();
                 if (message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
                     shutdown();
