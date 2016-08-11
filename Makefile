@@ -1,0 +1,4 @@
+
+
+install:
+	./gradlew install
