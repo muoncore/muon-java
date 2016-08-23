@@ -108,8 +108,8 @@ public class DefaultAmqpChannel implements AmqpChannel {
         sendQueue = message.getReplyQueue();
         log.debug("Opening queue to listen " + receiveQueue);
         listener = listenerFactory.listenOnQueue(receiveQueue, msg -> {
-            log.debug("Received inbound channel message of type " + message.getProtocol());
             MuonInboundMessage inboundMessage = AmqpMessageTransformers.queueToInbound(msg, codecs);
+            log.debug("Received inbound channel message of type " + message.getProtocol() + ":" + inboundMessage.getStep());
             if (StandardAsyncChannel.echoOut) System.out.println(new Date() + ": Channel[ AMQP Wire >>>>> DefaultAMQPChannel]: Received " + inboundMessage);
             if (inboundMessage.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
                 function.apply(null);
@@ -166,13 +166,13 @@ public class DefaultAmqpChannel implements AmqpChannel {
             }, Throwable::printStackTrace);
 
         } else {
-                send(
-                        MuonMessageBuilder.fromService(localServiceName)
-                                .step(CHANNEL_SHUTDOWN)
-                                .operation(MuonMessage.ChannelOperation.closed)
-                                .contentType("text/plain")
-                                .payload(new byte[0])
-                                .build());
+            send(
+                    MuonMessageBuilder.fromService(localServiceName)
+                            .step(CHANNEL_SHUTDOWN)
+                            .operation(MuonMessage.ChannelOperation.closed)
+                            .contentType("text/plain")
+                            .payload(new byte[0])
+                            .build());
 
 
         }

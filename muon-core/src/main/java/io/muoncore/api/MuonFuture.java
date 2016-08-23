@@ -24,8 +24,4 @@ public interface MuonFuture<X> extends Future<X> {
      */
     void then(PromiseFunction<X> onFulfilled);
 
-    @FunctionalInterface
-    interface PromiseFunction<T> {
-        void call(T arg);
-    }
 }

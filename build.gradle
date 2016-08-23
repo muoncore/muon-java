@@ -24,11 +24,11 @@ project.version = currentVersion.toString()
 
 release {
     /* Let's check that everything is committed */
-    doFirst {
-        if (!project.git.status().isEmpty()) {
-            throw new GradleException('You have uncommitted changes.')
-        }
-    }
+//    doFirst {
+//        if (!project.git.status().isEmpty()) {
+//            throw new GradleException('You have uncommitted changes.')
+//        }
+//    }
 
     /* Ask user for a release version, suggesting some default variant. */
     version = {

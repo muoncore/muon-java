@@ -137,6 +137,7 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
             keepAliveTimerControl.cancel();
         }
         keepAliveTimerControl = scheduler.executeIn(KEEP_ALIVE_PERIOD, TimeUnit.MILLISECONDS, () -> {
+            logger.debug("Sending keep alive ping");
             left.send(MuonMessageBuilder.fromService("local")
                             .protocol(protocol)
                             .step(KEEP_ALIVE_STEP).build());

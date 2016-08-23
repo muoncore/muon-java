@@ -231,6 +231,8 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
     }
 
     private void handleError() {
-        subscription.cancel();
+        if (subscription != null) {
+            subscription.cancel();
+        }
     }
 }

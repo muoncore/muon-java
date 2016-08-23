@@ -70,7 +70,7 @@ public class RRPTransformers {
                 .contentType(payload.getContentType())
                 .payload(payload.getPayload())
                 .status(MuonMessage.Status.success)
-                .operation(MuonMessage.ChannelOperation.closed)
+//                .operation(MuonMessage.ChannelOperation.closed)
                 .build();
     }
 }
