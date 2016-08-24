@@ -31,16 +31,16 @@ public class ServicePublishColdStream {
 
         muon.getDiscovery().blockUntilReady();
 
-        muon.handleRequest(HandlerPredicates.all(), wrapper -> {
+        muon.handleRequest(HandlerPredicates.path("/ping"), wrapper -> {
             System.out.println("Got data");
             wrapper.ok("OK THERE");
         });
 
         muon.publishSource("/counter", PublisherLookup.PublisherType.COLD, Streams.range(0, 100));
 
-        muon.handleRequest(HandlerPredicates.all(), wrapper -> {
-            wrapper.ok("HELLO WORLD");
-        });
+//        muon.handleRequest(HandlerPredicates.all(), wrapper -> {
+//            wrapper.ok("HELLO WORLD");
+//        });
 
         Broadcaster b = Broadcaster.create();
 

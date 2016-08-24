@@ -15,8 +15,11 @@ buildscript {
 
 apply plugin: 'release'
 apply plugin: 'console'
+apply plugin: 'git'
 
 def globalVersion = new Version(currentVersion)
+
+
 
 project.version = currentVersion.toString()
 
@@ -47,7 +50,7 @@ Last Fix release was ${latestFix}
 
     /* Spec for next version. As above, asking user input. */
     next {
-        version = { console.prompt(' > Please enter next version:', bumpVersion(project.release.version)) }
+        version = { console.prompt(' > Please enter next version:', project.release.version) }
         commitMessage = { "Bumping version to $project.release.next.version" }
     }
 
@@ -73,39 +76,39 @@ commitNewVersion.doFirst {
 
     println "Checking tags for version ${version}"
 
-    String ret = git.exec(project.projectDir, "tag")
+    //String ret = git.exec(project.projectDir, "tag")
 
-    println "Tags is ${ret}"
+//    println "Tags is ${ret}"
 
     def tags = []
 
-    ret.eachLine {
-        if (it.startsWith("r${version}")) {
-            tags << it.trim()
-        }
-    }
-
-    println "There are ${tags.size()} fix tags for this feature version"
-
-    def fixes = tags.collect {
-        Integer.parseInt(it.split("\\.")[2])
-    }
-    int latest = 0
-    if (fixes.size() > 0) {
-        latest = fixes.sort().last()
-    }
-
-    latest++
-
-    println "The latest fix is ${latest}"
-
-    props.put("latestFix", "$latest".toString())
-
-    propFile.withWriter {
-        props.store(it, "")
-    }
+//    ret.eachLine {
+//        if (it.startsWith("r${version}")) {
+//            tags << it.trim()
+//        }
+//    }
+//
+//    println "There are ${tags.size()} fix tags for this feature version"
+//
+//    def fixes = tags.collect {
+//        Integer.parseInt(it.split("\\.")[2])
+//    }
+//    int latest = 0
+//    if (fixes.size() > 0) {
+//        latest = fixes.sort().last()
+//    }
+//
+//    latest++
+//
+//    println "The latest fix is ${latest}"
+//
+//    props.put("latestFix", "$latest".toString())
+//
+//    propFile.withWriter {
+//        props.store(it, "")
+//    }
 }
-
+//
 def deriveReleaseVersion() {
     def branch = git.currentBranch(project.projectDir)
     def suggested = project.version - '-SNAPSHOT'
@@ -121,30 +124,30 @@ def deriveReleaseVersion() {
 
     return [suggested, message]
 }
-
-def bumpVersion(String version) {
-    def branch = git.currentBranch(project.projectDir)
-
-    def split = version.split("\\.")
-
-    if (branch == "master") {
-        return "${split[0]}.${++split[1]}"
-    } else {
-        return "${split[0]}.${split[1]}"
-    }
-}
+//
+//def bumpVersion(String version) {
+//    def branch = git.currentBranch(project.projectDir)
+//
+//    def split = version.split("\\.")
+//
+//    if (branch == "master") {
+//        return "${split[0]}.${++split[1]}"
+//    } else {
+//        return "${split[0]}.${split[1]}"
+//    }
+//}
 
 // ---------  Github release setup -----------
-github {
-    /* Wiki repo will be calculated from this. */
-    repo = 'git@github.com:microserviceux/muon-java.git'
-
-    release {
-        /* Use {} brackets for lazy evaluation */
-        tag = { "r$project.release.version" }
-        name = { "$project.release.version" }
-    }
-}
+//github {
+//    /* Wiki repo will be calculated from this. */
+//    repo = 'git@github.com:microserviceux/muon-java.git'
+//
+//    release {
+//        /* Use {} brackets for lazy evaluation */
+//        tag = { "r$project.release.version" }
+//        name = { "$project.release.version" }
+//    }
+//}
 
 // ---------- Regular build ----------
 ext {
