@@ -15,8 +15,6 @@ buildscript {
 
 apply plugin: 'release'
 apply plugin: 'console'
-apply plugin: 'git'
-apply plugin: 'github'
 
 def globalVersion = new Version(currentVersion)
 
