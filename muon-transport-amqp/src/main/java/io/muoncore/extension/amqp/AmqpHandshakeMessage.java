@@ -23,4 +23,13 @@ public class AmqpHandshakeMessage {
     public String getReceiveQueue() {
         return receiveQueue;
     }
+
+    @Override
+    public String toString() {
+        return "AmqpHandshakeMessage{" +
+                "protocol='" + protocol + '\'' +
+                ", replyQueue='" + replyQueue + '\'' +
+                ", receiveQueue='" + receiveQueue + '\'' +
+                '}';
+    }
 }

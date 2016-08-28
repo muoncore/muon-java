@@ -58,6 +58,14 @@ public interface QueueListener {
         public String getHandshakeMessage() {
             return headers.get(HEADER_HANDSHAKE);
         }
+
+        @Override
+        public String toString() {
+            return "QueueMessage{" +
+                    "queueName='" + queueName + '\'' +
+                    ", headers=" + headers +
+                    '}';
+        }
     }
 
 }

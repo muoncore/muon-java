@@ -103,13 +103,13 @@ public class DefaultAmqpChannel implements AmqpChannel {
     @Override
     public void respondToHandshake(AmqpHandshakeMessage message) {
         ownsQueues = false;
-        log.debug("Handshake received " + message.getProtocol());
+        log.debug("Handshake received " + message);
         receiveQueue = message.getReceiveQueue();
         sendQueue = message.getReplyQueue();
         log.debug("Opening queue to listen " + receiveQueue);
         listener = listenerFactory.listenOnQueue(receiveQueue, msg -> {
             MuonInboundMessage inboundMessage = AmqpMessageTransformers.queueToInbound(msg, codecs);
-            log.debug("Received inbound channel message of type " + message.getProtocol() + ":" + inboundMessage.getStep());
+            log.debug("Received inbound channel message [" + receiveQueue + "] of type " + message.getProtocol() + ":" + inboundMessage.getStep());
             if (StandardAsyncChannel.echoOut) System.out.println(new Date() + ": Channel[ AMQP Wire >>>>> DefaultAMQPChannel]: Received " + inboundMessage);
             if (inboundMessage.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
                 function.apply(null);
@@ -119,9 +119,11 @@ public class DefaultAmqpChannel implements AmqpChannel {
         });
 
         try {
-            connection.send(QueueMessageBuilder.queue(message.getReplyQueue())
+            QueueListener.QueueMessage handshakeResponse = QueueMessageBuilder.queue(message.getReplyQueue())
                     .protocol(message.getProtocol())
-                    .handshakeMessage("accepted").build());
+                    .handshakeMessage("accepted").build();
+            log.debug("Handshake Response sent " + handshakeResponse);
+            connection.send(handshakeResponse);
 
         } catch (IOException e) {
             throw new MuonTransportFailureException("Unable to respond to handshake", e);
