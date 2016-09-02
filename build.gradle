@@ -281,7 +281,7 @@ project('muon-examples') {
         compile project(":muon-spring")
         compile project(":muon-event")
         compile "io.projectreactor:reactor-stream:$reactorVersion"
-//        compile 'org.slf4j:slf4j-jdk14:1.7.12'
+        compile 'org.slf4j:slf4j-simple:1.7.12'
     }
 }
 

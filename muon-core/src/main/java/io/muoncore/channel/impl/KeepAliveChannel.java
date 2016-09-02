@@ -35,7 +35,7 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
     private ChannelConnection.ChannelFunction<MuonOutboundMessage> leftFunction;
     private ChannelConnection.ChannelFunction<MuonInboundMessage> rightFunction;
 
-    private static final long KEEP_ALIVE_TIMEOUT = 2500;
+    private static final long KEEP_ALIVE_TIMEOUT = 5500;
     private static final long KEEP_ALIVE_PERIOD = 1000;
     private final Scheduler scheduler;
     private Scheduler.TimerControl timeoutTimerControl;
@@ -43,6 +43,7 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
     private boolean channelFailed = false;
     private String protocol;
     private Logger logger = LoggerFactory.getLogger(getClass());
+    private long lastMsg;
 
     public KeepAliveChannel(Dispatcher dispatcher, String protocol, Scheduler scheduler) {
         this.protocol = protocol;
@@ -74,7 +75,7 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
                     throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
                 }
                 dispatcher.dispatch(message, msg -> {
-                    if (StandardAsyncChannel.echoOut) System.out.println("WiretapChannel[" + leftname + " >>>>> " + rightname + "]: Sending " + msg + " to " + leftFunction);
+                    if (StandardAsyncChannel.echoOut) System.out.println("KeepAliveChannel[" + leftname + " >>>>> " + rightname + "]: Sending " + msg + " to " + leftFunction);
                     leftFunction.apply(message); }
                         ,  Throwable::printStackTrace);
             }
@@ -145,13 +146,14 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
     }
 
     private void resetTimeout() {
+        lastMsg = System.currentTimeMillis();
         if (channelFailed) return;
         if (timeoutTimerControl != null) {
             timeoutTimerControl.cancel();
         }
         timeoutTimerControl = scheduler.executeIn(KEEP_ALIVE_TIMEOUT, TimeUnit.MILLISECONDS, () -> {
             keepAliveTimerControl.cancel();
-            logger.warn("Connection has failed to stay alive, sending failure to protocol level: " + protocol);
+            logger.warn("Connection has failed to stay alive, last message was received " + (System.currentTimeMillis() - this.lastMsg) + "ms ago, sending failure to protocol level: " + protocol);
             channelFailed = true;
             right().send(
                     MuonMessageBuilder.fromService("local")

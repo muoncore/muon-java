@@ -5,8 +5,7 @@ import io.muoncore.MuonBuilder;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscription;
+import reactor.rx.broadcast.Broadcaster;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -28,20 +27,27 @@ public class ServicePublishHotStream {
 
         muon.getDiscovery().blockUntilReady();
 
-        muon.publishGeneratedSource("/hello", PublisherLookup.PublisherType.HOT,
-                subscriptionRequest -> (Publisher) s -> s.onSubscribe(new Subscription() {
-                    @Override
-                    public void request(long n) {
+        muon.publishGeneratedSource("/hello", PublisherLookup.PublisherType.HOT, subscriptionRequest -> {
+            Broadcaster b = Broadcaster.create();
 
+            new Thread(() -> {
+                while (true) {
+                    System.out.println("SENDING!");
+                    try {
+                        b.accept("HELLO");
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
-
-                    @Override
-                    public void cancel() {
-                        System.out.println("THE REMOTE HAS CANCELLED!!!!!!!...?");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                })
-        );
+                }
+            }).start();
 
+            return b;
+        });
     }
 
 //    public static void main(String[] args) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException {
