@@ -25,7 +25,7 @@ class KeepAliveChannelSpec extends Specification {
         }
 
         when:
-        sleep(4000)
+        sleep(7000)
 
         then:
         timeoutmsg.size() == 1

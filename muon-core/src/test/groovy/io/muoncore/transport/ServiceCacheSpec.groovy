@@ -35,6 +35,6 @@ class ServiceCacheSpec extends Specification {
   }
 
   def service(name) {
-    new ServiceDescriptor(name, ["tag"], ["application/json"], [new URI("some://hello")])
+    new ServiceDescriptor(name, ["tag"], ["application/json"], [new URI("some://hello")], [])
   }
 }

@@ -1,6 +1,7 @@
 package io.muoncore;
 
 import io.muoncore.channel.Channels;
+import io.muoncore.channel.support.Scheduler;
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.config.AutoConfiguration;
@@ -14,7 +15,6 @@ import io.muoncore.protocol.reactivestream.server.DefaultPublisherLookup;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack;
 import io.muoncore.protocol.requestresponse.server.*;
-import io.muoncore.channel.support.Scheduler;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.TransportControl;
 import io.muoncore.transport.client.MultiTransportClient;
@@ -23,8 +23,7 @@ import io.muoncore.transport.client.TransportClient;
 import io.muoncore.transport.client.TransportMessageDispatcher;
 import reactor.Environment;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -51,7 +50,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
         this.configuration = configuration;
         TransportMessageDispatcher wiretap = new SimpleTransportMessageDispatcher();
         MultiTransportClient client = new MultiTransportClient(
-                transports, wiretap);
+                transports, wiretap, configuration);
         this.transportClient = client;
         this.transportControl = client;
         this.discovery = discovery;
@@ -76,9 +75,16 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
                 configuration.getServiceName(),
                 configuration.getTags(),
                 Arrays.asList(codecs.getAvailableCodecs()),
-                transports.stream().map(MuonTransport::getLocalConnectionURI).collect(Collectors.toList())));
+                transports.stream().map(MuonTransport::getLocalConnectionURI).collect(Collectors.toList()),
+                generateCapabilities()));
 
         discovery.blockUntilReady();
+    }
+
+    private Set<String> generateCapabilities() {
+        Set<String> capabilities = new HashSet<>();
+        capabilities.add("shared-channel");
+        return capabilities;
     }
 
     @Override

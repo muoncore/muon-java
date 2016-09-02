@@ -21,7 +21,7 @@ import java.util.function.Predicate
 class RequestResponseClientServerIntegrationSpec extends Specification {
 
     def discovery = Mock(Discovery) {
-        findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], []))
+        findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], [], []))
     }
 
     @Timeout(15)
