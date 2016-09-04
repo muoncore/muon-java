@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 
 public class ServicePublishColdStream {
 
@@ -48,7 +49,7 @@ public class ServicePublishColdStream {
 
         Broadcaster<MuonMessage> tap = Broadcaster.create();
         tap.consume(o -> {
-            System.out.println("Message is of step " + o.getStep());
+            System.out.println("From [" + o.getSourceServiceName() + "]Message is of step " + o.getStep());
         });
 
         muon.getTransportControl().tap(m -> true).subscribe(tap);
@@ -58,7 +59,7 @@ public class ServicePublishColdStream {
             while(true) {
                 try {
                     try {
-                        b.accept("hello " + System.currentTimeMillis());
+                        b.accept(Collections.singletonMap("time", "hello " + System.currentTimeMillis()));
                     } catch (CancelException e) {}
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {

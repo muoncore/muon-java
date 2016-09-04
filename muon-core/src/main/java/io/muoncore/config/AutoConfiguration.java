@@ -41,6 +41,10 @@ public class AutoConfiguration {
         }
     }
 
+    public boolean getBooleanConfig(String name) {
+        return Boolean.parseBoolean(config.getProperty(name));
+    }
+
     public String getStringConfig(String name) {
         return config.getProperty(name);
     }

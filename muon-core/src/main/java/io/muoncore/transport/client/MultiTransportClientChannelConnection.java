@@ -1,33 +1,39 @@
 package io.muoncore.transport.client;
 
+import io.muoncore.Discovery;
+import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.exception.NoSuchServiceException;
-import io.muoncore.transport.MuonTransport;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonMessage;
 import io.muoncore.message.MuonOutboundMessage;
+import io.muoncore.transport.sharedsocket.client.SharedSocketRouter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.Dispatcher;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 class MultiTransportClientChannelConnection implements ChannelConnection<MuonOutboundMessage, MuonInboundMessage> {
 
-    private List<MuonTransport> transports;
-    private ChannelFunction<MuonInboundMessage> inbound;
+        private ChannelFunction<MuonInboundMessage> inbound;
     private Dispatcher dispatcher;
+
+    private SharedSocketRouter router = null;
+    private Discovery discovery;
+    private TransportConnectionProvider transportConnectionProvider;
 
     private Map<String, ChannelConnection<MuonOutboundMessage, MuonInboundMessage>> channelConnectionMap = new HashMap<>();
     private Logger LOG = LoggerFactory.getLogger(MultiTransportClientChannelConnection.class.getCanonicalName());
 
-    public MultiTransportClientChannelConnection(
-            List<MuonTransport> transports, Dispatcher dispatcher) {
-        this.transports = transports;
+    public MultiTransportClientChannelConnection(Dispatcher dispatcher, SharedSocketRouter router, Discovery discovery,
+            TransportConnectionProvider transportConnectionProvider) {
         this.dispatcher = dispatcher;
+        this.router = router;
+        this.transportConnectionProvider = transportConnectionProvider;
+        this.discovery = discovery;
     }
 
     @Override
@@ -51,7 +57,12 @@ class MultiTransportClientChannelConnection implements ChannelConnection<MuonOut
                 );
                 try {
                     if (connection == null) {
-                        connection = connectChannel(message);
+                        if (useSharedChannels(message)) {
+                            connection = connectSharedChannel(message);
+                        } else {
+                            connection = transportConnectionProvider.connectChannel(
+                                    message.getTargetServiceName(), message.getProtocol(), inbound);
+                        }
                         if (connection == null) {
                             LOG.warn("Cannot open channel to service " + message.getTargetServiceName() + ", no transport accepted the message");
                             inbound.apply(MuonInboundMessage.serviceNotFound(msg));
@@ -63,13 +74,21 @@ class MultiTransportClientChannelConnection implements ChannelConnection<MuonOut
                     connection.send(message);
                     if (message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
                         inbound = null;
-                        this.transports = null;
                     }
                 } catch (NoSuchServiceException ex) {
                     inbound.apply(MuonInboundMessage.serviceNotFound(msg));
                 }
             }, Throwable::printStackTrace);
         }
+    }
+
+    private boolean useSharedChannels(MuonOutboundMessage message) {
+        Optional<ServiceDescriptor> service = discovery.findService(
+                serviceDescriptor -> serviceDescriptor.getIdentifier().equals(message.getTargetServiceName()));
+        if (service.isPresent()) {
+            return service.get().getCapabilities().contains(SharedSocketRouter.PROTOCOL);
+        }
+        return false;
     }
 
     @Override
@@ -81,17 +100,10 @@ class MultiTransportClientChannelConnection implements ChannelConnection<MuonOut
         }, Throwable::printStackTrace);
     }
 
-    private ChannelConnection<MuonOutboundMessage, MuonInboundMessage> connectChannel(MuonOutboundMessage message) {
-
-        Optional<MuonTransport> transport = transports.stream().filter( tr -> tr.canConnectToService(message.getTargetServiceName())).findFirst();
-
-        if (transport.isPresent()) {
-            ChannelConnection<MuonOutboundMessage, MuonInboundMessage> connection = transport.get().openClientChannel(message.getTargetServiceName(), message.getProtocol());
-            connection.receive(inbound);
-            return connection;
-        } else {
-            return null;
-        }
+    private ChannelConnection<MuonOutboundMessage, MuonInboundMessage> connectSharedChannel(MuonOutboundMessage message) {
+        ChannelConnection<MuonOutboundMessage, MuonInboundMessage> connection = router.openClientChannel(message.getTargetServiceName());
+        connection.receive(inbound);
+        return connection;
     }
 
     private static String key(MuonOutboundMessage key) {

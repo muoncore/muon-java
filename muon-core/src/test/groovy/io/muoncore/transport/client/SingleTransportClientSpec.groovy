@@ -1,5 +1,7 @@
 package io.muoncore.transport.client
 
+import io.muoncore.Discovery
+import io.muoncore.codec.Codecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.transport.MuonTransport
 import reactor.Environment
@@ -14,7 +16,7 @@ class SingleTransportClientSpec extends Specification {
         def dispatcher = Mock(TransportMessageDispatcher)
         def config = new AutoConfiguration()
 
-        def cl = new MultiTransportClient([transport], dispatcher, config)
+        def cl = new MultiTransportClient([transport], dispatcher, config, Mock(Discovery), Mock(Codecs))
 
         expect:
         cl.openClientChannel() != null

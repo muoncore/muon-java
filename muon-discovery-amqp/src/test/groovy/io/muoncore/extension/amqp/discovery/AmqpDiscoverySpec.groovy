@@ -44,7 +44,7 @@ class AmqpDiscoverySpec extends Specification {
 
         when:
         discovery.start()
-        discovery.advertiseLocalService(new ServiceDescriptor("tombola", ["simples"], ["application/json"], [new URI("amqp://nothing")]))
+        discovery.advertiseLocalService(new ServiceDescriptor("tombola", ["simples"], ["application/json"], [new URI("amqp://nothing")], []))
         sleep(4000)
 
         then:

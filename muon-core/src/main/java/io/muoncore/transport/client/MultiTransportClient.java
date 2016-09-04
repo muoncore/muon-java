@@ -1,13 +1,17 @@
 package io.muoncore.transport.client;
 
+import io.muoncore.Discovery;
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
+import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonMessage;
 import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.transport.*;
+import io.muoncore.transport.sharedsocket.client.SharedSocketRoute;
+import io.muoncore.transport.sharedsocket.client.SharedSocketRouter;
 import org.reactivestreams.Publisher;
 import reactor.core.Dispatcher;
 
@@ -23,14 +27,23 @@ public class MultiTransportClient implements TransportClient, TransportControl {
     private TransportMessageDispatcher taps;
     private Dispatcher dispatcher = new RingBufferLocalDispatcher("transportDispatch", 8192);
     private AutoConfiguration configuration;
+    private SharedSocketRouter sharedSocketRouter;
+    private Discovery discovery;
+    private TransportConnectionProvider transportConnectionProvider;
 
     public MultiTransportClient(
             List<MuonTransport> transports,
             TransportMessageDispatcher taps,
-            AutoConfiguration config) {
+            AutoConfiguration config,
+            Discovery discovery, Codecs codecs) {
         this.transports = transports;
         this.taps = taps;
         this.configuration = config;
+        this.discovery = discovery;
+        transportConnectionProvider = new DefaultTransportConnectionProvider(transports);
+        this.sharedSocketRouter = new SharedSocketRouter(serviceName -> {
+            return new SharedSocketRoute(serviceName, transportConnectionProvider, codecs, configuration);
+        });
     }
 
     @Override
@@ -39,7 +52,7 @@ public class MultiTransportClient implements TransportClient, TransportControl {
 
         Channels.connect(
                 tapChannel.right(),
-                new MultiTransportClientChannelConnection(transports, dispatcher));
+                new MultiTransportClientChannelConnection(dispatcher, sharedSocketRouter, discovery, transportConnectionProvider));
 
         return tapChannel.left();
     }

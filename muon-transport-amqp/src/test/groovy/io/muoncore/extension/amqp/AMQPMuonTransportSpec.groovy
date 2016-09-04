@@ -14,7 +14,7 @@ class AMQPMuonTransportSpec extends Specification {
 
     def codecs = new JsonOnlyCodecs()
     def discovery = Mock(Discovery) {
-        findService(_) >> Optional.of(new ServiceDescriptor("identifier", [], [], []))
+        findService(_) >> Optional.of(new ServiceDescriptor("identifier", [], [], [], []))
     }
 
     def "Opens listen service queue for handshake. For every handshake, create a new channel"() {

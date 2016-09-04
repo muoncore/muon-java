@@ -21,6 +21,8 @@ import io.muoncore.transport.client.MultiTransportClient;
 import io.muoncore.transport.client.SimpleTransportMessageDispatcher;
 import io.muoncore.transport.client.TransportClient;
 import io.muoncore.transport.client.TransportMessageDispatcher;
+import io.muoncore.transport.sharedsocket.client.SharedSocketRouter;
+import io.muoncore.transport.sharedsocket.server.SharedChannelServerStacks;
 import reactor.Environment;
 
 import java.util.*;
@@ -48,28 +50,27 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
             List<MuonTransport> transports) {
         Environment.initializeIfEmpty();
         this.configuration = configuration;
+        this.codecs = new JsonOnlyCodecs();
         TransportMessageDispatcher wiretap = new SimpleTransportMessageDispatcher();
         MultiTransportClient client = new MultiTransportClient(
-                transports, wiretap, configuration);
+                transports, wiretap, configuration, discovery, codecs);
         this.transportClient = client;
         this.transportControl = client;
         this.discovery = discovery;
         this.protocolTimer = new Scheduler();
         this.publisherLookup = new DefaultPublisherLookup();
 
-        this.codecs = new JsonOnlyCodecs();
-
         DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(
                 new DefaultServerProtocol(codecs, configuration, discovery),
                 wiretap);
-        this.protocols = stacks;
+        this.protocols = new SharedChannelServerStacks(stacks, codecs);
         this.registrar = stacks;
 
         initDefaultRequestHandler();
 
         initServerStacks(stacks);
 
-        transports.forEach(tr -> tr.start(discovery, stacks, codecs, getScheduler()));
+        transports.forEach(tr -> tr.start(discovery, this.protocols, codecs, getScheduler()));
 
         discovery.advertiseLocalService(new ServiceDescriptor(
                 configuration.getServiceName(),
@@ -83,7 +84,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
 
     private Set<String> generateCapabilities() {
         Set<String> capabilities = new HashSet<>();
-        capabilities.add("shared-channel");
+        capabilities.add(SharedSocketRouter.PROTOCOL);
         return capabilities;
     }
 
