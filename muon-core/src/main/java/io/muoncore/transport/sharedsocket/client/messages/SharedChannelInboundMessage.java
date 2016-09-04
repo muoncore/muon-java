@@ -5,10 +5,10 @@ import io.muoncore.message.MuonInboundMessage;
 public class SharedChannelInboundMessage {
 
     private String channelId;
-    private byte[] payload;
+    private MuonInboundMessage message;
 
     public MuonInboundMessage getMessage() {
-        return null;
+        return message;
     }
 
     public String getChannelId() {

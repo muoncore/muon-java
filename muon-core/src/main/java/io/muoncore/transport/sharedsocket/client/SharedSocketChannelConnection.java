@@ -27,8 +27,7 @@ public class SharedSocketChannelConnection implements ChannelConnection<MuonOutb
 
     @Override
     public void send(MuonOutboundMessage message) {
-        SharedChannelOutboundMessage sharedMessage = codecs.decode(message.getPayload(), message.getContentType(), SharedChannelOutboundMessage.class);
-
+        SharedChannelOutboundMessage sharedMessage = new SharedChannelOutboundMessage(channelId, message);
         outboundFunction.apply(sharedMessage);
     }
 

@@ -39,7 +39,7 @@ public class SharedSocketServerChannel implements ChannelConnection<MuonInboundM
         SharedChannelInboundMessage msg = codecs.decode(message.getPayload(), message.getContentType(), SharedChannelInboundMessage.class);
 
         ChannelConnection<MuonInboundMessage, MuonOutboundMessage> connection = getConnectionToProtocol(msg);
-        connection.send(message);
+        connection.send(msg.getMessage());
     }
 
     private ChannelConnection<MuonInboundMessage, MuonOutboundMessage> getConnectionToProtocol(SharedChannelInboundMessage msg) {
