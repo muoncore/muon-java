@@ -36,6 +36,10 @@ public class SharedSocketServerChannel implements ChannelConnection<MuonInboundM
 
     @Override
     public void send(MuonInboundMessage message) {
+        if (message == null) {
+
+            return;
+        }
         SharedChannelInboundMessage msg = codecs.decode(message.getPayload(), message.getContentType(), SharedChannelInboundMessage.class);
 
         ChannelConnection<MuonInboundMessage, MuonOutboundMessage> connection = getConnectionToProtocol(msg);

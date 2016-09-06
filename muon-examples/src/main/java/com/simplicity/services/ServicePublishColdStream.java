@@ -49,7 +49,7 @@ public class ServicePublishColdStream {
 
         Broadcaster<MuonMessage> tap = Broadcaster.create();
         tap.consume(o -> {
-            System.out.println("From [" + o.getSourceServiceName() + "]Message is of step " + o.getStep());
+            System.out.println("TAP:From [" + o.getSourceServiceName() + "]Message is of step " + o.getStep());
         });
 
         muon.getTransportControl().tap(m -> true).subscribe(tap);
