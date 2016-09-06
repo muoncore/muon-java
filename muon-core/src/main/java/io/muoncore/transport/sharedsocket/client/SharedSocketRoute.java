@@ -25,13 +25,12 @@ public class SharedSocketRoute {
 
     private String serviceName;
     private ChannelConnection<MuonOutboundMessage, MuonInboundMessage> sharedSocketConnection;
-    private TransportConnectionProvider transportConnectionProvider;
     private Map<String, SharedSocketChannelConnection> routes = new HashMap<>();
 
     private Codecs codecs;
     private AutoConfiguration configuration;
 
-    //TODO, list of channels over this route.
+    //TODO, list of channels active over this route.
     //TODO, shutdown behaviour?
 
     public SharedSocketRoute(String serviceName, TransportConnectionProvider transportConnectionProvider, Codecs codecs, AutoConfiguration configuration) {
@@ -40,10 +39,6 @@ public class SharedSocketRoute {
         this.configuration = configuration;
 
         sharedSocketConnection = transportConnectionProvider.connectChannel(serviceName, "shared-channel", inboundMessage -> {
-//            if (inboundMessage == null) {
-//                logger.warn("SharedRouter received a null message from the transport layer. This is not expected and will be dropped");
-//                return;
-//            }
             SharedChannelInboundMessage message = codecs.decode(inboundMessage.getPayload(), inboundMessage.getContentType(), SharedChannelInboundMessage.class);
             SharedSocketChannelConnection route = routes.get(message.getChannelId());
             route.sendInbound(message.getMessage());
