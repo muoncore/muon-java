@@ -77,8 +77,13 @@ public class DefaultAmqpChannel implements AmqpChannel {
                 return;
             }
             if (function != null) {
-                dispatcher.dispatch(AmqpMessageTransformers.queueToInbound(msg, codecs),
-                        function::apply, Throwable::printStackTrace);
+                MuonInboundMessage inbound = AmqpMessageTransformers.queueToInbound(msg, codecs);
+                if (inbound.getStep().equals(CHANNEL_SHUTDOWN)) {
+                    function.apply(null);
+                } else {
+                    dispatcher.dispatch(inbound,
+                            function::apply, Throwable::printStackTrace);
+                }
             }
         });
 

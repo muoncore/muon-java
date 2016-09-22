@@ -5,18 +5,22 @@ import io.muoncore.MuonBuilder;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
-import reactor.rx.broadcast.Broadcaster;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all;
 
 public class ServicePublishHotStream {
 
     public static void main(String[] args) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException {
 
-        String serviceName = "awesomeservicequery";
+        String serviceName = "product";
 
         AutoConfiguration config = MuonConfigBuilder
                 .withServiceIdentifier(serviceName)
@@ -27,76 +31,45 @@ public class ServicePublishHotStream {
 
         muon.getDiscovery().blockUntilReady();
 
+        muon.handleRequest(all(), wrapper -> {
+            wrapper.ok("THANKS");
+        });
+
         muon.publishGeneratedSource("/hello", PublisherLookup.PublisherType.HOT, subscriptionRequest -> {
-            Broadcaster b = Broadcaster.create();
 
-            new Thread(() -> {
-                while (true) {
-                    System.out.println("SENDING!");
-                    try {
-                        b.accept("HELLO");
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+            Publisher<String> pub = s -> {
+                AtomicInteger cancel = new AtomicInteger(0);
+                Subscription sub = new Subscription() {
+                    @Override
+                    public void request(long n) {
+                        System.out.println("Subscriber requests data " + n);
                     }
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
 
-            return b;
+                    @Override
+                    public void cancel() {
+                        System.out.println("Subscriber Cancelled");
+                        cancel.addAndGet(1);
+                    }
+                };
+                new Thread(() -> {
+                    while (cancel.longValue() == 0) {
+                        System.out.println("SENDING!");
+                        try {
+                            s.onNext("HELLO WORLD " + System.currentTimeMillis());
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+                s.onSubscribe(sub);
+            };
+
+            return pub;
         });
     }
-
-//    public static void main(String[] args) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException {
-//
-//        final OldMuon muon = new OldMuon(
-//                new AmqpDiscovery("amqp://muon:microservices@localhost:5672"));
-//
-//        muon.setServiceIdentifer("cl");
-//        new AmqpTransportExtension("amqp://muon:microservices@localhost:5672").extend(muon);
-//        muon.start();
-//
-//        final Broadcaster stream = Broadcaster.create();
-//
-//        muon.streamSource("/counter", Map.class, stream);
-//
-//        //generate data every so often
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                while(true) {
-//                try {
-//
-//                        Thread.sleep(500);
-//                        System.out.println("Sending data");
-//
-//                        stream.accept(new Awesome("I am a teapot", System.currentTimeMillis()));
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//                }
-//            }
-//        }).start();
-//    }
-//
-//    static class Awesome {
-//        private String myname;
-//        private long something;
-//
-//        public Awesome(String myname, long something) {
-//            this.myname = myname;
-//            this.something = something;
-//        }
-//
-//        public long getSomething() {
-//            return something;
-//        }
-//
-//        public String getMyname() {
-//            return myname;
-//        }
-//    }
 }

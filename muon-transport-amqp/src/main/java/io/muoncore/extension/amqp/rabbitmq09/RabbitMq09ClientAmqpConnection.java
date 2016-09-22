@@ -51,6 +51,10 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
                     factory.setUri(rabbitUrl);
                     connection = factory.newConnection();
                     channel = connection.createChannel();
+
+                    channel.addReturnListener((replyCode, replyText, exchange, routingKey, properties, body) -> {
+                        log.warn("Message has returned on queue: " + routingKey);
+                    });
                     reconnect = false;
                     synchronized (factory) {
                         factory.notify();
@@ -89,9 +93,10 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
 
         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
 //                .contentType(message.getContentType())
+
                 .headers((Map) message.getHeaders()).build();
 
-        channel.basicPublish("", message.getQueueName(), props, message.getBody());
+        channel.basicPublish("", message.getQueueName(), true, props, message.getBody());
     }
 
     @Override
