@@ -39,6 +39,11 @@ public class SharedSocketRoute {
         this.configuration = configuration;
 
         sharedSocketConnection = transportConnectionProvider.connectChannel(serviceName, "shared-channel", inboundMessage -> {
+            if (inboundMessage == null) {
+//                routes.values().stream().forEach(SharedSocketChannelConnection::shutdown);
+//                routes.clear();
+                return;
+            }
             SharedChannelInboundMessage message = codecs.decode(inboundMessage.getPayload(), inboundMessage.getContentType(), SharedChannelInboundMessage.class);
             SharedSocketChannelConnection route = routes.get(message.getChannelId());
             route.sendInbound(message.getMessage());

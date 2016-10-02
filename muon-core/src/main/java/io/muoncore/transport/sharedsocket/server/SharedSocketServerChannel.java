@@ -53,8 +53,12 @@ public class SharedSocketServerChannel implements ChannelConnection<MuonInboundM
             protocolConnection = stacks.openServerChannel(msg.getMessage().getProtocol());
             protocolConnection.receive(arg -> {
                 //TODO, handle the null shutdown signal.
+                if (arg == null) {
+                    return;
+                }
                 SharedChannelOutboundMessage sharedMsg = new SharedChannelOutboundMessage(msg.getChannelId(), arg);
                 Codecs.EncodingResult result = codecs.encode(sharedMsg, new String[] { "application/json"});
+                System.out.println("Processing protocol message: " + arg);
                 MuonOutboundMessage outMsg = MuonMessageBuilder.fromService(arg.getSourceServiceName())
                         .contentType(result.getContentType())
                         .payload(result.getPayload())

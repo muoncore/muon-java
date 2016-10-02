@@ -3,6 +3,7 @@ package io.muoncore.channel;
 import io.muoncore.channel.impl.StandardAsyncChannel;
 import io.muoncore.channel.impl.TimeoutChannel;
 import io.muoncore.channel.impl.WiretapChannel;
+import io.muoncore.channel.impl.ZipChannel;
 import io.muoncore.channel.support.Scheduler;
 import io.muoncore.message.MuonMessage;
 import io.muoncore.transport.client.RingBufferLocalDispatcher;
@@ -21,6 +22,10 @@ public class Channels {
     public static void shutdown() {
 //        EVENT_DISPATCHER.shutdown();
 //        WORK_DISPATCHER.shutdown();
+    }
+
+    public static ZipChannel zipChannel(String name) {
+        return new ZipChannel(EVENT_DISPATCHER, name);
     }
 
     /**

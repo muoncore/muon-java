@@ -1,6 +1,8 @@
 package io.muoncore.transport.sharedsocket.server;
 
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.channel.Channels;
+import io.muoncore.channel.impl.ZipChannel;
 import io.muoncore.codec.Codecs;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonOutboundMessage;
@@ -20,10 +22,18 @@ public class SharedChannelServerStacks implements ServerStacks {
     @Override
     public ChannelConnection<MuonInboundMessage, MuonOutboundMessage> openServerChannel(String protocol) {
 
+        ChannelConnection<MuonInboundMessage, MuonOutboundMessage> channelConnection;
+
         if (protocol.equals(SharedSocketRouter.PROTOCOL)) {
-            return new SharedSocketServerChannel(wrappedStacks, codecs);
+            channelConnection = new SharedSocketServerChannel(wrappedStacks, codecs);
         } else {
-            return wrappedStacks.openServerChannel(protocol);
+            channelConnection = wrappedStacks.openServerChannel(protocol);
         }
+
+        ZipChannel zipChannel = Channels.zipChannel("server");
+
+        Channels.connect(zipChannel.left(), channelConnection);
+
+        return zipChannel.right();
     }
 }

@@ -19,8 +19,11 @@ class IntrospectionSimulationSpec extends Specification {
 
     def eventbus = new EventBus()
 
-    @Timeout(1)
+    @Timeout(100)
     def "many services can run and be introspected"() {
+
+        StandardAsyncChannel.echoOut=true
+
         given: "some services"
 
         def discovery = new InMemDiscovery()
@@ -59,6 +62,7 @@ class IntrospectionSimulationSpec extends Specification {
 
     @Timeout(10)
     def "im mem doesn't blow up when run twice"() {
+        StandardAsyncChannel.echoOut=true
         given: "some services"
         StandardAsyncChannel.echoOut=true
 
