@@ -42,13 +42,13 @@ class ReactiveStreamIntegrationSpec extends Specification {
         sleep(100)
 
         and:
-        50000.times {
+        5000.times {
             b.accept(["hello": "world"])
         }
 
         then:
         new PollingConditions(timeout: 20).eventually {
-            data.size() == 50000
+            data.size() == 5000
         }
     }
 

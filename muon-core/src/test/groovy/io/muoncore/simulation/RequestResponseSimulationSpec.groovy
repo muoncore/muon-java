@@ -146,7 +146,7 @@ class RequestResponseSimulationSpec extends Specification {
         services[0].request("request://service-1/", []).toPublisher().subscribe(b)
 
         then:
-        new PollingConditions().eventually {
+        new PollingConditions(timeout: 5).eventually {
             data != null
             data.svc == "svc1"
         }

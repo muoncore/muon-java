@@ -6,6 +6,7 @@ import io.muoncore.transport.TransportEvents
 import io.muoncore.transport.client.RingBufferLocalDispatcher
 import reactor.Environment
 import spock.lang.Specification
+import spock.util.concurrent.PollingConditions
 
 class KeepAliveChannelSpec extends Specification {
 
@@ -18,18 +19,21 @@ class KeepAliveChannelSpec extends Specification {
         def timeoutmsg = []
 
         channel.left().receive {
-            if (it) timeoutmsg << it
+            println "Got data left"
+            timeoutmsg << it
         }
         channel.right().receive {
             println "Got data on the right."
         }
 
         when:
-        sleep(4000)
+        sleep(7000)
 
         then:
-        timeoutmsg.size() == 1
-        timeoutmsg[0].step == TransportEvents.CONNECTION_FAILURE
+        new PollingConditions(timeout: 5).eventually {
+            timeoutmsg.size() == 1
+            timeoutmsg[0].step == TransportEvents.CONNECTION_FAILURE
+        }
     }
 
     def "service sends keep alive pings"() {

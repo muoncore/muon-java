@@ -23,7 +23,7 @@ import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 class RequestResponseWorksSpec extends Specification {
 
     def discovery = Mock(Discovery) {
-        findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], [new URI("amqp://muon:microservices@localhost")]))
+        findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], [new URI("amqp://muon:microservices@localhost")], []))
         getCodecsForService(_) >> { ["application/json"] as String[]}
     }
 
@@ -34,20 +34,19 @@ class RequestResponseWorksSpec extends Specification {
         def svc1 = createMuon("simples")
         def svc2 = createMuon("tombolana")
 
-        svc2.handleRequest(all(), Map) {
-            it.request.id
+        svc2.handleRequest(all()) {
             it.ok([hi:"there"])
         }
 
         sleep(5000)
 
         when:
-        def response = svc1.request("request://tombolana/hello", [hello:"world"], Map).get(1000, TimeUnit.MILLISECONDS)
+        def response = svc1.request("request://tombolana/hello", [hello:"world"]).get(1000, TimeUnit.MILLISECONDS)
 
         then:
         response != null
         response.status == 200
-        response.payload.hi == "there"
+        response.getPayload(Map).hi == "there"
 
         cleanup:
         svc1.shutdown()
@@ -70,9 +69,9 @@ class RequestResponseWorksSpec extends Specification {
 
         List<MyTestClass> serviceReceivedList = null
 
-        svc2.handleRequest(all(), listOf(MyTestClass)) {
-            serviceReceivedList = it.request.payload
-            assert it.request.payload == expectedList
+        svc2.handleRequest(all()) {
+            serviceReceivedList = it.request.getPayload(listOf(MyTestClass))
+            assert it.request.getPayload(listOf(MyTestClass)) == expectedList
 
             it.ok(returnList)
         }
@@ -80,13 +79,13 @@ class RequestResponseWorksSpec extends Specification {
         sleep(5000)
 
         when:
-        def response = svc1.request("request://tombolana/hello", expectedList, listOf(MyTestClass)).get(1000, TimeUnit.MILLISECONDS)
+        def response = svc1.request("request://tombolana/hello", expectedList).get(1000, TimeUnit.MILLISECONDS)
 
         then:
         serviceReceivedList == expectedList
         response != null
         response.status == 200
-        response.payload == returnList
+        response.getPayload(listOf(MyTestClass)) == returnList
 
         cleanup:
         svc1.shutdown()
@@ -105,7 +104,7 @@ class RequestResponseWorksSpec extends Specification {
 
         def times = Collections.synchronizedList([])
 
-        svc1.handleRequest(all(), Map) {
+        svc1.handleRequest(all()) {
             times << System.currentTimeMillis()
             it.request.id
             Thread.sleep(4000)
@@ -117,10 +116,10 @@ class RequestResponseWorksSpec extends Specification {
 
         when:
         def responses = []
-        responses << svc2.request("request://simples/hello", [hello:"world"], Map)
+        responses << svc2.request("request://simples/hello", [hello:"world"])
         sleep(100)
         10.times {
-            responses << svc3.request("request://simples/hello", [hello: "world"], Map)
+            responses << svc3.request("request://simples/hello", [hello: "world"])
         }
         responses*.get()
         println "Responses retrieved!"
@@ -151,9 +150,8 @@ class RequestResponseWorksSpec extends Specification {
         def times = Collections.synchronizedList([])
         def requests = Collections.synchronizedList([])
 
-        svc1.handleRequest(all(), Map) {
+        svc1.handleRequest(all()) {
             times << System.currentTimeMillis()
-            it.request.id
             requests << it
         }
 
@@ -161,10 +159,10 @@ class RequestResponseWorksSpec extends Specification {
 
         when:
         def responses = []
-        responses << svc2.request("request://simples/hello", [hello:"world"], Map)
+        responses << svc2.request("request://simples/hello", [hello:"world"])
         sleep(100)
         200.times {
-            responses << svc3.request("request://simples/hello", [hello: "world"], Map)
+            responses << svc3.request("request://simples/hello", [hello: "world"])
         }
 
         Thread.sleep(2000)

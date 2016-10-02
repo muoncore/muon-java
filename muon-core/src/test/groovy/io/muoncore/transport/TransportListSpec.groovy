@@ -31,7 +31,8 @@ class TransportListSpec extends Specification {
         [
             new URI("http://simple"),
             new URI("amqp://broker:8181"),
-        ]
+        ],
+            []
     )
   }
 }

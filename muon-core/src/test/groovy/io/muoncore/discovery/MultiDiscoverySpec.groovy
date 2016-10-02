@@ -35,7 +35,7 @@ class MultiDiscoverySpec extends Specification {
 
         def discovery = new MultiDiscovery([mock1, mock2, mock3])
 
-        def ident = new ServiceDescriptor("ident",[],[],[])
+        def ident = new ServiceDescriptor("ident",[],[],[], [])
 
         when:
         discovery.advertiseLocalService(ident)
@@ -71,7 +71,7 @@ class MultiDiscoverySpec extends Specification {
     }
 
     def ident(name) {
-        new ServiceDescriptor(name,[],[],[])
+        new ServiceDescriptor(name,[],[],[], [])
     }
 
 }

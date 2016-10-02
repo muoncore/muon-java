@@ -11,7 +11,7 @@ class AmqpDiscoverySpec extends Specification {
 
     def "service cache data is converted into ServiceDescriptors"() {
         def cache = Mock(ServiceCache) {
-            getServices() >> [new ServiceDescriptor("tombola", ["tag1"], ["application/json", "application/json+AES"], [new URI("amqp://hello")])]
+            getServices() >> [new ServiceDescriptor("tombola", ["tag1"], ["application/json", "application/json+AES"], [new URI("amqp://hello")], [])]
         }
         def listenerFactory = Mock(QueueListenerFactory)
         def connection = Mock(AmqpConnection)
@@ -32,7 +32,7 @@ class AmqpDiscoverySpec extends Specification {
 
     def "amqp discovery broadcasts every 3 seconds"() {
         def cache = Mock(ServiceCache) {
-            getServices() >> [new ServiceDescriptor("tombola", ["tag1"], ["application/json", "application/json+AES"], [new URI("amqp://hello")])]
+            getServices() >> [new ServiceDescriptor("tombola", ["tag1"], ["application/json", "application/json+AES"], [new URI("amqp://hello")], [])]
         }
         QueueListenerFactory listenerFactory = Mock(QueueListenerFactory)
         AmqpConnection connection = Mock(AmqpConnection)
@@ -44,7 +44,7 @@ class AmqpDiscoverySpec extends Specification {
 
         when:
         discovery.start()
-        discovery.advertiseLocalService(new ServiceDescriptor("tombola", ["simples"], ["application/json"], [new URI("amqp://nothing")]))
+        discovery.advertiseLocalService(new ServiceDescriptor("tombola", ["simples"], ["application/json"], [new URI("amqp://nothing")], []))
         sleep(4000)
 
         then:

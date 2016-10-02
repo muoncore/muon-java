@@ -3,6 +3,7 @@ package io.muoncore.simulation
 import com.google.common.eventbus.EventBus
 import io.muoncore.MultiTransportMuon
 import io.muoncore.Muon
+import io.muoncore.channel.impl.StandardAsyncChannel
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
@@ -20,6 +21,7 @@ class RequestResponseTapSimulationSpec extends Specification {
     def eventbus = new EventBus()
 
     def "many services can run and the data can be tapped"() {
+        StandardAsyncChannel.echoOut=true
         given: "some services"
 
         def discovery = new InMemDiscovery()

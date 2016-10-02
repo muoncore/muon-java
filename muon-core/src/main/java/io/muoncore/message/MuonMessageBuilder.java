@@ -16,6 +16,19 @@ public class MuonMessageBuilder {
     private String contentType;
     private MuonMessage.ChannelOperation channelOperation = MuonMessage.ChannelOperation.normal;
 
+    public static MuonMessageBuilder clone(MuonMessage source) {
+        MuonMessageBuilder builder = new MuonMessageBuilder();
+        builder.id = source.getId();
+        builder.sourceServiceName = source.getSourceServiceName();
+        builder.targetServiceName = source.getTargetServiceName();
+        builder.protocol = source.getProtocol();
+        builder.step = source.getStep();
+        builder.status = source.getStatus();
+        builder.payload = source.getPayload();
+        builder.contentType = source.getContentType();
+        return builder;
+    }
+
     public static MuonMessageBuilder fromService(String service) {
         MuonMessageBuilder builder = new MuonMessageBuilder();
         builder.id = UUID.randomUUID().toString();

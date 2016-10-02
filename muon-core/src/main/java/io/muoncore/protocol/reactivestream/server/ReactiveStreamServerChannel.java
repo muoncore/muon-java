@@ -65,6 +65,9 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
             case TransportEvents.CONNECTION_FAILURE:
                 handleError();
                 break;
+            case "ChannelShutdown":
+                handleError();
+                break;
             default:
                 sendProtocolFailureException(message);
         }
@@ -227,7 +230,9 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
     }
 
     private void handleCancel(MuonInboundMessage msg) {
-        subscription.cancel();
+        if (subscription != null) {
+            subscription.cancel();
+        }
     }
 
     private void handleError() {

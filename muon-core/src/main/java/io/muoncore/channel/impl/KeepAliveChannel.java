@@ -67,10 +67,6 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
                     return;
                 }
                 resetKeepAlivePing();
-                if (message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
-                    shutdown();
-                    return;
-                }
                 if (leftFunction == null) {
                     throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
                 }
@@ -78,6 +74,9 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
                     if (StandardAsyncChannel.echoOut) System.out.println("KeepAliveChannel[" + leftname + " >>>>> " + rightname + "]: Sending " + msg + " to " + leftFunction);
                     leftFunction.apply(message); }
                         ,  Throwable::printStackTrace);
+                if (message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
+                    shutdown();
+                }
             }
 
             @Override
@@ -97,10 +96,6 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
             @Override
             public void send(MuonInboundMessage message) {
                 resetTimeout();
-                if (message == null || message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
-                    shutdown();
-                    return;
-                }
                 if (rightFunction == null) {
                     throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
                 }
@@ -111,13 +106,15 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
                         rightFunction.apply(message);
                     }, Throwable::printStackTrace);
                 }
+                if (message == null || message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
+                    shutdown();
+                }
             }
 
             @Override
             public void shutdown() {
                 timeoutTimerControl.cancel();
                 keepAliveTimerControl.cancel();
-                rightFunction.apply(null);
             }
         };
     }
@@ -160,7 +157,10 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
                             .protocol(protocol)
                             .operation(MuonMessage.ChannelOperation.closed)
                             .step(CONNECTION_FAILURE).buildInbound());
-            leftFunction.apply(null);
+            left().send(MuonMessageBuilder.fromService("local")
+                    .protocol(protocol)
+                    .operation(MuonMessage.ChannelOperation.closed)
+                    .step(CONNECTION_FAILURE).build());
         });
     }
 }

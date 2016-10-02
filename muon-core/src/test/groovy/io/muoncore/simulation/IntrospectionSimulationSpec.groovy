@@ -19,8 +19,11 @@ class IntrospectionSimulationSpec extends Specification {
 
     def eventbus = new EventBus()
 
-    @Timeout(1)
+    @Timeout(100)
     def "many services can run and be introspected"() {
+
+        StandardAsyncChannel.echoOut=true
+
         given: "some services"
 
         def discovery = new InMemDiscovery()
@@ -57,7 +60,9 @@ class IntrospectionSimulationSpec extends Specification {
         services*.shutdown()
     }
 
+    @Timeout(10)
     def "im mem doesn't blow up when run twice"() {
+        StandardAsyncChannel.echoOut=true
         given: "some services"
         StandardAsyncChannel.echoOut=true
 
@@ -70,7 +75,7 @@ class IntrospectionSimulationSpec extends Specification {
             it.answer(new ServerResponse(200, [svc:"svc1"]))
         }
 
-        Thread.sleep(4000)
+        Thread.sleep(6000)
 
         when:
         def descriptor = service.introspect("tombola").get()

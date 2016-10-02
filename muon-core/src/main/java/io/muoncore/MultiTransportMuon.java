@@ -1,6 +1,7 @@
 package io.muoncore;
 
 import io.muoncore.channel.Channels;
+import io.muoncore.channel.support.Scheduler;
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.config.AutoConfiguration;
@@ -14,17 +15,17 @@ import io.muoncore.protocol.reactivestream.server.DefaultPublisherLookup;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack;
 import io.muoncore.protocol.requestresponse.server.*;
-import io.muoncore.channel.support.Scheduler;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.TransportControl;
 import io.muoncore.transport.client.MultiTransportClient;
 import io.muoncore.transport.client.SimpleTransportMessageDispatcher;
 import io.muoncore.transport.client.TransportClient;
 import io.muoncore.transport.client.TransportMessageDispatcher;
+import io.muoncore.transport.sharedsocket.client.SharedSocketRouter;
+import io.muoncore.transport.sharedsocket.server.SharedChannelServerStacks;
 import reactor.Environment;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -49,36 +50,42 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
             List<MuonTransport> transports) {
         Environment.initializeIfEmpty();
         this.configuration = configuration;
+        this.codecs = new JsonOnlyCodecs();
         TransportMessageDispatcher wiretap = new SimpleTransportMessageDispatcher();
         MultiTransportClient client = new MultiTransportClient(
-                transports, wiretap);
+                transports, wiretap, configuration, discovery, codecs);
         this.transportClient = client;
         this.transportControl = client;
         this.discovery = discovery;
         this.protocolTimer = new Scheduler();
         this.publisherLookup = new DefaultPublisherLookup();
 
-        this.codecs = new JsonOnlyCodecs();
-
         DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(
                 new DefaultServerProtocol(codecs, configuration, discovery),
                 wiretap);
-        this.protocols = stacks;
+        this.protocols = new SharedChannelServerStacks(stacks, codecs);
         this.registrar = stacks;
 
         initDefaultRequestHandler();
 
         initServerStacks(stacks);
 
-        transports.forEach(tr -> tr.start(discovery, stacks, codecs, getScheduler()));
+        transports.forEach(tr -> tr.start(discovery, this.protocols, codecs, getScheduler()));
 
         discovery.advertiseLocalService(new ServiceDescriptor(
                 configuration.getServiceName(),
                 configuration.getTags(),
                 Arrays.asList(codecs.getAvailableCodecs()),
-                transports.stream().map(MuonTransport::getLocalConnectionURI).collect(Collectors.toList())));
+                transports.stream().map(MuonTransport::getLocalConnectionURI).collect(Collectors.toList()),
+                generateCapabilities()));
 
         discovery.blockUntilReady();
+    }
+
+    private Set<String> generateCapabilities() {
+        Set<String> capabilities = new HashSet<>();
+        capabilities.add(SharedSocketRouter.PROTOCOL);
+        return capabilities;
     }
 
     @Override

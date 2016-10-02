@@ -42,8 +42,8 @@ class ChannelPerfSpec extends Specification {
         def service1 = createService("1", discovery)
         def service2 = createService("2", discovery)
 
-        discovery.advertiseLocalService(new ServiceDescriptor("service-1", [], [], []))
-        discovery.advertiseLocalService(new ServiceDescriptor("service-2", [], [], []))
+        discovery.advertiseLocalService(new ServiceDescriptor("service-1", [], [], [], []))
+        discovery.advertiseLocalService(new ServiceDescriptor("service-2", [], [], [], []))
 
         service2.handleRequest(all()) {
             it.ok([svc:"svc1"])
@@ -105,8 +105,8 @@ class ChannelPerfSpec extends Specification {
 
         def service2 = createService("2", discovery)
 
-        discovery.advertiseLocalService(new ServiceDescriptor("service-1", [], [], []))
-        discovery.advertiseLocalService(new ServiceDescriptor("service-2", [], [], []))
+        discovery.advertiseLocalService(new ServiceDescriptor("service-1", [], [], [], []))
+        discovery.advertiseLocalService(new ServiceDescriptor("service-2", [], [], [], []))
 
         when:
         def channel = service2.transportClient.openClientChannel()
