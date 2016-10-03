@@ -110,7 +110,7 @@ public class ZipChannel implements Channel<MuonOutboundMessage, MuonInboundMessa
     }
 
     private static byte[] zlibDeflate(final byte[] bytes) {
-
+        if (bytes == null || bytes.length == 0) return bytes;
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         DeflaterOutputStream dos = new DeflaterOutputStream(os);
         try {
@@ -123,6 +123,7 @@ public class ZipChannel implements Channel<MuonOutboundMessage, MuonInboundMessa
     }
 
     private static byte[] zlibInflate(final byte[] bytes) {
+        if (bytes == null || bytes.length == 0) return bytes;
         final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final InflaterInputStream iis = new InflaterInputStream(bais);
