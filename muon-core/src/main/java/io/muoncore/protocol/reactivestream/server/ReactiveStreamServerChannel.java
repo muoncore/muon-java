@@ -170,6 +170,7 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
                 public void onError(Throwable t) {
 
                     Map<String, String> meta = new HashMap<>();
+                    meta.put("error", t.getMessage());
 
                     Codecs.EncodingResult result = codecs.encode(meta,
                             discovery.getCodecsForService(msg.getSourceServiceName()));

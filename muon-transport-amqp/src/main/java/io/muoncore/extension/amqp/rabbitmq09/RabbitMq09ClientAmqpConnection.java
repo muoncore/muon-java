@@ -53,7 +53,7 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
                     channel = connection.createChannel();
 
                     channel.addReturnListener((replyCode, replyText, exchange, routingKey, properties, body) -> {
-                        log.warn("Message has returned on queue: " + routingKey);
+                        log.trace("Message has returned on queue: " + routingKey);
                     });
                     reconnect = false;
                     synchronized (factory) {

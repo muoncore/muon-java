@@ -95,10 +95,14 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
 
             @Override
             public void send(MuonInboundMessage message) {
-                resetTimeout();
                 if (rightFunction == null) {
                     throw new MuonException("Other side of the channel [" + rightname + "] is not connected to receive data");
                 }
+                if (message == null) {
+                    rightFunction.apply(null);
+                    return;
+                }
+                resetTimeout();
                 if(!KEEP_ALIVE_STEP.equals(message.getStep())) {
                     dispatcher.dispatch(message, msg -> {
                         if (StandardAsyncChannel.echoOut)

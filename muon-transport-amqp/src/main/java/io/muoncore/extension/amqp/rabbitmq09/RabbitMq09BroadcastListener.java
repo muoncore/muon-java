@@ -78,7 +78,7 @@ public class RabbitMq09BroadcastListener implements QueueListener {
 
                     channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                 } catch (ShutdownSignalException | ConsumerCancelledException ex) {
-                    log.debug("Channel shuts down");
+                    log.debug("Channel shuts down", ex);
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
                 }

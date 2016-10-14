@@ -94,6 +94,13 @@ public class ZipChannel implements Channel<MuonOutboundMessage, MuonInboundMessa
 
     private MuonInboundMessage zipInbound(MuonInboundMessage msg) {
         if (msg == null) return null;
+        if (msg.getContentType() == null) {
+            return msg;
+        }
+
+        if (msg.getContentType().indexOf("DEFLATE") <= 0) {
+            return msg;
+        }
         return MuonMessageBuilder
                 .clone(msg)
                 .payload(zlibInflate(msg.getPayload()))

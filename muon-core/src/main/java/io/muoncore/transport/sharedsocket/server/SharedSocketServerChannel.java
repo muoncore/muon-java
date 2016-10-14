@@ -3,12 +3,15 @@ package io.muoncore.transport.sharedsocket.server;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
 import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessage;
 import io.muoncore.message.MuonMessageBuilder;
 import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.transport.sharedsocket.client.SharedSocketRouter;
 import io.muoncore.transport.sharedsocket.client.messages.SharedChannelInboundMessage;
 import io.muoncore.transport.sharedsocket.client.messages.SharedChannelOutboundMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +20,8 @@ import java.util.Map;
  * The concrete muon socket, acts as the multipler/ server router.
  */
 public class SharedSocketServerChannel implements ChannelConnection<MuonInboundMessage, MuonOutboundMessage> {
+
+    private Logger logger = LoggerFactory.getLogger(SharedSocketServerChannel.class);
 
     private ChannelFunction<MuonOutboundMessage> outboundFunc;
 
@@ -37,9 +42,15 @@ public class SharedSocketServerChannel implements ChannelConnection<MuonInboundM
     @Override
     public void send(MuonInboundMessage message) {
         if (message == null) {
-
             return;
         }
+
+        if (message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
+            logger.debug("Received a channel op closed message " + message);
+            shutdown();
+            return;
+        }
+
         SharedChannelInboundMessage msg = codecs.decode(message.getPayload(), message.getContentType(), SharedChannelInboundMessage.class);
 
         ChannelConnection<MuonInboundMessage, MuonOutboundMessage> connection = getConnectionToProtocol(msg);
@@ -52,13 +63,15 @@ public class SharedSocketServerChannel implements ChannelConnection<MuonInboundM
         if (protocolConnection == null) {
             protocolConnection = stacks.openServerChannel(msg.getMessage().getProtocol());
             protocolConnection.receive(arg -> {
-                //TODO, handle the null shutdown signal.
-                if (arg == null) {
+
+                if (arg == null || arg.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
+                    shutdown();
                     return;
                 }
+
                 SharedChannelOutboundMessage sharedMsg = new SharedChannelOutboundMessage(msg.getChannelId(), arg);
                 Codecs.EncodingResult result = codecs.encode(sharedMsg, new String[] { "application/json"});
-                System.out.println("Processing protocol message: " + arg);
+
                 MuonOutboundMessage outMsg = MuonMessageBuilder.fromService(arg.getSourceServiceName())
                         .contentType(result.getContentType())
                         .payload(result.getPayload())

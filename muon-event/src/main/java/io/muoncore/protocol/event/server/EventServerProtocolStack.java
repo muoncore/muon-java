@@ -59,7 +59,7 @@ public class EventServerProtocolStack implements
                 MuonOutboundMessage msg = MuonMessageBuilder.fromService(message.getTargetServiceName())
                         .toService(message.getSourceServiceName())
                         .protocol(EventProtocolMessages.PROTOCOL)
-                        .step(EventProtocolMessages.EVENT)
+                        .step(EventProtocolMessages.EVENT_RESULT)
                         .contentType(result.getContentType())
                         .payload(result.getPayload()).build();
 
