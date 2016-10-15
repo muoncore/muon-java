@@ -81,7 +81,7 @@ class IntrospectionSimulationSpec extends Specification {
         def descriptor = service.introspect("tombola").get()
         service.shutdown()
 
-        sleep(40000)
+        sleep(3000)
 
         println "Starting second run"
         service = createService("service-1", discovery)

@@ -8,3 +8,6 @@ publishSnapshot:
 
 publishRelease:
 	./gradlew release
+
+test:
+	./gradlew test

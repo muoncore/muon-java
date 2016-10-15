@@ -7,7 +7,13 @@ import io.muoncore.protocol.event.server.EventServerProtocolStack
 import io.muoncore.protocol.event.server.EventWrapper
 import io.muoncore.protocol.reactivestream.messages.ReactiveStreamSubscriptionRequest
 import io.muoncore.protocol.reactivestream.server.PublisherLookup
+import org.reactivestreams.Publisher
+import org.reactivestreams.Subscriber
 import reactor.rx.broadcast.Broadcaster
+
+import java.util.concurrent.BlockingQueue
+import java.util.concurrent.LinkedBlockingQueue
+
 /*
  A toy event store, implementing the core interfaces of Photon.
  */
@@ -31,14 +37,7 @@ class Chronos {
 
             def b = Broadcaster.<Event>create()
 
-            //this potentially loses messages during the window from returning here and the item subscribing.
-            //this gives reasonable behaviour, but explicitly does not handle enforcing the order of hot vs cold messages.
-            //it's possible for them to interleave here, as we don't buffer up the hot ones during cold replay.
-            b.observeSubscribe {
-                history.each {
-                    b.accept(it)
-                }
-            }
+            BlockingQueue q = new LinkedBlockingQueue()
 
             subs << b
 
@@ -47,11 +46,33 @@ class Chronos {
                     return it.event
                 }
                 it
-            }. filter { it.streamName == stream }
+            }. filter { it.streamName == stream }.consume {
+                q.add(it)
+            }
+
+            if (request.args["stream-type"] &&  request.args["stream-type"] in ["cold", "hot-cold"]) {
+                println "Has requested replay .. "
+                history.each {
+                    b.accept(it)
+                }
+            }
+
+            new Publisher() {
+                @Override
+                void subscribe(Subscriber s) {
+                    Thread.start {
+                        while(true) {
+                            def next = q.take()
+                            println "Sending $next"
+                            s.onNext(next)
+                        }
+                    }
+                }
+            }
         }
 
         muon.getProtocolStacks().registerServerProtocol(new EventServerProtocolStack( { event ->
-            System.out.println("Event received")
+            System.out.println("Event received " + event.event)
             try {
                 synchronized (history) {
                     subs.stream().forEach({ q ->

@@ -7,6 +7,9 @@ import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
 import io.muoncore.protocol.reactivestream.server.PublisherLookup
+import org.reactivestreams.Publisher
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
 import reactor.Environment
 import reactor.rx.broadcast.Broadcaster
 import spock.lang.Ignore
@@ -128,6 +131,79 @@ class ReactiveStreamIntegrationSpec extends Specification {
         cleanup:
         StandardAsyncChannel.echoOut = false
     }
+
+    def "client receives complete signal correctly"() {
+
+        def muon1 = muon("simples")
+        def muon2 = muon("tombola")
+
+        StandardAsyncChannel.echoOut = true
+        def env = Environment.initializeIfEmpty()
+
+        def data = []
+
+        Publisher pub = new Publisher() {
+            @Override
+            void subscribe(Subscriber s) {
+                s.onSubscribe(new Subscription() {
+                    @Override
+                    void request(long n) {
+                        println "CLIENT REQUESTED DATA $n"
+                    }
+
+                    @Override
+                    void cancel() {
+                        println "CLIENT SENT CANCEL"
+                    }
+                })
+                Thread.start{
+                    sleep 500
+                    s.onComplete()
+                }
+            }
+        }
+
+        def completed = false
+
+        Subscriber sub = new Subscriber() {
+            @Override
+            void onSubscribe(Subscription s) {
+                println "Received SUBSCRIBE"
+            }
+
+            @Override
+            void onNext(Object o) {
+                println "Received NEXT"
+            }
+
+            @Override
+            void onError(Throwable t) {
+                println "Received ERROR"
+            }
+
+            @Override
+            void onComplete() {
+                println "Received COMPLETE"
+                completed=true
+            }
+        }
+
+        muon1.publishSource("somedata", PublisherLookup.PublisherType.HOT, pub)
+
+        sleep 500
+        when:
+        muon2.subscribe(new URI("stream://simples/somedata"), Integer, sub)
+
+        then:
+
+        new PollingConditions().eventually {
+            completed == true
+        }
+
+        cleanup:
+        StandardAsyncChannel.echoOut = false
+    }
+
 
     Muon muon(name) {
         def config = new AutoConfiguration(serviceName: name)

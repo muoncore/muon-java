@@ -209,9 +209,20 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
                 .toService(subscribingServiceName)
                 .payload(result.getPayload())
                 .contentType(result.getContentType())
+                .operation(MuonMessage.ChannelOperation.normal)
+                .build()
+        );
+        function.apply(MuonMessageBuilder
+                .fromService(configuration.getServiceName())
+                .step(ProtocolMessages.COMPLETE)
+                .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+                .toService(subscribingServiceName)
+                .payload(result.getPayload())
+                .contentType(result.getContentType())
                 .operation(MuonMessage.ChannelOperation.closed)
                 .build()
         );
+
     }
 
     @Override
