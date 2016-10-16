@@ -2,4 +2,4 @@
 
 Java Implementation of the Muon Microservices Toolkit.
 
-See [documentation](https://github.com/muoncore/documentation)
+See [documentation](http://muoncore.io)
