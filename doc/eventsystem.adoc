@@ -9,12 +9,12 @@ Users. regsitering, removing. Simple streaming aggregation. THen with a projecti
 == Event Based Systems
 
 Event based architectures have many powerful and useful properties when building distributed and scalable
-systems. The MicroserviceUX ecosystem provides special support for building event based systems, in the form of :=
+systems. The Muon ecosystem provides special support for building event based systems, in the form of :=
 
 * Microservices providing optimised event storage, transformation and query.
 * Muon protocols and APIs to interact with event based data.
 
-Eventing in MicroserviceUX is taken to mean persisted event architectures, where the streams of events are stored
+Eventing in Muon is taken to mean persisted event architectures, where the streams of events are stored
 and used at future points. This is often called _event sourcing_.
 
 === Running an Event Store
