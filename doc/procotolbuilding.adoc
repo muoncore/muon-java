@@ -1,0 +1,33 @@
+---
+layout: documentation
+---
+:title: Building Protocols
+:date: 2015-01-05 11:40
+:source-highlighter: pygments
+:toc: right
+:toc-title: Muon Node
+:toclevels: 6
+
+# TODO/ To answer
+
+what is reject?
+what is resolve?
+
+
+# Protocols
+
+This doc describes building a protocol in muon node (and so also covering muon.js)
+
+It's starting as a set of notes as I build streaming proto
+
+First, design your protocol as per the normal method.
+
+## Client side
+
+Create the api
+
+create the message schemas
+
+
+## Server side
+

@@ -1,0 +1,71 @@
+{
+  "name": "muon-core",
+  "description": "node.js muon implementation",
+  "version": "7.1.7",
+  "author": "Muon Core Ltd",
+  "keywords": [
+    "muon",
+    "microservices",
+    "antifragile"
+  ],
+  "private": false,
+  "repository": {
+    "url": "https://github.com/microserviceux/muon-node"
+  },
+  "scripts": {
+    "start": "node tck",
+    "tck": "node tck",
+    "test": "./node_modules/.bin/mocha --recursive -R xunit-file test/"
+  },
+  "dependencies": {
+    "pako": "1.0.3",
+    "console.table": "0.7.0",
+    "amqplib": "0.4.2",
+    "amqp": "0.2.6",
+    "split": "1.0.0",
+    "underscore": "1.8.3",
+    "jsonutil": "0.2.0",
+    "async": "2.0.1",
+    "url": "0.11.0",
+    "moment": "2.14.1",
+    "cors": "2.8.0",
+    "js-csp": "0.6.5",
+    "node-uuid": "1.4.7",
+    "body-parser": "1.15.2",
+    "expect.js": "0.3.1",
+    "url-template": "2.0.8",
+    "colors": "1.1.2",
+    "callsite": "1.0.0",
+    "stack-trace": "0.0.9",
+    "cli": "0.6.6",
+    "cli-table": "0.3.1",
+    "rx": "4.1.0",
+    "es6-promise": "3.2.1",
+    "rsvp": "3.2.1",
+    "daemon": "1.1.0",
+    "signals": "1.0.0",
+    "assert": "1.4.1",
+    "joi": "9.0.4",
+    "sexylog": "0.0.3",
+    "string-format": "0.5.0",
+    "async-rq": "0.0.1"
+  },
+  "devDependencies": {
+    "browserify": "13.1.0",
+    "mocha": "2.5.3",
+    "superagent": "2.2.0",
+    "validator": "5.5.0",
+    "xunit-file": "1.0.0",
+    "should": "11.1.0",
+    "sinon": "1.17.5",
+    "mocha-sinon": "1.1.5",
+    "mocha-teamcity-reporter": "1.1.1",
+    "mocha-multi": "0.9.1"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "license": "Apache-2.0",
+  "preferGlobal": "false",
+  "main": "./muon/api/muoncore"
+}
