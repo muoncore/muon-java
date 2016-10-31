@@ -10,9 +10,12 @@ layout: documentation
 :toc-title: Muon Java
 :toclevels: 6
 
-
-include::java/SNAPSHOT/intro.adoc[leveloffset=+1]
 # Muon Java
+
+Muon Java is the implementation of the Muon microservices toolkit, for the Java platform. Muon enables you to easily build
+microservices in many languages that have richer, more performant and fully reactive communication semantics and gain access
+to Muon compatible services written in other languages without having to sacrifice the rich semantics or performance.
+
 
 .Contributing
 ****

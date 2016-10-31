@@ -1,7 +1,4 @@
 
-Muon Java is the implementation of the Muon microservices toolkit, for the Java platform. Muon enables you to easily build
-microservices in many languages that have richer, more performant and fully reactive communication semantics and gain access
-to Muon compatible services written in other languages without having to sacrifice the rich semantics or performance.
 
 == A Microservice based system in 5 minutes
 
