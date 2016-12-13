@@ -19,14 +19,8 @@ public class ServiceQuery {
 
         String serviceName = "awesomeServiceQuery";
 
-        String url = "amqp://ymqxzfst:ujdmabicJHTj3JJtitZXSIafDtO9AVF8@spotted-monkey.rmq.cloudamqp.com/ymqxzfst";
-
         AutoConfiguration config = MuonConfigBuilder
                 .withServiceIdentifier(serviceName)
-//                .addWriter(c -> {
-//                    c.getProperties().setProperty(AmqpMuonTransportFactory.TRANSPORT_URL_PROPERTY_NAME, url);
-//                    c.getProperties().setProperty(AmqpDiscoveryFactory.DISCOVERY_URL_PROPERTY_NAME, url);
-//                })
                 .withTags("node", "awesome")
                 .build();
 

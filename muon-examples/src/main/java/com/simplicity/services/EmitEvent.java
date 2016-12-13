@@ -38,12 +38,13 @@ public class EmitEvent {
 
         long then = System.currentTimeMillis();
 
-        for(int i=0; i < 500; i++ ) {
+        for(int i=0; i < 2; i++ ) {
 
 
             EventResult res = client.event(
                     ClientEvent.ofType("SomethingHappened")
                             .schema("17")
+                            .causedBy(123456789L, "Fully Qualified Bigness")
                         .stream("something").payload(data).build()
 
             );
