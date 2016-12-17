@@ -15,6 +15,9 @@ ifdef::env-doc[]
 :includedir: submodules/java/doc
 endif::[]
 
+TIP: This document is maintained at https://github.com/muoncore/muon-java.
+Please submit issues at that repository.
+
 ## Muon Java
 
 Muon Java is the implementation of the Muon microservices toolkit, for the Java platform. Muon enables you to easily build
