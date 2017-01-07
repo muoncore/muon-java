@@ -4,6 +4,7 @@ import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessage;
 import io.muoncore.message.MuonMessageBuilder;
 import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.transport.client.TransportConnectionProvider;
@@ -44,9 +45,13 @@ public class SharedSocketRoute {
 //                routes.clear();
                 return;
             }
-            SharedChannelInboundMessage message = codecs.decode(inboundMessage.getPayload(), inboundMessage.getContentType(), SharedChannelInboundMessage.class);
-            SharedSocketChannelConnection route = routes.get(message.getChannelId());
-            route.sendInbound(message.getMessage());
+            if (inboundMessage.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
+              sharedSocketConnection.shutdown();
+            } else {
+              SharedChannelInboundMessage message = codecs.decode(inboundMessage.getPayload(), inboundMessage.getContentType(), SharedChannelInboundMessage.class);
+              SharedSocketChannelConnection route = routes.get(message.getChannelId());
+              route.sendInbound(message.getMessage());
+            }
         });
     }
 

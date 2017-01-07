@@ -85,10 +85,10 @@ class MultiTransportClientChannelConnection implements ChannelConnection<MuonOut
     private boolean useSharedChannels(MuonOutboundMessage message) {
         Optional<ServiceDescriptor> service = discovery.findService(
                 serviceDescriptor -> serviceDescriptor.getIdentifier().equals(message.getTargetServiceName()));
-        if (service.isPresent()) {
-            return service.get().getCapabilities().contains(SharedSocketRouter.PROTOCOL);
-        }
-        return false;
+//        if (service.isPresent()) {
+//            return service.get().getCapabilities().contains(SharedSocketRouter.PROTOCOL);
+//        }
+        return true;
     }
 
     @Override

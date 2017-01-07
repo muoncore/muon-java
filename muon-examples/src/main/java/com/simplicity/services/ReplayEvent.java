@@ -55,7 +55,7 @@ public class ReplayEvent {
             } catch (Exception ex) {}
         });
 
-        client.replay("something", EventReplayMode.REPLAY_THEN_LIVE, Map.class, b);
+        client.replay("slack", EventReplayMode.REPLAY_THEN_LIVE, Map.class, b);
 
         long now = System.currentTimeMillis();
 

@@ -24,14 +24,15 @@ public class MulticastClient extends Thread {
 
     public void run() {
         try {
-            MulticastSocket socket = new MulticastSocket(4446);
-            InetAddress address = InetAddress.getByName("230.0.0.1");
+            MulticastSocket socket = new MulticastSocket(MulticastDiscovery.PORT);
+            socket.setReuseAddress(true);
+            socket.setLoopbackMode(true);
+            InetAddress address = InetAddress.getByName(MulticastDiscovery.MULTICAST_ADDRESS);
 
             socket.joinGroup(address);
 
             DatagramPacket packet;
 
-            // get a few quotes
             while(running) {
 
                 byte[] buf = new byte[512];
@@ -41,6 +42,7 @@ public class MulticastClient extends Thread {
                 byte[] data = Arrays.copyOfRange(buf, 0, packet.getLength());
 
                 ServiceDescriptor descriptor = codec.decode(data, ServiceDescriptor.class);
+              System.out.println("Got data " + descriptor.getIdentifier());
                 serviceCache.addService(descriptor);
             }
 

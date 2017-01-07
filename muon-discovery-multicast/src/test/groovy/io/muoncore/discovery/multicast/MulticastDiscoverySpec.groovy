@@ -32,7 +32,7 @@ class MulticastDiscoverySpec extends Specification {
     }
 
     def service(String name) {
-        new ServiceDescriptor(name, ["tag1"], ["text/json+AES"], [new URI("amqp://wibble")])
+        new ServiceDescriptor(name, ["tag1"], ["text/json+AES"], [new URI("amqp://wibble")], [])
 
     }
 }

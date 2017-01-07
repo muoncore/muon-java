@@ -281,6 +281,7 @@ project('muon-examples') {
         compile project(":muon-codec-kryo")
         compile project(":muon-spring")
         compile project(":muon-event")
+        compile project(":muon-discovery-multicast")
         compile "io.projectreactor:reactor-stream:$reactorVersion"
         compile 'org.slf4j:slf4j-simple:1.7.12'
     }

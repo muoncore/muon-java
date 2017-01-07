@@ -2,8 +2,12 @@ package com.simplicity.services;
 
 import io.muoncore.Muon;
 import io.muoncore.MuonBuilder;
+import io.muoncore.ServiceDescriptor;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
+import io.muoncore.discovery.amqp.AmqpDiscoveryFactory;
+import io.muoncore.discovery.multicast.MulticastDiscovery;
+import io.muoncore.discovery.multicast.MulticastDiscoveryFactory;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
@@ -12,27 +16,31 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all;
 
 public class ServicePublishHotStream {
 
-    public static void main(String[] args) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException {
+    public static void main(String[] args) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException, InterruptedException {
 
         String serviceName = "product";
 
         AutoConfiguration config = MuonConfigBuilder
                 .withServiceIdentifier(serviceName)
                 .withTags("node", "awesome")
+                .addWriter(config1 ->  config1.getProperties().setProperty("muon.discovery.factories", MulticastDiscoveryFactory.class.getName()) )
                 .build();
 
         Muon muon = MuonBuilder.withConfig(config).build();
 
         muon.getDiscovery().blockUntilReady();
 
+
+
         muon.handleRequest(all(), wrapper -> {
-            wrapper.ok("THANKS");
+            wrapper.ok(muon.getDiscovery().getKnownServices());
         });
 
         muon.publishGeneratedSource("/hello", PublisherLookup.PublisherType.HOT, subscriptionRequest -> {
@@ -71,5 +79,14 @@ public class ServicePublishHotStream {
 
             return pub;
         });
+
+        Thread.sleep(4000);
+
+      muon.request("rpc://muon-node-test-examples/ping").then(arg -> {
+        System.out.println(arg.getPayload(String.class));
+      });
+      for (ServiceDescriptor desc: muon.getDiscovery().getKnownServices()) {
+        System.out.println(desc.getConnectionUrls());
+      }
     }
 }

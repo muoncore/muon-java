@@ -154,7 +154,7 @@ public class KeepAliveChannel implements Channel<MuonOutboundMessage, MuonInboun
         }
         timeoutTimerControl = scheduler.executeIn(KEEP_ALIVE_TIMEOUT, TimeUnit.MILLISECONDS, () -> {
             keepAliveTimerControl.cancel();
-            logger.warn("Connection has failed to stay alive, last message was received " + (System.currentTimeMillis() - this.lastMsg) + "ms ago, sending failure to protocol level: " + protocol);
+            logger.debug("Connection has failed to stay alive, last message was received " + (System.currentTimeMillis() - this.lastMsg) + "ms ago, sending failure to protocol level: " + protocol);
             channelFailed = true;
             right().send(
                     MuonMessageBuilder.fromService("local")

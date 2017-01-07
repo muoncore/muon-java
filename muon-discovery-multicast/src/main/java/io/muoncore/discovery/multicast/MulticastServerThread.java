@@ -36,9 +36,9 @@ public class MulticastServerThread extends Thread {
                 buf = gson.encode(descriptor);
 
                 // send it
-                InetAddress group = InetAddress.getByName("230.0.0.1");
-                DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4446);
-                socket.send(packet);
+                InetAddress group = InetAddress.getByName(MulticastDiscovery.MULTICAST_ADDRESS);
+                DatagramPacket packet = new DatagramPacket(buf, buf.length, group, MulticastDiscovery.PORT);
+                if (socket.isBound()) socket.send(packet);
 
                 // sleep for a while
                 try {
@@ -55,6 +55,7 @@ public class MulticastServerThread extends Thread {
         }
         socket.close();
     }
+
 
     public void shutdown() {
         running = false;

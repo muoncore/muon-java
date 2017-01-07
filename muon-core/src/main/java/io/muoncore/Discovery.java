@@ -62,6 +62,6 @@ public interface Discovery {
     }
 
     interface DiscoveryOnReady {
-        void call() throws Exception;
+        void call();
     }
 }

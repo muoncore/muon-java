@@ -10,6 +10,9 @@ import java.util.List;
 
 public class MulticastDiscovery implements Discovery {
 
+    public static int PORT = 9898;
+    public static String MULTICAST_ADDRESS = "224.1.7.8";
+
     private ServiceCache serviceCache;
     private MulticastClient client;
     private MulticastServerThread server;
@@ -38,7 +41,7 @@ public class MulticastDiscovery implements Discovery {
 
     @Override
     public void onReady(DiscoveryOnReady onReady) {
-
+      onReady.call();
     }
 
     @Override
