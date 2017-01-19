@@ -126,32 +126,6 @@ class MultiTransportChannelConnectionSpec extends Specification {
         1 * connections[0].shutdown()
     }
 
-    def "when transport.openCLientChannel throws NoSuchServiceException, a message is sent back down the channel reporting error and closing it"() {
-
-        Environment.initializeIfEmpty()
-
-        def transport = Mock(MuonTransport) {
-            openClientChannel(_, _) >> {
-                throw new NoSuchServiceException("simples")
-            }
-        }
-
-        ChannelConnection.ChannelFunction receive = Mock(ChannelConnection.ChannelFunction)
-
-        def connection = new MultiTransportClientChannelConnection(Environment.sharedDispatcher(), router, discovery, connectionProvider)
-        connection.receive(receive)
-
-        when:
-        connection.send(outbound("mymessage", "myService1", "requestresponse"))
-
-        sleep(100)
-        then:
-        1 * receive.apply({ MuonInboundMessage msg ->
-            msg.channelOperation == MuonMessage.ChannelOperation.normal &&
-                    msg.sourceServiceName == "myService1"
-        })
-    }
-
     def inbound(id,String service, String protocol) {
         MuonMessageBuilder
                 .fromService("localService")

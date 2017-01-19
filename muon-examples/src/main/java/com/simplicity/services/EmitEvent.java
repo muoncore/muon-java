@@ -2,12 +2,15 @@ package com.simplicity.services;
 
 import io.muoncore.Muon;
 import io.muoncore.MuonBuilder;
+import io.muoncore.api.PromiseFunction;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
 import io.muoncore.protocol.event.ClientEvent;
 import io.muoncore.protocol.event.client.DefaultEventClient;
 import io.muoncore.protocol.event.client.EventClient;
+import io.muoncore.protocol.event.client.EventReplayMode;
 import io.muoncore.protocol.event.client.EventResult;
+import reactor.rx.broadcast.Broadcaster;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -29,34 +32,46 @@ public class EmitEvent {
 
         Muon muon = MuonBuilder.withConfig(config).build();
 
-        EventClient client = new DefaultEventClient(muon);
+        muon.getDiscovery().blockUntilReady();
 
-        Thread.sleep(2000);
+        EventClient client = new DefaultEventClient(muon);
 
         Map data = new HashMap<>();
         data.put("hello", "world");
 
         long then = System.currentTimeMillis();
 
-        for(int i=0; i < 2; i++ ) {
+        long ratePerSecond = 20;
 
+        subscribe(client);
 
-            EventResult res = client.event(
-                    ClientEvent.ofType("SomethingHappened")
-                            .schema("17")
-                            .causedBy(123456789L, "Fully Qualified Bigness")
-                        .stream("something").payload(data).build()
+        Thread.sleep(1000);
+        while(true) {
 
-            );
+          for (int i = 0; i < ratePerSecond; i++) {
+
+            client.<Map>eventAsync(
+              ClientEvent.ofType("SomethingHappened")
+                .schema("17")
+                .causedBy(123456789L, "Fully Qualified Bigness")
+                .stream("hammer").payload(data).build()
+
+            ).then((PromiseFunction<EventResult>) arg -> System.out.println("Restul is " + arg.getStatus() + " " + arg.getCause()));
 //            System.out.println("Restul is " + res.getStatus() + " " + res.getCause());
 //            System.out.println("Restul is " + res.getEventTime() + " " + res.getOrderId());
+          }
+          System.out.println("Sleeping .... ");
+          Thread.sleep(1000);
         }
+    }
 
-        long now = System.currentTimeMillis();
+    static void subscribe(EventClient cl) {
+      Broadcaster v = Broadcaster.create();
 
-        System.out.println("Took " + (now - then) + "ms");
+      v.consume(o -> {
+        System.out.println("Got data " + o);
+      });
 
-        Thread.sleep(5000);
-        muon.shutdown();
+      cl.replay("hammer", EventReplayMode.LIVE_ONLY, Map.class, v);
     }
 }

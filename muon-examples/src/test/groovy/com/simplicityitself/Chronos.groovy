@@ -9,10 +9,13 @@ import io.muoncore.protocol.reactivestream.messages.ReactiveStreamSubscriptionRe
 import io.muoncore.protocol.reactivestream.server.PublisherLookup
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
 import reactor.rx.broadcast.Broadcaster
 
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 /*
  A toy event store, implementing the core interfaces of Photon.
@@ -32,6 +35,8 @@ class Chronos {
         muon.publishGeneratedSource("/stream", PublisherLookup.PublisherType.HOT_COLD) { ReactiveStreamSubscriptionRequest request ->
 
             def stream = request.args["stream-name"]
+            def streamType = request.args["stream-type"]
+            if (!streamType) streamType = "hot-cold"
 
             println "Subscribing to $stream"
 
@@ -50,23 +55,47 @@ class Chronos {
                 q.add(it)
             }
 
-            if (request.args["stream-type"] &&  request.args["stream-type"] in ["cold", "hot-cold"]) {
+            if (request.args["stream-type"] &&  streamType in ["cold", "hot-cold"]) {
                 println "Has requested replay .. "
-                history.each {
+                Thread.start {
+                  sleep(100)
+                  history.each {
                     b.accept(it)
+                  }
                 }
             }
 
             new Publisher() {
                 @Override
                 void subscribe(Subscriber s) {
-                    Thread.start {
-                        while(true) {
-                            def next = q.take()
-                            println "Sending $next"
-                            s.onNext(next)
-                        }
+                  AtomicLong itemstoprocess = new AtomicLong(0)
+
+                  Thread.start {
+                    while(true) {
+                      if (itemstoprocess.get() > 0) {
+                        def next = q.take()
+                        println "Sending $next"
+                        s.onNext(next)
+                        itemstoprocess.decrementAndGet()
+                      }
+                      if (itemstoprocess.get() <= 0) {
+                        sleep(100)
+                      }
                     }
+                  }
+
+
+                  s.onSubscribe(new Subscription() {
+                    @Override
+                    void request(long n) {
+                      itemstoprocess.addAndGet(n)
+                    }
+
+                    @Override
+                    void cancel() {
+
+                    }
+                  })
                 }
             }
         }

@@ -108,9 +108,18 @@ public class ReactiveStreamServerChannel implements ChannelConnection<MuonInboun
                 .toService(subscribingServiceName)
                 .payload(result.getPayload())
                 .contentType(result.getContentType())
-                .operation(MuonMessage.ChannelOperation.closed)
                 .status(MuonMessage.Status.error)
                 .build()
+        );
+        function.apply(MuonMessageBuilder
+          .fromService(configuration.getServiceName())
+          .step(ProtocolMessages.NACK)
+          .protocol(ReactiveStreamServerStack.REACTIVE_STREAM_PROTOCOL)
+          .toService(subscribingServiceName)
+          .payload(result.getPayload())
+          .contentType(result.getContentType())
+          .operation(MuonMessage.ChannelOperation.closed)
+          .build()
         );
     }
     private void sendAck(MuonInboundMessage msg) {

@@ -16,6 +16,7 @@ public interface EventClient {
      * @return
      */
     <X> EventResult event(ClientEvent<X> event);
+    <X> MuonFuture<EventResult> eventAsync(ClientEvent<X> event);
 
     /**
      * Load an event by id

@@ -14,6 +14,7 @@ import reactor.Environment
 import reactor.rx.broadcast.Broadcaster
 import spock.lang.Ignore
 import spock.lang.Specification
+import spock.lang.Timeout
 import spock.util.concurrent.PollingConditions
 
 class ReactiveStreamIntegrationSpec extends Specification {
@@ -55,7 +56,6 @@ class ReactiveStreamIntegrationSpec extends Specification {
         }
     }
 
-    @Ignore
     def "subscribing to remote fails with onError"() {
 
         def data = []
@@ -63,27 +63,30 @@ class ReactiveStreamIntegrationSpec extends Specification {
 
         Environment env = Environment.initializeIfEmpty()
 
-        def sub2 = Broadcaster.create(env)
-        sub2.observeError(Exception, {
-            println "ERROR WAS FOUND"
-            errorReceived = true
-        }).consume {
-            println "BAD JUJU"
-        }
+        def sub = new Subscriber() {
+          @Override
+          void onSubscribe(Subscription s) {}
 
-        sub2.consume {
-            println "SOmething good?"
-            data << it
+          @Override
+          void onNext(Object o) {}
+
+          @Override
+          void onError(Throwable t) {
+            errorReceived = true
+          }
+
+          @Override
+          void onComplete() {}
         }
 
         def muon1 = muon("simples")
         def muon2 = muon("tombola")
 
         when:
-        muon2.subscribe(new URI("stream://simples/BADSTREAM"), Map, sub2)
+        muon2.subscribe(new URI("stream://simples/BADSTREAM"), Map, sub)
 
         then:
-        new PollingConditions().eventually {
+        new PollingConditions(timeout: 10).eventually {
             errorReceived
         }
     }

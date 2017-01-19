@@ -49,7 +49,28 @@ public class DefaultEventClient implements EventClient {
         this.reactiveStreamClientProtocolStack = muon;
     }
 
-    @Override
+  public <X> MuonFuture<EventResult> eventAsync(ClientEvent<X> event) {
+    Channel<ClientEvent<X>, EventResult> api2eventproto = Channels.channel("eventapi", "eventproto");
+
+    ChannelFutureAdapter<EventResult, ClientEvent<X>> adapter =
+      new ChannelFutureAdapter<>(api2eventproto.left());
+
+    Channel<MuonOutboundMessage, MuonInboundMessage> timeoutChannel = Channels.timeout(muon.getScheduler(), 1000);
+
+    new EventClientProtocol<>(
+      config,
+      discovery,
+      codecs,
+      api2eventproto.right(),
+      timeoutChannel.left());
+
+    Channels.connect(timeoutChannel.right(), transportClient.openClientChannel());
+
+    return adapter.request(event);
+  }
+
+
+  @Override
     public <X> EventResult event(ClientEvent<X> event) {
         try {
             Channel<ClientEvent<X>, EventResult> api2eventproto = Channels.channel("eventapi", "eventproto");

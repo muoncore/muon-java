@@ -42,7 +42,8 @@ public class EventServerProtocolStack implements
         Channel<MuonOutboundMessage, MuonInboundMessage> api2 = Channels.channel("eventserver", "transport");
 
         api2.left().receive( message -> {
-            if (message == null) {
+            if (message == null || message.getPayload() == null) {
+              System.out.println("Null received from the channel " + message);
                 return;
             }
 

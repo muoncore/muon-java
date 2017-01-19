@@ -20,7 +20,7 @@ class IntrospectionSimulationSpec extends Specification {
     def eventbus = new EventBus()
 
     @Timeout(100)
-    def "many services can run and be introspected"() {
+    "many services can run and be introspected"() {
 
         StandardAsyncChannel.echoOut=true
 
@@ -61,7 +61,7 @@ class IntrospectionSimulationSpec extends Specification {
     }
 
     @Timeout(10)
-    def "im mem doesn't blow up when run twice"() {
+    "im mem doesn't blow up when run twice"() {
         StandardAsyncChannel.echoOut=true
         given: "some services"
         StandardAsyncChannel.echoOut=true
@@ -75,17 +75,12 @@ class IntrospectionSimulationSpec extends Specification {
             it.answer(new ServerResponse(200, [svc:"svc1"]))
         }
 
-        Thread.sleep(6000)
-
         when:
         def descriptor = service.introspect("tombola").get()
         service.shutdown()
 
-        sleep(3000)
-
         println "Starting second run"
         service = createService("service-1", discovery)
-        service1 = createService("tombola", discovery)
 
         then:
         service.introspect("service-1").get()
@@ -95,7 +90,7 @@ class IntrospectionSimulationSpec extends Specification {
     }
 
     Muon createService(ident, discovery) {
-        def config = new AutoConfiguration(serviceName: "service-${ident}")
+        def config = new AutoConfiguration(serviceName: "${ident}")
         def transport = new InMemTransport(config, eventbus)
 
         new MultiTransportMuon(config, discovery, [transport])

@@ -26,7 +26,7 @@ class IntrospectionServerProtocolStackSpec extends Specification {
 
         def channel = stack.createChannel()
         channel.receive({
-            outbound = it
+          if (it != null) outbound = it
         })
 
         when:

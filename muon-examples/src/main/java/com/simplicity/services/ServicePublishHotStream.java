@@ -30,7 +30,7 @@ public class ServicePublishHotStream {
         AutoConfiguration config = MuonConfigBuilder
                 .withServiceIdentifier(serviceName)
                 .withTags("node", "awesome")
-                .addWriter(config1 ->  config1.getProperties().setProperty("muon.discovery.factories", MulticastDiscoveryFactory.class.getName()) )
+//                .addWriter(config1 ->  config1.getProperties().setProperty("muon.discovery.factories", MulticastDiscoveryFactory.class.getName()) )
                 .build();
 
         Muon muon = MuonBuilder.withConfig(config).build();
