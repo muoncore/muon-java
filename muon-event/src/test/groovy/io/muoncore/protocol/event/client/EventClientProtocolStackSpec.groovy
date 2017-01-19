@@ -23,80 +23,13 @@ import spock.util.concurrent.PollingConditions
 @Timeout(5)
 class EventClientProtocolStackSpec extends Specification {
 
-    def "Stack converts events to transport messages"() {
-
-        StandardAsyncChannel.echoOut=true
-
-        def capturedFunction
-        def config = new AutoConfiguration(serviceName: "tombola")
-        def discovery = Mock(Discovery) {
-            findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], [], []))
-        }
-
-        def clientChannel = Mock(ChannelConnection) {
-            receive(_) >> { func ->
-                capturedFunction = new ChannelFunctionExecShimBecauseGroovyCantCallLambda(func[0])
-            }
-        }
-        def transportClient = Mock(TransportClient) {
-            openClientChannel() >> clientChannel
-        }
-
-        def muon = Mock(Muon) {
-            getTransportClient() >> transportClient
-            getDiscovery() >> discovery
-            getConfiguration() >> config
-            getCodecs() >> Mock(Codecs) {
-                getAvailableCodecs() >> ([] as String[])
-                encode(_, _) >> new Codecs.EncodingResult(new byte[0], "application/json")
-                decode(_, _, _ ) >> new EventResult(EventResult.EventResultStatus.PERSISTED, "")
-            }
-            introspect(_) >> Mock(MuonFuture) {
-                get() >> new ServiceExtendedDescriptor("tombola", [new ProtocolDescriptor("event", "", "", [])])
-            }
-        }
-
-        def evClient = new DefaultEventClient(muon)
-
-        when:
-        def future = evClient.event(
-                ClientEvent.ofType("SomethingHappened").stream("awesome").payload([]).build())
-
-        and: "A response comes back from the remote"
-        Thread.start {
-            Thread.sleep(100)
-            println("Message came back!")
-            capturedFunction(MuonMessageBuilder.fromService("sourceServiceName")
-                    .toService("targetService")
-                    .protocol("fakeproto")
-                    .contentType("text/plain")
-                    .step("response")
-                    .payload(new byte[0])
-                    .buildInbound())
-        }
-
-        sleep(500)
-
-        then:
-        capturedFunction != null
-        1 * clientChannel.send(_ as MuonMessage)
-        1 * clientChannel.send(null)
-        new PollingConditions().eventually {
-            future.get() instanceof EventResult
-            future.get().status == EventResult.EventResultStatus.PERSISTED
-        }
-
-        cleanup:
-        StandardAsyncChannel.echoOut = false
-    }
-
     def "Stack sends all with the event protocol set"() {
 
         StandardAsyncChannel.echoOut=true
         def config = new AutoConfiguration(serviceName: "tombola")
 
         def discovery = Mock(Discovery) {
-            findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], [], []))
+            findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], [], [], []))
         }
 
         def clientChannel = Mock(ChannelConnection)
@@ -112,6 +45,7 @@ class EventClientProtocolStackSpec extends Specification {
                 getAvailableCodecs() >> ([] as String[])
                 encode(_, _) >> new Codecs.EncodingResult(new byte[0], "application/json")
             }
+            getScheduler() >> new Scheduler()
         }
 
         def eventStore = new DefaultEventClient(muon)
@@ -165,7 +99,7 @@ class EventClientProtocolStackSpec extends Specification {
         StandardAsyncChannel.echoOut=true
         def config = new AutoConfiguration(serviceName: "tombola")
         def discovery = Mock(Discovery) {
-            findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], [], []))
+            findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], [], [], []))
         }
         def clientChannel = Mock(ChannelConnection)
         def transportClient = Mock(TransportClient) {

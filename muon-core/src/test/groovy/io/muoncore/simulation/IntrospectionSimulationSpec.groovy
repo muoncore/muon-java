@@ -49,10 +49,10 @@ class IntrospectionSimulationSpec extends Specification {
         }
 
         when:
-        def descriptor = services[0].introspect("service-1").get()
+        def descriptor = services[0].introspect("1").get()
 
         then:
-        descriptor.serviceName == "service-1"
+        descriptor.serviceName == "1"
         descriptor.protocols.protocolScheme.contains(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
         descriptor.protocols.protocolScheme.contains(IntrospectionServerProtocolStack.PROTOCOL)
         descriptor.protocols.find { it.protocolScheme == RRPTransformers.REQUEST_RESPONSE_PROTOCOL }.operations.size() == 2

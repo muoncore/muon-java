@@ -20,7 +20,7 @@ class EventClientProtocolSpec extends Specification {
     def "protocol sends an event on for event Event"() {
 
         def discovery = Mock(Discovery) {
-            findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], [], []))
+            findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], [], [], []))
         }
         def codecs = Mock(Codecs) {
             encode(_, _) >> new Codecs.EncodingResult(null, null)
@@ -57,7 +57,7 @@ class EventClientProtocolSpec extends Specification {
     def "protocol returns FAILED if a timeout given"() {
 
         def discovery = Mock(Discovery) {
-            findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], [], []))
+            findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], [], [], []))
         }
         def codecs = Mock(Codecs) {
             encode(_, _) >> new Codecs.EncodingResult(null, null)

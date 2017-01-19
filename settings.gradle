@@ -7,5 +7,4 @@ include 'muon-core',
         'muon-codec-kryo',
         'muon-examples',
         'muon-event',
-        'muon-spring',
         "doc"

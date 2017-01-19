@@ -81,7 +81,7 @@ class ReactiveStreamServerChannelSpec extends Specification {
                 .buildInbound())
 
         then: "NACK sent back"
-        1 * function.apply({ MuonMessage msg ->
+        _ * function.apply({ MuonMessage msg ->
             msg.step == ProtocolMessages.NACK
         })
     }

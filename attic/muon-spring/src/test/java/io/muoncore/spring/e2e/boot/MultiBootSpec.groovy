@@ -63,6 +63,6 @@ class BootService1 {
     void emitEvent() {
         println "Emitting!"
         issued++
-        eventStore.event("SomethingHappened", [message:"awesome"])
+//        eventStore.event("SomethingHappened", [message:"awesome"])
     }
 }
