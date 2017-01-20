@@ -17,7 +17,7 @@ import spock.util.concurrent.PollingConditions
 
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
-@Timeout(1)
+@Timeout(10)
 class RequestResponseSimulationSpec extends Specification {
 
     def "many services can run and be discovered"() {
