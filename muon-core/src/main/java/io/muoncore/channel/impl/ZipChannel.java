@@ -27,7 +27,7 @@ public class ZipChannel implements Channel<MuonOutboundMessage, MuonInboundMessa
     private ChannelConnection.ChannelFunction<MuonOutboundMessage> leftFunction;
     private ChannelConnection.ChannelFunction<MuonInboundMessage> rightFunction;
 
-    private Logger logger = LoggerFactory.getLogger(getClass());
+    private static Logger logger = LoggerFactory.getLogger(ZipChannel.class);
 
     public ZipChannel(Dispatcher dispatcher, String name) {
         String leftname = name + "left";
@@ -116,7 +116,7 @@ public class ZipChannel implements Channel<MuonOutboundMessage, MuonInboundMessa
                 .build();
     }
 
-    private static byte[] zlibDeflate(final byte[] bytes) {
+    public static byte[] zlibDeflate(final byte[] bytes) {
         if (bytes == null || bytes.length == 0) return bytes;
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         DeflaterOutputStream dos = new DeflaterOutputStream(os);
@@ -129,7 +129,7 @@ public class ZipChannel implements Channel<MuonOutboundMessage, MuonInboundMessa
         return os.toByteArray();
     }
 
-    private static byte[] zlibInflate(final byte[] bytes) {
+    public static byte[] zlibInflate(final byte[] bytes) {
         if (bytes == null || bytes.length == 0) return bytes;
         final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -146,6 +146,7 @@ public class ZipChannel implements Channel<MuonOutboundMessage, MuonInboundMessa
             baos.close();
             return baos.toByteArray();
         } catch (final Exception e) {
+          logger.warn("Unable to inflate zipped payload", e);
             return null;
         }
     }

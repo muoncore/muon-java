@@ -47,7 +47,7 @@ class ChannelBreakIntegrationSpec extends Specification {
 
     def "reactive-stream subscribing to a remote, then kill remote, causes onError"() {
 
-//        StandardAsyncChannel.echoOut = true
+      StandardAsyncChannel.echoOut = true
         def env = Environment.initializeIfEmpty()
 
         def data = []
@@ -86,9 +86,12 @@ class ChannelBreakIntegrationSpec extends Specification {
         sleep(1000)
 
         and:
-        5.times {
+        Thread.start {
+          20.times {
+            sleep (500)
             println "Publish"
             b.accept(["hello": "world"])
+          }
         }
         sleep(100)
         queuefactory1.simulateRemoteFailure()

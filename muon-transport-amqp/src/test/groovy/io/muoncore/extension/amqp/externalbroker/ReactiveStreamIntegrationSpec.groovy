@@ -12,6 +12,8 @@ import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.protocol.reactivestream.server.PublisherLookup
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
 import reactor.Environment
 import reactor.fn.BiConsumer
 import reactor.rx.broadcast.Broadcaster
@@ -188,11 +190,6 @@ class ReactiveStreamIntegrationSpec extends Specification {
         StandardAsyncChannel.echoOut = false
     }
 
-    def cleanupSpec() {
-        muon1.shutdown()
-        muon2.shutdown()
-    }
-
     def "can subscribe to events, which are lists"() {
 
         StandardAsyncChannel.echoOut = true
@@ -236,26 +233,26 @@ class ReactiveStreamIntegrationSpec extends Specification {
         StandardAsyncChannel.echoOut = false
     }
 
-    @Ignore
+//    @Ignore
     def "subscribing to remote fails with onError"() {
 
         def data = []
         def errorReceived = false
 
-        Environment env = Environment.initialize()
+        def sub2 = new Subscriber() {
+          @Override
+          void onSubscribe(Subscription s) {}
 
-        def sub2 = Broadcaster.create(env)
-        sub2.observeError(Exception, {
-            println "ERROR WAS FOUND"
-            errorReceived = true
-        }).consume {
-            println "BAD JUJU"
+          @Override
+          void onNext(Object o) {}
+
+          @Override
+          void onError(Throwable t) { errorReceived = true}
+
+          @Override
+          void onComplete() {}
         }
 
-        sub2.consume {
-            println "SOmething good?"
-            data << it
-        }
 
         def muon1 = muon("simples")
         def muon2 = muon("tombola")

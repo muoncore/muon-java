@@ -167,11 +167,13 @@ public class DefaultAmqpChannel implements AmqpChannel {
             dispatcher.dispatch(message, msg -> {
                 try {
                     connection.send(AmqpMessageTransformers.outboundToQueue(sendQueue, message, codecs, discovery));
+                    if (msg.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
+                      shutdown();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }, Throwable::printStackTrace);
-
         } else {
             send(
                     MuonMessageBuilder.fromService(localServiceName)

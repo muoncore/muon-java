@@ -18,6 +18,10 @@ public class Scheduler {
         return new TimerControl(future, exec);
     }
 
+    public void shutdown() {
+      threadPool.shutdown();
+    }
+
     public static class TimerControl {
         private ScheduledFuture future;
         private Runnable exec;

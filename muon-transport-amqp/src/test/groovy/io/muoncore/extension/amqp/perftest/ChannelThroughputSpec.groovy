@@ -2,6 +2,7 @@ package io.muoncore.extension.amqp.perftest
 
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
+import io.muoncore.channel.support.Scheduler
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.extension.amqp.AMQPMuonTransport
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
@@ -15,7 +16,9 @@ import io.muoncore.message.MuonOutboundMessage
 import io.muoncore.protocol.ServerStacks
 import io.muoncore.protocol.requestresponse.RRPTransformers
 import reactor.Environment
+import spock.lang.AutoCleanup
 import spock.lang.IgnoreIf
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.concurrent.PollingConditions
@@ -28,6 +31,9 @@ import java.util.concurrent.atomic.AtomicInteger
 class ChannelThroughputSpec extends Specification {
 
     def discovery = new InMemDiscovery()
+
+    @AutoCleanup("shutdown")
+    Scheduler scheduler = new Scheduler()
 
     @Unroll
     def "can establish #numservices channels and send #numRequests messages"() {
@@ -85,11 +91,11 @@ class ChannelThroughputSpec extends Specification {
 
         AMQPMuonTransport tombola = createTransport("tombola")
 
-        tombola.start(discovery, stacks, new JsonOnlyCodecs())
-        service1.start(discovery, stacks2, new JsonOnlyCodecs())
+        tombola.start(discovery, stacks, new JsonOnlyCodecs(), scheduler)
+        service1.start(discovery, stacks2, new JsonOnlyCodecs(), scheduler)
 
-        discovery.advertiseLocalService(new ServiceDescriptor("tombola", [], [], []))
-        discovery.advertiseLocalService(new ServiceDescriptor("service1", [], [], []))
+        discovery.advertiseLocalService(new ServiceDescriptor("tombola", [], [], [], []))
+        discovery.advertiseLocalService(new ServiceDescriptor("service1", [], [], [], []))
 
         sleep(4000)
 

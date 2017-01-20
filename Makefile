@@ -11,3 +11,7 @@ publishRelease:
 
 test:
 	./gradlew test
+
+clean:
+	./gradlew clean
+

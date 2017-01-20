@@ -33,7 +33,7 @@ class DefaultAmqpChannelSpec extends Specification {
         when:
         channel.send(MuonMessageBuilder.fromService("tombola").operation(MuonMessage.ChannelOperation.closed).build())
 
-        sleep(250)
+        sleep(50)
 
         then:
         1 * listener.cancel()
