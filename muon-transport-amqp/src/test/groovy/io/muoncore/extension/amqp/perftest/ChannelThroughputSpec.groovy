@@ -139,7 +139,7 @@ class ChannelThroughputSpec extends Specification {
         then:
         new PollingConditions(timeout: 60).eventually {
             try {
-                new ArrayList<>(received)?.metadata?.id?.size() == numRequests * numservices
+                new ArrayList<>(received)?.id?.size() >= numRequests * numservices
             } catch (Exception ex) {
                 ex.printStackTrace()
             }
