@@ -4,7 +4,6 @@ include 'muon-core',
         'muon-transport-amqp',
         'muon-discovery-amqp',
         'muon-discovery-multicast',
-        'muon-codec-kryo',
         'muon-examples',
         'muon-event',
         "doc"
