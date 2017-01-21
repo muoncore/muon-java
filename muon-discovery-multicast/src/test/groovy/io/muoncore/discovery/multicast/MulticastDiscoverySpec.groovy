@@ -7,7 +7,7 @@ import spock.lang.Specification
 import spock.lang.Timeout
 import spock.util.concurrent.PollingConditions
 
-@IgnoreIf({ System.getenv("BUILD_NUMBER") })
+@IgnoreIf({ System.getenv("SHORT_TEST") })
 @Timeout(10)
 class MulticastDiscoverySpec extends Specification {
 

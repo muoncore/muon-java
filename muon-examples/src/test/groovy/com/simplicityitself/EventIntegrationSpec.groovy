@@ -16,7 +16,7 @@ import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
-@IgnoreIf({ System.getenv("BUILD_NUMBER") })
+@IgnoreIf({ System.getenv("SHORT_TEST") })
 class EventIntegrationSpec extends Specification {
 
     def discovery = new InMemDiscovery()

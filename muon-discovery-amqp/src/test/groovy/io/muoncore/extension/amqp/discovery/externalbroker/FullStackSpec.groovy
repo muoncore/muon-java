@@ -14,7 +14,7 @@ import spock.lang.Specification
 
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
-@IgnoreIf({ System.getenv("BUILD_NUMBER") })
+@IgnoreIf({ System.getenv("SHORT_TEST") })
 class FullStackSpec extends Specification {
 
     def "full amqp based stack works"() {

@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
-@IgnoreIf({ System.getenv("BUILD_NUMBER") })
+@IgnoreIf({ System.getenv("SHORT_TEST") })
 @Timeout(10)
 class ChannelPerfSpec extends Specification {
 
