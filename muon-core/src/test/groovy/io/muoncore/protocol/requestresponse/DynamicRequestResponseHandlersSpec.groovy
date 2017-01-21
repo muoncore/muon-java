@@ -21,7 +21,7 @@ class DynamicRequestResponseHandlersSpec extends Specification {
         registry.addHandler(new StubRequestResponseServerHandler(id:4, predicate: predicate(false)))
 
         expect:
-        registry.findHandler(new ServerRequest(new URI("request://hello1"), null, null, null)).id == 3
+        registry.findHandler(new ServerRequest(new URI("request://hello1"), null, null, null, null)).id == 3
 
     }
 
@@ -33,7 +33,7 @@ class DynamicRequestResponseHandlersSpec extends Specification {
         registry.addHandler(new StubRequestResponseServerHandler(id:2, predicate: predicate(false)))
 
         expect:
-        registry.findHandler(new ServerRequest(new URI("request://hello1"), null, null, null)).id == 8
+        registry.findHandler(new ServerRequest(new URI("request://hello1"), null, null, null, null)).id == 8
 
     }
 
