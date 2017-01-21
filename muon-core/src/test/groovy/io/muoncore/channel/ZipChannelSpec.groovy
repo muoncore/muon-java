@@ -58,7 +58,7 @@ class ZipChannelSpec extends Specification {
   def "performance is adequate"() {
 
     def iterations = 100000
-    def targetmsPerDeflation = 0.05
+    def targetmsPerDeflation = 0.1
 
     def channel = Channels.zipChannel("zip")
 
