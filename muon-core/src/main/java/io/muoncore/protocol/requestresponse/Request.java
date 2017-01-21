@@ -1,24 +1,39 @@
 package io.muoncore.protocol.requestresponse;
 
+import io.muoncore.protocol.Auth;
+
 import java.net.URI;
 
 public class Request {
 
-    private URI url;
-    private Object payload;
+  private URI url;
+  private Auth auth;
+  private Object payload;
 
-    public Request(
-            URI url,
-            Object payload) {
-        this.url = url;
-        this.payload = payload;
-    }
+  public Request(
+    URI url,
+    Object payload) {
+    this(url, payload, null);
+  }
 
-    public URI getUrl() {
-        return url;
-    }
+  public Request(
+    URI url,
+    Object payload,
+    Auth auth) {
+    this.url = url;
+    this.payload = payload;
+    this.auth = auth;
+  }
 
-    public Object getPayload() {
-        return payload;
-    }
+  public Auth getAuth() {
+    return auth;
+  }
+
+  public URI getUrl() {
+    return url;
+  }
+
+  public Object getPayload() {
+    return payload;
+  }
 }
