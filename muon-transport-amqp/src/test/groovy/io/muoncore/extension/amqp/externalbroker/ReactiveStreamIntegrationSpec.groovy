@@ -22,7 +22,7 @@ import spock.util.concurrent.PollingConditions
 
 import static io.muoncore.codec.types.MuonCodecTypes.listOf
 
-@IgnoreIf({ System.getenv("BUILD_NUMBER") })
+@IgnoreIf({ System.getenv("SHORT_TEST") })
 class ReactiveStreamIntegrationSpec extends Specification {
 
     @Shared def discovery = new InMemDiscovery()

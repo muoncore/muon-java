@@ -23,7 +23,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
-@IgnoreIf({ System.getenv("BUILD_NUMBER") })
+@IgnoreIf({ System.getenv("SHORT_TEST") })
 @Ignore
 class ChannelBreakIntegrationSpec extends Specification {
 

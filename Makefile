@@ -16,5 +16,5 @@ clean:
 	./gradlew clean
 
 testextended:
-	./gradlew test
+	./gradlew check
 

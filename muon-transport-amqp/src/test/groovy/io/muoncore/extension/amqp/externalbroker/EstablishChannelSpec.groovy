@@ -17,7 +17,7 @@ import reactor.Environment
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 
-@IgnoreIf({ System.getenv("BUILD_NUMBER") })
+@IgnoreIf({ System.getenv("SHORT_TEST") })
 class EstablishChannelSpec extends Specification {
 
     def serverStacks1 = Mock(ServerStacks)
