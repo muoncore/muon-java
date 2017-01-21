@@ -1,0 +1,6 @@
+# Muon Java Attic
+
+Things go in here that were written, but are not maintained.
+
+They may be resurrected at some future point, but don't expect any of these
+to work, build, or event make sense with the current codebase.
