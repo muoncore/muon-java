@@ -10,7 +10,7 @@ publishRelease:
 	./gradlew release
 
 test:
-	SHORT_TEST=true ./gradlew test
+	SHORT_TEST=true ./gradlew check
 
 clean:
 	./gradlew clean
