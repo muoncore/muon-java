@@ -11,7 +11,7 @@ class HandlerPredicatesSpec extends Specification {
         def predicate = HandlerPredicates.path("/hello")
 
         expect:
-        predicate.matcher().test(new ServerRequest(new URI("request://someservice/hello"), [] as byte[], null, null))
+        predicate.matcher().test(new ServerRequest(new URI("request://someservice/hello"), null, [] as byte[], null, null))
 
     }
 
