@@ -14,6 +14,9 @@ import io.muoncore.protocol.event.Event;
 import io.muoncore.protocol.event.EventCodec;
 import io.muoncore.protocol.event.EventProtocolMessages;
 import io.muoncore.protocol.event.client.EventResult;
+import reactor.Environment;
+import reactor.core.Dispatcher;
+import reactor.core.config.DispatcherType;
 
 import java.util.Collections;
 import java.util.Map;
@@ -27,6 +30,7 @@ public class EventServerProtocolStack implements
     private final ChannelConnection.ChannelFunction<EventWrapper>handler;
     private Codecs codecs;
     private Discovery discovery;
+    private Dispatcher dispatcher = Environment.newDispatcher("EVENTDISPATCH", 10000, 5, DispatcherType.MPSC);
 
     public EventServerProtocolStack(ChannelConnection.ChannelFunction<EventWrapper> handler,
                                     Codecs codecs, Discovery discovery) {
@@ -64,10 +68,10 @@ public class EventServerProtocolStack implements
                         .contentType(result.getContentType())
                         .payload(result.getPayload()).build();
 
-                api2.left().send(msg);
+                dispatcher.dispatch(msg, api2.left()::send, Throwable::printStackTrace);
             });
 
-            handler.apply(wrapper);
+            dispatcher.dispatch(wrapper, handler::apply, Throwable::printStackTrace);
         });
 
         return api2.right();

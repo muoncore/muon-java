@@ -45,7 +45,7 @@ class MultiProtocolSimulationSpec extends Specification {
 
     service1.publishGeneratedSource("data", PublisherLookup.PublisherType.HOT) {
       ReactiveStreamSubscriptionRequest subscriptionRequest ->
-        println "ACTIVATING"
+        println "ACTIVATING ${subscriptionRequest.args}"
         Broadcaster b = Broadcaster.create()
         streams << b
         return b
@@ -57,11 +57,12 @@ class MultiProtocolSimulationSpec extends Specification {
     discovery.blockUntilReady()
 
     when:
-    datas << service1.request("rpc://hello/mydata").get()
-    service1.subscribe(new URI("stream://hello/data"), String, new Subscriber() {
+//    datas << service1.request("rpc://hello/mydata").get()
+    service1.subscribe(new URI("stream://hello/data?stream=first"), String, new Subscriber() {
       @Override
       void onSubscribe(Subscription s) {
         s.request(Integer.MAX_VALUE)
+        streams[0].accept("HELLO WORLD")
       }
 
       @Override
@@ -74,11 +75,13 @@ class MultiProtocolSimulationSpec extends Specification {
       void onComplete() {}
     })
 
-    datas << service1.request("rpc://hello/mydata").get()
-    service1.subscribe(new URI("stream://hello/data"), String, new Subscriber() {
+
+//    datas << service1.request("rpc://hello/mydata").get()
+    service1.subscribe(new URI("stream://hello/data?stream=second"), String, new Subscriber() {
       @Override
       void onSubscribe(Subscription s) {
         s.request(Integer.MAX_VALUE)
+        streams[1].accept("WIBBLES")
       }
 
       @Override
@@ -90,16 +93,18 @@ class MultiProtocolSimulationSpec extends Specification {
       @Override
       void onComplete() {}
     })
-
-    streams.each {
-      println "SENDING"
-      it.accept("SOME DATA")
-    }
+//    sleep 500
+//    streams.each {
+//      println "SENDING"
+//      it.accept("SOME DATA")
+//    }
 
     then:
     new PollingConditions().eventually {
       streamdatas.size() == 2
     }
+
+    println streamdatas
 
     cleanup:
     service1*.shutdown()

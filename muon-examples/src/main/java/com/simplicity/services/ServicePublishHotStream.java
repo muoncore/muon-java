@@ -8,8 +8,10 @@ import io.muoncore.config.MuonConfigBuilder;
 import io.muoncore.discovery.amqp.AmqpDiscoveryFactory;
 import io.muoncore.discovery.multicast.MulticastDiscovery;
 import io.muoncore.discovery.multicast.MulticastDiscoveryFactory;
+import io.muoncore.message.MuonMessage;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
 import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
 import java.io.IOException;
@@ -37,6 +39,28 @@ public class ServicePublishHotStream {
 
         muon.getDiscovery().blockUntilReady();
 
+
+        muon.getTransportControl().tap(muonMessage -> true ).subscribe(new Subscriber<MuonMessage>() {
+          @Override
+          public void onSubscribe(Subscription s) {
+            s.request(Integer.MAX_VALUE);
+          }
+
+          @Override
+          public void onNext(MuonMessage muonMessage) {
+            System.out.println("TAP:" + muonMessage);
+          }
+
+          @Override
+          public void onError(Throwable t) {
+            t.printStackTrace();
+          }
+
+          @Override
+          public void onComplete() {
+            System.out.println("STREAM COMPLETED");
+          }
+        });
 
 
         muon.handleRequest(all(), wrapper -> {
