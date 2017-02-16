@@ -28,13 +28,13 @@ public class UserAggregationService {
 
         Set<String> usernames = new HashSet<>();
 
-        Broadcaster<Event<Map>> sub = Broadcaster.create();
+        Broadcaster<Event> sub = Broadcaster.create();
         sub.consume(msg -> {
             try {
                 if (msg.getEventType().equals("UserRegistered")) {
-                    usernames.add((String) msg.getPayload().get("username"));
+                    usernames.add((String) msg.getPayload(Map.class).get("username"));
                 } else {
-                    usernames.remove(msg.getPayload().get("username"));
+                    usernames.remove(msg.getPayload(Map.class).get("username"));
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -42,7 +42,7 @@ public class UserAggregationService {
             System.out.println("Processed event, user list is now : " + usernames);
         });
 
-        evclient.replay("users", EventReplayMode.REPLAY_THEN_LIVE, Map.class, sub);
+        evclient.replay("users", EventReplayMode.REPLAY_THEN_LIVE, sub);
 
     }
 }

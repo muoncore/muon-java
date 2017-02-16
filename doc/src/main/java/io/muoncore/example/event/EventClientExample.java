@@ -29,13 +29,13 @@ public class EventClientExample {
         // end::createclient[]
 
         // tag::replay[]
-        Broadcaster<Event<UserRegistered>> sub = Broadcaster.create();
+        Broadcaster<Event> sub = Broadcaster.create();
         sub.consume( msg -> {
 //            println "EVENT = ${it}"
 
         });
 
-        evclient.replay("users", EventReplayMode.REPLAY_THEN_LIVE, UserRegistered.class, sub);
+        evclient.replay("users", EventReplayMode.REPLAY_THEN_LIVE, sub);
         // end::replay[]
 
 
@@ -52,13 +52,13 @@ public class EventClientExample {
 
         Set<String> userList = new HashSet<>();
 
-        Broadcaster<Event<UserRegistered>> eventsourceSubscriber = Broadcaster.create();
+        Broadcaster<Event> eventsourceSubscriber = Broadcaster.create();
         eventsourceSubscriber.consume( event -> {
-            System.out.printf("User was registered %s %s", event.getPayload().getFirstname(), event.getPayload().getLastname());
-            userList.add(event.getPayload().getFirstname() + " " + event.getPayload().getLastname());
+            System.out.printf("User was registered %s %s", event.getPayload(UserRegistered.class).getFirstname(), event.getPayload(UserRegistered.class).getLastname());
+            userList.add(event.getPayload(UserRegistered.class).getFirstname() + " " + event.getPayload(UserRegistered.class).getLastname());
         });
 
-        evclient.replay("users", EventReplayMode.REPLAY_THEN_LIVE, UserRegistered.class, eventsourceSubscriber);
+        evclient.replay("users", EventReplayMode.REPLAY_THEN_LIVE, eventsourceSubscriber);
 
         // end::eventsource[]
     }

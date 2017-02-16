@@ -1,5 +1,6 @@
 package io.muoncore.protocol.event;
 
+import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 
 import java.util.HashMap;
@@ -18,7 +19,7 @@ public class EventCodec {
     private static final String SCHEMA = "schema";
 
 
-    public static Event getEventFromMap(Map<String, Object> data) {
+    public static Event getEventFromMap(Map<String, Object> data, Codecs codecs) {
         return new Event(
                 (String) data.get(EVENT_TYPE),
                 (String) data.get(STREAM_NAME),
@@ -28,7 +29,8 @@ public class EventCodec {
                 (String) data.get(SERVICE),
                 (Long)   data.get(ORDER_ID),
                 (Long)   data.get(EVENT_TIME),
-                data.get(PAYLOAD)
+                (Map)data.get(PAYLOAD),
+                codecs
         );
     }
 
@@ -55,7 +57,7 @@ public class EventCodec {
     public static Map<String, Object> getMapFromEvent(Event event) {
         Map<String, Object> payload = new HashMap<>();
         payload.put(STREAM_NAME, event.getStreamName());
-        payload.put(PAYLOAD, event.getPayload());
+        payload.put(PAYLOAD, event.getPayload(Map.class));
         payload.put(EVENT_TYPE, event.getEventType());
         payload.put(CAUSED_BY, event.getCausedById());
         payload.put(CAUSED_BY_RELATION, event.getCausedByRelation());

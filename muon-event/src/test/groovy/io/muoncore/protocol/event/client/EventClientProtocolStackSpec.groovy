@@ -56,7 +56,7 @@ class EventClientProtocolStackSpec extends Specification {
         sleep(50)
 
         then:
-        1 * clientChannel.send({ it.protocol == "event" })
+        1 * clientChannel.send({ it?.protocol == "event" })
 
         cleanup:
         StandardAsyncChannel.echoOut=false

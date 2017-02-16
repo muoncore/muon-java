@@ -2,10 +2,9 @@ package io.muoncore.protocol.event;
 
 /**
  * Construct a ClientEvent using a fluent builder.
- * @param <X>
  */
-public class EventBuilder<X> {
-    private X payload;
+public class EventBuilder {
+    private Object payload;
     private String eventType;
     private String streamName = "default";
 
@@ -18,7 +17,7 @@ public class EventBuilder<X> {
      *
      * Optional.
      */
-    public EventBuilder<X> payload(X payload) {
+    public EventBuilder payload(Object payload) {
         this.payload = payload;
         return this;
     }
@@ -29,7 +28,7 @@ public class EventBuilder<X> {
      *
      * Optional
      */
-    public EventBuilder<X> schema(String schema) {
+    public EventBuilder schema(String schema) {
         this.schema = schema;
         return this;
     }
@@ -39,7 +38,7 @@ public class EventBuilder<X> {
      *
      * Mandatory.
      */
-    public EventBuilder<X> eventType(String eventType) {
+    public EventBuilder eventType(String eventType) {
         this.eventType = eventType;
         return this;
     }
@@ -49,7 +48,7 @@ public class EventBuilder<X> {
      *
      * if not supplied, will be set to 'default'
      */
-    public EventBuilder<X> stream(String streamName) {
+    public EventBuilder stream(String streamName) {
         this.streamName = streamName;
         return this;
     }
@@ -59,14 +58,14 @@ public class EventBuilder<X> {
      *
      * Optional
      */
-    public EventBuilder<X> causedBy(Long causedById, String relation) {
+    public EventBuilder causedBy(Long causedById, String relation) {
         this.causedById = causedById;
         this.causedByRelation = relation;
         return this;
     }
 
     public ClientEvent build() {
-        return new ClientEvent<>(
+        return new ClientEvent(
                 eventType,
                 streamName,
                 schema,

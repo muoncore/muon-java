@@ -3,6 +3,7 @@ package io.muoncore.protocol.event.integration
 import com.google.common.eventbus.EventBus
 import io.muoncore.MultiTransportMuon
 import io.muoncore.Muon
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
@@ -49,10 +50,10 @@ class EventIntegrationSpec extends Specification {
 
         when:
 
-        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", 1234, "muon1", "HELLO WORLD"))
-        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", 1234, "muon1", "HELLO WORLD"))
-        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", 1234, "muon1", "HELLO WORLD"))
-        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", 1234, "muon1", "HELLO WORLD"))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", 1234, "muon1", [msg:"HELLO WORLD"]))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", 1234, "muon1", [msg:"HELLO WORLD"]))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", 1234, "muon1", [msg:"HELLO WORLD"]))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "myid", 1234, "muon1", [msg:"HELLO WORLD"]))
 
         then:
         new PollingConditions().eventually {
@@ -78,7 +79,7 @@ class EventIntegrationSpec extends Specification {
 
         when:
         200.times {
-            evClient.event(new ClientEvent("${it}", "SomethingHappened", "1.0", 1234, "muon1", "HELLO WORLD"))
+            evClient.event(new ClientEvent("${it}", "SomethingHappened", "1.0", 1234, "muon1", [msg:"HELLO WORLD"]))
         }
 
         then:
@@ -95,13 +96,13 @@ class EventIntegrationSpec extends Specification {
         def config = new AutoConfiguration(serviceName: name)
         def transport = new InMemTransport(config, eventbus)
 
-        new MultiTransportMuon(config, discovery, [transport])
+        new MultiTransportMuon(config, discovery, [transport], new JsonOnlyCodecs())
     }
     public Muon muonEventStore(Closure handler) {
         def config = new AutoConfiguration(tags:["eventstore"], serviceName: "chronos")
         def transport = new InMemTransport(config, eventbus)
 
-        def muon = new MultiTransportMuon(config, discovery, [transport])
+        def muon = new MultiTransportMuon(config, discovery, [transport], new JsonOnlyCodecs())
 
         muon.protocolStacks.registerServerProtocol(new EventServerProtocolStack(handler, muon.codecs, discovery))
 

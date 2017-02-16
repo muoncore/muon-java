@@ -12,11 +12,10 @@ public interface EventClient {
     /**
      * Emit an event into the remote event store.
      * @param event
-     * @param <X>
      * @return
      */
-    <X> EventResult event(ClientEvent<X> event);
-    <X> MuonFuture<EventResult> eventAsync(ClientEvent<X> event);
+    EventResult event(ClientEvent event);
+    MuonFuture<EventResult> eventAsync(ClientEvent event);
 
     /**
      * Load an event by id
@@ -37,7 +36,7 @@ public interface EventClient {
      * @param mode Whether to replay just the future data, or request to load historical data, if supported on the remote stream
      * @param subscriber The reactive streams subscriber that will listen to the event stream.
      */
-    <X> MuonFuture<EventReplayControl> replay(String streamName, EventReplayMode mode, Class<X> payloadType, Subscriber<Event<X>> subscriber);
+    <X> MuonFuture<EventReplayControl> replay(String streamName, EventReplayMode mode, Subscriber<Event> subscriber);
 
     /**
      * Emit an event into the remote event store.

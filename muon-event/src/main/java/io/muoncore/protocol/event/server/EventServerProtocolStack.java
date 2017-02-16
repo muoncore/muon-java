@@ -52,7 +52,7 @@ public class EventServerProtocolStack implements
             }
 
             Map data = codecs.decode(message.getPayload(), message.getContentType(), Map.class);
-            Event ev = EventCodec.getEventFromMap(data);
+            Event ev = EventCodec.getEventFromMap(data, codecs);
 
             Channel<EventResult, EventWrapper> evserver = Channels.channel("eventserverapp", "wrapper");
             EventWrapper wrapper = new EventWrapper(ev, evserver.left());

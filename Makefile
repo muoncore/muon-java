@@ -3,7 +3,7 @@
 install:
 	./gradlew install
 
-publishSnapshot:
+publishSnapshot: clean
 	./gradlew artifactoryPublish
 
 publishRelease:

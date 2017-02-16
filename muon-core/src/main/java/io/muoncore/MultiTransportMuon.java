@@ -47,10 +47,10 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
     public MultiTransportMuon(
             AutoConfiguration configuration,
             Discovery discovery,
-            List<MuonTransport> transports) {
+            List<MuonTransport> transports, Codecs codecs) {
         Environment.initializeIfEmpty();
         this.configuration = configuration;
-        this.codecs = new JsonOnlyCodecs();
+        this.codecs = codecs;
         TransportMessageDispatcher wiretap = new SimpleTransportMessageDispatcher();
         MultiTransportClient client = new MultiTransportClient(
                 transports, wiretap, configuration, discovery, codecs);

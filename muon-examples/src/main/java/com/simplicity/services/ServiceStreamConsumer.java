@@ -4,6 +4,7 @@ import io.muoncore.Muon;
 import io.muoncore.MuonBuilder;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
+import io.muoncore.protocol.reactivestream.client.StreamData;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.io.IOException;
@@ -27,11 +28,11 @@ public class ServiceStreamConsumer {
 
         muon.getDiscovery().blockUntilReady();
 
-        Broadcaster<String> b = Broadcaster.create();
+        Broadcaster<StreamData> b = Broadcaster.create();
         b.consume(s -> {
             System.out.println("DATA: " + s);
         });
 
-        muon.subscribe(new URI("stream://awesomeservicequery/ticktock"), String.class, b);
+        muon.subscribe(new URI("stream://awesomeservicequery/ticktock"), b);
     }
 }

@@ -3,6 +3,7 @@ package io.muoncore.extension.amqp.externalbroker
 import io.muoncore.MultiTransportMuon
 import io.muoncore.Muon
 import io.muoncore.channel.impl.StandardAsyncChannel
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.extension.amqp.AMQPMuonTransport
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
@@ -52,7 +53,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
 
         sleep(4000)
         when:
-        muon2.subscribe(new URI("stream://simples/somedata"), Map, sub2)
+        muon2.subscribe(new URI("stream://simples/somedata"), sub2)
 
         sleep(1000)
 
@@ -117,7 +118,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
             sub2.observeComplete({
                 println "The stream is completed"
             })
-            muon2.subscribe(new URI("stream://simples/somedata"), Map, sub2)
+            muon2.subscribe(new URI("stream://simples/somedata"), sub2)
         }
 
         def tapper = Broadcaster.create(env)
@@ -167,7 +168,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
 
         sleep(4000)
         when:
-        muon2.subscribe(new URI("stream://simples/somedata"), Integer, sub2)
+        muon2.subscribe(new URI("stream://simples/somedata"), sub2)
 
         sleep(1000)
 
@@ -202,7 +203,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
 
         sub2.consume {
             if (data == null) {
-                data = it
+                data = it.getPayload(listOf(MyTestClass))
             } else {
                 throw new IllegalStateException()
             }
@@ -212,7 +213,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
 
         sleep(4000)
         when:
-        muon2.subscribe(new URI("stream://simples/somedata"), listOf(MyTestClass), sub2)
+        muon2.subscribe(new URI("stream://simples/somedata"), sub2)
 
         sleep(1000)
 
@@ -258,7 +259,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
         def muon2 = muon("tombola")
 
         when:
-        muon2.subscribe(new URI("stream://simples/BADSTREAM"), Map, sub2)
+        muon2.subscribe(new URI("stream://simples/BADSTREAM"), sub2)
 
         then:
         new PollingConditions().eventually {
@@ -277,7 +278,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
                 "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
 
         def config = new AutoConfiguration(serviceName:serviceName)
-        def muon = new MultiTransportMuon(config, discovery, [svc1])
+        def muon = new MultiTransportMuon(config, discovery, [svc1], new JsonOnlyCodecs())
 
         muon
     }

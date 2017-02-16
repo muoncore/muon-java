@@ -3,6 +3,7 @@ import io.muoncore.Discovery
 import io.muoncore.Muon
 import io.muoncore.ServiceDescriptor
 import io.muoncore.MultiTransportMuon
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.extension.amqp.AMQPMuonTransport
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
@@ -197,7 +198,7 @@ class RequestResponseWorksSpec extends Specification {
                 "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
 
         def config = new AutoConfiguration(serviceName:serviceName)
-        def muon = new MultiTransportMuon(config, discovery, [svc1])
+        def muon = new MultiTransportMuon(config, discovery, [svc1], new JsonOnlyCodecs())
 
         muon
     }

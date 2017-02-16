@@ -24,11 +24,10 @@ import java.net.URLDecoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ReactiveStreamClientProtocol<T> {
+public class ReactiveStreamClientProtocol {
 
     private ChannelConnection<MuonOutboundMessage, MuonInboundMessage> transportConnection;
-    private Subscriber<T> subscriber;
-    private Type type;
+    private Subscriber<StreamData> subscriber;
     private URI uri;
     private AutoConfiguration configuration;
     private Codecs codecs;
@@ -36,22 +35,20 @@ public class ReactiveStreamClientProtocol<T> {
 
     public ReactiveStreamClientProtocol(URI uri,
                                         ChannelConnection<MuonOutboundMessage, MuonInboundMessage> transportConnection,
-                                        Subscriber<T> subscriber,
-                                        Type type,
+                                        Subscriber<StreamData> subscriber,
                                         Codecs codecs,
                                         AutoConfiguration configuration,
                                         Discovery discovery) {
         this.uri = uri;
         this.transportConnection = transportConnection;
         this.subscriber = subscriber;
-        this.type = type;
         this.codecs = codecs;
         this.configuration = configuration;
         this.discovery = discovery;
     }
 
     public void start()  {
-        transportConnection.receive( msg -> handleMessage(msg));
+        transportConnection.receive(this::handleMessage);
 
         ReactiveStreamSubscriptionRequest request = new ReactiveStreamSubscriptionRequest(uri.getPath());
 
@@ -101,7 +98,7 @@ public class ReactiveStreamClientProtocol<T> {
                 subscriber.onError(new MuonException("Stream does not exist"));
                 break;
             case ProtocolMessages.DATA:
-                subscriber.onNext(codecs.decode(msg.getPayload(), msg.getContentType(), type));
+                subscriber.onNext(new StreamData(msg, codecs));
                 break;
             case ProtocolMessages.ERROR:
                 subscriber.onError(new MuonException());

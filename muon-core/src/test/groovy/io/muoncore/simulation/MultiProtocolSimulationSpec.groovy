@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus
 import io.muoncore.MultiTransportMuon
 import io.muoncore.Muon
 import io.muoncore.channel.impl.StandardAsyncChannel
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
@@ -58,7 +59,7 @@ class MultiProtocolSimulationSpec extends Specification {
 
     when:
 //    datas << service1.request("rpc://hello/mydata").get()
-    service1.subscribe(new URI("stream://hello/data?stream=first"), String, new Subscriber() {
+    service1.subscribe(new URI("stream://hello/data?stream=first"), new Subscriber() {
       @Override
       void onSubscribe(Subscription s) {
         s.request(Integer.MAX_VALUE)
@@ -77,7 +78,7 @@ class MultiProtocolSimulationSpec extends Specification {
 
 
 //    datas << service1.request("rpc://hello/mydata").get()
-    service1.subscribe(new URI("stream://hello/data?stream=second"), String, new Subscriber() {
+    service1.subscribe(new URI("stream://hello/data?stream=second"), new Subscriber() {
       @Override
       void onSubscribe(Subscription s) {
         s.request(Integer.MAX_VALUE)
@@ -115,6 +116,6 @@ class MultiProtocolSimulationSpec extends Specification {
     def config = new AutoConfiguration(serviceName: ident)
     def transport = new InMemTransport(config, eventbus)
 
-    new MultiTransportMuon(config, discovery, [transport])
+    new MultiTransportMuon(config, discovery, [transport], new JsonOnlyCodecs())
   }
 }

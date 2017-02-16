@@ -50,10 +50,10 @@ class EventIntegrationSpec extends Specification {
 
         when:
 
-        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "1.0", 1234, "none", "HELLO WORLD"))
-        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "1.0", 1234, "none", "HELLO WORLD"))
-        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "1.0", 1234, "none", "HELLO WORLD"))
-        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "1.0", 1234, "none", "HELLO WORLD"))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "1.0", 1234, "none", [msg:"HELLO WORLD"]))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "1.0", 1234, "none", [msg:"HELLO WORLD"]))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "1.0", 1234, "none", [msg:"HELLO WORLD"]))
+        results << evClient.event(new ClientEvent("awesome", "SomethingHappened", "1.0", 1234, "none", [msg:"HELLO WORLD"]))
 
         then:
         new PollingConditions().eventually {
@@ -86,7 +86,7 @@ class EventIntegrationSpec extends Specification {
         when:
         200.times {
             evClient.event(new ClientEvent(
-                    "${it}", "SomethingHappened", "1.0", 432, "none", "HELLO WORLD"))
+                    "${it}", "SomethingHappened", "1.0", 432, "none", [msg:"HELLO WORLD"]))
         }
 
         then:
@@ -139,7 +139,7 @@ class EventIntegrationSpec extends Specification {
         clients.each { client ->
             Thread.start {
                 messagesPerClient.times {
-                    results << client.event(new ClientEvent("awesome", "SomethingHappened", "1.0",  4231, "none", "HELLO WORLD"))
+                    results << client.event(new ClientEvent("awesome", "SomethingHappened", "1.0",  4231, "none", [msg:"HELLO WORLD"]))
                 }
             }
         }
@@ -194,7 +194,7 @@ class EventIntegrationSpec extends Specification {
             Thread.start {
                 messagesPerClient.times {
                     results << client.event(
-                            new ClientEvent("awesome", "SomethingHappened", "1.0",  141321, "none", "HELLO WORLD"))
+                            new ClientEvent("awesome", "SomethingHappened", "1.0",  141321, "none", [msg:"HELLO WORLD"]))
                 }
             }
         }

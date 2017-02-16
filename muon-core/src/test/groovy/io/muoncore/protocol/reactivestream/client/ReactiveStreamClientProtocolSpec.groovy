@@ -39,7 +39,6 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 uri,
                 connection,
                 sub,
-                Map,
                 codecs,
                 config, discovery)
 
@@ -83,7 +82,6 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 uri,
                 connection,
                 sub,
-                Map,
                 codecs,
                 config, discovery)
 
@@ -125,7 +123,6 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 uri,
                 connection,
                 sub,
-                Map,
                 codecs,
                 config, discovery)
 
@@ -164,7 +161,6 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 uri,
                 connection,
                 sub,
-                Map,
                 codecs,
                 config, discovery)
 
@@ -209,7 +205,6 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 uri,
                 connection,
                 sub,
-                Map,
                 codecs,
                 config, discovery)
 
@@ -261,7 +256,6 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 uri,
                 connection,
                 sub,
-                Map,
                 codecs,
                 config, discovery)
 
@@ -313,7 +307,6 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 uri,
                 connection,
                 sub,
-                Map,
                 codecs,
                 config, discovery)
 
@@ -332,7 +325,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                         .buildInbound())
 
         then:
-        1 * sub.onNext([helloworld:"awesome"])
+        1 * sub.onNext({ it.getPayload(Map) == [helloworld:"awesome"] })
 
     }
 
@@ -359,7 +352,6 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 uri,
                 connection,
                 sub,
-                Map,
                 codecs,
                 config, discovery)
 
@@ -404,7 +396,6 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 uri,
                 connection,
                 sub,
-                Map,
                 codecs,
                 config, discovery)
 
@@ -427,7 +418,3 @@ class ReactiveStreamClientProtocolSpec extends Specification {
         1 * sub.onError(_ as MuonException)
     }
 }
-
-
-
-

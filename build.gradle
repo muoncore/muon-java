@@ -255,7 +255,7 @@ project('muon-core') {
     dependencies {
         // Reactive Streams
         compile "org.reactivestreams:reactive-streams:$reactiveStreamsVersion"
-        compile 'com.google.guava:guava:18.0'
+        compile 'com.google.guava:guava:21.0'
 
         //Gson codec (the default)
         compile 'com.google.code.gson:gson:2.3.1'

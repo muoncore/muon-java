@@ -3,6 +3,7 @@ import com.google.common.eventbus.EventBus
 import io.muoncore.Muon
 import io.muoncore.MultiTransportMuon
 import io.muoncore.channel.impl.StandardAsyncChannel
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
@@ -41,7 +42,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
         muon1.publishSource("somedata", PublisherLookup.PublisherType.HOT, b)
 
         when:
-        muon2.subscribe(new URI("stream://simples/somedata"), Map, sub2)
+        muon2.subscribe(new URI("stream://simples/somedata"), sub2)
 
         sleep(100)
 
@@ -83,7 +84,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
         def muon2 = muon("tombola")
 
         when:
-        muon2.subscribe(new URI("stream://simples/BADSTREAM"), Map, sub)
+        muon2.subscribe(new URI("stream://simples/BADSTREAM"), sub)
 
         then:
         new PollingConditions(timeout: 10).eventually {
@@ -105,14 +106,14 @@ class ReactiveStreamIntegrationSpec extends Specification {
         def sub2 = Broadcaster.create(env)
 
         sub2.consume {
-            data << it
+            data << it.getPayload(Integer)
         }
 
         muon1.publishSource("somedata", PublisherLookup.PublisherType.HOT, b)
 
         sleep(4000)
         when:
-        muon2.subscribe(new URI("stream://simples/somedata"), Integer, sub2)
+        muon2.subscribe(new URI("stream://simples/somedata"), sub2)
 
         sleep(1000)
 
@@ -195,7 +196,7 @@ class ReactiveStreamIntegrationSpec extends Specification {
 
         sleep 500
         when:
-        muon2.subscribe(new URI("stream://simples/somedata"), Integer, sub)
+        muon2.subscribe(new URI("stream://simples/somedata"), sub)
 
         then:
 
@@ -212,6 +213,6 @@ class ReactiveStreamIntegrationSpec extends Specification {
         def config = new AutoConfiguration(serviceName: name)
         def transport = new InMemTransport(config, eventbus)
 
-        new MultiTransportMuon(config, discovery, [transport])
+        new MultiTransportMuon(config, discovery, [transport], new JsonOnlyCodecs())
     }
 }

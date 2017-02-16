@@ -3,12 +3,12 @@ package io.muoncore.protocol.event;
 /**
  * An event created by a client, ready to be passed to an event store for persistence and cononicalisation
  */
-public class ClientEvent<X> {
+public class ClientEvent {
 
 
     private String eventType;
     private String streamName;
-    private X payload;
+    private Object payload;
 
     private Long causedById;
     private String causedByRelation;
@@ -20,7 +20,7 @@ public class ClientEvent<X> {
             String schema,
             Long causedById,
             String causedByRelation,
-            X payload) {
+            Object payload) {
         this.schema = schema;
         this.eventType = eventType;
         this.streamName = streamName;
@@ -41,7 +41,7 @@ public class ClientEvent<X> {
         return streamName;
     }
 
-    public X getPayload() {
+    public Object getPayload() {
         return payload;
     }
 
@@ -64,8 +64,8 @@ public class ClientEvent<X> {
                 '}';
     }
 
-    public static <X> EventBuilder<X> ofType(String type) {
-        return new EventBuilder<X>().eventType(type);
+    public static EventBuilder ofType(String type) {
+        return new EventBuilder().eventType(type);
     }
 
 }

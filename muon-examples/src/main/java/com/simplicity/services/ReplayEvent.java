@@ -39,8 +39,8 @@ public class ReplayEvent {
 
         long then = System.currentTimeMillis();
 
-        Broadcaster<Event<Map>> b = Broadcaster.create();
-        Broadcaster<Event<Map>> output = Broadcaster.create();
+        Broadcaster<Event> b = Broadcaster.create();
+        Broadcaster<Event> output = Broadcaster.create();
 
 
         muon.publishSource("events", PublisherLookup.PublisherType.HOT, output);
@@ -55,7 +55,7 @@ public class ReplayEvent {
             } catch (Exception ex) {}
         });
 
-        client.replay("slack", EventReplayMode.REPLAY_THEN_LIVE, Map.class, b);
+        client.replay("slack", EventReplayMode.REPLAY_THEN_LIVE, b);
 
         long now = System.currentTimeMillis();
 

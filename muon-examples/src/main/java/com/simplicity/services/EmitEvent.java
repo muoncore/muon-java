@@ -6,10 +6,12 @@ import io.muoncore.api.PromiseFunction;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
 import io.muoncore.protocol.event.ClientEvent;
+import io.muoncore.protocol.event.Event;
 import io.muoncore.protocol.event.client.DefaultEventClient;
 import io.muoncore.protocol.event.client.EventClient;
 import io.muoncore.protocol.event.client.EventReplayMode;
 import io.muoncore.protocol.event.client.EventResult;
+import io.muoncore.protocol.reactivestream.client.StreamData;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.io.IOException;
@@ -66,12 +68,12 @@ public class EmitEvent {
     }
 
     static void subscribe(EventClient cl) {
-      Broadcaster v = Broadcaster.create();
+      Broadcaster<Event> v = Broadcaster.create();
 
       v.consume(o -> {
         System.out.println("Got data " + o);
       });
 
-      cl.replay("hammer", EventReplayMode.LIVE_ONLY, Map.class, v);
+      cl.replay("hammer", EventReplayMode.LIVE_ONLY, v);
     }
 }

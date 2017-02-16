@@ -1,5 +1,7 @@
 package io.muoncore;
 
+import io.muoncore.codec.Codecs;
+import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.discovery.DiscoveryFactory;
 import io.muoncore.discovery.MultiDiscovery;
@@ -18,6 +20,8 @@ public class MuonBuilder {
 
     private AutoConfiguration config;
 
+    private Codecs codecs = new JsonOnlyCodecs();
+
     private MuonBuilder(AutoConfiguration config) {
         this.config = config;
     }
@@ -26,9 +30,14 @@ public class MuonBuilder {
         return new MuonBuilder(config);
     }
 
+    public MuonBuilder withCodecs(Codecs codecs) {
+      this.codecs = codecs;
+      return this;
+    }
+
     public Muon build() {
         try {
-            return new MultiTransportMuon(config, generateDiscovery(), generateTransport());
+            return new MultiTransportMuon(config, generateDiscovery(), generateTransport(), codecs);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new MuonException("Unable to create Muon instance, error during construction", e);
         }

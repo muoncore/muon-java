@@ -1,11 +1,14 @@
 package io.muoncore.protocol.event;
 
 import com.google.gson.annotations.SerializedName;
+import io.muoncore.codec.Codecs;
+
+import java.util.Map;
 
 /**
  * A canonical Event for Muon
  */
-public class Event<X> {
+public class Event {
 
     @SerializedName("event-type")
     private String eventType;
@@ -24,9 +27,10 @@ public class Event<X> {
     private Long orderId;
     @SerializedName("event-time")
     private Long eventTime;
-    private X payload;
+    private Map payload;
+    private Codecs codecs;
 
-    public Event(String eventType, String streamName, String schema, Long causedById, String causedByRelation, String service, Long orderId, Long eventTime, X payload) {
+    public Event(String eventType, String streamName, String schema, Long causedById, String causedByRelation, String service, Long orderId, Long eventTime, Map payload, Codecs codecs) {
         this.eventType = eventType;
         this.streamName = streamName;
         this.schema = schema;
@@ -36,6 +40,7 @@ public class Event<X> {
         this.orderId = orderId;
         this.eventTime = eventTime;
         this.payload = payload;
+        this.codecs = codecs;
     }
 
     public String getEventType() {
@@ -70,8 +75,12 @@ public class Event<X> {
         return eventTime;
     }
 
-    public X getPayload() {
-        return payload;
+    public <X> X getPayload(Class<X> type) {
+      if (type.isAssignableFrom(Map.class)) {
+        return (X) payload;
+      }
+      Codecs.EncodingResult result = codecs.encode(payload, new String[]{"application/json"});
+      return codecs.decode(result.getPayload(), result.getContentType(), type);
     }
 
     @Override

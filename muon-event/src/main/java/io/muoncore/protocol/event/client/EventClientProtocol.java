@@ -26,7 +26,7 @@ public class EventClientProtocol<X> {
             AutoConfiguration configuration,
             Discovery discovery,
             Codecs codecs,
-            ChannelConnection<EventResult, ClientEvent<X>> leftChannelConnection,
+            ChannelConnection<EventResult, ClientEvent> leftChannelConnection,
             ChannelConnection<MuonOutboundMessage, MuonInboundMessage> rightChannelConnection) {
 
         rightChannelConnection.receive( message -> {

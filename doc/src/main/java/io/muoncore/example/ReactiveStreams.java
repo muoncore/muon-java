@@ -1,6 +1,7 @@
 package io.muoncore.example;
 
 import io.muoncore.Muon;
+import io.muoncore.protocol.reactivestream.client.StreamData;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
 import reactor.rx.broadcast.Broadcaster;
 
@@ -22,11 +23,11 @@ public class ReactiveStreams {
         publisher.accept("NOKIA: 20");
 
 
-        Broadcaster<String> client = Broadcaster.create();
+        Broadcaster<StreamData> client = Broadcaster.create();
         client.consume( val -> {
-            System.out.println("The value is " + val);
+            System.out.println("The value is " + val.getPayload(String.class));
         });
 
-        muon.subscribe(new URI("stream://myservice/stockTicker"), String.class, client);
+        muon.subscribe(new URI("stream://myservice/stockTicker"), client);
     }
 }

@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus
 import io.muoncore.MultiTransportMuon
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.descriptors.ProtocolDescriptor
 import io.muoncore.memory.discovery.InMemDiscovery
@@ -146,6 +147,6 @@ class ChannelPerfSpec extends Specification {
         def config = new AutoConfiguration(serviceName: "service-${ident}")
         def transport = new InMemTransport(config, eventbus)
 
-        new MultiTransportMuon(config, discovery, [transport])
+        new MultiTransportMuon(config, discovery, [transport], new JsonOnlyCodecs())
     }
 }

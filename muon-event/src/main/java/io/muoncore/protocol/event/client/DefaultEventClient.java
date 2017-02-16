@@ -17,8 +17,10 @@ import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.event.ClientEvent;
 import io.muoncore.protocol.event.Event;
 import io.muoncore.protocol.reactivestream.client.ReactiveStreamClientProtocolStack;
+import io.muoncore.protocol.reactivestream.client.StreamData;
 import io.muoncore.transport.client.TransportClient;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -49,10 +51,10 @@ public class DefaultEventClient implements EventClient {
         this.reactiveStreamClientProtocolStack = muon;
     }
 
-  public <X> MuonFuture<EventResult> eventAsync(ClientEvent<X> event) {
-    Channel<ClientEvent<X>, EventResult> api2eventproto = Channels.channel("eventapi", "eventproto");
+  public MuonFuture<EventResult> eventAsync(ClientEvent event) {
+    Channel<ClientEvent, EventResult> api2eventproto = Channels.channel("eventapi", "eventproto");
 
-    ChannelFutureAdapter<EventResult, ClientEvent<X>> adapter =
+    ChannelFutureAdapter<EventResult, ClientEvent> adapter =
       new ChannelFutureAdapter<>(api2eventproto.left());
 
     Channel<MuonOutboundMessage, MuonInboundMessage> timeoutChannel = Channels.timeout(muon.getScheduler(), 1000);
@@ -71,11 +73,11 @@ public class DefaultEventClient implements EventClient {
 
 
   @Override
-    public <X> EventResult event(ClientEvent<X> event) {
+    public EventResult event(ClientEvent event) {
         try {
-            Channel<ClientEvent<X>, EventResult> api2eventproto = Channels.channel("eventapi", "eventproto");
+            Channel<ClientEvent, EventResult> api2eventproto = Channels.channel("eventapi", "eventproto");
 
-            ChannelFutureAdapter<EventResult, ClientEvent<X>> adapter =
+            ChannelFutureAdapter<EventResult, ClientEvent> adapter =
                     new ChannelFutureAdapter<>(api2eventproto.left());
 
             Channel<MuonOutboundMessage, MuonInboundMessage> timeoutChannel = Channels.timeout(muon.getScheduler(), 1000);
@@ -96,12 +98,17 @@ public class DefaultEventClient implements EventClient {
     }
 
     @Override
-    public <X> MuonFuture<EventReplayControl> replay(String streamName, EventReplayMode mode, Class<X> payloadType, Subscriber<Event<X>> subscriber) {
+    public <X> MuonFuture<EventReplayControl> replay(String streamName, EventReplayMode mode, Subscriber<Event> subscriber) {
 
         String replayType;
-        if (mode == EventReplayMode.LIVE_ONLY) {
+        switch(mode) {
+          case LIVE_ONLY:
             replayType = "hot";
-        } else {
+            break;
+          case REPLAY_ONLY:
+            replayType = "cold";
+          case REPLAY_THEN_LIVE:
+          default:
             replayType = "hot-cold";
         }
 
@@ -109,8 +116,27 @@ public class DefaultEventClient implements EventClient {
         if (eventStore.isPresent()) {
             String eventStoreName = eventStore.get().getIdentifier();
             try {
-                reactiveStreamClientProtocolStack.subscribe(new URI("stream://" + eventStoreName + "/stream?stream-type=" + replayType + "&stream-name=" + streamName),
-                        new EventParameterizedType(payloadType), subscriber);
+                reactiveStreamClientProtocolStack.subscribe(new URI("stream://" + eventStoreName + "/stream?stream-type=" + replayType + "&stream-name=" + streamName), new Subscriber<StreamData>() {
+                  @Override
+                  public void onSubscribe(Subscription s) {
+                    subscriber.onSubscribe(s);
+                  }
+
+                  @Override
+                  public void onNext(StreamData data) {
+                    subscriber.onNext(data.getPayload(Event.class));
+                  }
+
+                  @Override
+                  public void onError(Throwable t) {
+                    subscriber.onError(t);
+                  }
+
+                  @Override
+                  public void onComplete() {
+                    subscriber.onComplete();
+                  }
+                });
             } catch (URISyntaxException e) {
                 throw new MuonException("The name provided [" + eventStoreName + "] is invalid");
             }
