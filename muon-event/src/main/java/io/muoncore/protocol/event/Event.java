@@ -28,7 +28,7 @@ public class Event {
     @SerializedName("event-time")
     private Long eventTime;
     private Map payload;
-    private Codecs codecs;
+    private transient Codecs codecs;
 
     public Event(String eventType, String streamName, String schema, Long causedById, String causedByRelation, String service, Long orderId, Long eventTime, Map payload, Codecs codecs) {
         this.eventType = eventType;
@@ -41,6 +41,10 @@ public class Event {
         this.eventTime = eventTime;
         this.payload = payload;
         this.codecs = codecs;
+    }
+
+    public void setCodecs(Codecs codecs) {
+      this.codecs = codecs;
     }
 
     public String getEventType() {

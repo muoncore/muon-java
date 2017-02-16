@@ -98,7 +98,9 @@ public class ReactiveStreamClientProtocol {
                 subscriber.onError(new MuonException("Stream does not exist"));
                 break;
             case ProtocolMessages.DATA:
-                subscriber.onNext(new StreamData(msg, codecs));
+                StreamData data = new StreamData(msg);
+                data.setCodecs(codecs);
+                subscriber.onNext(data);
                 break;
             case ProtocolMessages.ERROR:
                 subscriber.onError(new MuonException());

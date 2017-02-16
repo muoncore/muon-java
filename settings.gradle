@@ -6,4 +6,5 @@ include 'muon-core',
         'muon-discovery-multicast',
         'muon-examples',
         'muon-event',
+        'chronos',
         "doc"

@@ -292,6 +292,15 @@ project('muon-event') {
     }
 }
 
+project('chronos') {
+  description = 'In mem test event store'
+  dependencies {
+    compile project(":muon-event")
+    compile 'org.slf4j:slf4j-simple:1.7.12'
+    compile "org.codehaus.groovy:groovy-all:2.4.1"
+  }
+}
+
 project('muon-transport-amqp') {
     description = 'Core Muon for Java'
     dependencies {

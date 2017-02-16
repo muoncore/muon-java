@@ -107,6 +107,7 @@ public class DefaultEventClient implements EventClient {
             break;
           case REPLAY_ONLY:
             replayType = "cold";
+            break;
           case REPLAY_THEN_LIVE:
           default:
             replayType = "hot-cold";
@@ -124,7 +125,9 @@ public class DefaultEventClient implements EventClient {
 
                   @Override
                   public void onNext(StreamData data) {
-                    subscriber.onNext(data.getPayload(Event.class));
+                    Event event = data.getPayload(Event.class);
+                    event.setCodecs(codecs);
+                    subscriber.onNext(event);
                   }
 
                   @Override

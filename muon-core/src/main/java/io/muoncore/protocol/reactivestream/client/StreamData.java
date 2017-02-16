@@ -8,10 +8,13 @@ import java.lang.reflect.Type;
 public class StreamData {
 
   private MuonInboundMessage source;
-  private Codecs codecs;
+  private transient Codecs codecs;
 
-  public StreamData(MuonInboundMessage source, Codecs codecs) {
+  public StreamData(MuonInboundMessage source) {
     this.source = source;
+  }
+
+  public void setCodecs(Codecs codecs) {
     this.codecs = codecs;
   }
 
