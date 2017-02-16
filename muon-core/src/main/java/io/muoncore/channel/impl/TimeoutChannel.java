@@ -51,7 +51,7 @@ public class TimeoutChannel implements Channel<MuonOutboundMessage, MuonInboundM
 
             @Override
             public void shutdown() {
-                timerControl.cancel();
+              if (timerControl != null) timerControl.cancel();
                 leftFunction.apply(null);
             }
         };
