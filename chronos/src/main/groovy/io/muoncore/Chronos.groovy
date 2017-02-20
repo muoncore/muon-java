@@ -36,7 +36,6 @@ class Chronos {
 
       def stream = request.args["stream-name"]
       def streamType = request.args["stream-type"]
-      log.info request.args
       if (!streamType) streamType = "hot-cold"
 
       log.info "Subscribing to $stream"
