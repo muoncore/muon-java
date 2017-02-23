@@ -14,6 +14,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
 
@@ -59,7 +60,7 @@ public class RabbitMq09ClientAmqpConnection implements AmqpConnection {
                     synchronized (factory) {
                         factory.notify();
                     }
-                } catch (ConnectException e) {
+                } catch (TimeoutException | ConnectException e) {
                     log.warn("Unable to connect to rabbit server " + rabbitUrl + " retrying");
                     try {
                         Thread.sleep(3000);

@@ -6,6 +6,7 @@ import io.muoncore.protocol.event.Event;
 import org.reactivestreams.Subscriber;
 
 import java.util.List;
+import java.util.Map;
 
 public interface EventClient {
 
@@ -37,6 +38,7 @@ public interface EventClient {
      * @param subscriber The reactive streams subscriber that will listen to the event stream.
      */
     <X> MuonFuture<EventReplayControl> replay(String streamName, EventReplayMode mode, Subscriber<Event> subscriber);
+    <X> MuonFuture<EventReplayControl> replay(String streamName, EventReplayMode mode, Map<String, Object> args, Subscriber<Event> subscriber);
 
     /**
      * Emit an event into the remote event store.
