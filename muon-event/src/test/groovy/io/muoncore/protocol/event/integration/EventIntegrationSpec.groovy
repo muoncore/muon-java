@@ -10,10 +10,18 @@ import io.muoncore.memory.transport.InMemTransport
 import io.muoncore.protocol.event.ClientEvent
 import io.muoncore.protocol.event.Event
 import io.muoncore.protocol.event.client.DefaultEventClient
+import io.muoncore.protocol.event.client.EventReplayMode
 import io.muoncore.protocol.event.client.EventResult
 import io.muoncore.protocol.event.server.EventServerProtocolStack
 import io.muoncore.protocol.event.server.EventWrapper
+import io.muoncore.protocol.reactivestream.messages.ReactiveStreamSubscriptionRequest
+import io.muoncore.protocol.reactivestream.server.PublisherLookup
+import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerHandlerApi
+import org.reactivestreams.Publisher
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
 import reactor.Environment
+import reactor.rx.Streams
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
@@ -91,6 +99,54 @@ class EventIntegrationSpec extends Specification {
             data == sorted
         }
     }
+
+  def "partial replay works"() {
+
+    def data = []
+
+    def muon2 = muonEventStore { EventWrapper ev ->
+      println "Event is the awesome ${ev.event}"
+      data << ev.event
+      ev.persisted(54321, System.currentTimeMillis())
+    }
+
+    def muon1 = muon("simples")
+    def args
+    muon2.publishGeneratedSource("/stream", PublisherLookup.PublisherType.HOT) {
+      ReactiveStreamSubscriptionRequest subscriptionRequest ->
+        println "ARGS = ${subscriptionRequest.args}"
+        args = subscriptionRequest.args
+        return Streams.from()
+    }
+    def evClient = new DefaultEventClient(muon1)
+    def replayed = []
+
+    when:
+    evClient.replay("SomethingHappened", EventReplayMode.REPLAY_THEN_LIVE, ["from": 112345], new Subscriber() {
+      @Override
+      void onSubscribe(Subscription s) {
+        s.request(Integer.MAX_VALUE)
+      }
+
+      @Override
+      void onNext(Object o) {
+        replayed << o
+      }
+
+      @Override
+      void onError(Throwable t) { t.printStackTrace() }
+
+      @Override
+      void onComplete() {
+        println "Completed"
+      }
+    })
+
+    then:
+    new PollingConditions(timeout: 30).eventually {
+      args && args.from == "112345"
+    }
+  }
 
     Muon muon(name) {
         def config = new AutoConfiguration(serviceName: name)

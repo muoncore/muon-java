@@ -123,8 +123,8 @@ public class DefaultEventClient implements EventClient {
 
     String query = params.entrySet()
       .stream()
-      .map(entry -> entry.getKey() + " - " + entry.getValue())
-      .collect(Collectors.joining(", "));
+      .map(entry -> entry.getKey() + "=" + entry.getValue())
+      .collect(Collectors.joining("&"));
 
 
     Optional<ServiceDescriptor> eventStore = discovery.findService(svc -> svc.getTags().contains("eventstore"));
@@ -155,7 +155,7 @@ public class DefaultEventClient implements EventClient {
           }
         });
       } catch (URISyntaxException e) {
-        throw new MuonException("The name provided [" + eventStoreName + "] is invalid");
+        throw new MuonException("The name provided [" + eventStoreName + "] is invalid", e);
       }
     } else {
       throw new MuonException("There is no event store present in the distributed system, is Photon running?");
