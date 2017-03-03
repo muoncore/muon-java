@@ -1,14 +1,19 @@
 package io.muoncore;
 
+import lombok.Getter;
+
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 
 public class ServiceDescriptor {
 
+    @Getter
     private String identifier;
+    private String instanceIdentifier;
     private List<String> tags;
     private List<String> codecs;
+    @Getter
     private List<URI> connectionUrls;
     private Collection<String> capabilities;
 
@@ -36,6 +41,7 @@ public class ServiceDescriptor {
 
     }
 
+
     @Override
     public int hashCode() {
         return getIdentifier().hashCode();
@@ -46,14 +52,6 @@ public class ServiceDescriptor {
     }
     public List<String> getTags() {
         return tags;
-    }
-
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    public List<URI> getConnectionUrls() {
-        return connectionUrls;
     }
 
     public Collection<String> getCapabilities() {
