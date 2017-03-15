@@ -1,7 +1,9 @@
 package io.muoncore.memory.discovery;
 
 import io.muoncore.Discovery;
+import io.muoncore.InstanceDescriptor;
 import io.muoncore.ServiceDescriptor;
+import io.muoncore.transport.ServiceCache;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,16 +14,16 @@ import java.util.List;
  */
 public class InMemDiscovery implements Discovery {
 
-    private List<ServiceDescriptor> services = new ArrayList<>();
+    private ServiceCache cache = new ServiceCache(false);
 
     @Override
     public List<ServiceDescriptor> getKnownServices() {
-        return Collections.unmodifiableList(services);
+      return cache.getServices();
     }
 
     @Override
-    public void advertiseLocalService(ServiceDescriptor descriptor) {
-        services.add(descriptor);
+    public void advertiseLocalService(InstanceDescriptor descriptor) {
+      cache.addService(descriptor);
     }
 
     @Override

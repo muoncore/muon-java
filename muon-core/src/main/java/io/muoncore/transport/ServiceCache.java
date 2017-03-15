@@ -1,5 +1,6 @@
 package io.muoncore.transport;
 
+import io.muoncore.InstanceDescriptor;
 import io.muoncore.ServiceDescriptor;
 
 import java.util.*;
@@ -11,10 +12,25 @@ public class ServiceCache {
 
     private Map<String, Entry> serviceCache = new HashMap<>();
 
-    public void addService(ServiceDescriptor service) {
+    private boolean expiring = true;
+
+    public ServiceCache() {
+      this.expiring = true;
+    }
+
+    public ServiceCache(boolean expiring) {
+      this.expiring = expiring;
+    }
+
+    public void addService(InstanceDescriptor service) {
+        Entry entry = serviceCache.get(service.getIdentifier());
+        if (entry == null) {
+          entry = new Entry(service);
+        } else {
+          entry.touch(service);
+        }
         serviceCache.put(
-                service.getIdentifier(),
-                new Entry(service, System.currentTimeMillis()));
+                service.getIdentifier(), entry);
     }
 
     private synchronized void expire() {
@@ -31,7 +47,9 @@ public class ServiceCache {
     }
 
     public List<ServiceDescriptor> getServices() {
-        expire();
+        if (expiring) {
+          expire();
+        }
         return this.serviceCache.values().stream().map( val -> val.data).collect(Collectors.toList());
     }
 
@@ -39,9 +57,20 @@ public class ServiceCache {
         ServiceDescriptor data;
         long createdAt;
 
-        public Entry(ServiceDescriptor data, long createdAt) {
-            this.data = data;
-            this.createdAt = createdAt;
+        Entry(InstanceDescriptor descriptor) {
+            List<InstanceDescriptor> instances = new ArrayList<>();
+            instances.add(descriptor);
+
+            this.data = new ServiceDescriptor(descriptor.getIdentifier(),
+              descriptor.getTags(), descriptor.getCodecs(),
+              descriptor.getCapabilities(),
+              instances);
+        }
+
+        void touch(InstanceDescriptor descriptor) {
+          createdAt = System.currentTimeMillis();
+          data.getInstanceDescriptors().removeIf(integer -> integer.getInstanceId().equals(descriptor.getInstanceId()));
+          data.getInstanceDescriptors().add(descriptor);
         }
     }
 }

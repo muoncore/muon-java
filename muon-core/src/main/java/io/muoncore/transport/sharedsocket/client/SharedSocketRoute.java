@@ -3,6 +3,7 @@ package io.muoncore.transport.sharedsocket.client;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
+import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonMessage;
 import io.muoncore.message.MuonMessageBuilder;
@@ -53,6 +54,9 @@ public class SharedSocketRoute {
               route.sendInbound(message.getMessage());
             }
         });
+        if (sharedSocketConnection == null) {
+          throw new MuonTransportFailureException("Unable to construct a socket connection to " + serviceName);
+        }
     }
 
     /**

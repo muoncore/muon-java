@@ -44,6 +44,8 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
     private PublisherLookup publisherLookup;
     private Scheduler protocolTimer;
 
+    private UUID localInstanceId = UUID.randomUUID();
+
     public MultiTransportMuon(
             AutoConfiguration configuration,
             Discovery discovery,
@@ -72,11 +74,14 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
 
         transports.forEach(tr -> tr.start(discovery, this.protocols, codecs, getScheduler()));
 
-        discovery.advertiseLocalService(new ServiceDescriptor(
+        discovery.advertiseLocalService(
+          new InstanceDescriptor(
+                localInstanceId.toString(),
                 configuration.getServiceName(),
                 configuration.getTags(),
                 Arrays.asList(codecs.getAvailableCodecs()),
-                transports.stream().map(MuonTransport::getLocalConnectionURI).collect(Collectors.toList()),
+                transports.stream().map(MuonTransport::getLocalConnectionURI)
+                  .collect(Collectors.toList()),
                 generateCapabilities()));
 
         discovery.blockUntilReady();

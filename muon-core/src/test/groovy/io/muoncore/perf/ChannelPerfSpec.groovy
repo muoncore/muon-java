@@ -1,6 +1,7 @@
 package io.muoncore.perf
 
 import com.google.common.eventbus.EventBus
+import io.muoncore.InstanceDescriptor
 import io.muoncore.MultiTransportMuon
 import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
@@ -43,8 +44,8 @@ class ChannelPerfSpec extends Specification {
         def service1 = createService("1", discovery)
         def service2 = createService("2", discovery)
 
-        discovery.advertiseLocalService(new ServiceDescriptor("service-1", [], [], [], []))
-        discovery.advertiseLocalService(new ServiceDescriptor("service-2", [], [], [], []))
+        discovery.advertiseLocalService(new InstanceDescriptor("instance-123", "service-1", [], [], [], []))
+        discovery.advertiseLocalService(new InstanceDescriptor("instance-12345", "service-2", [], [], [], []))
 
         service2.handleRequest(all()) {
             it.ok([svc:"svc1"])
@@ -106,8 +107,8 @@ class ChannelPerfSpec extends Specification {
 
         def service2 = createService("2", discovery)
 
-        discovery.advertiseLocalService(new ServiceDescriptor("service-1", [], [], [], []))
-        discovery.advertiseLocalService(new ServiceDescriptor("service-2", [], [], [], []))
+        discovery.advertiseLocalService(new InstanceDescriptor("instance-123", "service-1", [], [], [], []))
+        discovery.advertiseLocalService(new InstanceDescriptor("instance-321", "service-2", [], [], [], []))
 
         when:
         def channel = service2.transportClient.openClientChannel()

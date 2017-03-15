@@ -1,6 +1,7 @@
 package io.muoncore.discovery
 
 import io.muoncore.Discovery
+import io.muoncore.InstanceDescriptor
 import io.muoncore.ServiceDescriptor
 import spock.lang.Specification
 
@@ -35,7 +36,7 @@ class MultiDiscoverySpec extends Specification {
 
         def discovery = new MultiDiscovery([mock1, mock2, mock3])
 
-        def ident = new ServiceDescriptor("ident",[],[],[], [])
+        def ident = new InstanceDescriptor("123", "ident",[],[],[], [])
 
         when:
         discovery.advertiseLocalService(ident)

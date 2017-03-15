@@ -55,10 +55,11 @@ public class AMQPMuonTransport implements MuonTransport {
     @Override
     public boolean canConnectToService(String name) {
         Optional<ServiceDescriptor> descriptor = discovery.findService(svc -> svc.getIdentifier().equals(name));
-        if (!descriptor.isPresent()) {
-            return false;
-        }
-        return descriptor.get().getConnectionUrls().stream().anyMatch( url -> url.getScheme().equals(getUrlScheme()));
+
+        return descriptor.map(serviceDescriptor -> serviceDescriptor.getSchemes()
+          .stream()
+          .anyMatch(url -> url.equals(getUrlScheme())))
+          .orElse(false);
     }
 
     @Override

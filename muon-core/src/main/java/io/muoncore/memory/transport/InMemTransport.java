@@ -44,7 +44,7 @@ public class InMemTransport implements MuonTransport {
 
         if (!descriptor.isPresent()) return false;
 
-        return descriptor.get().getConnectionUrls().stream().anyMatch( url -> url.getScheme().equals(getUrlScheme()));
+        return descriptor.get().getSchemes().stream().anyMatch( url -> url.equals(getUrlScheme()));
     }
 
     @Override

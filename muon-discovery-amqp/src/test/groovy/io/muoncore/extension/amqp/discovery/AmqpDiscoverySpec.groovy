@@ -27,7 +27,6 @@ class AmqpDiscoverySpec extends Specification {
         services[0].identifier == "tombola"
         services[0].codecs == ["application/json", "application/json+AES"] as String[]
         services[0].tags == ["tag1"]
-        services[0].connectionUrls == [new URI("amqp://hello")]
     }
 
     def "amqp discovery broadcasts every 3 seconds"() {

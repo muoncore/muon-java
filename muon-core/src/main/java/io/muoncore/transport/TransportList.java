@@ -19,14 +19,14 @@ public class TransportList<T extends MuonTransport> {
     }
 
     public T findBestTransport(ServiceDescriptor descriptor) {
-        for(URI uri: descriptor.getConnectionUrls()) {
+        for(String scheme: descriptor.getSchemes()) {
             for(T trans : transports) {
-                if (uri.getScheme().equals(trans.getUrlScheme())) {
+                if (scheme.equals(trans.getUrlScheme())) {
                     return trans;
                 }
             }
         }
 
         return null;
-    };
+    }
 }

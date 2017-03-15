@@ -1,5 +1,6 @@
 package io.muoncore.discovery.multicast;
 
+import io.muoncore.InstanceDescriptor;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.codec.json.GsonCodec;
 import io.muoncore.transport.ServiceCache;
@@ -41,7 +42,7 @@ public class MulticastClient extends Thread {
 
                 byte[] data = Arrays.copyOfRange(buf, 0, packet.getLength());
 
-                ServiceDescriptor descriptor = codec.decode(data, ServiceDescriptor.class);
+                InstanceDescriptor descriptor = codec.decode(data, ServiceDescriptor.class);
               System.out.println("Got data " + descriptor.getIdentifier());
                 serviceCache.addService(descriptor);
             }
