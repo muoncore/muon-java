@@ -70,7 +70,6 @@ public class AggregateEventClient {
 
       @Override
       public void onComplete() {
-        System.out.println("Replay is completed");
         latch.countDown();
       }
     });
