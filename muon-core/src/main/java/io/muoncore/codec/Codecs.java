@@ -3,10 +3,12 @@ package io.muoncore.codec;
 import java.lang.reflect.Type;
 
 public interface Codecs {
-    EncodingResult encode(Object object, String[] acceptableContentTypes);
+    <T> EncodingResult encode(T object, String[] acceptableContentTypes);
     <T> T decode(byte[] source, String contentType, Type type) throws DecodingFailureException;
 
     String[] getAvailableCodecs();
+
+
 
     class EncodingResult {
         private byte[] payload;
