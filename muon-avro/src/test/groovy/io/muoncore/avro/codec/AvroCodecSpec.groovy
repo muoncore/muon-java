@@ -1,5 +1,6 @@
 package io.muoncore.avro.codec
 
+import io.muoncore.messages.AnotherMuonMessage
 import io.muoncore.messages.MuonMessage
 import org.apache.avro.Schema
 import org.apache.avro.reflect.ReflectData
@@ -17,6 +18,22 @@ class AvroCodecSpec extends Specification {
 
     then:
     decode instanceof MuonMessage
+    decode.username as String == "YO DUDE!"
+    decode.tweet as String == "the master tweet"
+    decode.timestamp == 12
+
+  }
+
+  def "can do encoding roundtrip for a generic pojo"() {
+    def codec = new AvroCodec()
+
+    when:
+    def ret = codec.encode(new AnotherMuonMessage("YO DUDE!", "the master tweet", 12))
+
+    def decode = codec.decode(ret,  AnotherMuonMessage)
+
+    then:
+    decode instanceof AnotherMuonMessage
     decode.username as String == "YO DUDE!"
     decode.tweet as String == "the master tweet"
     decode.timestamp == 12
