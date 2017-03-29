@@ -1,6 +1,7 @@
-package io.muoncore.avro.codec;
+package io.muoncore.codec.avro;
 
 import io.muoncore.codec.MuonCodec;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.DataFileWriter;
@@ -11,7 +12,6 @@ import org.apache.avro.reflect.ReflectData;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.avro.specific.SpecificRecord;
-import sun.reflect.misc.ReflectUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,6 +20,8 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
+@SuppressWarnings("all")
 public class AvroCodec implements MuonCodec {
 
   private Map<Class, Schema> schemas = new HashMap<>();
@@ -27,8 +29,6 @@ public class AvroCodec implements MuonCodec {
 
   @Override
   public <T> T decode(byte[] encodedData, Type type) {
-    System.out.println(new String(encodedData));
-
     if (!SpecificRecord.class.isAssignableFrom((Class) type)) {
       return decodePojo(encodedData, (Class) type);
     }
@@ -37,6 +37,8 @@ public class AvroCodec implements MuonCodec {
   }
 
   private <T> T decodePojo(byte[] encodedData, Class type) {
+
+    log.debug("Reflecting decode of {}, consider registering a converter", type);
 
     DatumReader<T> userDatumReader = RD.createDatumReader(RD.getSchema(type));
 
@@ -78,6 +80,9 @@ public class AvroCodec implements MuonCodec {
   }
 
   private byte[] encodePojo(Object data) {
+
+    log.info("Reflecting encode of {}, consider registering a converter", data.getClass());
+
     Schema schema = RD.getSchema(data.getClass());
 
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

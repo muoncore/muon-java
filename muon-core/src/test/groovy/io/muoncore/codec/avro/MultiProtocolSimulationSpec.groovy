@@ -1,11 +1,10 @@
-package io.muoncore.avro.codec
+package io.muoncore.codec.avro
 
 import com.google.common.eventbus.EventBus
 import io.muoncore.MultiTransportMuon
 import io.muoncore.Muon
 import io.muoncore.codec.DelegatingCodecs
 import io.muoncore.codec.json.GsonCodec
-import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport

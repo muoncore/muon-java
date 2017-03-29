@@ -1,4 +1,4 @@
-package io.muoncore.avro.codec
+package io.muoncore.codec.avro
 
 import io.muoncore.messages.AnotherMuonMessage
 import io.muoncore.messages.MuonMessage

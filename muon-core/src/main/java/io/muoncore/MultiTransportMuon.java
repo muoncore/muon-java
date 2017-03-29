@@ -3,6 +3,8 @@ package io.muoncore;
 import io.muoncore.channel.Channels;
 import io.muoncore.channel.support.Scheduler;
 import io.muoncore.codec.Codecs;
+import io.muoncore.codec.DelegatingCodecs;
+import io.muoncore.codec.avro.AvroCodec;
 import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.descriptors.ServiceExtendedDescriptor;
@@ -50,7 +52,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
             List<MuonTransport> transports, Codecs codecs) {
         Environment.initializeIfEmpty();
         this.configuration = configuration;
-        this.codecs = codecs;
+        this.codecs = new DelegatingCodecs().withCodec(new AvroCodec()).withCodecs(codecs);
         TransportMessageDispatcher wiretap = new SimpleTransportMessageDispatcher();
         MultiTransportClient client = new MultiTransportClient(
                 transports, wiretap, configuration, discovery, codecs);

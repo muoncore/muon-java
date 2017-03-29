@@ -8,11 +8,19 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class DelegatingCodecs implements Codecs {
   private Map<String, MuonCodec> codecLookup = new HashMap<>();
+  private Map<String, Codecs> codecsLookup = new HashMap<>();
+
+
+  public DelegatingCodecs withCodecs(Codecs codecs) {
+    for (String content : codecs.getAvailableCodecs()) {
+      codecsLookup.put(content, codecs);
+    }
+    return this;
+  }
 
   public DelegatingCodecs withCodec(MuonCodec codecs) {
     codecLookup.put(codecs.getContentType(), codecs);
@@ -25,7 +33,7 @@ public class DelegatingCodecs implements Codecs {
       for (int i = acceptableContentTypes.length - 1; i >= 0; i--) {
         MuonCodec codec = codecLookup.get(acceptableContentTypes[i]);
         if (codec != null) {
-          log.info(" Encoding {} with contents {} and codec {}", object, acceptableContentTypes, codec);
+          log.trace(" Encoding {} with contents {} and codec {}", object, acceptableContentTypes, codec);
           return new EncodingResult(codec.encode(object), codec.getContentType());
         }
       }

@@ -5,6 +5,7 @@
  */
 package io.muoncore.messages;
 
+import org.apache.avro.data.RecordBuilderBase;
 import org.apache.avro.specific.SpecificData;
 
 @SuppressWarnings("all")
@@ -116,8 +117,8 @@ public class MuonMessage extends org.apache.avro.specific.SpecificRecordBase imp
    * Creates a new MuonMessage RecordBuilder.
    * @return A new MuonMessage RecordBuilder
    */
-  public static io.muoncore.messages.MuonMessage.Builder newBuilder() {
-    return new io.muoncore.messages.MuonMessage.Builder();
+  public static MuonMessage.Builder newBuilder() {
+    return new MuonMessage.Builder();
   }
 
   /**
@@ -125,8 +126,8 @@ public class MuonMessage extends org.apache.avro.specific.SpecificRecordBase imp
    * @param other The existing builder to copy.
    * @return A new MuonMessage RecordBuilder
    */
-  public static io.muoncore.messages.MuonMessage.Builder newBuilder(io.muoncore.messages.MuonMessage.Builder other) {
-    return new io.muoncore.messages.MuonMessage.Builder(other);
+  public static MuonMessage.Builder newBuilder(MuonMessage.Builder other) {
+    return new MuonMessage.Builder(other);
   }
 
   /**
@@ -134,8 +135,8 @@ public class MuonMessage extends org.apache.avro.specific.SpecificRecordBase imp
    * @param other The existing instance to copy.
    * @return A new MuonMessage RecordBuilder
    */
-  public static io.muoncore.messages.MuonMessage.Builder newBuilder(io.muoncore.messages.MuonMessage other) {
-    return new io.muoncore.messages.MuonMessage.Builder(other);
+  public static MuonMessage.Builder newBuilder(MuonMessage other) {
+    return new MuonMessage.Builder(other);
   }
 
   /**
@@ -160,17 +161,17 @@ public class MuonMessage extends org.apache.avro.specific.SpecificRecordBase imp
      * Creates a Builder by copying an existing Builder.
      * @param other The existing Builder to copy.
      */
-    private Builder(io.muoncore.messages.MuonMessage.Builder other) {
+    private Builder(MuonMessage.Builder other) {
       super(other);
-      if (isValidValue(fields()[0], other.username)) {
+      if (RecordBuilderBase.isValidValue(fields()[0], other.username)) {
         this.username = data().deepCopy(fields()[0].schema(), other.username);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.tweet)) {
+      if (RecordBuilderBase.isValidValue(fields()[1], other.tweet)) {
         this.tweet = data().deepCopy(fields()[1].schema(), other.tweet);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.timestamp)) {
+      if (RecordBuilderBase.isValidValue(fields()[2], other.timestamp)) {
         this.timestamp = data().deepCopy(fields()[2].schema(), other.timestamp);
         fieldSetFlags()[2] = true;
       }
@@ -180,17 +181,17 @@ public class MuonMessage extends org.apache.avro.specific.SpecificRecordBase imp
      * Creates a Builder by copying an existing MuonMessage instance
      * @param other The existing instance to copy.
      */
-    private Builder(io.muoncore.messages.MuonMessage other) {
+    private Builder(MuonMessage other) {
             super(SCHEMA$);
-      if (isValidValue(fields()[0], other.username)) {
+      if (RecordBuilderBase.isValidValue(fields()[0], other.username)) {
         this.username = data().deepCopy(fields()[0].schema(), other.username);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.tweet)) {
+      if (RecordBuilderBase.isValidValue(fields()[1], other.tweet)) {
         this.tweet = data().deepCopy(fields()[1].schema(), other.tweet);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.timestamp)) {
+      if (RecordBuilderBase.isValidValue(fields()[2], other.timestamp)) {
         this.timestamp = data().deepCopy(fields()[2].schema(), other.timestamp);
         fieldSetFlags()[2] = true;
       }
@@ -211,7 +212,7 @@ public class MuonMessage extends org.apache.avro.specific.SpecificRecordBase imp
       * @param value The value of 'username'.
       * @return This builder.
       */
-    public io.muoncore.messages.MuonMessage.Builder setUsername(java.lang.CharSequence value) {
+    public MuonMessage.Builder setUsername(java.lang.CharSequence value) {
       validate(fields()[0], value);
       this.username = value;
       fieldSetFlags()[0] = true;
@@ -233,7 +234,7 @@ public class MuonMessage extends org.apache.avro.specific.SpecificRecordBase imp
       * Name of the user account on Twitter.com
       * @return This builder.
       */
-    public io.muoncore.messages.MuonMessage.Builder clearUsername() {
+    public MuonMessage.Builder clearUsername() {
       username = null;
       fieldSetFlags()[0] = false;
       return this;
@@ -254,7 +255,7 @@ public class MuonMessage extends org.apache.avro.specific.SpecificRecordBase imp
       * @param value The value of 'tweet'.
       * @return This builder.
       */
-    public io.muoncore.messages.MuonMessage.Builder setTweet(java.lang.CharSequence value) {
+    public MuonMessage.Builder setTweet(java.lang.CharSequence value) {
       validate(fields()[1], value);
       this.tweet = value;
       fieldSetFlags()[1] = true;
@@ -276,7 +277,7 @@ public class MuonMessage extends org.apache.avro.specific.SpecificRecordBase imp
       * The content of the user's Twitter message
       * @return This builder.
       */
-    public io.muoncore.messages.MuonMessage.Builder clearTweet() {
+    public MuonMessage.Builder clearTweet() {
       tweet = null;
       fieldSetFlags()[1] = false;
       return this;
@@ -297,7 +298,7 @@ public class MuonMessage extends org.apache.avro.specific.SpecificRecordBase imp
       * @param value The value of 'timestamp'.
       * @return This builder.
       */
-    public io.muoncore.messages.MuonMessage.Builder setTimestamp(long value) {
+    public MuonMessage.Builder setTimestamp(long value) {
       validate(fields()[2], value);
       this.timestamp = value;
       fieldSetFlags()[2] = true;
@@ -319,7 +320,7 @@ public class MuonMessage extends org.apache.avro.specific.SpecificRecordBase imp
       * Unix epoch time in seconds
       * @return This builder.
       */
-    public io.muoncore.messages.MuonMessage.Builder clearTimestamp() {
+    public MuonMessage.Builder clearTimestamp() {
       fieldSetFlags()[2] = false;
       return this;
     }
