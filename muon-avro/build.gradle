@@ -3,4 +3,5 @@
 dependencies {
   compile project(":muon-core")
   compile 'org.apache.avro:avro:1.8.1'
+  testCompile 'org.slf4j:slf4j-simple:1.7.12'
 }

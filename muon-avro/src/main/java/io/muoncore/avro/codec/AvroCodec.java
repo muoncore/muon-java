@@ -23,6 +23,7 @@ import java.util.Map;
 public class AvroCodec implements MuonCodec {
 
   private Map<Class, Schema> schemas = new HashMap<>();
+  private ReflectData RD = ReflectData.AllowNull.get();
 
   @Override
   public <T> T decode(byte[] encodedData, Type type) {
@@ -37,7 +38,7 @@ public class AvroCodec implements MuonCodec {
 
   private <T> T decodePojo(byte[] encodedData, Class type) {
 
-    DatumReader<T> userDatumReader = ReflectData.get().createDatumReader(ReflectData.get().getSchema(type));
+    DatumReader<T> userDatumReader = RD.createDatumReader(RD.getSchema(type));
 
     try {
       FileReader<T> ts = DataFileReader.openReader(new SeekableByteArrayInput(encodedData), userDatumReader);
@@ -77,11 +78,11 @@ public class AvroCodec implements MuonCodec {
   }
 
   private byte[] encodePojo(Object data) {
-    Schema schema = ReflectData.get().getSchema(data.getClass());
+    Schema schema = RD.getSchema(data.getClass());
 
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-    DatumWriter userDatumWriter = ReflectData.get().createDatumWriter(schema);
+    DatumWriter userDatumWriter = RD.createDatumWriter(schema);
     DataFileWriter dataFileWriter = new DataFileWriter(userDatumWriter);
     try {
       dataFileWriter.create(schema, byteArrayOutputStream);
