@@ -10,4 +10,8 @@ public interface MuonCodec {
     byte[] encode(Object data) throws UnsupportedEncodingException;
 
     String getContentType();
+
+    boolean hasSchemasFor(Class type);
+
+    Codecs.SchemaInfo getSchemaInfoFor(Class type);
 }

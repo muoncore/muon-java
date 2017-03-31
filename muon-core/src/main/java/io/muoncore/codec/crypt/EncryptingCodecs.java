@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -66,4 +67,9 @@ public class EncryptingCodecs implements Codecs {
 
         return codecs.toArray(new String[codecs.size()]);
     }
+
+  @Override
+  public Optional<SchemaInfo> getSchemaFor(Class type) {
+    return Optional.empty();
+  }
 }

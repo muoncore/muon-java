@@ -6,6 +6,7 @@ import io.muoncore.channel.Channels
 import io.muoncore.codec.Codecs
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
+import io.muoncore.descriptors.SchemaDescriptor
 import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.message.MuonOutboundMessage
 import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocolStack
@@ -39,6 +40,10 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                 request.answer(new ServerResponse(200, [message:"defaultservice"]))
             }
 
+          @Override
+          Map<String, SchemaDescriptor> getDescriptors() {
+            return Collections.emptyMap()
+          }
         })
         handlers.addHandler(new RequestResponseServerHandler() {
             @Override
@@ -62,6 +67,10 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                 request.answer(new ServerResponse(200, [message:"hello"]))
             }
 
+          @Override
+          Map<String, SchemaDescriptor> getDescriptors() {
+            return Collections.emptyMap()
+          }
         })
 
         def server = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery, new AutoConfiguration(serviceName: "simples"))
@@ -150,6 +159,10 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                 request.answer(new ServerResponse(200, [message:"defaultservice"]))
             }
 
+          @Override
+          Map<String, SchemaDescriptor> getDescriptors() {
+            return Collections.emptyMap()
+          }
         })
         handlers.addHandler(new RequestResponseServerHandler() {
             @Override
@@ -172,6 +185,10 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
                 request.answer(new ServerResponse(200, [message:"hello"]))
             }
 
+          @Override
+          Map<String, SchemaDescriptor> getDescriptors() {
+            return Collections.emptyMap()
+          }
         })
 
         def server = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery, new AutoConfiguration(serviceName: "simples"))

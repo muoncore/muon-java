@@ -8,7 +8,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Slf4j
@@ -70,5 +70,14 @@ public class DelegatingCodecs implements Codecs {
   @Override
   public String[] getAvailableCodecs() {
     return codecLookup.values().stream().map(MuonCodec::getContentType).toArray(String[]::new);
+  }
+
+  @Override
+  public Optional<SchemaInfo> getSchemaFor(Class type) {
+    Optional<MuonCodec> codec = codecLookup.values().stream().filter(muonCodec -> muonCodec.hasSchemasFor(type)).findAny();
+
+    log.info
+      ("Getting schema for {}, found {}", type, codec);
+    return codec.map(muonCodec -> muonCodec.getSchemaInfoFor(type));
   }
 }

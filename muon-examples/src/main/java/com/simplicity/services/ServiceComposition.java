@@ -1,6 +1,34 @@
 package com.simplicity.services;
 
+import io.muoncore.Muon;
+import io.muoncore.MuonBuilder;
+import io.muoncore.api.MuonFuture;
+import io.muoncore.config.AutoConfiguration;
+import io.muoncore.config.MuonConfigBuilder;
+import io.muoncore.descriptors.SchemasDescriptor;
+
+import java.util.concurrent.ExecutionException;
+
 public class ServiceComposition {
+
+  public static void main(String[] args) throws ExecutionException, InterruptedException {
+    AutoConfiguration config = MuonConfigBuilder.withServiceIdentifier("stream-test").build();
+
+    Muon muon = MuonBuilder.withConfig(config).build();
+
+    muon.getDiscovery().blockUntilReady();
+
+    MuonFuture<SchemasDescriptor> schemas = muon.getSchemas("stream-test", "rpc", "/in");
+
+    SchemasDescriptor schemasDescriptor = schemas.get();
+
+    System.out.println("SCHEMAS");
+    schemasDescriptor.getSchemas().values().forEach(schemaDescriptor -> {
+      System.out.println(schemaDescriptor.getName());
+      System.out.println(schemaDescriptor.getType());
+      System.out.println(schemaDescriptor.getSchema());
+    });
+  }
 
 //    public static void main(String[] args) throws URISyntaxException, InterruptedException, NoSuchAlgorithmException, KeyManagementException, IOException {
 //

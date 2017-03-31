@@ -1,5 +1,6 @@
 package io.muoncore.codec.avro;
 
+import io.muoncore.codec.Codecs;
 import io.muoncore.codec.MuonCodec;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
@@ -121,5 +122,16 @@ public class AvroCodec implements MuonCodec {
   @Override
   public String getContentType() {
     return "avro";
+  }
+
+  @Override
+  public boolean hasSchemasFor(Class type) {
+    return true;
+  }
+
+  @Override
+  public Codecs.SchemaInfo getSchemaInfoFor(Class type) {
+    //TODO, allow loading in existing schemas.
+    return new Codecs.SchemaInfo(RD.getSchema(type).toString(), "avro");
   }
 }

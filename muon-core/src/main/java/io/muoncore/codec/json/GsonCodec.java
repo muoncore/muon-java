@@ -1,6 +1,7 @@
 package io.muoncore.codec.json;
 
 import com.google.gson.Gson;
+import io.muoncore.codec.Codecs;
 import io.muoncore.codec.MuonCodec;
 import io.muoncore.exception.MuonException;
 
@@ -29,4 +30,14 @@ public class GsonCodec implements MuonCodec {
     public String getContentType() {
         return "application/json";
     }
+
+  @Override
+  public boolean hasSchemasFor(Class type) {
+    return false;
+  }
+
+  @Override
+  public Codecs.SchemaInfo getSchemaInfoFor(Class type) {
+    return null;
+  }
 }

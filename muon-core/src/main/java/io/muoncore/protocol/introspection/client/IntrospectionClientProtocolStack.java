@@ -9,6 +9,7 @@ import io.muoncore.config.MuonConfigurationSource;
 import io.muoncore.descriptors.SchemasDescriptor;
 import io.muoncore.descriptors.ServiceExtendedDescriptor;
 import io.muoncore.api.MuonFuture;
+import io.muoncore.protocol.introspection.SchemaIntrospectionRequest;
 import io.muoncore.transport.TransportClientSource;
 
 public interface IntrospectionClientProtocolStack extends TransportClientSource, CodecsSource, MuonConfigurationSource, DiscoverySource {
@@ -30,20 +31,18 @@ public interface IntrospectionClientProtocolStack extends TransportClientSource,
   }
 
   default MuonFuture<SchemasDescriptor> getSchemas(String serviceName, String protocol, String endpoint) {
-    Channel<String, SchemasDescriptor> api2rrp = Channels.channel("introspectionapi", "introspectionproto");
+    Channel<SchemaIntrospectionRequest, SchemasDescriptor> api2rrp = Channels.channel("introspectionapi", "introspectionproto");
 
-    ChannelFutureAdapter<SchemasDescriptor, String> adapter =
+    ChannelFutureAdapter<SchemasDescriptor, SchemaIntrospectionRequest> adapter =
       new ChannelFutureAdapter<>(api2rrp.left());
 
-//    new IntrospectClientProtocol<>(
-//      serviceName,
-//      getConfiguration(),
-//      api2rrp.right(),
-//      getTransportClient().openClientChannel(),
-//      getCodecs(), getDiscovery());
-//
-//    return adapter.request(serviceName);
-    return null;
+    new IntrospectSchemasClientProtocol<>(
+      serviceName,
+      getConfiguration(),
+      api2rrp.right(),
+      getTransportClient().openClientChannel(),
+      getCodecs(), getDiscovery());
 
+    return adapter.request(new SchemaIntrospectionRequest(protocol, endpoint));
   }
 }
