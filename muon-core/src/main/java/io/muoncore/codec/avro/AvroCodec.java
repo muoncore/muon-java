@@ -2,7 +2,9 @@ package io.muoncore.codec.avro;
 
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.MuonCodec;
+import io.muoncore.exception.MuonEncodingException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.DataFileWriter;
@@ -19,7 +21,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,27 +76,22 @@ public class AvroCodec implements MuonCodec {
   @Override
   public byte[] encode(Object data) throws UnsupportedEncodingException {
 
-    if (!(data instanceof SpecificRecord)) {
-      return encodePojo(data);
-    }
+    try {
+      if (!(data instanceof SpecificRecord)) {
+        return encodePojo(data);
+      }
 
-    return encodeSpecificRecord(data);
+      return encodeSpecificRecord(data);
+    } catch(AvroRuntimeException e) {
+      throw new MuonEncodingException("AvroCode is Unable to encode " + data, e);
+    }
   }
 
   private byte[] encodePojo(Object data) {
 
-    log.info("Reflecting encode of {}, {}, consider registering a converter", data.getClass(), data);
+    log.debug("Reflecting encode of {}, {}, consider registering a converter", data.getClass(), data);
 
-    Type type = data.getClass();
-
-    if (data.getClass().getGenericSuperclass() instanceof ParameterizedType) {
-      type = ((ParameterizedType) data.getClass().getGenericSuperclass())
-        .getActualTypeArguments()[0];
-
-      log.info("Implements {}", type.getTypeName());
-    }
-
-    Schema schema = RD.getSchema(type);
+    Schema schema = RD.getSchema(data.getClass());
 
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
@@ -146,8 +142,12 @@ public class AvroCodec implements MuonCodec {
 
   @Override
   public Codecs.SchemaInfo getSchemaInfoFor(Class type) {
-    //TODO, allow loading in existing schemas.
-    return new Codecs.SchemaInfo(RD.getSchema(type).toString(), "avro");
+    try {
+      //TODO, allow loading in existing schemas.
+      return new Codecs.SchemaInfo(RD.getSchema(type).toString(), "avro");
+    } catch (AvroRuntimeException e) {
+      throw new MuonEncodingException("Unable to generate an AvroSchema for type " + type + " this is most like due to missing generic types on a POJO. Considering generating a SpecificRecord or registering a Converter", e);
+    }
   }
 
   @Override
