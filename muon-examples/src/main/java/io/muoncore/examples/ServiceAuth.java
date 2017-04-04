@@ -1,4 +1,4 @@
-package com.simplicity.services;
+package io.muoncore.examples;
 
 import io.muoncore.Muon;
 import io.muoncore.MuonBuilder;
@@ -28,16 +28,17 @@ public class ServiceAuth {
 
     muon.getDiscovery().blockUntilReady();
 
-    muon.handleRequest(path("/"), wrapper -> {
-      System.out.println(wrapper.getRequest().getAuth());
-      wrapper.ok(wrapper.getRequest().getAuth());
+    muon.handleRequest(path("/"), request -> {
+      request.ok("Hello World");
     });
 
     muon.handleRequest(path("/in"))
       .addRequestType(MyRequest.class)
       .addResponseType(MyResponse.class)
       .handler(request -> {
-        request.ok("Hello World");
+        MyRequest myReq = request.getRequest().getPayload(MyRequest.class);
+        //do something with the request
+        request.ok(new MyResponse("Hello World"));
       })
       .build();
   }

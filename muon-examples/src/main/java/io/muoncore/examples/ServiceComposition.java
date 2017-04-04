@@ -1,4 +1,4 @@
-package com.simplicity.services;
+package io.muoncore.examples;
 
 import io.muoncore.Muon;
 import io.muoncore.MuonBuilder;
@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 public class ServiceComposition {
 
   public static void main(String[] args) throws ExecutionException, InterruptedException {
-    AutoConfiguration config = MuonConfigBuilder.withServiceIdentifier("stream-test").build();
+    AutoConfiguration config = MuonConfigBuilder.withServiceIdentifier("st").build();
 
     Muon muon = MuonBuilder.withConfig(config).build();
 

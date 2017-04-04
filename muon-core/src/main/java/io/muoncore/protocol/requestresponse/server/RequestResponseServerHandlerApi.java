@@ -14,9 +14,7 @@ public interface RequestResponseServerHandlerApi extends
    * to reply to.
    * <p>
    * The predicate is used to match requests.
-   * @deprecated use #handleRequest(HandlerBuilder) in preference to this method
    */
-  @Deprecated
   default void handleRequest(
     final HandlerPredicate predicate,
     final Handler handler) {
@@ -92,14 +90,11 @@ public interface RequestResponseServerHandlerApi extends
 
         @Override
         public Map<String, SchemaDescriptor> getDescriptors() {
-          System.out.println("GETTING DESCRIPTORS FOR " + getPredicate().resourceString());
           Map<String, SchemaDescriptor> schemas = new HashMap<>();
 
           for (int i = 0; i < requestTypes.size(); i++) {
-            System.out.println("Returning Schema " + requestTypes.get(i));
             String schemaName = "Request-" + requestTypes.get(i).getSimpleName();
             codecs.getSchemaFor(requestTypes.get(i)).ifPresent(schemaInfo -> {
-
               schemas.put(schemaName, new SchemaDescriptor(schemaName, schemaInfo.getSchemaText(), schemaInfo.getSchemaType()));
             });
           }
@@ -109,8 +104,6 @@ public interface RequestResponseServerHandlerApi extends
               schemas.put(schemaName, new SchemaDescriptor(schemaName, schemaInfo.getSchemaText(), schemaInfo.getSchemaType()));
             });
           }
-
-          System.out.println("Got schemas " + schemas);
 
           return schemas;
         }

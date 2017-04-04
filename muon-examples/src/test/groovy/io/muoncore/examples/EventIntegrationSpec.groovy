@@ -1,4 +1,4 @@
-package com.simplicityitself
+package io.muoncore.examples
 
 import com.google.common.eventbus.EventBus
 import io.muoncore.Muon
