@@ -5,11 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class DelegatingCodecs implements Codecs {
@@ -30,16 +28,22 @@ public class DelegatingCodecs implements Codecs {
 
   @Override
   public <T> EncodingResult encode(T object, String[] acceptableContentTypes) {
-    log.debug("Encoding {} with content type {}", object, acceptableContentTypes);
+    log.info("Encoding {}/{} with content type {}", object, object.getClass(), acceptableContentTypes);
     for (int i = acceptableContentTypes.length - 1; i >= 0; i--) {
-      return getCodec(acceptableContentTypes[i], muonCodec -> {
+      MuonCodec specificCodec = codecLookup.get(acceptableContentTypes[i]);
+      if(specificCodec != null && specificCodec.hasSchemasFor(object.getClass())) {
         try {
-          return new EncodingResult(muonCodec.encode(object), muonCodec.getContentType());
+          return new EncodingResult(specificCodec.encode(object), specificCodec.getContentType());
         } catch (UnsupportedEncodingException e) {
-          log.error("Error encoding " + object, e);
-          return null;
+          log.error("Error encoding " + object + " using codec " + specificCodec, e);
         }
-      }, codecs -> codecs.encode(object, acceptableContentTypes));
+      }
+    }
+    for (int i = acceptableContentTypes.length - 1; i >= 0; i--) {
+      Codecs delegateCodecs = codecsLookup.get(acceptableContentTypes[i]);
+      if(delegateCodecs != null) {
+        return delegateCodecs.encode(object, acceptableContentTypes);
+      }
     }
 
     return new EncodingResult(new MuonEncodingException("Unable to encode object of type " + object.getClass() + ", no codec can handle " + Arrays.asList(acceptableContentTypes)));
@@ -47,21 +51,21 @@ public class DelegatingCodecs implements Codecs {
 
   @Override
   public <T> T decode(byte[] source, String contentType, Type type) throws DecodingFailureException {
-    log.debug("Decoding {} with content type {}", type, contentType);
+    log.info("Decoding {} with content type {} {}", type, contentType, source);
     return getCodec(contentType, muonCodec -> muonCodec.decode(source, type), codecs -> codecs.decode(source, contentType, type));
   }
 
-  private <T> T getCodec(String contentType, Function<MuonCodec, T> codec, Function<Codecs, T> codecs) {
-    MuonCodec exec = codecLookup.get(contentType);
+  private <T> T getCodec(String contentType, Function<MuonCodec, T> execWithCodec, Function<Codecs, T> codecs) {
+    MuonCodec specificCodec = codecLookup.get(contentType);
 
-    if (exec != null) {
-      return codec.apply(exec);
+    if (specificCodec != null) {
+      return execWithCodec.apply(specificCodec);
     }
 
-    Codecs exec2 = codecsLookup.get(contentType);
+    Codecs delegateCodecs = codecsLookup.get(contentType);
 
-    if (exec2 != null) {
-      return codecs.apply(exec2);
+    if (delegateCodecs != null) {
+      return codecs.apply(delegateCodecs);
     }
     log.error("Unable to decode content type {}, this is a serious misconfiguration and data is being lost", contentType);
     return null;
@@ -69,7 +73,11 @@ public class DelegatingCodecs implements Codecs {
 
   @Override
   public String[] getAvailableCodecs() {
-    return codecLookup.values().stream().map(MuonCodec::getContentType).toArray(String[]::new);
+    Set<String> codecs = codecLookup.values().stream().map(MuonCodec::getContentType).collect(Collectors.toSet());
+
+    codecs.addAll(codecsLookup.values().stream().map((Codecs::getAvailableCodecs)).flatMap(Arrays::stream).collect(Collectors.toSet()));
+
+    return codecs.toArray(new String[codecs.size()]);
   }
 
   @Override

@@ -17,7 +17,9 @@ import org.apache.avro.specific.SpecificRecord;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,9 +84,18 @@ public class AvroCodec implements MuonCodec {
 
   private byte[] encodePojo(Object data) {
 
-    log.info("Reflecting encode of {}, consider registering a converter", data.getClass());
+    log.info("Reflecting encode of {}, {}, consider registering a converter", data.getClass(), data);
 
-    Schema schema = RD.getSchema(data.getClass());
+    Type type = data.getClass();
+
+    if (data.getClass().getGenericSuperclass() instanceof ParameterizedType) {
+      type = ((ParameterizedType) data.getClass().getGenericSuperclass())
+        .getActualTypeArguments()[0];
+
+      log.info("Implements {}", type.getTypeName());
+    }
+
+    Schema schema = RD.getSchema(type);
 
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
@@ -126,6 +137,10 @@ public class AvroCodec implements MuonCodec {
 
   @Override
   public boolean hasSchemasFor(Class type) {
+    if (type.getCanonicalName().startsWith("java.util")) {
+      log.debug("Avro cannot provide schemas for a java.util type {}", type);
+      return false;
+    }
     return true;
   }
 
