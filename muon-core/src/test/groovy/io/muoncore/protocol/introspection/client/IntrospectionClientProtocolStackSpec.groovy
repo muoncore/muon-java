@@ -120,7 +120,7 @@ class IntrospectionClientProtocolStackSpec extends Specification {
     when:
     Thread.start {
       sleep 200
-      def schema = new SchemasDescriptor("happy", "/",  "tombola", [:])
+      def schema = new SchemasDescriptor("happy", "/", [:])
       func(
         MuonMessageBuilder.fromService("tombola")
           .toService("simples")
@@ -135,7 +135,6 @@ class IntrospectionClientProtocolStackSpec extends Specification {
 
     then:
     descriptor
-    descriptor.serviceName == "tombola"
     descriptor.protocol == "happy"
     descriptor.resource == "/"
     descriptor.schemas.size() == 0

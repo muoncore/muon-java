@@ -11,7 +11,7 @@ class RequestResponseServerHandlerApiSpec extends Specification {
     def "handleRequest API creates a new RequestResponseHandler with the passed in artifacts"() {
         def handler = Mock(RequestResponseServerHandlerApi.Handler)
         def requestResponseHandlers = Mock(RequestResponseHandlers)
-      def codecs = mock(Codecs)
+        def codecs = Mock(Codecs)
 
         def requestResponseServerHandlerApi = new RequestResponseServerHandlerApi() {
             @Override
