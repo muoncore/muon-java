@@ -39,45 +39,5 @@ class AvroCodecSpec extends Specification {
     decode.timestamp == 12
 
   }
-
-  def "geerate schema"() {
-    def r = ReflectData.newInstance()
-    Schema schema = r.getSchema(AwesomeClass)
-
-    println schema
-
-    expect:
-    1==2
-  }
 }
 
-
-//BREABREABREAK
-
-/**
- * TODO
- * check the schema type?
- *
- * be able to download the schemas in a generialised form. maybe another interface?
- *
- * ponder the introspection. how should schemas be requested and transported around.  How can we initialise them?
- * Consider that a particular Avro schema could be loaded into the codec for matching against classes.
- *
- * Consider versioning of messages.
- *
- * How can avro support be advertised in the disco?
- */
-
-
-
-
-
-
-class AwesomeClass {
-
-  String name
-  String other
-  int nyMun
-  double value
-
-}

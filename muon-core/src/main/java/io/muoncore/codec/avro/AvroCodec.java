@@ -149,4 +149,9 @@ public class AvroCodec implements MuonCodec {
     //TODO, allow loading in existing schemas.
     return new Codecs.SchemaInfo(RD.getSchema(type).toString(), "avro");
   }
+
+  @Override
+  public boolean canEncode(Class type) {
+    return hasSchemasFor(type);
+  }
 }

@@ -11,7 +11,7 @@ public interface MuonCodec {
 
     String getContentType();
 
+    boolean canEncode(Class type);
     boolean hasSchemasFor(Class type);
-
     Codecs.SchemaInfo getSchemaInfoFor(Class type);
 }

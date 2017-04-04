@@ -31,7 +31,7 @@ public class DelegatingCodecs implements Codecs {
     log.info("Encoding {}/{} with content type {}", object, object.getClass(), acceptableContentTypes);
     for (int i = acceptableContentTypes.length - 1; i >= 0; i--) {
       MuonCodec specificCodec = codecLookup.get(acceptableContentTypes[i]);
-      if(specificCodec != null && specificCodec.hasSchemasFor(object.getClass())) {
+      if(specificCodec != null && specificCodec.canEncode(object.getClass())) {
         try {
           return new EncodingResult(specificCodec.encode(object), specificCodec.getContentType());
         } catch (UnsupportedEncodingException e) {
@@ -84,7 +84,7 @@ public class DelegatingCodecs implements Codecs {
   public Optional<SchemaInfo> getSchemaFor(Class type) {
     Optional<MuonCodec> codec = codecLookup.values().stream().filter(muonCodec -> muonCodec.hasSchemasFor(type)).findAny();
 
-    log.info
+    log.debug
       ("Getting schema for {}, found {}", type, codec);
     return codec.map(muonCodec -> muonCodec.getSchemaInfoFor(type));
   }
