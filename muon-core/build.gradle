@@ -1,0 +1,13 @@
+
+description = 'Core Muon for Java'
+dependencies {
+  // Reactive Streams
+  compile "org.reactivestreams:reactive-streams:$reactiveStreamsVersion"
+  compile 'com.google.guava:guava:21.0'
+
+  compile 'com.google.code.gson:gson:2.3.1'
+  compile 'org.apache.avro:avro:1.8.1'
+  compile "io.projectreactor:reactor-stream:$reactorVersion"
+  compile 'org.slf4j:slf4j-api:1.7.21'
+  testCompile 'org.slf4j:slf4j-simple:1.7.12'
+}

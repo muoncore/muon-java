@@ -1,0 +1,13 @@
+
+description = 'Documentation project'
+dependencies {
+  compile project(":muon-event")
+  compile project(":muon-transport-amqp")
+  compile project(":muon-discovery-amqp")
+  compile "org.springframework.boot:spring-boot-starter-web:1.3.1.RELEASE"
+  compile 'io.reactivex.rxjava2:rxjava:2.0.3'
+
+  compile "org.codehaus.groovy:groovy-all:2.4.1"
+  compile 'org.apache.ivy:ivy:2.4.0'
+}
+

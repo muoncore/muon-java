@@ -1,4 +1,4 @@
-package com.simplicity.services;
+package io.muoncore.examples;
 
 public class ServiceStreamConsumerReconnect {
 

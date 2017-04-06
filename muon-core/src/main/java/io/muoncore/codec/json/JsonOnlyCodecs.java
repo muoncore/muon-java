@@ -8,6 +8,8 @@ import io.muoncore.exception.MuonException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
 
 public class JsonOnlyCodecs implements Codecs {
 
@@ -39,4 +41,9 @@ public class JsonOnlyCodecs implements Codecs {
         if (source == null) return null;
         return defaultCodec.decode(source, type);
     }
+
+  @Override
+  public Optional<SchemaInfo> getSchemaFor(Class type) {
+    return Optional.empty();
+  }
 }

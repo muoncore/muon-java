@@ -1,41 +1,55 @@
 package io.muoncore.codec;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 import java.lang.reflect.Type;
+import java.util.Optional;
 
 public interface Codecs {
-    EncodingResult encode(Object object, String[] acceptableContentTypes);
-    <T> T decode(byte[] source, String contentType, Type type) throws DecodingFailureException;
+  <T> EncodingResult encode(T object, String[] acceptableContentTypes);
 
-    String[] getAvailableCodecs();
+  <T> T decode(byte[] source, String contentType, Type type) throws DecodingFailureException;
 
-    class EncodingResult {
-        private byte[] payload;
-        private String contentType;
-        private Exception failureMessage;
+  String[] getAvailableCodecs();
 
-        public EncodingResult(Exception failure) {
-            this.failureMessage = failure;
-        }
+  Optional<SchemaInfo> getSchemaFor(Class type);
 
-        public boolean isFailed() {
-            return failureMessage != null;
-        }
+  class EncodingResult {
+    private byte[] payload;
+    private String contentType;
+    private Exception failureMessage;
 
-        public Exception getFailureMessage() {
-            return failureMessage;
-        }
-
-        public EncodingResult(byte[] payload, String contentType) {
-            this.payload = payload;
-            this.contentType = contentType;
-        }
-
-        public byte[] getPayload() {
-            return payload;
-        }
-
-        public String getContentType() {
-            return contentType;
-        }
+    public EncodingResult(Exception failure) {
+      this.failureMessage = failure;
     }
+
+    public boolean isFailed() {
+      return failureMessage != null;
+    }
+
+    public Exception getFailureMessage() {
+      return failureMessage;
+    }
+
+    public EncodingResult(byte[] payload, String contentType) {
+      this.payload = payload;
+      this.contentType = contentType;
+    }
+
+    public byte[] getPayload() {
+      return payload;
+    }
+
+    public String getContentType() {
+      return contentType;
+    }
+  }
+
+  @Data
+  @AllArgsConstructor
+  class SchemaInfo {
+    private String schemaText;
+    private String schemaType;
+  }
 }

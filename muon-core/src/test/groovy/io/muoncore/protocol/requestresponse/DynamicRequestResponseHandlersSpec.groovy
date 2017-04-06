@@ -1,4 +1,6 @@
 package io.muoncore.protocol.requestresponse
+
+import io.muoncore.descriptors.SchemaDescriptor
 import io.muoncore.protocol.requestresponse.server.DynamicRequestResponseHandlers
 import io.muoncore.protocol.requestresponse.server.HandlerPredicate
 import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandler
@@ -60,4 +62,11 @@ class StubRequestResponseServerHandler implements RequestResponseServerHandler {
     void handle(RequestWrapper request) {
         throw new IllegalStateException("Not implemented in stub!")
     }
+
+  @Override
+  Map<String, SchemaDescriptor> getDescriptors() {
+    return [
+           "request1" : null
+    ]
+  }
 }

@@ -7,6 +7,7 @@ import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.descriptors.ProtocolDescriptor
+import io.muoncore.descriptors.SchemaDescriptor
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
 import io.muoncore.message.MuonInboundMessage
@@ -102,6 +103,11 @@ class ChannelPerfSpec extends Specification {
                     }
                 }
             }
+
+          @Override
+          Map<String, SchemaDescriptor> getSchemasFor(String endpoint) {
+            return null
+          }
         })
 
         def service2 = createService("2", discovery)
