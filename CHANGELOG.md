@@ -1,5 +1,17 @@
 # Change Log
 
+## [Unreleased](https://github.com/muoncore/muon-java/tree/HEAD)
+
+[Full Changelog](https://github.com/muoncore/muon-java/compare/7.2.6...HEAD)
+
+**Closed issues:**
+
+- Use common release tooling [\#49](https://github.com/muoncore/muon-java/issues/49)
+
+**Merged pull requests:**
+
+- Avro support and schema introspection. [\#51](https://github.com/muoncore/muon-java/pull/51) ([daviddawson](https://github.com/daviddawson))
+
 ## [7.2.6](https://github.com/muoncore/muon-java/tree/7.2.6) (2017-03-21)
 [Full Changelog](https://github.com/muoncore/muon-java/compare/7.2.5...7.2.6)
 
