@@ -19,12 +19,18 @@ import io.muoncore.transport.TransportClientSource;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/**
+ * @deprecated in favour of {@link RpcClient}
+ */
+@Deprecated
 public interface RequestResponseClientProtocolStack extends
         TransportClientSource, CodecsSource, ServiceConfigurationSource, SchedulerSource {
 
+    @Deprecated
     default MuonFuture<Response> request(String uri) {
         return request(uri, new Object());
     }
+    @Deprecated
     default MuonFuture<Response> request(String uri, Object payload) {
         try {
             return request(new URI(uri), payload);
@@ -33,6 +39,7 @@ public interface RequestResponseClientProtocolStack extends
         }
     }
 
+    @Deprecated
     default MuonFuture<Response> request(URI uri, Object payload) {
         if (!uri.getScheme().equals(RRPTransformers.REQUEST_RESPONSE_PROTOCOL) && !uri.getScheme().equals("request")) {
             throw new MuonException("Scheme is invalid: " + uri.getScheme() + ", requires scheme: " + RRPTransformers.REQUEST_RESPONSE_PROTOCOL);
@@ -40,6 +47,7 @@ public interface RequestResponseClientProtocolStack extends
         return request(new Request(uri, payload));
     }
 
+    @Deprecated
     default MuonFuture<Response> request(Request event) {
 
         Channel<Request, Response> api2rrp = Channels.channel("rrpclientapi", "rrpclientproto");

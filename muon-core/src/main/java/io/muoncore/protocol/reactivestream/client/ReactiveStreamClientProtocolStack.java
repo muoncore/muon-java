@@ -11,8 +11,13 @@ import org.reactivestreams.Subscriber;
 import java.lang.reflect.Type;
 import java.net.URI;
 
+/**
+ * @deprecated in favour of {@link ReactiveStreamClient}
+ */
+@Deprecated
 public interface ReactiveStreamClientProtocolStack extends TransportClientSource, CodecsSource, MuonConfigurationSource, DiscoverySource {
 
+  @Deprecated
     default void subscribe(URI uri, Subscriber<StreamData> subscriber) {
         if (!uri.getScheme().equals("stream")) throw new IllegalArgumentException("URI Scheme is invalid. Requires scheme: stream://");
 
