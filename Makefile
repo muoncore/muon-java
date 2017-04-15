@@ -7,7 +7,9 @@ publish: clean
 ifndef VERSION
 	$(error VERSION is undefined for Muon Java Release)
 endif
-	echo currentVersion=$(VERSION)>gradle.properties
+	echo version=$(VERSION)>gradle.properties
+	echo group=io.muoncore>>gradle.properties
+	echo exclude=doc,muon-examples>>gradle.properties
 	./gradlew artifactoryPublish
 	git add gradle.properties
 	git commit -m "Update version to $(VERSION )while publishing"
