@@ -1,5 +1,12 @@
 # Change Log
 
+## [v7.2.8](https://github.com/muoncore/muon-java/tree/v7.2.8) (2017-04-15)
+[Full Changelog](https://github.com/muoncore/muon-java/compare/v7.2.7...v7.2.8)
+
+**Closed issues:**
+
+- Create specific protocol clients, rather than embedded in the Muon object [\#52](https://github.com/muoncore/muon-java/issues/52)
+
 ## [v7.2.7](https://github.com/muoncore/muon-java/tree/v7.2.7) (2017-04-06)
 [Full Changelog](https://github.com/muoncore/muon-java/compare/7.2.6...v7.2.7)
 
