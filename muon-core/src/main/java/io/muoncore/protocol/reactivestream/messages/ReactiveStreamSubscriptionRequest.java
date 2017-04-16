@@ -13,7 +13,7 @@ public class ReactiveStreamSubscriptionRequest {
 
   private Auth auth;
   private String streamName;
-  private Map<String, Object> args = new HashMap<>();
+  private Map<String, String> args = new HashMap<>();
 
   public ReactiveStreamSubscriptionRequest(String streamName, Auth auth) {
     this.auth = auth;
