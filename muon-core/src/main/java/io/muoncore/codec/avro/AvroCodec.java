@@ -10,7 +10,8 @@ import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.file.FileReader;
 import org.apache.avro.file.SeekableByteArrayInput;
-import org.apache.avro.io.*;
+import org.apache.avro.io.DatumReader;
+import org.apache.avro.io.DatumWriter;
 import org.apache.avro.reflect.ReflectData;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
@@ -19,7 +20,6 @@ import org.apache.avro.specific.SpecificRecord;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,13 +31,26 @@ public class AvroCodec implements MuonCodec {
   private Map<Class, Schema> schemas = new HashMap<>();
   private ReflectData RD = ReflectData.AllowNull.get();
 
+  private final static Map<Class, AvroConverter> converterMapping = new HashMap<>();
+
+  public static void registerConverter(Class clType, AvroConverter converter) {
+    converterMapping.put(clType, converter);
+  }
+
   @Override
   public <T> T decode(byte[] encodedData, Type type) {
-    if (!SpecificRecord.class.isAssignableFrom((Class) type)) {
-      return decodePojo(encodedData, (Class) type);
-    }
+    final Class clType = (Class) type;
+    final AvroConverter converter = converterMapping.get(clType);
 
-    return decodeSpecificType(encodedData, (Class) type);
+    if (converter == null) {
+      if (!SpecificRecord.class.isAssignableFrom(clType)) {
+        return decodePojo(encodedData, clType);
+      }
+
+      return decodeSpecificType(encodedData, clType);
+    } else {
+      return converter.decode(encodedData);
+    }
   }
 
   private <T> T decodePojo(byte[] encodedData, Class type) {
@@ -75,14 +88,18 @@ public class AvroCodec implements MuonCodec {
 
   @Override
   public byte[] encode(Object data) throws UnsupportedEncodingException {
+    final Class clType = data.getClass();
+    final AvroConverter converter = converterMapping.get(clType);
 
     try {
-      if (!(data instanceof SpecificRecord)) {
+      if (converter != null) {
+        return converter.encode(data);
+      } else if (!(data instanceof SpecificRecord)) {
         return encodePojo(data);
       }
 
       return encodeSpecificRecord(data);
-    } catch(AvroRuntimeException e) {
+    } catch (AvroRuntimeException e) {
       throw new MuonEncodingException("AvroCode is Unable to encode " + data, e);
     }
   }
@@ -133,7 +150,7 @@ public class AvroCodec implements MuonCodec {
 
   @Override
   public boolean hasSchemasFor(Class type) {
-    if (type.getCanonicalName().startsWith("java.util")) {
+    if (type.getCanonicalName().startsWith("java.util") && converterMapping.get(type) == null) {
       log.debug("Avro cannot provide schemas for a java.util type {}", type);
       return false;
     }

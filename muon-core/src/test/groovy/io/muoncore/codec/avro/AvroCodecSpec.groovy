@@ -2,8 +2,6 @@ package io.muoncore.codec.avro
 
 import io.muoncore.messages.AnotherMuonMessage
 import io.muoncore.messages.MuonMessage
-import org.apache.avro.Schema
-import org.apache.avro.reflect.ReflectData
 import spock.lang.Specification
 
 class AvroCodecSpec extends Specification {
