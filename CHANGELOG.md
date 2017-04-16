@@ -1,5 +1,17 @@
 # Change Log
 
+## [v7.2.9](https://github.com/muoncore/muon-java/tree/v7.2.9) (2017-04-16)
+[Full Changelog](https://github.com/muoncore/muon-java/compare/v7.2.8...v7.2.9)
+
+**Implemented enhancements:**
+
+- Add extension system to AvroCodec [\#53](https://github.com/muoncore/muon-java/issues/53)
+
+**Closed issues:**
+
+- Extend introspection protocol with per endoint named schema [\#47](https://github.com/muoncore/muon-java/issues/47)
+- Implement Avro codec support [\#46](https://github.com/muoncore/muon-java/issues/46)
+
 ## [v7.2.8](https://github.com/muoncore/muon-java/tree/v7.2.8) (2017-04-15)
 [Full Changelog](https://github.com/muoncore/muon-java/compare/v7.2.7...v7.2.8)
 
