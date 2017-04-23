@@ -9,7 +9,7 @@ public class ServiceCache {
 
     static final int EXPIRY = 5000;
 
-    private Map<String, Entry> serviceCache = new HashMap<>();
+    private Map<String, Entry> serviceCache = Collections.synchronizedMap(new HashMap<>());
 
     public void addService(ServiceDescriptor service) {
         serviceCache.put(
@@ -21,13 +21,13 @@ public class ServiceCache {
         Map<String, Entry> newCache= new HashMap<>(serviceCache);
         Map<String, Entry> entries = new HashMap<>();
 
-        for (Map.Entry<String, Entry> entry: serviceCache.entrySet()) {
+        for (Map.Entry<String, Entry> entry: newCache.entrySet()) {
             long val = entry.getValue().createdAt + EXPIRY - System.currentTimeMillis();
             if (val > 0) {
                 entries.put(entry.getKey(), entry.getValue());
             }
         }
-        serviceCache = entries;
+        serviceCache = Collections.synchronizedMap(entries);
     }
 
     public List<ServiceDescriptor> getServices() {
