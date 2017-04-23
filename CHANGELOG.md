@@ -1,5 +1,13 @@
 # Change Log
 
+## [Unreleased](https://github.com/muoncore/muon-java/tree/HEAD)
+
+[Full Changelog](https://github.com/muoncore/muon-java/compare/v7.2.9...HEAD)
+
+**Closed issues:**
+
+- Under load, can get concurrent modification exception during discovery expiration [\#55](https://github.com/muoncore/muon-java/issues/55)
+
 ## [v7.2.9](https://github.com/muoncore/muon-java/tree/v7.2.9) (2017-04-16)
 [Full Changelog](https://github.com/muoncore/muon-java/compare/v7.2.8...v7.2.9)
 
