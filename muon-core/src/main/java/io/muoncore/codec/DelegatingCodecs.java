@@ -28,7 +28,7 @@ public class DelegatingCodecs implements Codecs {
 
   @Override
   public <T> EncodingResult encode(T object, String[] acceptableContentTypes) {
-    log.info("Encoding {}/{} with content type {}", object, object.getClass(), acceptableContentTypes);
+    log.trace("Encoding {}/{} with content type {}", object, object.getClass(), acceptableContentTypes);
     for (int i = acceptableContentTypes.length - 1; i >= 0; i--) {
       MuonCodec specificCodec = codecLookup.get(acceptableContentTypes[i]);
       if(specificCodec != null && specificCodec.canEncode(object.getClass())) {
@@ -51,7 +51,7 @@ public class DelegatingCodecs implements Codecs {
 
   @Override
   public <T> T decode(byte[] source, String contentType, Type type) throws DecodingFailureException {
-    log.info("Decoding {} with content type {} {}", type, contentType, source);
+    log.trace("Decoding {} with content type {} {}", type, contentType, source);
     return getCodec(contentType, muonCodec -> muonCodec.decode(source, type), codecs -> codecs.decode(source, contentType, type));
   }
 
@@ -84,7 +84,7 @@ public class DelegatingCodecs implements Codecs {
   public Optional<SchemaInfo> getSchemaFor(Class type) {
     Optional<MuonCodec> codec = codecLookup.values().stream().filter(muonCodec -> muonCodec.hasSchemasFor(type)).findAny();
 
-    log.debug
+    log.trace
       ("Getting schema for {}, found {}", type, codec);
     return codec.map(muonCodec -> muonCodec.getSchemaInfoFor(type));
   }
