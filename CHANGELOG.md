@@ -1,5 +1,13 @@
 # Change Log
 
+## [Unreleased](https://github.com/muoncore/muon-java/tree/HEAD)
+
+[Full Changelog](https://github.com/muoncore/muon-java/compare/v7.2.10...HEAD)
+
+**Merged pull requests:**
+
+- Service instance info [\#57](https://github.com/muoncore/muon-java/pull/57) ([daviddawson](https://github.com/daviddawson))
+
 ## [v7.2.10](https://github.com/muoncore/muon-java/tree/v7.2.10) (2017-04-25)
 [Full Changelog](https://github.com/muoncore/muon-java/compare/v7.2.9...v7.2.10)
 
