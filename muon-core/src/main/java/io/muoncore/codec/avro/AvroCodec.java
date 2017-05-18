@@ -93,6 +93,7 @@ public class AvroCodec implements MuonCodec {
 
     try {
       if (converter != null) {
+        log.info("Got converter of type {} for {}", converter.getClass(), clType);
         return converter.encode(data);
       } else if (!(data instanceof SpecificRecord)) {
         return encodePojo(data);

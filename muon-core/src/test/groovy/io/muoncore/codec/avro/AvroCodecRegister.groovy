@@ -10,7 +10,7 @@ class AvroCodecRegister extends Specification {
   def "can do encoding roundtrip with a registered converter"() {
     def converter = new TestConverter()
     registerConverter(YetAnotherMuonMessage, converter)
-    registerConverter(HashMap, converter)
+//    registerConverter(HashMap, converter)
     def codec = new AvroCodec()
 
     when:
@@ -23,7 +23,6 @@ class AvroCodecRegister extends Specification {
     converter.hasSchemasFor(YetAnotherMuonMessage)
     !converter.hasSchemasFor(HashMap)
     codec.hasSchemasFor(YetAnotherMuonMessage)
-    codec.hasSchemasFor(HashMap)
     !codec.hasSchemasFor(TreeMap)
 
     decode instanceof AnotherMuonMessage
@@ -36,7 +35,7 @@ class AvroCodecRegister extends Specification {
   }
 
   class YetAnotherMuonMessage extends AnotherMuonMessage {
-    YetAnotherMuonMessage(username, tweet, timestamp) {
+    YetAnotherMuonMessage(String username, String tweet, long timestamp) {
       super(username, tweet, timestamp)
     }
   }
@@ -51,8 +50,8 @@ class AvroCodecRegister extends Specification {
 
     @Override
     byte[] encode(Object data) {
-      def dataPOJOI = (YetAnotherMuonMessage) data
-      def dataPOJO = new AnotherMuonMessage(dataPOJOI.username, dataPOJOI.tweet, dataPOJOI.timestamp)
+      println "Encoding $data of type ${data.getClass()}"
+      def dataPOJO = new AnotherMuonMessage(data.username, data.tweet, data.timestamp)
       codec.encode(dataPOJO)
     }
 
@@ -67,6 +66,7 @@ class AvroCodecRegister extends Specification {
 
     @Override
     boolean hasSchemasFor(Class type) {
+      println "Checking "
       type == YetAnotherMuonMessage
     }
   }

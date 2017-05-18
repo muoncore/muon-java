@@ -90,7 +90,7 @@ class MultiProtocolSimulationSpec extends Specification {
       @Override
       void onComplete() {}
     })
-//    sleep 500
+    sleep 500
 //    streams.each {
 //      println "SENDING"
 //      it.accept("SOME DATA")

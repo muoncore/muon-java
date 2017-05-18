@@ -1,6 +1,7 @@
 package io.muoncore.discovery;
 
 import io.muoncore.Discovery;
+import io.muoncore.InstanceDescriptor;
 import io.muoncore.ServiceDescriptor;
 
 import java.util.List;
@@ -27,13 +28,13 @@ public class MultiDiscovery implements Discovery {
     }
 
     @Override
-    public void advertiseLocalService(ServiceDescriptor descriptor) {
-        discoveries.stream().forEach( discovery -> discovery.advertiseLocalService(descriptor));
+    public void advertiseLocalService(InstanceDescriptor descriptor) {
+        discoveries.forEach( discovery -> discovery.advertiseLocalService(descriptor));
     }
 
     @Override
     public void onReady(DiscoveryOnReady onReady) {
-        discoveries.stream().forEach( discovery -> discovery.onReady(onReadyLatch::countDown));
+        discoveries.forEach( discovery -> discovery.onReady(onReadyLatch::countDown));
 
         new Thread(() ->{
             try {

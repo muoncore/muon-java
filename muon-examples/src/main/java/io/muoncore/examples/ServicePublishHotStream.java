@@ -109,8 +109,5 @@ public class ServicePublishHotStream {
       muon.request("rpc://muon-node-test-examples/ping").then(arg -> {
         System.out.println(arg.getPayload(String.class));
       });
-      for (ServiceDescriptor desc: muon.getDiscovery().getKnownServices()) {
-        System.out.println(desc.getConnectionUrls());
-      }
     }
 }

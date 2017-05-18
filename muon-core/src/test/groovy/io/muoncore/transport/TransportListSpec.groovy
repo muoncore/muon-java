@@ -1,5 +1,6 @@
 package io.muoncore.transport
 
+import io.muoncore.InstanceDescriptor
 import io.muoncore.ServiceDescriptor
 import spock.lang.Specification
 
@@ -26,13 +27,11 @@ class TransportListSpec extends Specification {
   ServiceDescriptor desc() {
     new ServiceDescriptor(
         "my-service",
-        [],
-            [],
+        [], [], [],
         [
-            new URI("http://simple"),
-            new URI("amqp://broker:8181"),
-        ],
-            []
+          new InstanceDescriptor("","", [], [], [new URI("http://simple")], []),
+          new InstanceDescriptor("","", [], [], [new URI("amqp://broker")], [])
+        ]
     )
   }
 }

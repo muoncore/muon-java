@@ -1,4 +1,6 @@
 package io.muoncore.transport
+
+import io.muoncore.InstanceDescriptor
 import io.muoncore.ServiceDescriptor
 import spock.lang.Specification
 
@@ -35,6 +37,6 @@ class ServiceCacheSpec extends Specification {
   }
 
   def service(name) {
-    new ServiceDescriptor(name, ["tag"], ["application/json"], [new URI("some://hello")], [])
+    new InstanceDescriptor("$name-instance", name, ["tag"], ["application/json"], [new URI("some://hello")], [])
   }
 }

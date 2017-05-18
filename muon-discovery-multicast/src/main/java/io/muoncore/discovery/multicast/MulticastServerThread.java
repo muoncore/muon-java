@@ -1,5 +1,6 @@
 package io.muoncore.discovery.multicast;
 
+import io.muoncore.InstanceDescriptor;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.codec.json.GsonCodec;
 
@@ -17,11 +18,11 @@ public class MulticastServerThread extends Thread {
     protected DatagramSocket socket = null;
     protected BufferedReader in = null;
 
-    private ServiceDescriptor descriptor;
+    private InstanceDescriptor descriptor;
     private GsonCodec gson;
     private boolean running = true;
 
-    public MulticastServerThread(ServiceDescriptor descriptor) throws IOException {
+    public MulticastServerThread(InstanceDescriptor descriptor) throws IOException {
         super("MulticastServerThread");
         this.descriptor = descriptor;
         socket = new MulticastSocket(4445);

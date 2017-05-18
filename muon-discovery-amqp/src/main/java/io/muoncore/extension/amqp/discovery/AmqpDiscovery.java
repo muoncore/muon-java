@@ -1,6 +1,7 @@
 package io.muoncore.extension.amqp.discovery;
 
 import io.muoncore.Discovery;
+import io.muoncore.InstanceDescriptor;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.codec.Codecs;
 import io.muoncore.extension.amqp.AmqpConnection;
@@ -28,7 +29,7 @@ public class AmqpDiscovery implements Discovery {
 
     private ExecutorService spinner;
 
-    private ServiceDescriptor localDescriptor;
+    private InstanceDescriptor localDescriptor;
     private CountDownLatch countdown = new CountDownLatch(1);
     private volatile boolean started = false;
     private volatile boolean executedOnReady = false;
@@ -109,7 +110,7 @@ public class AmqpDiscovery implements Discovery {
     }
 
     @Override
-    public void advertiseLocalService(ServiceDescriptor descriptor) {
+    public void advertiseLocalService(InstanceDescriptor descriptor) {
         this.localDescriptor = descriptor;
     }
 

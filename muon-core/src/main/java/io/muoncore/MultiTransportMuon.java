@@ -3,8 +3,6 @@ package io.muoncore;
 import io.muoncore.channel.Channels;
 import io.muoncore.channel.support.Scheduler;
 import io.muoncore.codec.Codecs;
-import io.muoncore.codec.DelegatingCodecs;
-import io.muoncore.codec.avro.AvroCodec;
 import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.descriptors.SchemaDescriptor;
@@ -29,6 +27,7 @@ import io.muoncore.transport.client.TransportClient;
 import io.muoncore.transport.client.TransportMessageDispatcher;
 import io.muoncore.transport.sharedsocket.client.SharedSocketRouter;
 import io.muoncore.transport.sharedsocket.server.SharedChannelServerStacks;
+import lombok.extern.slf4j.Slf4j;
 import reactor.Environment;
 
 import java.util.*;
@@ -37,6 +36,7 @@ import java.util.stream.Collectors;
 /**
  * Simple bundle of default Muon protocol stacks
  */
+@Slf4j
 public class MultiTransportMuon implements Muon, ServerRegistrarSource {
 
   private MultiTransportClient transportClient;
@@ -50,13 +50,15 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
   private PublisherLookup publisherLookup;
   private Scheduler protocolTimer;
 
+  private UUID localInstanceId = UUID.randomUUID();
+
   public MultiTransportMuon(
     AutoConfiguration configuration,
     Discovery discovery,
     List<MuonTransport> transports, Codecs codecs) {
     Environment.initializeIfEmpty();
     this.configuration = configuration;
-    this.codecs = new DelegatingCodecs().withCodec(new AvroCodec()).withCodecs(codecs);
+    this.codecs = codecs;
     TransportMessageDispatcher wiretap = new SimpleTransportMessageDispatcher();
     MultiTransportClient client = new MultiTransportClient(
       transports, wiretap, configuration, discovery, codecs);
@@ -78,12 +80,15 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
 
     transports.forEach(tr -> tr.start(discovery, this.protocols, codecs, getScheduler()));
 
-    discovery.advertiseLocalService(new ServiceDescriptor(
-      configuration.getServiceName(),
-      configuration.getTags(),
-      Arrays.asList(codecs.getAvailableCodecs()),
-      transports.stream().map(MuonTransport::getLocalConnectionURI).collect(Collectors.toList()),
-      generateCapabilities()));
+    discovery.advertiseLocalService(
+      new InstanceDescriptor(
+        localInstanceId.toString(),
+        configuration.getServiceName(),
+        configuration.getTags(),
+        Arrays.asList(codecs.getAvailableCodecs()),
+        transports.stream().map(MuonTransport::getLocalConnectionURI)
+          .collect(Collectors.toList()),
+        generateCapabilities()));
 
     discovery.blockUntilReady();
   }
@@ -104,17 +109,18 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
       requestResponseHandlers, codecs, discovery, configuration));
 
     stacks.registerServerProtocol(new ReactiveStreamServerStack(getPublisherLookup(), getCodecs(), configuration, discovery));
-    stacks.registerServerProtocol(new IntrospectionServerProtocolStack(new ServiceExtendedDescriptorSource() {
-      @Override
-      public ServiceExtendedDescriptor getServiceExtendedDescriptor() {
-        return new ServiceExtendedDescriptor(configuration.getServiceName(), registrar.getProtocolDescriptors());
-      }
+    stacks.registerServerProtocol(new IntrospectionServerProtocolStack(
+      new ServiceExtendedDescriptorSource() {
+        @Override
+        public ServiceExtendedDescriptor getServiceExtendedDescriptor() {
+          return new ServiceExtendedDescriptor(configuration.getServiceName(), registrar.getProtocolDescriptors());
+        }
 
-      @Override
-      public SchemasDescriptor getSchemasDescriptor(SchemaIntrospectionRequest request) {
-        return registrar.getSchemasDescriptor(request.getProtocol(), request.getEndpoint());
-      }
-    }, codecs, discovery));
+        @Override
+        public SchemasDescriptor getSchemasDescriptor(SchemaIntrospectionRequest request) {
+          return registrar.getSchemasDescriptor(request.getProtocol(), request.getEndpoint());
+        }
+      }, codecs, discovery));
   }
 
   private void initDefaultRequestHandler() {
@@ -132,8 +138,6 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
 
       @Override
       public Map<String, SchemaDescriptor> getDescriptors() {
-        System.out.println("DEFAULT DESCRIPTORS FOR" + getPredicate().resourceString());
-
         return Collections.emptyMap();
       }
     });

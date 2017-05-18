@@ -1,6 +1,7 @@
 package io.muoncore.discovery.multicast;
 
 import io.muoncore.Discovery;
+import io.muoncore.InstanceDescriptor;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.exception.MuonException;
 import io.muoncore.transport.ServiceCache;
@@ -29,7 +30,7 @@ public class MulticastDiscovery implements Discovery {
     }
 
     @Override
-    public void advertiseLocalService(ServiceDescriptor descriptor) {
+    public void advertiseLocalService(InstanceDescriptor descriptor) {
         if (server != null) throw new MuonException("Discovery is already advertising service");
         try {
             this.server = new MulticastServerThread(descriptor);

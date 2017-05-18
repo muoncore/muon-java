@@ -43,7 +43,7 @@ public interface Discovery {
      * If null, then nothing is advertised by the local process
      * @param descriptor
      */
-    void advertiseLocalService(ServiceDescriptor descriptor);
+    void advertiseLocalService(InstanceDescriptor descriptor);
 
     void onReady(DiscoveryOnReady onReady);
 
