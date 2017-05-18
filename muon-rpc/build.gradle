@@ -1,0 +1,6 @@
+
+description = 'RPC Stack'
+dependencies {
+  compile project(":muon-core")
+}
+
