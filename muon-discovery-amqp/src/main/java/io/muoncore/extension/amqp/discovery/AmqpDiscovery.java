@@ -49,7 +49,7 @@ public class AmqpDiscovery implements Discovery {
     public void start() {
         synchronized (this) {
             listener = queueListenerFactory.listenOnBroadcast("discovery", data -> {
-                serviceCache.addService(codecs.decode(data.getBody(), data.getContentType(), ServiceDescriptor.class));
+                serviceCache.addService(codecs.decode(data.getBody(), data.getContentType(), InstanceDescriptor.class));
             });
 
             startAnnouncePing();

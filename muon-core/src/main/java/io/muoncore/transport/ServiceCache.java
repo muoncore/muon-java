@@ -25,6 +25,7 @@ public class ServiceCache {
   }
 
   public void addService(InstanceDescriptor service) {
+    service.validate();
     Entry entry = serviceCache.get(service.getIdentifier());
     if (entry == null) {
       entry = new Entry(service);
@@ -41,7 +42,6 @@ public class ServiceCache {
 
     for (Map.Entry<String, Entry> entry : newCache.entrySet()) {
       long val = entry.getValue().createdAt + EXPIRY - System.currentTimeMillis();
-      log.info("Trying to expire, val is " + val);
       if (val > 0) {
         entries.put(entry.getKey(), entry.getValue());
       }
@@ -73,6 +73,9 @@ public class ServiceCache {
 
     void touch(InstanceDescriptor descriptor) {
       createdAt = System.currentTimeMillis();
+      if (descriptor == null) {
+        log.error("Got a null descriptor!");
+      }
       data.getInstanceDescriptors().removeIf(integer -> integer.getInstanceId().equals(descriptor.getInstanceId()));
       data.getInstanceDescriptors().add(descriptor);
     }
