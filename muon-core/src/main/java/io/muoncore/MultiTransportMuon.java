@@ -44,8 +44,6 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
     private PublisherLookup publisherLookup;
     private Scheduler protocolTimer;
 
-    private UUID localInstanceId = UUID.randomUUID();
-
     public MultiTransportMuon(
             AutoConfiguration configuration,
             Discovery discovery,

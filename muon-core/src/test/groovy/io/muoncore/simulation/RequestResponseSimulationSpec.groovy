@@ -16,6 +16,8 @@ import spock.lang.Specification
 import spock.lang.Timeout
 import spock.util.concurrent.PollingConditions
 
+import java.sql.Array
+
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
 @Timeout(10)
@@ -68,11 +70,14 @@ class RequestResponseSimulationSpec extends Specification {
 
         expect:
 
-        services[0].request("request://service-1/", []).get().getPayload(Map).svc == "svc1"
-        services[0].request("request://service-2/", []).get().getPayload(Map).svc == "svc2"
-        services[0].request("request://service-3/", []).get().getPayload(Map).svc == "svc3"
-        services[0].request("request://service-4/", []).get().getPayload(Map).svc == "svc4"
-        services[0].request("request://service-5/", []).get().getPayload(Map).svc == "svc5"
+        def list = new ArrayList<String>()
+        list << "helloww"
+
+        services[0].request("request://service-1/", list).get().getPayload(Map).svc == "svc1"
+        services[0].request("request://service-2/", ["sibble"]).get().getPayload(Map).svc == "svc2"
+        services[0].request("request://service-3/", ["sibble"]).get().getPayload(Map).svc == "svc3"
+        services[0].request("request://service-4/", ["sibble"]).get().getPayload(Map).svc == "svc4"
+        services[0].request("request://service-5/", ["sibble"]).get().getPayload(Map).svc == "svc5"
 
         cleanup:
         services*.shutdown()

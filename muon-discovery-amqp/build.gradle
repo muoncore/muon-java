@@ -1,0 +1,6 @@
+
+description = 'A discovery system running on AMQP'
+dependencies {
+  compile project(":muon-transport-amqp")
+}
+

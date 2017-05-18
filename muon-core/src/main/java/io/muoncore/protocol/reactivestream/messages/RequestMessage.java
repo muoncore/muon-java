@@ -1,13 +1,12 @@
 package io.muoncore.protocol.reactivestream.messages;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class RequestMessage {
     private long request;
-
-    public RequestMessage(long request) {
-        this.request = request;
-    }
-
-    public long getRequest() {
-        return request;
-    }
 }

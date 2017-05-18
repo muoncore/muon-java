@@ -14,7 +14,8 @@ import static io.muoncore.protocol.introspection.server.IntrospectionServerProto
 
 public class IntrospectClientProtocol<X,R> {
 
-    private Codecs codecs;
+  public static final String INTROSPECTION_REQUESTED = "introspectionRequested";
+  private Codecs codecs;
 
     public IntrospectClientProtocol(
             String serviceName,
@@ -44,7 +45,7 @@ public class IntrospectClientProtocol<X,R> {
 
             MuonOutboundMessage msg = MuonMessageBuilder
                     .fromService(config.getServiceName())
-                    .step("introspectionRequested")
+                    .step(INTROSPECTION_REQUESTED)
                     .protocol(PROTOCOL)
                     .toService(serviceName)
                     .payload(result.getPayload())

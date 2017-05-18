@@ -7,6 +7,9 @@ public class EventResult {
     private EventResultStatus status;
     private String cause;
 
+    public EventResult() {
+    }
+
     public EventResult(EventResultStatus status, String cause) {
         this.status = status;
         this.cause = cause;

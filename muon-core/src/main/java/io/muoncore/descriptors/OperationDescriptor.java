@@ -1,24 +1,18 @@
 package io.muoncore.descriptors;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class OperationDescriptor {
 
-	private String resource;
-    private String doc;
+  private String resource;
+  private String doc;
 
-    public OperationDescriptor(String resource) {
-        this.resource = resource;
-    }
-
-    public OperationDescriptor(String resource, String doc) {
-        this.resource = resource;
-        this.doc = doc;
-    }
-
-    public String getDoc() {
-        return doc;
-    }
-
-    public String getResource() {
-		return resource;
-	}
+  public OperationDescriptor(String resource) {
+    this.resource = resource;
+  }
 }

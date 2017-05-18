@@ -6,6 +6,7 @@ import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
 import io.muoncore.codec.Codecs;
 import io.muoncore.descriptors.ProtocolDescriptor;
+import io.muoncore.descriptors.SchemaDescriptor;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonMessageBuilder;
 import io.muoncore.message.MuonOutboundMessage;
@@ -86,4 +87,9 @@ public class EventServerProtocolStack implements
                 "Provides a discoverable sink for events to flow into without needing explicit service endpoints",
                 Collections.emptyList());
     }
+
+  @Override
+  public Map<String, SchemaDescriptor> getSchemasFor(String endpoint) {
+    return Collections.emptyMap();
+  }
 }

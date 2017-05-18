@@ -1,0 +1,19 @@
+
+apply plugin: 'groovy'
+
+description = 'Examples of usage'
+
+repositories {
+  maven { url 'http://repo.spring.io/libs-milestone' }
+}
+
+dependencies {
+  compile project(":muon-core")
+  compile project(":muon-transport-amqp")
+  compile project(":muon-discovery-amqp")
+  compile project(":muon-event")
+  compile project(":muon-discovery-multicast")
+  compile "io.projectreactor:reactor-stream:$reactorVersion"
+  compile 'org.slf4j:slf4j-simple:1.7.12'
+}
+

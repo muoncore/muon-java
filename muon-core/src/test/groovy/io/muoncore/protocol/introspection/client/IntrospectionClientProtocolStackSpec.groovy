@@ -6,6 +6,8 @@ import io.muoncore.codec.Codecs
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.descriptors.ProtocolDescriptor
+import io.muoncore.descriptors.SchemaDescriptor
+import io.muoncore.descriptors.SchemasDescriptor
 import io.muoncore.descriptors.ServiceExtendedDescriptor
 import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
@@ -58,7 +60,7 @@ class IntrospectionClientProtocolStackSpec extends Specification {
 
         when:
         Thread.start {
-            sleep 100
+            sleep 200
             func(
                     MuonMessageBuilder.fromService("tombola")
                         .toService("simples")
@@ -75,4 +77,66 @@ class IntrospectionClientProtocolStackSpec extends Specification {
         descriptor.serviceName == "tombola"
         descriptor.protocols.size() == 1
     }
+
+  def "introspection of schemas"() {
+
+    def func
+    def codecs = new JsonOnlyCodecs()
+    def discovery = Mock(Discovery) {
+      getCodecsForService(_ as String) >> { args -> ["application/json"] as String[] }
+    }
+    def client = Mock(ChannelConnection) {
+      receive(_) >> { args ->
+        func = new ChannelFunctionExecShimBecauseGroovyCantCallLambda(args[0])
+      }
+    }
+    def config = new AutoConfiguration(serviceName: "tombola")
+    def transClient = Mock(TransportClient) {
+      openClientChannel() >> client
+    }
+
+    def stack = new IntrospectionClientProtocolStack() {
+      @Override
+      Discovery getDiscovery() {
+        return discovery
+      }
+
+      @Override
+      Codecs getCodecs() {
+        return codecs
+      }
+
+      @Override
+      AutoConfiguration getConfiguration() {
+        return config
+      }
+
+      @Override
+      TransportClient getTransportClient() {
+        return transClient
+      }
+    }
+
+    when:
+    Thread.start {
+      sleep 200
+      def schema = new SchemasDescriptor("happy", "/", [:])
+      func(
+        MuonMessageBuilder.fromService("tombola")
+          .toService("simples")
+          .step("introspectionReport")
+          .protocol(IntrospectionServerProtocolStack.PROTOCOL)
+          .payload(codecs.encode(schema).payload)
+          .contentType("application/json")
+          .buildInbound())
+    }
+
+    SchemasDescriptor descriptor = stack.getSchemas("simples", "happy", "/").get()
+
+    then:
+    descriptor
+    descriptor.protocol == "happy"
+    descriptor.resource == "/"
+    descriptor.schemas.size() == 0
+  }
 }

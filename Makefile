@@ -3,11 +3,17 @@
 install:
 	./gradlew install
 
-publishSnapshot: clean
+publish: clean
+ifndef VERSION
+	$(error VERSION is undefined for Muon Java Release)
+endif
+	echo version=$(VERSION)>gradle.properties
+	echo group=io.muoncore>>gradle.properties
+	echo exclude=doc,muon-examples>>gradle.properties
 	./gradlew artifactoryPublish
-
-publishRelease:
-	./gradlew release
+	git add gradle.properties
+	git commit -m "Update version to $(VERSION )while publishing"
+	git push origin
 
 test:
 	SHORT_TEST=true ./gradlew check
