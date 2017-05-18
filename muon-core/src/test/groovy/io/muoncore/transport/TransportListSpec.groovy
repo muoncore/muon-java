@@ -29,8 +29,8 @@ class TransportListSpec extends Specification {
         "my-service",
         [], [], [],
         [
-          new InstanceDescriptor("","", [], [], [], [new URI("http://simple")]),
-          new InstanceDescriptor("","", [], [], [], [new URI("amqp://broker")])
+          new InstanceDescriptor("","", [], [], [new URI("http://simple")], []),
+          new InstanceDescriptor("","", [], [], [new URI("amqp://broker")], [])
         ]
     )
   }

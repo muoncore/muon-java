@@ -5,11 +5,15 @@ import io.muoncore.channel.support.Scheduler;
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.config.AutoConfiguration;
+import io.muoncore.descriptors.SchemaDescriptor;
+import io.muoncore.descriptors.SchemasDescriptor;
 import io.muoncore.descriptors.ServiceExtendedDescriptor;
+import io.muoncore.descriptors.ServiceExtendedDescriptorSource;
 import io.muoncore.protocol.DynamicRegistrationServerStacks;
 import io.muoncore.protocol.ServerRegistrar;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.protocol.defaultproto.DefaultServerProtocol;
+import io.muoncore.protocol.introspection.SchemaIntrospectionRequest;
 import io.muoncore.protocol.introspection.server.IntrospectionServerProtocolStack;
 import io.muoncore.protocol.reactivestream.server.DefaultPublisherLookup;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
@@ -23,6 +27,7 @@ import io.muoncore.transport.client.TransportClient;
 import io.muoncore.transport.client.TransportMessageDispatcher;
 import io.muoncore.transport.sharedsocket.client.SharedSocketRouter;
 import io.muoncore.transport.sharedsocket.server.SharedChannelServerStacks;
+import lombok.extern.slf4j.Slf4j;
 import reactor.Environment;
 
 import java.util.*;
@@ -31,140 +36,157 @@ import java.util.stream.Collectors;
 /**
  * Simple bundle of default Muon protocol stacks
  */
+@Slf4j
 public class MultiTransportMuon implements Muon, ServerRegistrarSource {
 
-    private MultiTransportClient transportClient;
-    private TransportControl transportControl;
-    private Discovery discovery;
-    private ServerStacks protocols;
-    private ServerRegistrar registrar;
-    private RequestResponseHandlers requestResponseHandlers;
-    private Codecs codecs;
-    private AutoConfiguration configuration;
-    private PublisherLookup publisherLookup;
-    private Scheduler protocolTimer;
+  private MultiTransportClient transportClient;
+  private TransportControl transportControl;
+  private Discovery discovery;
+  private ServerStacks protocols;
+  private ServerRegistrar registrar;
+  private RequestResponseHandlers requestResponseHandlers;
+  private Codecs codecs;
+  private AutoConfiguration configuration;
+  private PublisherLookup publisherLookup;
+  private Scheduler protocolTimer;
 
-    public MultiTransportMuon(
-            AutoConfiguration configuration,
-            Discovery discovery,
-            List<MuonTransport> transports, Codecs codecs) {
-        Environment.initializeIfEmpty();
-        this.configuration = configuration;
-        this.codecs = codecs;
-        TransportMessageDispatcher wiretap = new SimpleTransportMessageDispatcher();
-        MultiTransportClient client = new MultiTransportClient(
-                transports, wiretap, configuration, discovery, codecs);
-        this.transportClient = client;
-        this.transportControl = client;
-        this.discovery = discovery;
-        this.protocolTimer = new Scheduler();
-        this.publisherLookup = new DefaultPublisherLookup();
+  private UUID localInstanceId = UUID.randomUUID();
 
-        DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(
-                new DefaultServerProtocol(codecs, configuration, discovery),
-                wiretap);
-        this.protocols = new SharedChannelServerStacks(stacks, codecs);
-        this.registrar = stacks;
+  public MultiTransportMuon(
+    AutoConfiguration configuration,
+    Discovery discovery,
+    List<MuonTransport> transports, Codecs codecs) {
+    Environment.initializeIfEmpty();
+    this.configuration = configuration;
+    this.codecs = codecs;
+    TransportMessageDispatcher wiretap = new SimpleTransportMessageDispatcher();
+    MultiTransportClient client = new MultiTransportClient(
+      transports, wiretap, configuration, discovery, codecs);
+    this.transportClient = client;
+    this.transportControl = client;
+    this.discovery = discovery;
+    this.protocolTimer = new Scheduler();
+    this.publisherLookup = new DefaultPublisherLookup();
 
-        initDefaultRequestHandler();
+    DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(
+      new DefaultServerProtocol(codecs, configuration, discovery),
+      wiretap);
+    this.protocols = new SharedChannelServerStacks(stacks, codecs);
+    this.registrar = stacks;
 
-        initServerStacks(stacks);
+    initDefaultRequestHandler();
 
-        transports.forEach(tr -> tr.start(discovery, this.protocols, codecs, getScheduler()));
+    initServerStacks(stacks);
 
-        discovery.advertiseLocalService(
-          new InstanceDescriptor(
-                localInstanceId.toString(),
-                configuration.getServiceName(),
-                configuration.getTags(),
-                Arrays.asList(codecs.getAvailableCodecs()),
-                transports.stream().map(MuonTransport::getLocalConnectionURI)
-                  .collect(Collectors.toList()),
-                generateCapabilities()));
+    transports.forEach(tr -> tr.start(discovery, this.protocols, codecs, getScheduler()));
 
-        discovery.blockUntilReady();
-    }
+    discovery.advertiseLocalService(
+      new InstanceDescriptor(
+        localInstanceId.toString(),
+        configuration.getServiceName(),
+        configuration.getTags(),
+        Arrays.asList(codecs.getAvailableCodecs()),
+        transports.stream().map(MuonTransport::getLocalConnectionURI)
+          .collect(Collectors.toList()),
+        generateCapabilities()));
 
-    private Set<String> generateCapabilities() {
-        Set<String> capabilities = new HashSet<>();
-        capabilities.add(SharedSocketRouter.PROTOCOL);
-        return capabilities;
-    }
+    discovery.blockUntilReady();
+  }
 
-    @Override
-    public ServerRegistrar getProtocolStacks() {
-        return registrar;
-    }
+  private Set<String> generateCapabilities() {
+    Set<String> capabilities = new HashSet<>();
+    capabilities.add(SharedSocketRouter.PROTOCOL);
+    return capabilities;
+  }
 
-    private void initServerStacks(DynamicRegistrationServerStacks stacks) {
-        stacks.registerServerProtocol(new RequestResponseServerProtocolStack(
-                        requestResponseHandlers, codecs, discovery, configuration));
+  @Override
+  public ServerRegistrar getProtocolStacks() {
+    return registrar;
+  }
 
-        stacks.registerServerProtocol(new ReactiveStreamServerStack(getPublisherLookup(), getCodecs(), configuration, discovery));
-        stacks.registerServerProtocol(new IntrospectionServerProtocolStack(
-                () -> new ServiceExtendedDescriptor(configuration.getServiceName(), registrar.getProtocolDescriptors()),
-                codecs, discovery));
-    }
+  private void initServerStacks(DynamicRegistrationServerStacks stacks) {
+    stacks.registerServerProtocol(new RequestResponseServerProtocolStack(
+      requestResponseHandlers, codecs, discovery, configuration));
 
-    private void initDefaultRequestHandler() {
-        this.requestResponseHandlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler() {
+    stacks.registerServerProtocol(new ReactiveStreamServerStack(getPublisherLookup(), getCodecs(), configuration, discovery));
+    stacks.registerServerProtocol(new IntrospectionServerProtocolStack(
+      new ServiceExtendedDescriptorSource() {
+        @Override
+        public ServiceExtendedDescriptor getServiceExtendedDescriptor() {
+          return new ServiceExtendedDescriptor(configuration.getServiceName(), registrar.getProtocolDescriptors());
+        }
 
-            @Override
-            public HandlerPredicate getPredicate() {
-                return HandlerPredicates.none();
-            }
+        @Override
+        public SchemasDescriptor getSchemasDescriptor(SchemaIntrospectionRequest request) {
+          return registrar.getSchemasDescriptor(request.getProtocol(), request.getEndpoint());
+        }
+      }, codecs, discovery));
+  }
 
-            @Override
-            public void handle(RequestWrapper request) {
-                request.notFound();
-            }
-        });
-    }
+  private void initDefaultRequestHandler() {
+    this.requestResponseHandlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler() {
 
-    @Override
-    public Codecs getCodecs() {
-        return codecs;
-    }
+      @Override
+      public HandlerPredicate getPredicate() {
+        return HandlerPredicates.none();
+      }
 
-    @Override
-    public Discovery getDiscovery() {
-        return discovery;
-    }
+      @Override
+      public void handle(RequestWrapper request) {
+        request.notFound();
+      }
 
-    @Override
-    public RequestResponseHandlers getRequestResponseHandlers() {
-        return requestResponseHandlers;
-    }
+      @Override
+      public Map<String, SchemaDescriptor> getDescriptors() {
+        return Collections.emptyMap();
+      }
+    });
+  }
 
-    @Override
-    public TransportClient getTransportClient() {
-        return transportClient;
-    }
+  @Override
+  public Codecs getCodecs() {
+    return codecs;
+  }
 
-    @Override
-    public AutoConfiguration getConfiguration() {
-        return configuration;
-    }
+  @Override
+  public Discovery getDiscovery() {
+    return discovery;
+  }
 
-    @Override
-    public void shutdown() {
-        discovery.shutdown();
-        transportClient.shutdown();
-        Channels.shutdown();
-    }
+  @Override
+  public RequestResponseHandlers getRequestResponseHandlers() {
+    return requestResponseHandlers;
+  }
 
-    @Override
-    public TransportControl getTransportControl() {
-        return transportControl;
-    }
+  @Override
+  public TransportClient getTransportClient() {
+    return transportClient;
+  }
 
-    @Override
-    public PublisherLookup getPublisherLookup() {
-        return publisherLookup;
-    }
+  @Override
+  public AutoConfiguration getConfiguration() {
+    return configuration;
+  }
 
-    @Override
-    public Scheduler getScheduler() {
-        return protocolTimer;
-    }
+  @Override
+  public void shutdown() {
+    discovery.shutdown();
+    transportClient.shutdown();
+    Channels.shutdown();
+  }
+
+  @Override
+  public TransportControl getTransportControl() {
+    return transportControl;
+  }
+
+  @Override
+  public PublisherLookup getPublisherLookup() {
+    return publisherLookup;
+  }
+
+  @Override
+  public Scheduler getScheduler() {
+    return protocolTimer;
+  }
 }
