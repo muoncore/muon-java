@@ -127,7 +127,7 @@ public class DefaultEventClient implements EventClient {
       .collect(Collectors.joining("&"));
 
 
-    Optional<ServiceDescriptor> eventStore = discovery.findService(svc -> svc.getTags().contains("eventstore"));
+    Optional<ServiceDescriptor> eventStore = discovery.getServiceWithTags("eventstore");
     if (eventStore.isPresent()) {
       String eventStoreName = eventStore.get().getIdentifier();
       try {

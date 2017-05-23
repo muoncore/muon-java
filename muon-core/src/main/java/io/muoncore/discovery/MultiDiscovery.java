@@ -5,6 +5,7 @@ import io.muoncore.InstanceDescriptor;
 import io.muoncore.ServiceDescriptor;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -20,14 +21,27 @@ public class MultiDiscovery implements Discovery {
     }
 
     @Override
-    public List<ServiceDescriptor> getKnownServices() {
-
-        List<ServiceDescriptor> desc =  discoveries.stream().flatMap( it -> it.getKnownServices().stream()).distinct().collect(Collectors.toList());
-
-        return desc;
+    public Optional<ServiceDescriptor> getServiceNamed(String name) {
+      return discoveries.stream().map( it -> it.getServiceNamed(name))
+                  .filter(Optional::isPresent)
+                  .map(Optional::get)
+                  .findFirst();
     }
 
     @Override
+    public List<String> getServiceNames() {
+      return discoveries.stream().flatMap(it -> it.getServiceNames().stream()).distinct().collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<ServiceDescriptor> getServiceWithTags(String... tags) {
+      return discoveries.stream().map( it -> it.getServiceWithTags(tags))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .findFirst();
+    }
+
+  @Override
     public void advertiseLocalService(InstanceDescriptor descriptor) {
         discoveries.forEach( discovery -> discovery.advertiseLocalService(descriptor));
     }

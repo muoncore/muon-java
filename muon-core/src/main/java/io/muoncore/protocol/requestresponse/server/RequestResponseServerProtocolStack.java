@@ -62,9 +62,7 @@ public class RequestResponseServerProtocolStack implements
 
         @Override
         public void answer(ServerResponse response) {
-          Optional<ServiceDescriptor> target = discovery.findService(svc ->
-            svc.getIdentifier().equals(
-              config.getServiceName()));
+          Optional<ServiceDescriptor> target = discovery.getServiceNamed(config.getServiceName());
 
           String[] codecList;
           if (target.isPresent()) {

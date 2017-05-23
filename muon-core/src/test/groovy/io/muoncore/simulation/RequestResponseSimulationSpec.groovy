@@ -34,7 +34,7 @@ class RequestResponseSimulationSpec extends Specification {
         }
 
         expect:
-        discovery.knownServices.size() == 100
+        discovery.serviceNames.size() == 100
 
         cleanup:
         services*.shutdown()

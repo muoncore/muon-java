@@ -35,12 +35,7 @@ public class InMemTransport implements MuonTransport {
     @Override
     public boolean canConnectToService(String name) {
         Optional<ServiceDescriptor> descriptor = discovery
-                .getKnownServices()
-                .stream()
-                .filter(svc ->
-                        svc.getIdentifier()
-                                .equals(name))
-                .findFirst();
+                .getServiceNamed(name);
 
         if (!descriptor.isPresent()) return false;
 

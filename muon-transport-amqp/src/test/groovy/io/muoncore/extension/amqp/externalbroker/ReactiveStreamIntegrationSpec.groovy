@@ -6,6 +6,7 @@ import io.muoncore.channel.impl.StandardAsyncChannel
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.extension.amqp.AMQPMuonTransport
+import io.muoncore.extension.amqp.BaseEmbeddedBrokerSpec
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue
 import io.muoncore.extension.amqp.MyTestClass
@@ -23,17 +24,22 @@ import spock.util.concurrent.PollingConditions
 
 import static io.muoncore.codec.types.MuonCodecTypes.listOf
 
-@IgnoreIf({ System.getenv("SHORT_TEST") })
-class ReactiveStreamIntegrationSpec extends Specification {
+class ReactiveStreamIntegrationSpec extends BaseEmbeddedBrokerSpec {
 
     @Shared def discovery = new InMemDiscovery()
 
     @AutoCleanup("shutdown")
     @Shared
-    def muon1 = muon("simples")
+    def muon1
 
     @AutoCleanup("shutdown")
-    @Shared def muon2 = muon("tombola")
+    @Shared def muon2
+
+    def setupSpec() {
+      println "Starting test ... "
+      muon1 = muon("simples")
+      muon2 = muon("tombola")
+    }
 
     def "can create a publisher and subscribe to it remotely"() {
 

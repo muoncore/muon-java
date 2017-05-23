@@ -1,4 +1,6 @@
 package io.muoncore.extension.amqp.discovery
+
+import io.muoncore.InstanceDescriptor
 import io.muoncore.ServiceDescriptor
 import io.muoncore.codec.Codecs
 import io.muoncore.extension.amqp.AmqpConnection
@@ -11,7 +13,8 @@ class AmqpDiscoverySpec extends Specification {
 
     def "service cache data is converted into ServiceDescriptors"() {
         def cache = Mock(ServiceCache) {
-            getServices() >> [new ServiceDescriptor("tombola", ["tag1"], ["application/json", "application/json+AES"], [new URI("amqp://hello")], [])]
+            getServices() >> [new ServiceDescriptor("tombola", ["tag1"], ["application/json", "application/json+AES"], [], [
+              new InstanceDescriptor("12345", "tombola", ["tag1"], ["application/json", "application/json+AES"], [new URI("amqp://hello")], [])])]
         }
         def listenerFactory = Mock(QueueListenerFactory)
         def connection = Mock(AmqpConnection)
@@ -20,7 +23,9 @@ class AmqpDiscoverySpec extends Specification {
         def discovery = new AmqpDiscovery(listenerFactory, connection, cache, codecs)
 
         when:
-        def services = discovery.getKnownServices()
+        def services = discovery.serviceNames.collect {
+          discovery.getServiceNamed(it).get()
+        }
 
         then:
         services.size() == 1
@@ -31,7 +36,7 @@ class AmqpDiscoverySpec extends Specification {
 
     def "amqp discovery broadcasts every 3 seconds"() {
         def cache = Mock(ServiceCache) {
-            getServices() >> [new ServiceDescriptor("tombola", ["tag1"], ["application/json", "application/json+AES"], [new URI("amqp://hello")], [])]
+            getServices() >> [new InstanceDescriptor("12", "tombola", ["tag1"], ["application/json", "application/json+AES"], [new URI("amqp://hello")], [])]
         }
         QueueListenerFactory listenerFactory = Mock(QueueListenerFactory)
         AmqpConnection connection = Mock(AmqpConnection)
@@ -43,12 +48,18 @@ class AmqpDiscoverySpec extends Specification {
 
         when:
         discovery.start()
-        discovery.advertiseLocalService(new ServiceDescriptor("tombola", ["simples"], ["application/json"], [new URI("amqp://nothing")], []))
+        discovery.advertiseLocalService(new InstanceDescriptor("12", "tombola", ["simples"], ["application/json"], [new URI("amqp://nothing")], []))
         sleep(4000)
 
         then:
         1 * connection.broadcast({ QueueListener.QueueMessage msg ->
             msg.queueName == "discovery"
         } as QueueListener.QueueMessage)
+    }
+
+    def "reconnects when remote broker drops"() {
+
+
+
     }
 }
