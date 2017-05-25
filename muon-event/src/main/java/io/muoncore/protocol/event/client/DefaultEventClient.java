@@ -160,38 +160,6 @@ public class DefaultEventClient implements EventClient {
     } else {
       throw new MuonException("There is no event store present in the distributed system, is Photon running?");
     }
-
     return null;
-  }
-
-  @Override
-  public <X> MuonFuture<EventProjectionControl<X>> getProjection(String name, Class<X> type) {
-
-    return new ImmediateReturnFuture<>(() -> {
-      try {
-        Map<String, Object> data = new HashMap<>();
-        data.put("projection-name", name);
-        return muon.request("request://photon/projection", data).get().getPayload(type);
-      } catch (InterruptedException | ExecutionException e) {
-        e.printStackTrace();
-        return null;
-      }
-    });
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public MuonFuture<List<EventProjectionDescriptor>> getProjectionList() {
-    try {
-
-      List<String> projectionKeys = (List<String>) muon.request("request://photon/projection-keys").get().getPayload(Map.class).get("projection-keys");
-
-      List<EventProjectionDescriptor> projections = projectionKeys.stream().map(EventProjectionDescriptor::new).collect(Collectors.toList());
-
-      return new ImmediateReturnFuture<>(projections);
-    } catch (InterruptedException | ExecutionException e) {
-      e.printStackTrace();
-      return null;
-    }
   }
 }

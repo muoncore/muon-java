@@ -39,13 +39,4 @@ public interface EventClient {
      */
     <X> MuonFuture<EventReplayControl> replay(String streamName, EventReplayMode mode, Subscriber<Event> subscriber);
     <X> MuonFuture<EventReplayControl> replay(String streamName, EventReplayMode mode, Map<String, Object> args, Subscriber<Event> subscriber);
-
-    /**
-     * Emit an event into the remote event store.
-     */
-//    <X> MuonFuture<EventNode> loadChain(String eventId);
-
-    <X> MuonFuture<List<EventProjectionDescriptor>> getProjectionList();
-
-    <X> MuonFuture<EventProjectionControl<X>> getProjection(String name, Class<X> type);
 }

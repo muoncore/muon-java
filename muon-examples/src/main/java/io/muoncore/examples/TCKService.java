@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -83,7 +84,7 @@ public class TCKService {
 
         muon.handleRequest(path("/discover"), request ->
                 request.ok(
-                        muon.getDiscovery().getKnownServices().stream().map(ServiceDescriptor::getIdentifier).collect(Collectors.toList())));
+                  new ArrayList<String>(muon.getDiscovery().getServiceNames())));
     }
 
 }

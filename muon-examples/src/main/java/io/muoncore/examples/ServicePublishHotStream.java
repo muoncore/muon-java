@@ -2,12 +2,8 @@ package io.muoncore.examples;
 
 import io.muoncore.Muon;
 import io.muoncore.MuonBuilder;
-import io.muoncore.ServiceDescriptor;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
-import io.muoncore.discovery.amqp.AmqpDiscoveryFactory;
-import io.muoncore.discovery.multicast.MulticastDiscovery;
-import io.muoncore.discovery.multicast.MulticastDiscoveryFactory;
 import io.muoncore.message.MuonMessage;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
 import org.reactivestreams.Publisher;
@@ -18,7 +14,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all;
@@ -64,7 +59,7 @@ public class ServicePublishHotStream {
 
 
         muon.handleRequest(all(), wrapper -> {
-            wrapper.ok(muon.getDiscovery().getKnownServices());
+            wrapper.ok(muon.getDiscovery().getServiceNames());
         });
 
         muon.publishGeneratedSource("/hello", PublisherLookup.PublisherType.HOT, subscriptionRequest -> {
