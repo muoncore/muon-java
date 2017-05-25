@@ -1,24 +1,12 @@
 package io.muoncore.simulation
 
-import com.google.common.eventbus.EventBus
-import io.muoncore.MultiTransportMuon
-import io.muoncore.Muon
-import io.muoncore.channel.impl.StandardAsyncChannel
-import io.muoncore.codec.json.JsonOnlyCodecs
-import io.muoncore.config.AutoConfiguration
-import io.muoncore.memory.discovery.InMemDiscovery
-import io.muoncore.memory.transport.InMemTransport
-import io.muoncore.protocol.introspection.server.IntrospectionServerProtocolStack
-import io.muoncore.protocol.requestresponse.RRPTransformers
-import io.muoncore.protocol.requestresponse.server.ServerResponse
+import spock.lang.Ignore
 import spock.lang.Specification
-import spock.lang.Timeout
 
-import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
-
+@Ignore("RPC has moved! This should move to an external project that pulls in the stacks for testing together.")
 class IntrospectionSimulationSpec extends Specification {
 
-    def eventbus = new EventBus()
+    /*def eventbus = new EventBus()
 
     @Timeout(100)
     "many services can run and be introspected"() {
@@ -95,5 +83,5 @@ class IntrospectionSimulationSpec extends Specification {
         def transport = new InMemTransport(config, eventbus)
 
         new MultiTransportMuon(config, discovery, [transport], new JsonOnlyCodecs())
-    }
+    }*/
 }

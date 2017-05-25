@@ -13,8 +13,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
-import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.path;
-
 public class ServiceResourceToPublishHotStream {
 
     public static void main(String[] args) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException {
@@ -27,15 +25,15 @@ public class ServiceResourceToPublishHotStream {
 
         final Broadcaster<Map> stream = Broadcaster.create();
 
-        muon.handleRequest(path("/in"), wrapper -> {
-            Map data = wrapper.getRequest().getPayload(Map.class);
-            stream.accept(data);
-            wrapper.ok("thanks!");
-        });
-
-        muon.handleRequest(path("/hello"), wrapper -> {
-            wrapper.ok("thanks!");
-        });
+//        muon.handleRequest(path("/in"), wrapper -> {
+//            Map data = wrapper.getRequest().getPayload(Map.class);
+//            stream.accept(data);
+//            wrapper.ok("thanks!");
+//        });
+//
+//        muon.handleRequest(path("/hello"), wrapper -> {
+//            wrapper.ok("thanks!");
+//        });
 
         muon.publishSource("/livedata", PublisherLookup.PublisherType.HOT, stream);
     }

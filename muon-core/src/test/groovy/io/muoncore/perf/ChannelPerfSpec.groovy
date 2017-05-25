@@ -3,7 +3,6 @@ package io.muoncore.perf
 import com.google.common.eventbus.EventBus
 import io.muoncore.InstanceDescriptor
 import io.muoncore.MultiTransportMuon
-import io.muoncore.ServiceDescriptor
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
@@ -24,13 +23,11 @@ import spock.util.concurrent.PollingConditions
 
 import java.util.concurrent.TimeUnit
 
-import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
-
 @IgnoreIf({ System.getenv("SHORT_TEST") })
 @Timeout(10)
 class ChannelPerfSpec extends Specification {
 
-    def eventbus = new EventBus()
+   /* def eventbus = new EventBus()
 
     def setup() {
         Environment.initializeIfEmpty()
@@ -155,5 +152,5 @@ class ChannelPerfSpec extends Specification {
         def transport = new InMemTransport(config, eventbus)
 
         new MultiTransportMuon(config, discovery, [transport], new JsonOnlyCodecs())
-    }
+    }*/
 }

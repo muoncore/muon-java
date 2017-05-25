@@ -1,6 +1,6 @@
 package io.muoncore.spring.methodinvocation;
 
-import io.muoncore.protocol.requestresponse.server.RequestWrapper;
+import io.muoncore.protocol.rpc.client.requestresponse.server.RequestWrapper;
 import io.muoncore.spring.methodinvocation.parameterhandlers.MethodArgumentTransformer;
 import io.muoncore.spring.methodinvocation.parameterhandlers.PayloadArgumentTransformer;
 import io.muoncore.spring.methodinvocation.parameterhandlers.ResourceMethodArgumentTransformerFactory;

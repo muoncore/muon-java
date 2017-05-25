@@ -20,22 +20,22 @@ public class UserProjectionService {
 
     //read part of the projection for a single account?
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
-
-        AutoConfiguration config = MuonConfigBuilder.withServiceIdentifier("user-service-projection").build();
-
-        Muon muon = MuonBuilder.withConfig(config).build();
-
-        muon.getDiscovery().blockUntilReady();
-
-        EventClient evclient = new DefaultEventClient(muon);
-
-        EventProjectionControl<Map> userList = evclient.getProjection("user-list", Map.class).get();
-
-        Set users = ((Map) userList.getCurrentState().get("current-value")).keySet();
-
-        System.out.println ("Users are " + users);
-
-        muon.shutdown();
-    }
+//    public static void main(String[] args) throws ExecutionException, InterruptedException {
+//
+//        AutoConfiguration config = MuonConfigBuilder.withServiceIdentifier("user-service-projection").build();
+//
+//        Muon muon = MuonBuilder.withConfig(config).build();
+//
+//        muon.getDiscovery().blockUntilReady();
+//
+//        EventClient evclient = new DefaultEventClient(muon);
+//
+//        EventProjectionControl<Map> userList = evclient.getProjection("user-list", Map.class).get();
+//
+//        Set users = ((Map) userList.getCurrentState().get("current-value")).keySet();
+//
+//        System.out.println ("Users are " + users);
+//
+//        muon.shutdown();
+//    }
 }

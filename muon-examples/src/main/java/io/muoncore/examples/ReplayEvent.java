@@ -9,7 +9,6 @@ import io.muoncore.protocol.event.client.DefaultEventClient;
 import io.muoncore.protocol.event.client.EventClient;
 import io.muoncore.protocol.event.client.EventReplayMode;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
-import io.muoncore.protocol.requestresponse.server.HandlerPredicates;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.io.IOException;
@@ -17,7 +16,6 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class ReplayEvent {
@@ -45,7 +43,6 @@ public class ReplayEvent {
 
         muon.publishSource("events", PublisherLookup.PublisherType.HOT, output);
 
-        muon.handleRequest(HandlerPredicates.all(), wrapper -> wrapper.ok(Collections.singletonMap("Event Count", eventCount)));
 
         b.consume(mapEvent -> {
             System.out.println(mapEvent);

@@ -1,6 +1,6 @@
 package io.muoncore.spring.methodinvocation.parameterhandlers;
 
-import io.muoncore.protocol.requestresponse.server.RequestWrapper;
+import io.muoncore.protocol.rpc.client.requestresponse.server.RequestWrapper;
 
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;

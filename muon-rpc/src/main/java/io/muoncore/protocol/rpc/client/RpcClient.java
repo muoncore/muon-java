@@ -9,10 +9,10 @@ import io.muoncore.channel.Channels;
 import io.muoncore.exception.MuonException;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonOutboundMessage;
-import io.muoncore.protocol.requestresponse.RRPTransformers;
-import io.muoncore.protocol.requestresponse.Request;
-import io.muoncore.protocol.requestresponse.Response;
-import io.muoncore.protocol.requestresponse.client.RequestResponseClientProtocol;
+import io.muoncore.protocol.JSProtocol;
+import io.muoncore.protocol.rpc.RRPTransformers;
+import io.muoncore.protocol.rpc.Request;
+import io.muoncore.protocol.rpc.Response;
 import lombok.AllArgsConstructor;
 
 import java.net.URI;
@@ -47,18 +47,19 @@ public class RpcClient {
     ChannelFutureAdapter<Response, Request> adapter =
       new ChannelFutureAdapter<>(api2rrp.left());
 
-
-    Channel<MuonOutboundMessage, MuonInboundMessage> timeoutChannel = Channels.timeout(muon.getScheduler(), 10000);
-
-    ChannelConnection<MuonOutboundMessage, MuonInboundMessage> connection = muon.getTransportClient().openClientChannel();
-    Channels.connect(timeoutChannel.right(), connection);
-
-    new RequestResponseClientProtocol(
-      muon.getConfiguration().getServiceName(),
-      api2rrp.right(),
-      timeoutChannel.left(),
-      muon.getCodecs(),
-      muon.getScheduler());
+    JSProtocol proto = new JSProtocol(muon, "rpc", api2rrp.right());
+    proto.addTypeForCoercion("Response", map -> {
+      return new Response(
+        (Integer) map.get("status"),
+        null, null, muon.getCodecs()
+      );
+    });
+    proto.addPostDecodingDecorator(Response.class, response -> {
+      response.setCodecs(muon.getCodecs());
+      return response;
+    });
+    proto.addTypeForDecoding("Response", Response.class);
+    proto.start(RpcClient.class.getResourceAsStream("/rpc-client.js"));
 
     return adapter.request(event);
   }

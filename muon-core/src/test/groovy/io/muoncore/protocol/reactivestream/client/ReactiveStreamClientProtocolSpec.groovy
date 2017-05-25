@@ -15,7 +15,6 @@ import io.muoncore.protocol.reactivestream.ProtocolMessages
 import io.muoncore.protocol.reactivestream.messages.ReactiveStreamSubscriptionRequest
 import io.muoncore.protocol.reactivestream.messages.RequestMessage
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack
-import io.muoncore.protocol.requestresponse.RRPTransformers
 import io.muoncore.transport.TransportEvents
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
@@ -170,7 +169,7 @@ class ReactiveStreamClientProtocolSpec extends Specification {
                 .fromService("tombola")
                 .toService("awesome")
                 .step(TransportEvents.SERVICE_NOT_FOUND)
-                .protocol(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
+                .protocol(ProtocolMessages.PROTOCOL_FAILURE)
                 .contentType("application/json")
                 .payload(new GsonCodec().encode([:]))
                 .buildInbound())

@@ -1,8 +1,8 @@
 package io.muoncore.spring.model;
 
-import io.muoncore.protocol.requestresponse.server.RequestWrapper;
-import io.muoncore.protocol.requestresponse.server.ServerRequest;
-import io.muoncore.protocol.requestresponse.server.ServerResponse;
+import io.muoncore.protocol.rpc.client.requestresponse.server.RequestWrapper;
+import io.muoncore.protocol.rpc.client.requestresponse.server.ServerRequest;
+import io.muoncore.protocol.rpc.client.requestresponse.server.ServerResponse;
 
 
 /**

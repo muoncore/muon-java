@@ -2,11 +2,9 @@ package io.muoncore.examples;
 
 import io.muoncore.Muon;
 import io.muoncore.MuonBuilder;
-import io.muoncore.ServiceDescriptor;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
-import io.muoncore.protocol.requestresponse.Response;
 import org.reactivestreams.Publisher;
 import reactor.rx.Streams;
 
@@ -18,9 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
-import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.path;
 
 /**
  * An implementation of the Muon HTTP TCK Resources to prove compatibility of the library
@@ -49,23 +45,23 @@ public class TCKService {
 
         final Map storedata = new HashMap();
 
-        muon.handleRequest(path("/invokeresponse-store"), queryEvent -> queryEvent.ok(storedata) );
-
-        muon.handleRequest(path("/invokeresponse"), queryEvent -> {
-
-                String url = (String) queryEvent.getRequest().getPayload(Map.class).get("resource");
-
-                Response result = null;
-                try {
-                    result = muon.request(url, Map.class).get();
-                    storedata.clear();
-                    storedata.putAll(result.getPayload(Map.class));
-                    queryEvent.ok(result.getPayload(Map.class));
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
-            }
-        );
+//        muon.handleRequest(path("/invokeresponse-store"), queryEvent -> queryEvent.ok(storedata) );
+//
+//        muon.handleRequest(path("/invokeresponse"), queryEvent -> {
+//
+//                String url = (String) queryEvent.getRequest().getPayload(Map.class).get("resource");
+//
+//                Response result = null;
+//                try {
+//                    result = muon.request(url, Map.class).get();
+//                    storedata.clear();
+//                    storedata.putAll(result.getPayload(Map.class));
+//                    queryEvent.ok(result.getPayload(Map.class));
+//                } catch (InterruptedException | ExecutionException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        );
     }
 
     private static void streamPublisher(Muon muon) {
@@ -74,17 +70,17 @@ public class TCKService {
     }
 
     private static void inboundResourcesSetup(final Muon muon) {
-        muon.handleRequest(path("/echo"), queryEvent -> {
-                Map obj = queryEvent.getRequest().getPayload(Map.class);
-
-                obj.put("method", "GET");
-
-                queryEvent.ok(obj);
-            });
-
-        muon.handleRequest(path("/discover"), request ->
-                request.ok(
-                  new ArrayList<String>(muon.getDiscovery().getServiceNames())));
+//        muon.handleRequest(path("/echo"), queryEvent -> {
+//                Map obj = queryEvent.getRequest().getPayload(Map.class);
+//
+//                obj.put("method", "GET");
+//
+//                queryEvent.ok(obj);
+//            });
+//
+//        muon.handleRequest(path("/discover"), request ->
+//                request.ok(
+//                  new ArrayList<String>(muon.getDiscovery().getServiceNames())));
     }
 
 }

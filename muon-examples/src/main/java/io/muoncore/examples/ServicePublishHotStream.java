@@ -16,8 +16,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all;
-
 public class ServicePublishHotStream {
 
     public static void main(String[] args) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException, InterruptedException {
@@ -57,10 +55,10 @@ public class ServicePublishHotStream {
           }
         });
 
-
-        muon.handleRequest(all(), wrapper -> {
-            wrapper.ok(muon.getDiscovery().getServiceNames());
-        });
+//
+//        muon.handleRequest(all(), wrapper -> {
+//            wrapper.ok(muon.getDiscovery().getServiceNames());
+//        });
 
         muon.publishGeneratedSource("/hello", PublisherLookup.PublisherType.HOT, subscriptionRequest -> {
 
@@ -100,9 +98,9 @@ public class ServicePublishHotStream {
         });
 
         Thread.sleep(4000);
-
-      muon.request("rpc://muon-node-test-examples/ping").then(arg -> {
-        System.out.println(arg.getPayload(String.class));
-      });
+//
+//      muon.request("rpc://muon-node-test-examples/ping").then(arg -> {
+//        System.out.println(arg.getPayload(String.class));
+//      });
     }
 }

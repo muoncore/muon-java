@@ -1,7 +1,7 @@
 package com.simplicity.services.example.user;
 
 import io.muoncore.Muon;
-import io.muoncore.protocol.requestresponse.server.RequestWrapper;
+import io.muoncore.protocol.rpc.client.requestresponse.server.RequestWrapper;
 import io.muoncore.spring.annotations.EnableMuon;
 import io.muoncore.spring.annotations.MuonRequestListener;
 import org.springframework.beans.factory.annotation.Autowired;
