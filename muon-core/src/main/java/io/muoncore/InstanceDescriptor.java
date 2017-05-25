@@ -21,4 +21,9 @@ public class InstanceDescriptor {
   private List<URI> connectionUrls;
   private Collection<String> capabilities;
 
+  public void validate() {
+    if (instanceId == null) {
+      instanceId = identifier;
+    }
+  }
 }

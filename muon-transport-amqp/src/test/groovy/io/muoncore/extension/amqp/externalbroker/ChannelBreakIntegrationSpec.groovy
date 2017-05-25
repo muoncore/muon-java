@@ -2,15 +2,19 @@ package io.muoncore.extension.amqp.externalbroker
 
 import com.rabbitmq.client.Channel
 import io.muoncore.MultiTransportMuon
+import io.muoncore.Muon
 import io.muoncore.channel.impl.StandardAsyncChannel
+import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.extension.amqp.AMQPMuonTransport
+import io.muoncore.extension.amqp.BaseEmbeddedBrokerSpec
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue
 import io.muoncore.extension.amqp.QueueListener
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import io.muoncore.memory.discovery.InMemDiscovery
+import io.muoncore.message.MuonMessage
 import io.muoncore.protocol.reactivestream.server.PublisherLookup
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
@@ -24,8 +28,7 @@ import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
 @IgnoreIf({ System.getenv("SHORT_TEST") })
-@Ignore
-class ChannelBreakIntegrationSpec extends Specification {
+class ChannelBreakIntegrationSpec extends BaseEmbeddedBrokerSpec {
 
     @Shared def discovery = new InMemDiscovery()
 
@@ -39,7 +42,7 @@ class ChannelBreakIntegrationSpec extends Specification {
 
     @AutoCleanup("shutdown")
     @Shared
-    def muon2
+    Muon muon2
 
     def setupSpec() {
         def l
@@ -81,10 +84,16 @@ class ChannelBreakIntegrationSpec extends Specification {
             }
         }
 
+      Broadcaster tap = Broadcaster.create()
+      tap.consume {
+        println "MSG ${it}"
+      }
+      muon2.getTransportControl().tap({ true }).subscribe(tap)
+
         muon1.publishSource("somedata", PublisherLookup.PublisherType.HOT, b)
         sleep(4000)
         when:
-        muon2.subscribe(new URI("stream://simples/somedata"), Map, sub2)
+        muon2.subscribe(new URI("stream://simples/somedata"), sub2)
 
         sleep(1000)
 
@@ -122,7 +131,7 @@ class ChannelBreakIntegrationSpec extends Specification {
                 "amqp://muon:microservices@localhost", serviceQueue, channelFactory)
 
         def config = new AutoConfiguration(serviceName:serviceName)
-        def muon = new MultiTransportMuon(config, discovery, [svc1])
+        def muon = new MultiTransportMuon(config, discovery, [svc1], new JsonOnlyCodecs())
 
         return [queueFactory, muon]
     }

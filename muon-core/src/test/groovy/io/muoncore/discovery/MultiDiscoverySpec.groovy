@@ -7,26 +7,54 @@ import spock.lang.Specification
 
 class MultiDiscoverySpec extends Specification {
 
-   def "creates aggregate list of services from getKnownServices()"(){
+   def "creates aggregate list of services from getServiceNames()"(){
 
 
        def mock1 = Mock(Discovery) {
-           getKnownServices() >> [ident("tombola"), ident("simples")]
+           getServiceNames() >> ["tombola", "simples"]
        }
        def mock2 = Mock(Discovery) {
-           getKnownServices() >> [ident("tombola"), ident("crazy")]
+         getServiceNames() >>["tombola", "crazy"]
        }
        def mock3 = Mock(Discovery) {
-           getKnownServices() >> [ident("tombola"), ident("bangle")]
+         getServiceNames() >> ["tombola", "bangle"]
        }
 
        def discovery = new MultiDiscovery([mock1, mock2, mock3])
 
        when:
-       def services = discovery.knownServices
+       def services = discovery.serviceNames
 
        then:
        services.size() == 4
+    }
+
+    def "finds a service from wrapped discos"() {
+      def mock1 = Mock(Discovery) {
+        getServiceNamed("tombola") >> Optional.of(ident("tombola"))
+      }
+      def mock2 = Mock(Discovery) {
+        getServiceNamed(_) >> Optional.empty()
+      }
+
+      def discovery = new MultiDiscovery([mock1, mock2])
+
+      expect:
+      discovery.getServiceNamed("tombola").get().identifier == "tombola"
+    }
+
+    def "finds a service using tags from wrapped discos"() {
+      def mock1 = Mock(Discovery) {
+        getServiceWithTags("hello", "world") >> Optional.of(ident("tombola"))
+      }
+      def mock2 = Mock(Discovery) {
+        getServiceWithTags("hello", "world") >> Optional.empty()
+      }
+
+      def discovery = new MultiDiscovery([mock1, mock2])
+
+      expect:
+      discovery.getServiceWithTags("hello", "world").get().identifier == "tombola"
     }
 
     def "advertiseLocalService calls advertise on all delegates"() {

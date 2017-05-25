@@ -1,6 +1,0 @@
-
-description = 'Multicast based discovery'
-dependencies {
-  compile project(":muon-core")
-}
-

@@ -15,7 +15,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
 
   def config = new AutoConfiguration(serviceName: "tombola")
   def discovery = Mock(Discovery) {
-    findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], [], []))
+    getServiceNamed(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], [], []))
   }
 
   def "createChannel gives a channel that calls findHandler on a message received"() {

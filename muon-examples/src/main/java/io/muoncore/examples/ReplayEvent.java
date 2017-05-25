@@ -55,7 +55,7 @@ public class ReplayEvent {
             } catch (Exception ex) {}
         });
 
-        client.replay("slack",
+        client.replay("hammer",
           EventReplayMode.REPLAY_THEN_LIVE,
           Collections.singletonMap("from", 1234),
           b);
