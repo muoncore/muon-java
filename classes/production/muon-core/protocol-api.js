@@ -1,28 +1,13 @@
 /**
  * THe mininal Muon javascript protocol runtime, implemented for Nashorn
- * @param msg
  */
 
-function sendApi(msg) {
-  apichannel.send(msg)
-}
-
-function serviceName() {
-  return muon.configuration.getServiceName()
-}
-
-function configString(name) {
-  return muon.configuration.getStringConfig(name)
-}
-
-function sendTransport(msg) {
-  var outbound = muonMessageCreator.apply(msg)
-  transportchannel.send(outbound)
-}
-
-function shutdown() {
-  sendTransport(null)
-  sendApi(null)
+var apichannel = null
+var theproto;
+var state = {}
+function setState(name, val) {
+  print("Set state " + val)
+  state[name] = val;
 }
 
 function setTimeout(func, millis) {
@@ -34,22 +19,65 @@ function setTimeout(func, millis) {
   return scheduler.executeIn(millis, Java.type("java.util.concurrent.TimeUnit").MILLISECONDS, new myRun())
 }
 
-function clearTimeout(exec) {
+function clearTimeout (exec) {
   exec.cancel()
 }
 
-function type(typename, payload) {
-  //TODO, convert this into the concrete type
-  return typeconverter.apply(typename, payload)
+function startProto() {
+  theproto = module.exports(api)
 }
 
-
-
-function decode(typename, message) {
-  print ("Trying to decode " + message)
-  return decoder.apply(typename, message)
+function invokeRight(msg) {
+  theproto.fromTransport(msg)
 }
 
-function encodeFor(message, service) {
-  return encode.apply(message, service)
+function invokeLeft(msg) {
+  theproto.fromApi(msg)
 }
+
+var api = {
+  state: function(name) {
+    var localstate = state[name]
+    if (!localstate) {
+      log.info("Requested state " + name + " does not exist, will return undefined")
+    }
+    return state[name];
+  },
+  sendApi: function (msg) {
+    if (apichannel) {
+      apichannel.send(msg)
+    }
+  },
+
+  serviceName: function () {
+    return muon.configuration.getServiceName()
+  },
+
+  configString: function (name) {
+    return muon.configuration.getStringConfig(name)
+  },
+
+  sendTransport: function (msg) {
+    var outbound = muonMessageCreator.apply(msg)
+    transportchannel.send(outbound)
+  },
+
+  shutdown: function () {
+    // api.sendTransport(null)
+    // api.sendApi(null)
+  },
+
+  type: function (typename, payload) {
+    return typeconverter.apply(typename, payload)
+  },
+
+  decode: function (typename, message) {
+    return decoder.apply(typename, message)
+  },
+
+  encodeFor: function (message, service) {
+    return encode.apply(message, service)
+  }
+}
+
+var module = {}

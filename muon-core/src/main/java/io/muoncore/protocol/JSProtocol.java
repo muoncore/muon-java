@@ -20,39 +20,33 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @Slf4j
-public class JSProtocol {
+public abstract class JSProtocol {
 
   private final ScriptEngine engine;
   private final String protocol;
   private HashMap<String, Function> converters = new HashMap<>();
   private HashMap<Class, Function> decodedecorator = new HashMap<>();
   private HashMap<String, Type> codeclookup = new HashMap<>();
-  private ChannelConnection api;
-  private ChannelConnection transport;
-
+  private Optional<ChannelConnection> api = Optional.empty();
+  private Optional<ChannelConnection> transport = Optional.empty();
 
   public JSProtocol(
     Muon muon,
-    String protocolName,
-    final ChannelConnection leftChannelConnection) throws MuonException {
+    String protocolName) throws MuonException {
     protocol = protocolName;
-    api = leftChannelConnection;
     Scheduler scheduler = new Scheduler();
 
     NashornScriptEngineFactory factory = new NashornScriptEngineFactory();
     engine = factory.getScriptEngine("-scripting");
     engine.put("currentProtocol", protocolName);
-    TransportClient transportClient = muon.getTransportClient();
-    transport = transportClient.openClientChannel();
-
-    engine.put("transportchannel", transport);
+    engine.put("log", log);
     engine.put("scheduler", scheduler);
     engine.put("muon", muon);
-    engine.put("apichannel", leftChannelConnection);
     engine.put("typeconverter", (BiFunction<String, Map, Object>) (typeName, map) -> {
       Function convert = converters.getOrDefault(typeName, (val) -> val);
       return convert.apply(map);
@@ -60,8 +54,6 @@ public class JSProtocol {
     engine.put("decoder", (BiFunction<String, MuonInboundMessage, Object>) (typeName, msg) -> {
       Type type = codeclookup.getOrDefault(typeName, Map.class);
       Object obj = muon.getCodecs().decode(msg.getPayload(), msg.getContentType(), type);
-
-
       return decodedecorator.getOrDefault(type, o -> o).apply(obj);
     });
     engine.put("encode", (BiFunction<Object, String, Codecs.EncodingResult>) (msg, service) -> {
@@ -102,7 +94,27 @@ public class JSProtocol {
     } catch (ScriptException e) {
       throw new MuonProtocolException(protocol, e.getMessage(), e);
     }
-    initChannels(leftChannelConnection, transport);
+  }
+
+  public void setState(String name, Object state) {
+    try {
+      Invocable invocable = (Invocable) engine;
+      invocable.invokeFunction("setState", name, state);
+    } catch (ScriptException | NoSuchMethodException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void setTransportChannel(ChannelConnection transport) {
+    this.transport = Optional.of(transport);
+    engine.put("transportchannel", transport);
+    transport.receive(this::executeMessageRight);
+  }
+
+  public void setApiChannel(ChannelConnection leftChannelConnection) {
+    this.api = Optional.of(leftChannelConnection);
+    engine.put("apichannel", leftChannelConnection);
+    leftChannelConnection.receive(this::executeMessageLeft);
   }
 
   public void addTypeForCoercion(String name, Function<Map, Object> func) {
@@ -144,20 +156,10 @@ public class JSProtocol {
     }
   }
 
-  private void shutdown() {
-    transport.send(null);
-    api.send(null);
-  }
-
-  private void initChannels(ChannelConnection leftChannelConnection, ChannelConnection transportConnection) {
-    leftChannelConnection.receive(this::executeMessageLeft);
-    transportConnection.receive(this::executeMessageRight);
-  }
-
   public void executeMessageLeft(Object msg) {
     if (msg == null) {
       log.debug("JSProtocol has received null from the API and will shutdown");
-      transport.send(null);
+      transport.ifPresent(channelConnection -> channelConnection.send(null));
       return;
     }
     try {
@@ -170,7 +172,7 @@ public class JSProtocol {
   public void executeMessageRight(Object msg) {
     if (msg == null) {
       log.debug("JSProtocol has received null from the transport and will shutdown");
-      api.send(null);
+      api.ifPresent(channelConnection -> channelConnection.send(null));
       return;
     }
     try {

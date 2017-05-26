@@ -12,7 +12,8 @@ dependencies {
   compile project(":muon-transport-amqp")
   compile project(":muon-discovery-amqp")
   compile project(":muon-event")
-  compile project(":muon-rpc")
+  compile project(":stack-rpc")
+  compile project(":stack-reactive-stream")
   compile "io.projectreactor:reactor-stream:$reactorVersion"
   compile 'org.slf4j:slf4j-simple:1.7.12'
 }

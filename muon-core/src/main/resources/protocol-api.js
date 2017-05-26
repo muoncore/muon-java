@@ -2,7 +2,13 @@
  * THe mininal Muon javascript protocol runtime, implemented for Nashorn
  */
 
+var apichannel = null
 var theproto;
+var state = {}
+function setState(name, val) {
+  print("Set state " + val)
+  state[name] = val;
+}
 
 function setTimeout(func, millis) {
   var run = Java.type("java.lang.Runnable")
@@ -30,8 +36,17 @@ function invokeLeft(msg) {
 }
 
 var api = {
+  state: function(name) {
+    var localstate = state[name]
+    if (!localstate) {
+      log.info("Requested state " + name + " does not exist, will return undefined")
+    }
+    return state[name];
+  },
   sendApi: function (msg) {
-    apichannel.send(msg)
+    if (apichannel) {
+      apichannel.send(msg)
+    }
   },
 
   serviceName: function () {
@@ -48,8 +63,8 @@ var api = {
   },
 
   shutdown: function () {
-    api.sendTransport(null)
-    api.sendApi(null)
+    // api.sendTransport(null)
+    // api.sendApi(null)
   },
 
   type: function (typename, payload) {

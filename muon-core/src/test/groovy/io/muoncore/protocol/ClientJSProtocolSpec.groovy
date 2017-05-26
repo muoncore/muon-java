@@ -13,7 +13,7 @@ import io.muoncore.transport.client.TransportClient
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
-class JSProtocolSpec extends Specification {
+class ClientClientJSProtocolSpec extends Specification {
 
   Muon muon
   TransportClient client
@@ -37,7 +37,7 @@ class JSProtocolSpec extends Specification {
 
     def channel = Channels.channel("left", "right")
 
-    def proto = new JSProtocol(
+    def proto = new ClientJSProtocol(
       muon, "faked", channel.right()
     )
 
@@ -63,7 +63,7 @@ class JSProtocolSpec extends Specification {
     client.openClientChannel() >> Mock(ChannelConnection)
     def channel = Channels.channel("left", "right")
 
-    def proto = new JSProtocol(
+    def proto = new ClientJSProtocol(
       muon, "faked", channel.right()
     )
 
@@ -99,7 +99,7 @@ class JSProtocolSpec extends Specification {
     }
 
     when:
-    def proto = new JSProtocol(
+    def proto = new ClientJSProtocol(
       muon, "faked", channel.right()
     )
     proto.start(JS_SENDTRANSPORT)
@@ -124,7 +124,7 @@ class JSProtocolSpec extends Specification {
     }
 
     when:
-    def proto = new JSProtocol(
+    def proto = new ClientJSProtocol(
       muon, "faked", channel.right()
     )
     proto.start(JS_RECTRANSPORT)
@@ -153,7 +153,7 @@ class JSProtocolSpec extends Specification {
     }
 
     when:
-    def proto = new JSProtocol(
+    def proto = new ClientJSProtocol(
       muon, "faked", channel.right()
     )
     proto.start(JS_TIMED_MESSAGE_API)
@@ -181,7 +181,7 @@ class JSProtocolSpec extends Specification {
     }
 
     when:
-    def proto = new JSProtocol(
+    def proto = new ClientJSProtocol(
       muon, "faked", channel.right()
     )
     proto.start(JS_TIMED_MESSAGE_CANCEL)
@@ -211,7 +211,7 @@ class JSProtocolSpec extends Specification {
     }
 
     when:
-    def proto = new JSProtocol(
+    def proto = new ClientJSProtocol(
       muon, "faked", channel.right()
     )
     proto.start(JS_SHUTDOWN)
@@ -240,7 +240,7 @@ class JSProtocolSpec extends Specification {
     }
 
     when:
-    def proto = new JSProtocol(
+    def proto = new ClientJSProtocol(
       muon, "faked", channel.right()
     )
     proto.start(JS_TRANSPORT_MUON_MESSAGE)
@@ -270,7 +270,7 @@ class JSProtocolSpec extends Specification {
     }
 
     when:
-    def proto = new JSProtocol(
+    def proto = new ClientJSProtocol(
       muon, "faked", channel.right()
     )
     proto.addTypeForCoercion("MyResponseType", { new MyResponseType(name: it.name) })
@@ -301,7 +301,7 @@ class JSProtocolSpec extends Specification {
 
 
     when:
-    def proto = new JSProtocol(
+    def proto = new ClientJSProtocol(
       muon, "faked", channel.right()
     )
     proto.addTypeForCoercion("MyResponseType", { new MyResponseType(name: it.name, payload: it.payload) })
@@ -335,7 +335,7 @@ class JSProtocolSpec extends Specification {
     }
 
     when:
-    def proto = new JSProtocol(
+    def proto = new ClientJSProtocol(
       muon, "faked", channel.right()
     )
     proto.start(JS_API_ENCODE)
