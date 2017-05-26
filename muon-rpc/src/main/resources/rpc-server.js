@@ -2,8 +2,6 @@
 
 module.exports = function(api) {
 
-  var timeoutcontrol
-
   function response(response) {
     return api.type("Response", response)
   }
@@ -12,6 +10,7 @@ module.exports = function(api) {
     fromApi: function (request) {
 
       timeoutcontrol = setTimeout(function () {
+        print("SENDING A TIMEOUT RESPONSE!")
         api.sendApi(response({
           status: 408
         }))
@@ -32,7 +31,8 @@ module.exports = function(api) {
     },
     fromTransport: function (msg) {
 
-      clearTimeout(timeoutcontrol)
+      api.clearTimeout(timeoutcontrol)
+
 
       switch (msg.step) {
         case "request.response":
@@ -42,6 +42,7 @@ module.exports = function(api) {
           api.sendApi(api.decode("Response", msg))
           break
         case "ServiceNotFound":
+          print("Got a servicenotfound")
           api.sendApi(api.response({
             status: 404
           }))

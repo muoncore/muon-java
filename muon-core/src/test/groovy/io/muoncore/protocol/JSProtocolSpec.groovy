@@ -353,108 +353,147 @@ class JSProtocolSpec extends Specification {
   }
 
   static JS_RECIEVE = """
-function fromApi(msg) {
-  sendApi("YO, DUDE")
+module.exports = function(api) {
+  return {
+    fromApi: function(msg) {
+       api.sendApi("YO, DUDE")
+    }
+   }
 }"""
 
   static JS_CONFIG = """
-function fromApi(msg) {
-  print("CALLING SERVICE " + serviceName())
-  sendApi(serviceName())
+module.exports = function(api) {
+  return {
+    fromApi: function(msg) {
+  print("CALLING SERVICE " + api.serviceName())
+  api.sendApi(api.serviceName())
+  }
+  }
 }"""
 
   static JS_SENDTRANSPORT = """
-function fromApi(msg) {
-  print("CALLING SERVICE " + serviceName())
-  sendTransport({"hello":"SIMPLES"})
-  sendTransport({"hello":"SIMPLES"})
+module.exports = function(api) {
+  return {
+ fromApi: function(msg) {
+  print("CALLING SERVICE " + api.serviceName())
+  api.sendTransport({"hello":"SIMPLES"})
+  api.sendTransport({"hello":"SIMPLES"})
+  }
+  }
 }"""
   static JS_RECTRANSPORT = """
+module.exports = function(api) {
 var transportmessages = []
-
-function fromApi(msg) {
+  return {
+    fromApi: function(msg) {
   
-}
-function fromTransport(msg) {
-  transportmessages.push(msg)
-  if (transportmessages.length == 3) {
-   sendApi(3)
+    },
+    fromTransport: function(msg) {
+      transportmessages.push(msg)
+      if (transportmessages.length == 3) {
+        api.sendApi(3)
+      }
+    }
   }
 }"""
 
   static JS_TIMED_MESSAGE_API = """
-function fromApi(msg) {
-  setTimeout(function() { 
-     sendApi("YO")
-  }, 100);
-}
-function fromTransport(msg) {
-
+module.exports = function(api) {
+  return {
+    fromApi: function(msg) {
+      setTimeout(function() { 
+        api.sendApi("YO")
+      }, 100);
+    },
+    fromTransport: function(msg) {
+    }
+  }
 }"""
 
   static JS_TIMED_MESSAGE_CANCEL = """
-function fromApi(msg) {
-  var handle = setTimeout(function() { 
-     sendApi("YO")
-  }, 100);
-  
-  clearTimeout(handle)
-}
-function fromTransport(msg) {
-
+module.exports = function(api) {
+  return {
+    fromApi: function(msg) {
+      var handle = setTimeout(function() { 
+         api.sendApi("YO")
+      }, 100);
+      clearTimeout(handle)
+    },
+    fromTransport: function(msg) {
+    
+    }
+  }
 }"""
 
   static JS_SHUTDOWN = """
-function fromApi(msg) {
-  shutdown()
-}
-function fromTransport(msg) {
-
+module.exports = function(api) {
+  return {
+    fromApi: function(msg) {
+      api.shutdown()
+    },
+    fromTransport: function(msg) {
+    }
+  }
 }"""
   static JS_TRANSPORT_MUON_MESSAGE = """
-function fromApi(msg) {
-  sendTransport({
-    payload: {
+module.exports = function(api) {
+  return {
+    fromApi: function(msg) {
+      api.sendTransport({
+        payload: {
+        },
+        target:"awesome",
+        step: "cool"
+      })
     },
-    target:"awesome",
-    step: "cool"
-  })
-}
-function fromTransport(msg) {
-
+    fromTransport: function(msg) {
+    
+    }
+  }
 }"""
   static JS_API_MUON_MESSAGE = """
-function fromApi(msg) {
-  
-}
-function fromTransport(msg) {
-sendApi(type("MyResponseType", {
-    name: "cool",
-    value: "simple"
-  }))
+module.exports = function(api) {
+  return {
+    fromApi: function(msg) {
+      
+    },
+    fromTransport: function(msg) {
+    api.sendApi(api.type("MyResponseType", {
+        name: "cool",
+        value: "simple"
+      }))
+    }
+  }
 }"""
 
   static JS_API_DECODE = """
-function fromApi(msg) {
-}
-function fromTransport(msg) {
-  var resp = decode("MyResponseTypeWrapped", msg)
-  sendApi(type("MyResponseType", {
-    name: "Hello",
-    payload: resp
-  }))
+module.exports = function(api) {
+  return {
+    fromApi: function(msg) {
+    },
+    fromTransport: function(msg) {
+      var resp = api.decode("MyResponseTypeWrapped", msg)
+      api.sendApi(api.type("MyResponseType", {
+        name: "Hello",
+        payload: resp
+      }))
+    }
+  }
 }"""
 
   static JS_API_ENCODE = """
-function fromApi(msg) {
-  var resp = encodeFor(msg, "myservice")
-  sendTransport({
-    payload: resp.payload,
-    contentType: resp.contentType
-  })
-}
-function fromTransport(msg) {
-  
+module.exports = function(api) {
+  return {
+    fromApi: function(msg) {
+      var resp = api.encodeFor(msg, "myservice")
+      api.sendTransport({
+        payload: resp.payload,
+        contentType: resp.contentType
+      })
+    },
+    fromTransport: function(msg) {
+    }
+  }  
 }"""
 }
 

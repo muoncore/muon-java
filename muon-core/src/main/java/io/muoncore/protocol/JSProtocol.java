@@ -120,6 +120,7 @@ public class JSProtocol {
   public void start(String js) {
     try {
       engine.eval(js);
+      init();
     } catch (ScriptException e) {
       throw new MuonProtocolException(protocol, e.getMessage(), e);
     }
@@ -128,8 +129,18 @@ public class JSProtocol {
   public void start(InputStream is) {
     try {
       engine.eval(new InputStreamReader(is));
+      init();
     } catch (ScriptException e) {
       throw new MuonProtocolException(protocol, e.getMessage(), e);
+    }
+  }
+
+  private void init() {
+    try {
+      Invocable invocable = (Invocable) engine;
+      invocable.invokeFunction("startProto");
+    } catch (ScriptException | NoSuchMethodException e) {
+      e.printStackTrace();
     }
   }
 
@@ -151,7 +162,7 @@ public class JSProtocol {
     }
     try {
       Invocable invocable = (Invocable) engine;
-      invocable.invokeFunction("fromApi", msg);
+      invocable.invokeFunction("invokeLeft", msg);
     } catch (ScriptException | NoSuchMethodException e) {
       e.printStackTrace();
     }
@@ -164,7 +175,7 @@ public class JSProtocol {
     }
     try {
       Invocable invocable = (Invocable) engine;
-      invocable.invokeFunction("fromTransport", msg);
+      invocable.invokeFunction("invokeRight", msg);
     } catch (ScriptException | NoSuchMethodException e) {
       e.printStackTrace();
     }
