@@ -9,12 +9,17 @@ import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
 import io.muoncore.protocol.rpc.Response
+import io.muoncore.protocol.rpc.client.RpcClient
+import io.muoncore.protocol.rpc.server.HandlerPredicates
+import io.muoncore.protocol.rpc.server.RpcServer
 import io.muoncore.protocol.rpc.server.ServerResponse
 import reactor.Environment
 import reactor.rx.broadcast.Broadcaster
 import spock.lang.Specification
 import spock.lang.Timeout
 import spock.util.concurrent.PollingConditions
+
+import static io.muoncore.protocol.rpc.server.HandlerPredicates.all
 
 @Timeout(10)
 class RequestResponseSimulationSpec extends Specification {
@@ -26,7 +31,8 @@ class RequestResponseSimulationSpec extends Specification {
         def discovery = new InMemDiscovery()
 
         def services = (1..100).collect {
-            createService(it, discovery, eventbus)
+          def (Muon muon, server, client) = createService(it, discovery, eventbus)
+          muon
         }
 
         expect:
@@ -44,8 +50,14 @@ class RequestResponseSimulationSpec extends Specification {
 
         def discovery = new InMemDiscovery()
 
+        def muons = []
+        def clients = []
+
         def services = (0..5).collect {
-            createService(it, discovery, eventbus)
+            def (Muon muon, RpcServer service, RpcClient client) = createService(it, discovery, eventbus)
+          muons << muon
+          clients << client
+          service
         }
 
         services[1].handleRequest(all()) {
@@ -69,14 +81,14 @@ class RequestResponseSimulationSpec extends Specification {
         def list = new ArrayList<String>()
         list << "helloww"
 
-        services[0].request("request://service-1/", list).get().getPayload(Map).svc == "svc1"
-        services[0].request("request://service-2/", ["sibble"]).get().getPayload(Map).svc == "svc2"
-        services[0].request("request://service-3/", ["sibble"]).get().getPayload(Map).svc == "svc3"
-        services[0].request("request://service-4/", ["sibble"]).get().getPayload(Map).svc == "svc4"
-        services[0].request("request://service-5/", ["sibble"]).get().getPayload(Map).svc == "svc5"
+        clients[0].request("request://service-1/", list).get().getPayload(Map).svc == "svc1"
+        clients[0].request("request://service-2/", ["sibble"]).get().getPayload(Map).svc == "svc2"
+        clients[0].request("request://service-3/", ["sibble"]).get().getPayload(Map).svc == "svc3"
+        clients[0].request("request://service-4/", ["sibble"]).get().getPayload(Map).svc == "svc4"
+        clients[0].request("request://service-5/", ["sibble"]).get().getPayload(Map).svc == "svc5"
 
         cleanup:
-        services*.shutdown()
+        muons*.shutdown()
     }
 
     def "promise interface works"() {
@@ -90,8 +102,14 @@ class RequestResponseSimulationSpec extends Specification {
 
         def discovery = new InMemDiscovery()
 
+        def muons = []
+        def clients = []
+
         def services = (0..5).collect {
-            createService(it, discovery, eventbus)
+          def (Muon muon, RpcServer service, RpcClient client) = createService(it, discovery, eventbus)
+          muons << muon
+          clients << client
+          service
         }
 
         services[1].handleRequest(all()) {
@@ -100,7 +118,7 @@ class RequestResponseSimulationSpec extends Specification {
         }
 
         when:
-        services[0].request("request://service-1/", []).then {
+        clients[0].request("request://service-1/", []).then {
             println "Response says something."
             data = it.getPayload(Map)
         }
@@ -115,7 +133,7 @@ class RequestResponseSimulationSpec extends Specification {
         cleanup:
         println "Data is ${data}"
         System.out.flush()
-        services*.shutdown()
+        muons*.shutdown()
         StandardAsyncChannel.echoOut=false
     }
 
@@ -130,8 +148,14 @@ class RequestResponseSimulationSpec extends Specification {
 
         def discovery = new InMemDiscovery()
 
+        def clients = []
+        def muons = []
+
         def services = (0..5).collect {
-            createService(it, discovery, eventbus)
+          def (Muon muon, RpcServer service, RpcClient client) = createService(it, discovery, eventbus)
+          muons << muon
+          clients << client
+          service
         }
 
         services[1].handleRequest(all()) {
@@ -145,7 +169,7 @@ class RequestResponseSimulationSpec extends Specification {
             data = it.getPayload(Map)
         }
 
-        services[0].request("request://service-1/", []).toPublisher().subscribe(b)
+        clients[0].request("request://service-1/", []).toPublisher().subscribe(b)
 
         then:
         new PollingConditions(timeout: 5).eventually {
@@ -154,14 +178,16 @@ class RequestResponseSimulationSpec extends Specification {
         }
 
         cleanup:
-        services*.shutdown()
+        muons*.shutdown()
         StandardAsyncChannel.echoOut=false
     }
 
-    Muon createService(ident, discovery, eventbus) {
+  def createService(ident, discovery, eventbus) {
         def config = new AutoConfiguration(serviceName: "service-${ident}")
         def transport = new InMemTransport(config, eventbus)
 
-        new MultiTransportMuon(config, discovery, [transport], new JsonOnlyCodecs())
+        def muon = new MultiTransportMuon(config, discovery, [transport], new JsonOnlyCodecs())
+
+        [muon, new RpcServer(muon), new RpcClient(muon)]
     }
 }

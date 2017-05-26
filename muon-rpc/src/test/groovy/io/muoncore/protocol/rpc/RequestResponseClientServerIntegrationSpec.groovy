@@ -96,7 +96,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
           }
         })
 
-        def server = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery, new AutoConfiguration(serviceName: "simples"))
+        def server = new RequestResponseServerProtocolStack(handlers, muon)
 
         def channel = Channels.channel("left", "right")
 
@@ -194,7 +194,7 @@ class RequestResponseClientServerIntegrationSpec extends Specification {
           }
         })
 
-        def server = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery, new AutoConfiguration(serviceName: "simples"))
+        def server = new RequestResponseServerProtocolStack(handlers, muon)
 
         def channel = Channels.channel("left", "right")
 

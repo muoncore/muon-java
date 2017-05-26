@@ -1,10 +1,12 @@
 package io.muoncore.protocol.rpc
 
 import io.muoncore.Discovery
+import io.muoncore.Muon
 import io.muoncore.ServiceDescriptor
 import io.muoncore.codec.json.GsonCodec
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
+import io.muoncore.config.MuonConfigBuilder
 import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.protocol.rpc.server.HandlerPredicates
 import io.muoncore.protocol.rpc.server.RequestResponseHandlers
@@ -12,29 +14,27 @@ import io.muoncore.protocol.rpc.server.RequestResponseServerHandler
 import io.muoncore.protocol.rpc.server.RequestResponseServerProtocolStack
 import io.muoncore.protocol.rpc.server.RequestWrapper
 import io.muoncore.protocol.rpc.server.ServerResponse
+import io.muoncore.transport.client.TransportClient
 import reactor.Environment
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
 class RequestResponseServerProtocolStackSpec extends Specification {
 
-  def config = new AutoConfiguration(serviceName: "tombola")
-  def discovery = Mock(Discovery) {
-    getServiceNamed(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], [], []))
-  }
+  Muon muon
+  TransportClient client
 
-  def "createChannel gives a channel that calls findHandler on a message received"() {
-    Environment.initializeIfEmpty()
-    def handlers = Mock(RequestResponseHandlers)
-    def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery, config)
-
-    when:
-    def channel = stack.createChannel()
-    channel.send(inbound("123", "FAKESERVICE", "requestresponse"))
-    Thread.sleep(50)
-
-    then:
-    1 * handlers.findHandler(_) >> Mock(RequestResponseServerHandler)
+  def setup() {
+    def disco = Mock(Discovery) {
+      getCodecsForService(_) >> ["application/json"]
+      getServiceNamed(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], [], []))
+    }
+    client = Mock(TransportClient)
+    muon = Mock(Muon) {
+      getConfiguration() >> new AutoConfiguration(serviceName: "tombola")
+      getDiscovery() >> disco
+      getCodecs() >> new JsonOnlyCodecs()
+    }
   }
 
   def "handler can be invoked via the external channel"() {
@@ -46,7 +46,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
       findHandler(_) >> handler
 
     }
-    def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery, config)
+    def stack = new RequestResponseServerProtocolStack(handlers, muon)
 
     when:
     def channel = stack.createChannel()
@@ -69,14 +69,14 @@ class RequestResponseServerProtocolStackSpec extends Specification {
     def handlers = Mock(RequestResponseHandlers) {
       findHandler(_) >> handler
     }
-    def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery, config)
+    def stack = new RequestResponseServerProtocolStack(handlers, muon)
 
     def responseReceived
 
     when:
     def channel = stack.createChannel()
     channel.receive({
-      responseReceived = it
+      if (it) responseReceived = it
     })
 
     channel.send(inbound("123", "FAKESERVICE", "requestresponse"))
@@ -104,7 +104,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
         mockHandler(),
       ]
     }
-    def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery, config)
+    def stack = new RequestResponseServerProtocolStack(handlers, muon)
 
     when:
     def protocolDescriptor = stack.protocolDescriptor
@@ -131,7 +131,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
         mockHandler(),
       ]
     }
-    def stack = new RequestResponseServerProtocolStack(handlers, new JsonOnlyCodecs(), discovery, config)
+    def stack = new RequestResponseServerProtocolStack(handlers, muon)
 
     when:
     def protocolDescriptor = stack.protocolDescriptor
@@ -151,7 +151,7 @@ class RequestResponseServerProtocolStackSpec extends Specification {
   def inbound(id, String service, String protocol) {
     MuonMessageBuilder.fromService("localService")
       .toService(service)
-      .step(RRPEvents.REQUEST)
+      .step("request.made")
       .protocol(protocol)
       .contentType("application/json")
       .payload(new GsonCodec().encode(new Request(new URI("request://myurl"), [:])))

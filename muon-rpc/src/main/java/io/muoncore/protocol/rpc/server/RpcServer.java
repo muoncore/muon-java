@@ -16,7 +16,7 @@ public class RpcServer implements RequestResponseHandlersSource, RequestResponse
     this.muon = muon;
     initDefaultRequestHandler();
     muon.getProtocolStacks().registerServerProtocol(new RequestResponseServerProtocolStack(
-      requestResponseHandlers, muon.getCodecs(), muon.getDiscovery(), muon.getConfiguration()));
+      requestResponseHandlers, muon));
   }
 
   private void initDefaultRequestHandler() {

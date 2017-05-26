@@ -4,13 +4,10 @@ import io.muoncore.Muon;
 import io.muoncore.api.ChannelFutureAdapter;
 import io.muoncore.api.MuonFuture;
 import io.muoncore.channel.Channel;
-import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
 import io.muoncore.exception.MuonException;
-import io.muoncore.message.MuonInboundMessage;
-import io.muoncore.message.MuonOutboundMessage;
+import io.muoncore.protocol.ClientJSProtocol;
 import io.muoncore.protocol.JSProtocol;
-import io.muoncore.protocol.rpc.RRPTransformers;
 import io.muoncore.protocol.rpc.Request;
 import io.muoncore.protocol.rpc.Response;
 import lombok.AllArgsConstructor;
@@ -34,8 +31,8 @@ public class RpcClient {
   }
 
   public MuonFuture<Response> request(URI uri, Object payload) {
-    if (!uri.getScheme().equals(RRPTransformers.REQUEST_RESPONSE_PROTOCOL) && !uri.getScheme().equals("request")) {
-      throw new MuonException("Scheme is invalid: " + uri.getScheme() + ", requires scheme: " + RRPTransformers.REQUEST_RESPONSE_PROTOCOL);
+    if (!uri.getScheme().equals("rpc") && !uri.getScheme().equals("request")) {
+      throw new MuonException("Scheme is invalid: " + uri.getScheme() + ", requires scheme: rpc://");
     }
     return request(new Request(uri, payload));
   }
@@ -47,7 +44,7 @@ public class RpcClient {
     ChannelFutureAdapter<Response, Request> adapter =
       new ChannelFutureAdapter<>(api2rrp.left());
 
-    JSProtocol proto = new JSProtocol(muon, "rpc", api2rrp.right());
+    JSProtocol proto = new ClientJSProtocol(muon, "rpc", api2rrp.right());
     proto.addTypeForCoercion("Response", map -> {
       return new Response(
         (Integer) map.get("status"),

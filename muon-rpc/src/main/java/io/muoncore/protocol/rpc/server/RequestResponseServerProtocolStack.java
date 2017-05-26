@@ -1,25 +1,27 @@
 package io.muoncore.protocol.rpc.server;
 
 import io.muoncore.Discovery;
+import io.muoncore.Muon;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.channel.Channels;
-import io.muoncore.codec.Codecs;
-import io.muoncore.config.AutoConfiguration;
 import io.muoncore.descriptors.OperationDescriptor;
 import io.muoncore.descriptors.ProtocolDescriptor;
 import io.muoncore.descriptors.SchemaDescriptor;
 import io.muoncore.message.MuonInboundMessage;
-import io.muoncore.message.MuonMessage;
 import io.muoncore.message.MuonOutboundMessage;
+import io.muoncore.protocol.ServerJSProtocol;
 import io.muoncore.protocol.ServerProtocolStack;
-import io.muoncore.protocol.rpc.RRPTransformers;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -28,15 +30,14 @@ import java.util.stream.Collectors;
  * Transports open channels on this protocol when a remote request response client opens a channel through them
  * and sends a first message.
  */
+@Slf4j
 @AllArgsConstructor
 public class RequestResponseServerProtocolStack implements
   ServerProtocolStack {
 
   private static final Logger LOG = LoggerFactory.getLogger(RequestResponseServerProtocolStack.class.getCanonicalName());
   private final RequestResponseHandlers handlers;
-  private Codecs codecs;
-  private Discovery discovery;
-  private AutoConfiguration config;
+  private Muon muon;
 
   @Override
   @SuppressWarnings("unchecked")
@@ -44,41 +45,37 @@ public class RequestResponseServerProtocolStack implements
 
     Channel<MuonOutboundMessage, MuonInboundMessage> api2 = Channels.workerChannel("rrpserver", "transport");
 
-    api2.left().receive(message -> {
-      if (message == null || message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
-        //shutdown signal.
-        return;
-      }
+    ServerJSProtocol proto = new ServerJSProtocol(muon, "rpc", api2.left());
+    proto.addTypeForDecoding("ServerRequest", ServerRequest.class);
+    proto.addPostDecodingDecorator(ServerRequest.class, serverRequest -> {
+      serverRequest.setCodecs(muon.getCodecs());
+      return serverRequest;
+    });
 
-      final ServerRequest request = RRPTransformers.toRequest(message, codecs);
-      final RequestResponseServerHandler handler = handlers.findHandler(request);
 
-      handler.handle(new RequestWrapper() {
-        @Override
-        public ServerRequest getRequest() {
-          return request;
-        }
+    Function<ServerRequest, Consumer> function = (ServerRequest request) -> {
+      return (Consumer<ScriptObjectMirror>) callbackOnResponse -> {
 
-        @Override
-        public void answer(ServerResponse response) {
-          Optional<ServiceDescriptor> target = discovery.getServiceNamed(config.getServiceName());
+        RequestResponseServerHandler handler = handlers.findHandler(request);
 
-          String[] codecList;
-          if (target.isPresent()) {
-            codecList = target.get().getCodecs();
-          } else {
-            LOG.warn("Could not locate service " + request.getUrl().getHost() + ", setting response codec to application/json");
-            codecList = new String[]{"application/json"};
+        handler.handle(new RequestWrapper() {
+          @Override
+          public ServerRequest getRequest() {
+            return request;
           }
 
-          MuonOutboundMessage msg = RRPTransformers.toOutbound(config.getServiceName(),
-            request.getUrl().getHost(), response, codecs,
-            codecList);
+          @Override
+          public void answer(ServerResponse response) {
+            log.info("Response has been generated");
+            callbackOnResponse.call(null, response);
+          }
+        });
+      };
+    };
 
-          api2.left().send(msg);
-        }
-      });
-    });
+    proto.setState("getHandler", function);
+
+    proto.start(RequestResponseServerProtocolStack.class.getResourceAsStream("/rpc-server.js"));
 
     return api2.right();
   }
@@ -93,7 +90,7 @@ public class RequestResponseServerProtocolStack implements
         .collect(Collectors.toList());
 
     return new ProtocolDescriptor(
-      RRPTransformers.REQUEST_RESPONSE_PROTOCOL,
+      "rpc",
       "Request/ Response Protocol",
       "Make a single request, get a single response",
       ops);

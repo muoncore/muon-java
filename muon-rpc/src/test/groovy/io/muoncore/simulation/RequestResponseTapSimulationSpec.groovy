@@ -9,11 +9,16 @@ import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
 import io.muoncore.message.MuonMessage
+import io.muoncore.protocol.rpc.client.RpcClient
+import io.muoncore.protocol.rpc.server.HandlerPredicates
+import io.muoncore.protocol.rpc.server.RpcServer
 import io.muoncore.protocol.rpc.server.ServerResponse
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
+
+import static io.muoncore.protocol.rpc.server.HandlerPredicates.all
 
 //@Timeout(4)
 class RequestResponseTapSimulationSpec extends Specification {
@@ -28,6 +33,14 @@ class RequestResponseTapSimulationSpec extends Specification {
 
         def services = (0..5).collect {
             createService(it, discovery)
+        }
+
+        def servers = services.collect {
+          new RpcServer(it)
+        }
+
+        def clients = services.collect {
+          new RpcClient(it)
         }
 
         List<MuonMessage> data = []
@@ -55,19 +68,19 @@ class RequestResponseTapSimulationSpec extends Specification {
             }
         })
 
-        services[1].handleRequest(all()) {
+        servers[1].handleRequest(all()) {
             it.answer(new ServerResponse(200, [svc:"svc1"]))
         }
-        services[1].handleRequest(all()) {
+        servers[1].handleRequest(all()) {
             it.answer(new ServerResponse(200, [svc:"svc2"]))
         }
-        services[3].handleRequest(all()) {
+        servers[3].handleRequest(all()) {
             it.answer(new ServerResponse(200, [svc:"svc3"]))
         }
-        services[4].handleRequest(all()) {
+        servers[4].handleRequest(all()) {
             it.answer(new ServerResponse(200, [svc:"svc4"]))
         }
-        services[5].handleRequest(all()) {
+        servers[5].handleRequest(all()) {
             it.answer(new ServerResponse(200, [svc:"svc5"]))
         }
 
@@ -76,9 +89,9 @@ class RequestResponseTapSimulationSpec extends Specification {
         when:
 
         dat << services[0].introspect("service-1").get()
-        dat << services[0].request("request://service-1/", []).get()
-        dat << services[0].request("request://service-2/", []).get()
-        dat << services[0].request("request://service-3/", []).get()
+        dat << clients[0].request("request://service-1/", []).get()
+        dat << clients[0].request("request://service-2/", []).get()
+        dat << clients[0].request("request://service-3/", []).get()
 
         then:
         new PollingConditions(timeout: 3).eventually {

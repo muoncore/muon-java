@@ -42,18 +42,20 @@ module.exports = function(api) {
           api.sendApi(api.decode("Response", msg))
           break
         case "ServiceNotFound":
-          api.sendApi(api.response({
+          api.sendApi(response({
             status: 404
           }))
           break
         case "ChannelFailure":
-          api.sendApi(api.response({
-            status: 408
+          api.sendApi(response({
+            status: 409
           }))
           break
         default:
-          api.sendApi(api.response({
-            status: 408
+          log.warn("Unexpected step type " + msg.step)
+          log.warn("Msg is " + msg)
+          api.sendApi(response({
+            status: 410
           }))
       }
       api.shutdown()
