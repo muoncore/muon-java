@@ -25,4 +25,3 @@ ext {
 }
 
 apply plugin: 'io.muoncore.release'
-
