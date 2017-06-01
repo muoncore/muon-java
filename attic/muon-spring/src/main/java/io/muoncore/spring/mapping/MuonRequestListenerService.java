@@ -1,10 +1,10 @@
 package io.muoncore.spring.mapping;
 
 import io.muoncore.Muon;
-import io.muoncore.protocol.requestresponse.server.HandlerPredicate;
-import io.muoncore.protocol.requestresponse.server.RequestResponseServerHandlerApi;
-import io.muoncore.protocol.requestresponse.server.ServerRequest;
-import io.muoncore.protocol.requestresponse.server.ServerResponse;
+import io.muoncore.protocol.rpc.client.requestresponse.server.HandlerPredicate;
+import io.muoncore.protocol.rpc.client.requestresponse.server.RequestResponseServerHandlerApi;
+import io.muoncore.protocol.rpc.client.requestresponse.server.ServerRequest;
+import io.muoncore.protocol.rpc.client.requestresponse.server.ServerResponse;
 import io.muoncore.spring.methodinvocation.MuonRequestMethodInvocation;
 import org.springframework.beans.factory.annotation.Autowired;
 

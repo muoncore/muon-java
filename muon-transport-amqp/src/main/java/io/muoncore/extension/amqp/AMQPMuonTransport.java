@@ -54,7 +54,7 @@ public class AMQPMuonTransport implements MuonTransport {
 
     @Override
     public boolean canConnectToService(String name) {
-        Optional<ServiceDescriptor> descriptor = discovery.findService(svc -> svc.getIdentifier().equals(name));
+        Optional<ServiceDescriptor> descriptor = discovery.getServiceNamed(name);
 
         return descriptor.map(serviceDescriptor -> serviceDescriptor.getSchemes()
           .stream()
@@ -65,7 +65,8 @@ public class AMQPMuonTransport implements MuonTransport {
     @Override
     public ChannelConnection<MuonOutboundMessage, MuonInboundMessage> openClientChannel(String serviceName, String protocol) {
 
-        if (!discovery.findService( svc -> svc.getIdentifier().equals(serviceName))
+      log.info("Opening a channel ... {}", serviceName);
+        if (!discovery.getServiceNamed(serviceName)
                 .isPresent()) {
             throw new NoSuchServiceException(serviceName);
         }

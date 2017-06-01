@@ -1,8 +1,8 @@
 package io.muoncore.spring.methodinvocation;
 
-import io.muoncore.protocol.requestresponse.Request;
-import io.muoncore.protocol.requestresponse.server.RequestWrapper;
-import io.muoncore.protocol.requestresponse.server.ServerRequest;
+import io.muoncore.protocol.rpc.client.requestresponse.Request;
+import io.muoncore.protocol.rpc.client.requestresponse.server.RequestWrapper;
+import io.muoncore.protocol.rpc.client.requestresponse.server.ServerRequest;
 import io.muoncore.spring.MuonTestUtils;
 import io.muoncore.spring.annotations.parameterhandlers.DecodedContent;
 import io.muoncore.spring.annotations.parameterhandlers.Parameter;

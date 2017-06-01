@@ -25,10 +25,10 @@ public class ServiceQuery {
                 .build();
 
         Muon muon = MuonBuilder.withConfig(config).build();
-
-        Map data = muon.request("rpc://tckservice/echo").get().getPayload(Map.class);
-
-        System.out.println("Data is " + data);
+//
+//        Map data = muon.request("rpc://tckservice/echo").get().getPayload(Map.class);
+//
+//        System.out.println("Data is " + data);
 
 /*        EventClient eventClient = new DefaultEventClient(muon);
         //allow discovery settle time.

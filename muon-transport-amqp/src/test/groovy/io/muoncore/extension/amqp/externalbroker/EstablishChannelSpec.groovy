@@ -6,19 +6,20 @@ import io.muoncore.channel.ChannelConnection
 import io.muoncore.channel.support.Scheduler
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.extension.amqp.AMQPMuonTransport
+import io.muoncore.extension.amqp.BaseEmbeddedBrokerSpec
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.protocol.ServerStacks
-import io.muoncore.protocol.requestresponse.RRPTransformers
 import reactor.Environment
 import spock.lang.IgnoreIf
-import spock.lang.Specification
+import spock.lang.Timeout
 
 @IgnoreIf({ System.getenv("SHORT_TEST") })
-class EstablishChannelSpec extends Specification {
+@Timeout(60)
+class EstablishChannelSpec extends BaseEmbeddedBrokerSpec {
 
     def serverStacks1 = Mock(ServerStacks)
     def serverStacks2 = Mock(ServerStacks)

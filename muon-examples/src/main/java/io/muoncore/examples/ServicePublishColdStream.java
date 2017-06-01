@@ -6,7 +6,6 @@ import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.MuonConfigBuilder;
 import io.muoncore.message.MuonMessage;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
-import io.muoncore.protocol.requestresponse.server.HandlerPredicates;
 import reactor.core.processor.CancelException;
 import reactor.rx.Streams;
 import reactor.rx.broadcast.Broadcaster;
@@ -31,11 +30,11 @@ public class ServicePublishColdStream {
         Muon muon = MuonBuilder.withConfig(config).build();
 
         muon.getDiscovery().blockUntilReady();
-
-        muon.handleRequest(HandlerPredicates.path("/ping"), wrapper -> {
-            System.out.println("Got data");
-            wrapper.ok("OK THERE");
-        });
+//
+//        muon.handleRequest(HandlerPredicates.path("/ping"), wrapper -> {
+//            System.out.println("Got data");
+//            wrapper.ok("OK THERE");
+//        });
 
         muon.publishSource("/counter", PublisherLookup.PublisherType.COLD, Streams.range(0, 100));
 

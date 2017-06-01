@@ -21,7 +21,7 @@ public interface ReactiveStreamClientProtocolStack extends TransportClientSource
     default void subscribe(URI uri, Subscriber<StreamData> subscriber) {
         if (!uri.getScheme().equals("stream")) throw new IllegalArgumentException("URI Scheme is invalid. Requires scheme: stream://");
 
-        if (getDiscovery().findService( svc -> svc.getIdentifier().equals(uri.getHost())).isPresent()) {
+        if (getDiscovery().getServiceNamed(uri.getHost()).isPresent()) {
 
             ReactiveStreamClientProtocol proto = new ReactiveStreamClientProtocol(
                     uri,

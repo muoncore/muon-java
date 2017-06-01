@@ -1,10 +1,11 @@
 package io.muoncore.extension.amqp.perftest
 
-import io.muoncore.ServiceDescriptor
+import io.muoncore.InstanceDescriptor
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.channel.support.Scheduler
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.extension.amqp.AMQPMuonTransport
+import io.muoncore.extension.amqp.BaseEmbeddedBrokerSpec
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
@@ -14,12 +15,9 @@ import io.muoncore.message.MuonInboundMessage
 import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.message.MuonOutboundMessage
 import io.muoncore.protocol.ServerStacks
-import io.muoncore.protocol.requestresponse.RRPTransformers
 import reactor.Environment
 import spock.lang.AutoCleanup
 import spock.lang.IgnoreIf
-import spock.lang.Shared
-import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.concurrent.PollingConditions
 
@@ -28,7 +26,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
 @IgnoreIf({ System.getenv("SHORT_TEST") })
-class ChannelThroughputSpec extends Specification {
+class ChannelThroughputSpec extends BaseEmbeddedBrokerSpec {
 
     def discovery = new InMemDiscovery()
 
@@ -94,8 +92,8 @@ class ChannelThroughputSpec extends Specification {
         tombola.start(discovery, stacks, new JsonOnlyCodecs(), scheduler)
         service1.start(discovery, stacks2, new JsonOnlyCodecs(), scheduler)
 
-        discovery.advertiseLocalService(new ServiceDescriptor("tombola", [], [], [], []))
-        discovery.advertiseLocalService(new ServiceDescriptor("service1", [], [], [], []))
+        discovery.advertiseLocalService(new InstanceDescriptor("1","tombola", [], [], [], []))
+        discovery.advertiseLocalService(new InstanceDescriptor("321","service1", [], [], [], []))
 
         sleep(4000)
 

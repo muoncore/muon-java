@@ -14,7 +14,7 @@ public class ReactiveStreamClient {
   public void subscribe(URI uri, Subscriber<StreamData> subscriber) {
     if (!uri.getScheme().equals("stream")) throw new IllegalArgumentException("URI Scheme is invalid. Requires scheme: stream://");
 
-    if (muon.getDiscovery().findService( svc -> svc.getIdentifier().equals(uri.getHost())).isPresent()) {
+    if (muon.getDiscovery().getServiceNamed(uri.getHost()).isPresent()) {
 
       ReactiveStreamClientProtocol proto = new ReactiveStreamClientProtocol(
         uri,

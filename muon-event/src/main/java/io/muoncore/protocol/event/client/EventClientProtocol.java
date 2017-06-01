@@ -65,7 +65,7 @@ public class EventClientProtocol<X> {
                 rightChannelConnection.shutdown();
                 return;
             }
-            Optional<ServiceDescriptor> eventService = discovery.findService( service -> service.getTags().contains("eventstore"));
+            Optional<ServiceDescriptor> eventService = discovery.getServiceWithTags("eventstore");
 
             if (!eventService.isPresent()) {
                 //TODO, a failure, no event store available.

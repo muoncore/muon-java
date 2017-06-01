@@ -2,8 +2,8 @@ package io.muoncore.spring;
 
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.json.JsonOnlyCodecs;
-import io.muoncore.protocol.requestresponse.server.RequestWrapper;
-import io.muoncore.protocol.requestresponse.server.ServerRequest;
+import io.muoncore.protocol.rpc.client.requestresponse.server.RequestWrapper;
+import io.muoncore.protocol.rpc.client.requestresponse.server.ServerRequest;
 import io.muoncore.spring.model.MuonTestRequestWrapper;
 
 import java.net.URI;

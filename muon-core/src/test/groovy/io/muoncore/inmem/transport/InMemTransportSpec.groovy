@@ -8,7 +8,6 @@ import io.muoncore.memory.transport.InMemClientChannelConnection
 import io.muoncore.memory.transport.InMemTransport
 import io.muoncore.memory.transport.OpenChannelEvent
 import io.muoncore.protocol.ServerStacks
-import io.muoncore.protocol.requestresponse.RRPTransformers
 import spock.lang.Specification
 
 class InMemTransportSpec extends Specification {
@@ -25,7 +24,7 @@ class InMemTransportSpec extends Specification {
         transport.start(Mock(Discovery), serverStacks, codecs, new Scheduler())
 
         when:
-        def ret = transport.openClientChannel("tombola", RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
+        def ret = transport.openClientChannel("tombola", "simple")
 
         then:
         ret instanceof InMemClientChannelConnection
@@ -41,9 +40,9 @@ class InMemTransportSpec extends Specification {
 
         when:
         eventbus.post(new OpenChannelEvent(
-                "tombola", RRPTransformers.REQUEST_RESPONSE_PROTOCOL, clientConnection))
+                "tombola", "simple", clientConnection))
 
         then:
-        1 * serverStacks.openServerChannel(RRPTransformers.REQUEST_RESPONSE_PROTOCOL)
+        1 * serverStacks.openServerChannel("simple")
     }
 }

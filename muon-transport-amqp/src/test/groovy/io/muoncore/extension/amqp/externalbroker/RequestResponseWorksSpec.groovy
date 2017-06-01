@@ -1,30 +1,30 @@
 package io.muoncore.extension.amqp.externalbroker
 import io.muoncore.Discovery
+import io.muoncore.InstanceDescriptor
 import io.muoncore.Muon
 import io.muoncore.ServiceDescriptor
 import io.muoncore.MultiTransportMuon
 import io.muoncore.codec.json.JsonOnlyCodecs
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.extension.amqp.AMQPMuonTransport
+import io.muoncore.extension.amqp.BaseEmbeddedBrokerSpec
 import io.muoncore.extension.amqp.DefaultAmqpChannelFactory
 import io.muoncore.extension.amqp.DefaultServiceQueue
 import io.muoncore.extension.amqp.MyTestClass
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09ClientAmqpConnection
 import io.muoncore.extension.amqp.rabbitmq09.RabbitMq09QueueListenerFactory
 import reactor.Environment
-import spock.lang.IgnoreIf
-import spock.lang.Specification
 
 import java.util.concurrent.TimeUnit
 
 import static io.muoncore.codec.types.MuonCodecTypes.listOf
-import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
-@IgnoreIf({ System.getenv("SHORT_TEST") })
-class RequestResponseWorksSpec extends Specification {
+class RequestResponseWorksSpec extends BaseEmbeddedBrokerSpec {
 
     def discovery = Mock(Discovery) {
-        findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], [new URI("amqp://muon:microservices@localhost")], []))
+        findService(_) >> Optional.of(new ServiceDescriptor("tombola", [], ["application/json+AES"], [], [
+                new InstanceDescriptor("123", "tombola", [], [], [new URI("amqp://muon:microservices@localhost")] , [])
+        ]))
         getCodecsForService(_) >> { ["application/json"] as String[]}
     }
 
@@ -107,7 +107,7 @@ class RequestResponseWorksSpec extends Specification {
 
         svc1.handleRequest(all()) {
             times << System.currentTimeMillis()
-            it.request.id
+            it.request.getPayload(Map).id
             Thread.sleep(4000)
             it.ok([hi:"there"])
             println "Responded"

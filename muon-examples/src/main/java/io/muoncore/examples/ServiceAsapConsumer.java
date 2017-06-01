@@ -10,7 +10,6 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
-import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all;
 
 public class ServiceAsapConsumer {
 
@@ -25,8 +24,8 @@ public class ServiceAsapConsumer {
 
         muon.getDiscovery().blockUntilReady();
 
-        muon.handleRequest(all(), response -> {
-            response.ok("Hellow");
-        });
+//        muon.handleRequest(all(), response -> {
+//            response.ok("Hellow");
+//        });
     }
 }

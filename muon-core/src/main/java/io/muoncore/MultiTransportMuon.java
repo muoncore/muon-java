@@ -3,9 +3,7 @@ package io.muoncore;
 import io.muoncore.channel.Channels;
 import io.muoncore.channel.support.Scheduler;
 import io.muoncore.codec.Codecs;
-import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.config.AutoConfiguration;
-import io.muoncore.descriptors.SchemaDescriptor;
 import io.muoncore.descriptors.SchemasDescriptor;
 import io.muoncore.descriptors.ServiceExtendedDescriptor;
 import io.muoncore.descriptors.ServiceExtendedDescriptorSource;
@@ -18,7 +16,6 @@ import io.muoncore.protocol.introspection.server.IntrospectionServerProtocolStac
 import io.muoncore.protocol.reactivestream.server.DefaultPublisherLookup;
 import io.muoncore.protocol.reactivestream.server.PublisherLookup;
 import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack;
-import io.muoncore.protocol.requestresponse.server.*;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.TransportControl;
 import io.muoncore.transport.client.MultiTransportClient;
@@ -44,11 +41,11 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
   private Discovery discovery;
   private ServerStacks protocols;
   private ServerRegistrar registrar;
-  private RequestResponseHandlers requestResponseHandlers;
   private Codecs codecs;
   private AutoConfiguration configuration;
   private PublisherLookup publisherLookup;
-  private Scheduler protocolTimer;
+  private Scheduler scheduler;
+
 
   private UUID localInstanceId = UUID.randomUUID();
 
@@ -65,7 +62,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
     this.transportClient = client;
     this.transportControl = client;
     this.discovery = discovery;
-    this.protocolTimer = new Scheduler();
+    this.scheduler = new Scheduler();
     this.publisherLookup = new DefaultPublisherLookup();
 
     DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(
@@ -73,8 +70,6 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
       wiretap);
     this.protocols = new SharedChannelServerStacks(stacks, codecs);
     this.registrar = stacks;
-
-    initDefaultRequestHandler();
 
     initServerStacks(stacks);
 
@@ -105,9 +100,6 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
   }
 
   private void initServerStacks(DynamicRegistrationServerStacks stacks) {
-    stacks.registerServerProtocol(new RequestResponseServerProtocolStack(
-      requestResponseHandlers, codecs, discovery, configuration));
-
     stacks.registerServerProtocol(new ReactiveStreamServerStack(getPublisherLookup(), getCodecs(), configuration, discovery));
     stacks.registerServerProtocol(new IntrospectionServerProtocolStack(
       new ServiceExtendedDescriptorSource() {
@@ -123,26 +115,6 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
       }, codecs, discovery));
   }
 
-  private void initDefaultRequestHandler() {
-    this.requestResponseHandlers = new DynamicRequestResponseHandlers(new RequestResponseServerHandler() {
-
-      @Override
-      public HandlerPredicate getPredicate() {
-        return HandlerPredicates.none();
-      }
-
-      @Override
-      public void handle(RequestWrapper request) {
-        request.notFound();
-      }
-
-      @Override
-      public Map<String, SchemaDescriptor> getDescriptors() {
-        return Collections.emptyMap();
-      }
-    });
-  }
-
   @Override
   public Codecs getCodecs() {
     return codecs;
@@ -151,11 +123,6 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
   @Override
   public Discovery getDiscovery() {
     return discovery;
-  }
-
-  @Override
-  public RequestResponseHandlers getRequestResponseHandlers() {
-    return requestResponseHandlers;
   }
 
   @Override
@@ -185,8 +152,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
     return publisherLookup;
   }
 
-  @Override
   public Scheduler getScheduler() {
-    return protocolTimer;
+    return scheduler;
   }
 }

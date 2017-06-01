@@ -14,18 +14,22 @@ public interface Discovery {
         if (!uri.getScheme().equals("muon")) {
             throw new IllegalArgumentException("Discovery requires muon://XXX scheme urls for lookup");
         }
-        return findService(serviceDescriptor -> uri.getHost().equals(serviceDescriptor.getIdentifier()));
+        return getServiceNamed(uri.getHost());
     }
 
     /**
      * Lookup a remote service in the cache via some predicate
      */
-    default Optional<ServiceDescriptor> findService(Predicate<ServiceDescriptor> predicate) {
-        return getKnownServices().stream().filter(predicate).findFirst();
-    }
+//    default Optional<ServiceDescriptor> findService(Predicate<ServiceDescriptor> predicate) {
+//        return getKnownServices().stream().filter(predicate).findFirst();
+//    }
+
+    List<String> getServiceNames();
+    Optional<ServiceDescriptor> getServiceNamed(String name);
+    Optional<ServiceDescriptor> getServiceWithTags(String...tags);
 
     default String[] getCodecsForService(String name) {
-        Optional<ServiceDescriptor> service = findService( svc -> svc.getIdentifier().equals(name));
+        Optional<ServiceDescriptor> service = getServiceNamed(name);
         if (service.isPresent()) {
             return service.get().getCodecs();
         }
@@ -36,7 +40,7 @@ public interface Discovery {
      * Return all of the services that are currently visible by this discovery mechanism
      * @return
      */
-    List<ServiceDescriptor> getKnownServices();
+//    List<ServiceDescriptor> getKnownServices();
 
     /**
      * Advertise a particular service.

@@ -2,5 +2,6 @@
 description = 'A discovery system running on AMQP'
 dependencies {
   compile project(":muon-transport-amqp")
+  testCompile 'io.arivera.oss:embedded-rabbitmq:1.1.2'
 }
 

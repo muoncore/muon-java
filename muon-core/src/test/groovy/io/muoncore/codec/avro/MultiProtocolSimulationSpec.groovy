@@ -14,12 +14,13 @@ import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import reactor.Environment
 import reactor.rx.broadcast.Broadcaster
+import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Timeout
 import spock.util.concurrent.PollingConditions
 
-import static io.muoncore.protocol.requestresponse.server.HandlerPredicates.all
 
+@Ignore("RPC has moved! This should move to an external project for testing the stacks together.")
 @Timeout(10)
 class MultiProtocolSimulationSpec extends Specification {
 
