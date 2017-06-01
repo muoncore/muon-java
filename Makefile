@@ -24,3 +24,6 @@ clean:
 testextended:
 	./gradlew check
 
+snapshot: clean
+	echo repoKey=muon-snapshot>>gradle.properties
+	./gradlew artifactoryPublish

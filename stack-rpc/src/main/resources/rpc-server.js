@@ -10,7 +10,7 @@ module.exports = function(api) {
       var handler = api.state("getHandler")(request);
 
       handler(function(response) {
-        log.info("Response generated " + response)
+        log.debug("Response generated " + response)
         var ret = api.encodeFor(response.payload, msg.sourceServiceName)
         api.sendTransport({
           step: "request.response",
