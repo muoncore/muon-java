@@ -5,6 +5,4 @@ include 'muon-core',
         'muon-discovery-amqp',
         'muon-examples',
         'muon-event',
-        'stack-rpc',
-        'stack-reactive-stream',
         "doc"

@@ -6,7 +6,6 @@ var apichannel = null
 var theproto;
 var state = {}
 function setState(name, val) {
-  print("Set state " + val)
   state[name] = val;
 }
 
@@ -39,7 +38,6 @@ var api = {
   state: function(name) {
     var localstate = state[name]
     if (!localstate) {
-      log.info("Requested state " + name + " does not exist, will return undefined")
     }
     return state[name];
   },
