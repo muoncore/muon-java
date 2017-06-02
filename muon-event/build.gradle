@@ -1,6 +1,0 @@
-
-description = 'Event handling'
-dependencies {
-  compile project(":muon-core")
-}
-

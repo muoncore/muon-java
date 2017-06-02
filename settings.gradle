@@ -3,6 +3,4 @@ rootProject.name = "muon"
 include 'muon-core',
         'muon-transport-amqp',
         'muon-discovery-amqp',
-        'muon-examples',
-        'muon-event',
         "doc"

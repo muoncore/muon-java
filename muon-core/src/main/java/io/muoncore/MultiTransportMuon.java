@@ -13,9 +13,6 @@ import io.muoncore.protocol.ServerStacks;
 import io.muoncore.protocol.defaultproto.DefaultServerProtocol;
 import io.muoncore.protocol.introspection.SchemaIntrospectionRequest;
 import io.muoncore.protocol.introspection.server.IntrospectionServerProtocolStack;
-import io.muoncore.protocol.reactivestream.server.DefaultPublisherLookup;
-import io.muoncore.protocol.reactivestream.server.PublisherLookup;
-import io.muoncore.protocol.reactivestream.server.ReactiveStreamServerStack;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.TransportControl;
 import io.muoncore.transport.client.MultiTransportClient;
@@ -43,7 +40,6 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
   private ServerRegistrar registrar;
   private Codecs codecs;
   private AutoConfiguration configuration;
-  private PublisherLookup publisherLookup;
   private Scheduler scheduler;
 
 
@@ -63,7 +59,6 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
     this.transportControl = client;
     this.discovery = discovery;
     this.scheduler = new Scheduler();
-    this.publisherLookup = new DefaultPublisherLookup();
 
     DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(
       new DefaultServerProtocol(codecs, configuration, discovery),
@@ -100,7 +95,6 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
   }
 
   private void initServerStacks(DynamicRegistrationServerStacks stacks) {
-    stacks.registerServerProtocol(new ReactiveStreamServerStack(getPublisherLookup(), getCodecs(), configuration, discovery));
     stacks.registerServerProtocol(new IntrospectionServerProtocolStack(
       new ServiceExtendedDescriptorSource() {
         @Override
@@ -145,11 +139,6 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
   @Override
   public TransportControl getTransportControl() {
     return transportControl;
-  }
-
-  @Override
-  public PublisherLookup getPublisherLookup() {
-    return publisherLookup;
   }
 
   public Scheduler getScheduler() {
