@@ -1,0 +1,93 @@
+# Muon Core - Java
+
+This repo contains the JVM implementation of Muon Core.
+
+## What is Muon?
+
+Microservices today are optimised for building systems that can continue to change as you need them to. The achieve this, you decompose an application into its component parts, then recompose it back together again using some form of integration technology. The most common form of integration today is RPC based, whether HTTP, gRPC or one of its friends.
+
+RPC is a fairly simplistic model for integration, with well known flaws and foibles. The other options, messaging and event collaboration are much harder to get started with, and so are often avoided until the "v2 rewrite". Muon lets you adopt messaging and events from the start of a project, by making it easy to do the right thing with them.
+
+Muon is fully polyglot, give you very well defined, easy to use apis that take advantage of messaging, and eventing, to recompose your distributed system in highly performant, rich communication styles, beyond RPC.
+
+## What is Muon Core?
+
+Muon is a modular system, allowing it to be easily extended to take advantage of the best of breed technologies and leverage what you may call "legacy", giving it a new lease of life and protecting your investment.
+
+Muon Core is the library that defines the central programming model of the system. It creates channel based communicaiton between microservices, enabling message based communication to happen. Each runtime we support has its own implementation of Muon Core. This repository is for the JVM.
+
+It can be extended by adding one of more of:-
+
+* Protocol Stacks - The most important extension. This defines a messaging interaction between systems, and gives it an easy to use, language idiomatic API for you to use.
+* Transports - Take advantage of different integration technologies, service meshes, brokers. These are all enabled by a network transport.
+* Discovery - Enable a Muon system to integrate with your existing infrastructure and locate other systems across your deployment.
+* Codec - Convert objects for transport and enable defining of Schemas for client side validation. Not often extended, but available. We currently support JSON and Avro.
+
+## Using Muon Java
+
+To use Muon, you need to use Muon Core, a transport, a discovery and one or more protocol stacks.
+
+A minimal gradle import looks like this.
+
+[source, groovy]
+----
+repositories {
+    jcenter()
+    maven { url 'https://simplicityitself.artifactoryonline.com/simplicityitself/muon' }
+    maven { url 'https://simplicityitself.artifactoryonline.com/simplicityitself/muon-snapshot' }
+}
+
+dependencies {
+    compile "io.muoncore:muon-core:7.3.0-SNAPSHOT"
+    compile "io.muoncore:muon-transport-amqp:0.0.1-SNAPSHOT"
+    compile "io.muoncore:muon-discovery-amqp:0.0.1-SNAPSHOT"
+    compile "io.muoncore.protocol:stack-rpc:0.0.1-SNAPSHOT"
+}
+----
+
+You can then create a new instance of Muon with the Discovery and Transport activated. This will appear on the network
+
+Setting this up is somewhat specific to the transport and discovery in question. Assuming AMQP (as above), the creation looks similar to.
+
+----
+AutoConfiguration config = MuonConfigBuilder.withServiceIdentifier("my-service").withTags("awesome")
+                .addWriter(c -> {
+                    c.getProperties().setProperty(
+                            "muon.transport.factories",
+                            "io.muoncore.transport.amqp.AmqpMuonTransportFactory");
+
+                    c.getProperties().put("amqp.transport.url", "amqp://muon:microservices@localhost");
+
+                    c.getProperties().setProperty(
+                            "muon.discovery.factories",
+                            "io.muoncore.discovery.amqp.AmqpDiscoveryFactory");
+
+                    c.getProperties().put("amqp.discovery.url", "amqp://muon:microservices@localhost");
+                }).build();
+
+Muon muon = MuonBuilder
+        .withConfig(config).build();
+
+----
+
+See more stacks you can include
+
+* https://github.com/muoncore/stack-rpc[RPC]
+* https://github.com/muoncore/stack-reactive-streams[Reactive Streams]
+* https://github.com/muoncore/stack-events[Events]
+
+Find out more about about the https://github.com/muoncore/muon-amqp[AMQP support]
+
+## Contributing to Muon Core
+
+Contributions to Muon are very welcome.
+
+You can contribute by filing bugs on any of the repositories, pull requests for existing issues are also welcome (please note the licensing/ copyright assignment requirements)
+
+Apart from the existing repositories, the most useful areas to extend Muon are :-
+
+* Add a new stack. Got an idea or requirement for how systems should communicate? In Muon, this is expressed as a stack, with an idiomatic API. Write your own and contribute it to the community!
+* Add a transport. Is your broker not supported? Do you want to go brokerless, use direct TCP? Are you rolling out a service mesh?  This is a transport.
+* Add a discovery. Etcd, Eureka, DNS. These are discovery systems, and Muon can be updated to work with any of them, and in fact, all of them at once. Write a Discovery to take advantage of them.
+
+See [documentation](http://muoncore.io)
