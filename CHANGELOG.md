@@ -4,6 +4,14 @@
 
 [Full Changelog](https://github.com/muoncore/muon-java/compare/v7.2.10...HEAD)
 
+**Closed issues:**
+
+- Add a portable runtime for protocols and tooling to help build proto stacks easily [\#59](https://github.com/muoncore/muon-java/issues/59)
+- Add an AMQP reconnect on failure [\#54](https://github.com/muoncore/muon-java/issues/54)
+- Node amqp disco has request/ response discovery extension. Add to muon java. [\#48](https://github.com/muoncore/muon-java/issues/48)
+- handleRequest should trap exceptions [\#45](https://github.com/muoncore/muon-java/issues/45)
+- Update EventReplayControl to have stream monitor and control  [\#44](https://github.com/muoncore/muon-java/issues/44)
+
 **Merged pull requests:**
 
 - Service instance info [\#57](https://github.com/muoncore/muon-java/pull/57) ([daviddawson](https://github.com/daviddawson))
