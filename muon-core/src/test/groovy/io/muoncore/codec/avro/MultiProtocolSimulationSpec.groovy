@@ -8,8 +8,6 @@ import io.muoncore.codec.json.GsonCodec
 import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.discovery.InMemDiscovery
 import io.muoncore.memory.transport.InMemTransport
-import io.muoncore.protocol.reactivestream.messages.ReactiveStreamSubscriptionRequest
-import io.muoncore.protocol.reactivestream.server.PublisherLookup
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import reactor.Environment
@@ -23,7 +21,7 @@ import spock.util.concurrent.PollingConditions
 @Ignore("RPC has moved! This should move to an external project for testing the stacks together.")
 @Timeout(10)
 class MultiProtocolSimulationSpec extends Specification {
-
+/*
   def "overlapping multiple protocols works"() {
     def eventbus = new EventBus()
     Environment.initializeIfEmpty()
@@ -115,5 +113,5 @@ class MultiProtocolSimulationSpec extends Specification {
 
 //    new MultiTransportMuon(config, discovery, [transport], new DelegatingCodecs().withCodec(new GsonCodec()))
     new MultiTransportMuon(config, discovery, [transport], new DelegatingCodecs().withCodec(new AvroCodec()).withCodec(new GsonCodec()))
-  }
+  }*/
 }

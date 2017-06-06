@@ -346,6 +346,7 @@ class ClientClientJSProtocolSpec extends Specification {
     new PollingConditions().eventually {
       ret instanceof MuonOutboundMessage
       println new String(ret.payload)
+      ret.targetServiceName == "my-service"
       def decoded = muon.getCodecs().decode(ret.payload, ret.contentType, MyResponseType)
       decoded.name == "HELLO!"
       decoded.payload.hello == "AWESOME"
