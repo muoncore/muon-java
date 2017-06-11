@@ -1,10 +1,14 @@
 package io.muoncore.memory.transport;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import io.muoncore.channel.ChannelConnection;
 import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.message.MuonInboundMessage;
+import io.muoncore.message.MuonMessage;
+import io.muoncore.message.MuonMessageBuilder;
 import io.muoncore.message.MuonOutboundMessage;
+import io.muoncore.transport.TransportEvents;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -24,12 +28,29 @@ public class DefaultInMemClientChannelConnection implements InMemClientChannelCo
         this.eventBus = eventBus;
         this.protocol = protocol;
         this.targetService = targetService;
+        eventBus.register(this);
     }
 
     @Override
     public void receive(ChannelFunction<MuonInboundMessage> function) {
         this.inboundFunction = function;
         eventBus.post(new OpenChannelEvent(targetService, protocol, this));
+    }
+
+    @Subscribe public void on(InMemFailureEvent ev) {
+      inboundFunction.apply(MuonMessageBuilder.fromService("local")
+        .toService(targetService)
+        .protocol(protocol)
+        .step(TransportEvents.CONNECTION_FAILURE)
+        .operation(MuonMessage.ChannelOperation.closed)
+        .buildInbound());
+
+      serverChannel.send(MuonMessageBuilder.fromService("local")
+        .toService(targetService)
+        .protocol(protocol)
+        .step(TransportEvents.CONNECTION_FAILURE)
+        .operation(MuonMessage.ChannelOperation.closed)
+        .buildInbound());
     }
 
     @Override
@@ -51,6 +72,7 @@ public class DefaultInMemClientChannelConnection implements InMemClientChannelCo
 
     @Override
     public void shutdown() {
+      eventBus.unregister(this);
         if (serverChannel != null) {
             serverChannel.shutdown();
         }

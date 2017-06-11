@@ -29,7 +29,9 @@ public class SharedSocketRouter {
     private synchronized SharedSocketRoute getRoute(String serviceName) {
         SharedSocketRoute route = routesToServices.get(serviceName);
         if (route == null) {
-            route = sharedSocketRouteFactory.createRoute(serviceName);
+            route = sharedSocketRouteFactory.createRoute(serviceName,() -> {
+              routesToServices.remove(serviceName);
+            });
             routesToServices.put(serviceName, route);
         }
         return route;

@@ -88,6 +88,7 @@ public class SharedSocketServerChannel implements ChannelConnection<MuonInboundM
 
     @Override
     public void shutdown() {
+      localConnections.values().forEach(ChannelConnection::shutdown);
         //TODO, handle this, closing all sockets and protocol connections..
     }
 }

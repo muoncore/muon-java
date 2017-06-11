@@ -5,6 +5,7 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.transport.sharedsocket.client.messages.SharedChannelOutboundMessage;
+import lombok.val;
 
 import java.util.UUID;
 
@@ -13,11 +14,11 @@ public class SharedSocketChannelConnection implements ChannelConnection<MuonOutb
     private ChannelFunction<MuonInboundMessage> inboundFunction;
     private ChannelFunction<SharedChannelOutboundMessage> outboundFunction;
     private String channelId = UUID.randomUUID().toString();
-    private Codecs codecs;
+    private Runnable onShutdown;
 
-    public SharedSocketChannelConnection(Codecs codecs, ChannelConnection.ChannelFunction<SharedChannelOutboundMessage> outboundFunction) {
+    public SharedSocketChannelConnection(Codecs codecs, ChannelConnection.ChannelFunction<SharedChannelOutboundMessage> outboundFunction, Runnable onShutdown) {
         this.outboundFunction = outboundFunction;
-        this.codecs = codecs;
+        this.onShutdown = onShutdown;
     }
 
     @Override
@@ -27,7 +28,7 @@ public class SharedSocketChannelConnection implements ChannelConnection<MuonOutb
 
     @Override
     public void send(MuonOutboundMessage message) {
-        SharedChannelOutboundMessage sharedMessage = new SharedChannelOutboundMessage(channelId, message);
+        val sharedMessage = new SharedChannelOutboundMessage(channelId, message);
         outboundFunction.apply(sharedMessage);
     }
 
@@ -41,6 +42,6 @@ public class SharedSocketChannelConnection implements ChannelConnection<MuonOutb
 
     @Override
     public void shutdown() {
-
+      onShutdown.run();
     }
 }

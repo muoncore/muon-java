@@ -41,8 +41,8 @@ public class MultiTransportClient implements TransportClient, TransportControl {
         this.configuration = config;
         this.discovery = discovery;
         transportConnectionProvider = new DefaultTransportConnectionProvider(transports);
-        this.sharedSocketRouter = new SharedSocketRouter(serviceName -> {
-            return new SharedSocketRoute(serviceName, transportConnectionProvider, codecs, configuration);
+        this.sharedSocketRouter = new SharedSocketRouter((serviceName, onShutdown) -> {
+            return new SharedSocketRoute(serviceName, transportConnectionProvider, codecs, configuration, onShutdown);
         });
     }
 

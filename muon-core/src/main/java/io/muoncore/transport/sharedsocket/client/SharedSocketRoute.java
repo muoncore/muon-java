@@ -26,37 +26,42 @@ public class SharedSocketRoute {
     private static final Logger logger = LoggerFactory.getLogger(SharedSocketRoute.class);
 
     private String serviceName;
-    private ChannelConnection<MuonOutboundMessage, MuonInboundMessage> sharedSocketConnection;
+    private ChannelConnection<MuonOutboundMessage, MuonInboundMessage> transportChannel;
     private Map<String, SharedSocketChannelConnection> routes = new HashMap<>();
 
     private Codecs codecs;
     private AutoConfiguration configuration;
+    private Runnable onShutdown;
 
-    //TODO, list of channels active over this route.
-    //TODO, shutdown behaviour?
-
-    public SharedSocketRoute(String serviceName, TransportConnectionProvider transportConnectionProvider, Codecs codecs, AutoConfiguration configuration) {
+    public SharedSocketRoute(String serviceName, TransportConnectionProvider transportConnectionProvider, Codecs codecs, AutoConfiguration configuration, Runnable onShutdown) {
         this.serviceName = serviceName;
         this.codecs = codecs;
         this.configuration = configuration;
+        this.onShutdown = onShutdown;
 
-        sharedSocketConnection = transportConnectionProvider.connectChannel(serviceName, "shared-channel", inboundMessage -> {
+        transportChannel = transportConnectionProvider.connectChannel(serviceName, "shared-channel", inboundMessage -> {
             if (inboundMessage == null) {
 //                routes.values().stream().forEach(SharedSocketChannelConnection::shutdown);
 //                routes.clear();
                 return;
             }
             if (inboundMessage.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
-              sharedSocketConnection.shutdown();
+              shutdownRoute(inboundMessage);
             } else {
               SharedChannelInboundMessage message = codecs.decode(inboundMessage.getPayload(), inboundMessage.getContentType(), SharedChannelInboundMessage.class);
               SharedSocketChannelConnection route = routes.get(message.getChannelId());
               route.sendInbound(message.getMessage());
             }
         });
-        if (sharedSocketConnection == null) {
+        if (transportChannel == null) {
           throw new MuonTransportFailureException("Unable to construct a socket connection to " + serviceName);
         }
+    }
+
+    private void shutdownRoute(MuonInboundMessage msg) {
+      routes.values().forEach(sharedSocketChannelConnection -> sharedSocketChannelConnection.sendInbound(msg));
+      onShutdown.run();
+      transportChannel.shutdown();
     }
 
     /**
@@ -76,7 +81,9 @@ public class SharedSocketRoute {
                     .toService(serviceName)
                     .build();
 
-            sharedSocketConnection.send(out);
+            transportChannel.send(out);
+        }, () -> {
+
         });
 
         routes.put(ret.getChannelId(), ret);

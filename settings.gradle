@@ -1,4 +1,5 @@
 rootProject.name = "muon"
 
 include 'muon-core',
+        'muon-test',
         "doc"

@@ -9,6 +9,7 @@ import io.muoncore.message.MuonMessage
 import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.transport.MuonTransport
+import io.muoncore.transport.TransportEvents
 import io.muoncore.transport.sharedsocket.client.SharedSocketRouter
 import reactor.Environment
 import spock.lang.Specification
@@ -97,14 +98,14 @@ class MultiTransportChannelConnectionSpec extends Specification {
         Environment.initializeIfEmpty()
 
 //        def channelFunctions = []
-        def connections = [Mock(ChannelConnection)]
+        def connections = Mock(ChannelConnection)
 
         //capture the receive functions being generated and passed to our mock functions.
         //slightly elaborate, we are stepping two levels into the interaction mocks.
         def receive = Mock(ChannelConnection.ChannelFunction)
         def router = Mock(SharedSocketRouter) {
             openClientChannel(_) >> {
-                return connections[0]
+                return connections
             }
         }
         def discovery = Mock(Discovery) {
@@ -123,7 +124,7 @@ class MultiTransportChannelConnectionSpec extends Specification {
         sleep(100)
 
         then:
-        1 * connections[0].shutdown()
+        1 * connections.shutdown()
     }
 
     def inbound(id,String service, String protocol) {

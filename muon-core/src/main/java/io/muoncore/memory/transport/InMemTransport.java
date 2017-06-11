@@ -58,6 +58,10 @@ public class InMemTransport implements MuonTransport {
         return "inmem";
     }
 
+    public void triggerFailure() {
+      bus.post(new InMemFailureEvent());
+    }
+
     @Override
     public URI getLocalConnectionURI() {
         try {

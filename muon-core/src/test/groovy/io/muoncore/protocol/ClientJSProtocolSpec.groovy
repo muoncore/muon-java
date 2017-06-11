@@ -218,7 +218,7 @@ class ClientClientJSProtocolSpec extends Specification {
 
     channel.left().send("Hello")
 
-    then:
+    then: "See the null messages used to poison/ shut down the two channels"
     new PollingConditions().eventually {
       ret == [null, null]
     }
