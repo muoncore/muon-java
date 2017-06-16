@@ -5,10 +5,12 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.transport.sharedsocket.client.messages.SharedChannelOutboundMessage;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import java.util.UUID;
 
+@Slf4j
 public class SharedSocketChannelConnection implements ChannelConnection<MuonOutboundMessage, MuonInboundMessage> {
 
     private ChannelFunction<MuonInboundMessage> inboundFunction;
@@ -33,7 +35,7 @@ public class SharedSocketChannelConnection implements ChannelConnection<MuonOutb
     }
 
     public void sendInbound(MuonInboundMessage message) {
-        inboundFunction.apply(message);
+      inboundFunction.apply(message);
     }
 
     public String getChannelId() {

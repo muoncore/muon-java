@@ -10,28 +10,32 @@ import io.muoncore.message.MuonMessageBuilder;
 import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.transport.client.TransportConnectionProvider;
 import io.muoncore.transport.sharedsocket.client.messages.SharedChannelInboundMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages a single concrete muon socket to a remote service.
  *
  * Generates virtual sockets that it multiplexes along this shared socket.
  */
+@Slf4j
 public class SharedSocketRoute {
 
     private static final Logger logger = LoggerFactory.getLogger(SharedSocketRoute.class);
 
     private String serviceName;
     private ChannelConnection<MuonOutboundMessage, MuonInboundMessage> transportChannel;
-    private Map<String, SharedSocketChannelConnection> routes = new HashMap<>();
+    private final Map<String, SharedSocketChannelConnection> routes = new ConcurrentHashMap<>();
 
     private Codecs codecs;
     private AutoConfiguration configuration;
     private Runnable onShutdown;
+    private boolean running = true;
 
     public SharedSocketRoute(String serviceName, TransportConnectionProvider transportConnectionProvider, Codecs codecs, AutoConfiguration configuration, Runnable onShutdown) {
         this.serviceName = serviceName;
@@ -40,12 +44,7 @@ public class SharedSocketRoute {
         this.onShutdown = onShutdown;
 
         transportChannel = transportConnectionProvider.connectChannel(serviceName, "shared-channel", inboundMessage -> {
-            if (inboundMessage == null) {
-//                routes.values().stream().forEach(SharedSocketChannelConnection::shutdown);
-//                routes.clear();
-                return;
-            }
-            if (inboundMessage.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
+            if (inboundMessage == null || inboundMessage.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
               shutdownRoute(inboundMessage);
             } else {
               SharedChannelInboundMessage message = codecs.decode(inboundMessage.getPayload(), inboundMessage.getContentType(), SharedChannelInboundMessage.class);
@@ -59,9 +58,13 @@ public class SharedSocketRoute {
     }
 
     private void shutdownRoute(MuonInboundMessage msg) {
-      routes.values().forEach(sharedSocketChannelConnection -> sharedSocketChannelConnection.sendInbound(msg));
-      onShutdown.run();
-      transportChannel.shutdown();
+      if (running) {
+        log.info("Shutting down shared-route due to channel failure");
+        routes.values().forEach(sharedSocketChannelConnection -> sharedSocketChannelConnection.sendInbound(msg));
+        onShutdown.run();
+        transportChannel.shutdown();
+        running = false;
+      }
     }
 
     /**
@@ -83,7 +86,7 @@ public class SharedSocketRoute {
 
             transportChannel.send(out);
         }, () -> {
-
+          //a client side channel shutdown is ignored by shared-channel.
         });
 
         routes.put(ret.getChannelId(), ret);
