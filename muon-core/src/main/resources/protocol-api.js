@@ -61,8 +61,8 @@ var api = {
   },
 
   shutdown: function () {
-    // api.sendTransport(null)
-    // api.sendApi(null)
+    apichannel.shutdown()
+    transportchannel.shutdown()
   },
 
   type: function (typename, payload) {

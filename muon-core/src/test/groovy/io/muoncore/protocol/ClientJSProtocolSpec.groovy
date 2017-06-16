@@ -204,9 +204,11 @@ class ClientClientJSProtocolSpec extends Specification {
     def ret = []
 
     channel.left().receive {
+      println "GOT API DATA $it"
       ret << it
     }
     transportchannel.right().receive {
+      println "GOT TRANSPORT RIGHT $it"
       ret << it
     }
 
@@ -346,7 +348,7 @@ class ClientClientJSProtocolSpec extends Specification {
     new PollingConditions().eventually {
       ret instanceof MuonOutboundMessage
       println new String(ret.payload)
-      ret.targetServiceName == "my-service"
+      ret.targetServiceName == "target-service"
       def decoded = muon.getCodecs().decode(ret.payload, ret.contentType, MyResponseType)
       decoded.name == "HELLO!"
       decoded.payload.hello == "AWESOME"
@@ -430,6 +432,7 @@ module.exports = function(api) {
 module.exports = function(api) {
   return {
     fromApi: function(msg) {
+      log.info("Sending shutdown")
       api.shutdown()
     },
     fromTransport: function(msg) {
@@ -488,6 +491,8 @@ module.exports = function(api) {
     fromApi: function(msg) {
       var resp = api.encodeFor(msg, "myservice")
       api.sendTransport({
+        target: "target-service",
+        step: 'hello',
         payload: resp.payload,
         contentType: resp.contentType
       })
