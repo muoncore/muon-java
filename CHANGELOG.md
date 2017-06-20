@@ -6,6 +6,7 @@
 
 **Closed issues:**
 
+- Shared-channel doesn't manage transport channels properly [\#60](https://github.com/muoncore/muon-java/issues/60)
 - Add a portable runtime for protocols and tooling to help build proto stacks easily [\#59](https://github.com/muoncore/muon-java/issues/59)
 - Add an AMQP reconnect on failure [\#54](https://github.com/muoncore/muon-java/issues/54)
 - Node amqp disco has request/ response discovery extension. Add to muon java. [\#48](https://github.com/muoncore/muon-java/issues/48)
