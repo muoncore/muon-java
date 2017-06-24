@@ -50,7 +50,7 @@ public class DefaultServerProtocol implements ServerProtocolStack {
 
     @Override
     public void send(MuonInboundMessage message) {
-      if (func != null) {
+      if (func != null && message != null) {
         Map<String, String> metadata = new HashMap<>();
         metadata.put("status", "404");
         metadata.put("message", "Protocol unknown :" + message.getProtocol());
