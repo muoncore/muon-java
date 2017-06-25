@@ -47,7 +47,6 @@ public class SharedSocketServerChannel implements ChannelConnection<MuonInboundM
 
         if (message.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
             logger.debug("Received a channel op closed message " + message);
-            shutdown();
             return;
         }
 
@@ -65,7 +64,6 @@ public class SharedSocketServerChannel implements ChannelConnection<MuonInboundM
             protocolConnection.receive(arg -> {
 
                 if (arg == null || arg.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
-                    shutdown();
                     return;
                 }
 
