@@ -1,5 +1,8 @@
 # Change Log
 
+## [v7.3.2](https://github.com/muoncore/muon-java/tree/v7.3.2) (2017-06-25)
+[Full Changelog](https://github.com/muoncore/muon-java/compare/v7.3.1...v7.3.2)
+
 ## [v7.3.1](https://github.com/muoncore/muon-java/tree/v7.3.1) (2017-06-24)
 [Full Changelog](https://github.com/muoncore/muon-java/compare/v7.3.0...v7.3.1)
 
