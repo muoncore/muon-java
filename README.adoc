@@ -2,7 +2,6 @@
 | Master Build | Stable | Snapshots
 | image:https://img.shields.io/teamcity/http/teamcity.simplicityitself.com/e/OpenSource_MuonReleases_TransportsDiscoveries_AmqpSnapshot.svg[Status]
 | image:https://img.shields.io/github/tag/muoncore/muon-java.svg[]
-| image:https://img.shields.io/npm/v/muon-core/next.svg[NPM]
 |===
 
 # Muon Core - Java
