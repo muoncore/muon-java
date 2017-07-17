@@ -61,8 +61,8 @@ var api = {
   },
 
   shutdown: function () {
-    apichannel.shutdown()
-    transportchannel.shutdown()
+    if (apichannel) apichannel.shutdown()
+    if (transportchannel) transportchannel.shutdown()
   },
 
   type: function (typename, payload) {
