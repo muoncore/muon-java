@@ -20,7 +20,7 @@ public class SimpleTransportMessageDispatcher implements TransportMessageDispatc
     private ExecutorService exec = Executors.newFixedThreadPool(20);
     private Dispatcher dispatcher = Environment.newDispatcher();
 
-    private static final MuonMessage POISON = new MuonMessage(null, 0, null, null, null, null, null,null,null, null);
+    private static final MuonMessage POISON = new MuonMessage(null, 0, null, null, null, null, null, null,null,null, null);
 
     @Override
     public void dispatch(MuonMessage message) {

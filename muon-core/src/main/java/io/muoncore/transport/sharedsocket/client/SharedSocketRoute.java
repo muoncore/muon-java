@@ -10,11 +10,11 @@ import io.muoncore.message.MuonMessageBuilder;
 import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.transport.client.TransportConnectionProvider;
 import io.muoncore.transport.sharedsocket.client.messages.SharedChannelInboundMessage;
+import io.muoncore.transport.sharedsocket.server.SharedChannelServerStacks;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,9 +26,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class SharedSocketRoute {
 
-    private static final Logger logger = LoggerFactory.getLogger(SharedSocketRoute.class);
+  private static final Logger logger = LoggerFactory.getLogger(SharedSocketRoute.class);
 
-    private String serviceName;
+  private String serviceName;
     private ChannelConnection<MuonOutboundMessage, MuonInboundMessage> transportChannel;
     private final Map<String, SharedSocketChannelConnection> routes = new ConcurrentHashMap<>();
 
@@ -43,7 +43,7 @@ public class SharedSocketRoute {
         this.configuration = configuration;
         this.onShutdown = onShutdown;
 
-        transportChannel = transportConnectionProvider.connectChannel(serviceName, "shared-channel", inboundMessage -> {
+        transportChannel = transportConnectionProvider.connectChannel(serviceName, SharedChannelServerStacks.PROTOCOL, inboundMessage -> {
             if (inboundMessage == null || inboundMessage.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
               shutdownRoute(inboundMessage);
             } else {
@@ -77,15 +77,16 @@ public class SharedSocketRoute {
             Codecs.EncodingResult result = codecs.encode(outboundMessage, new String[] {"application/json"});
 
             MuonOutboundMessage out = MuonMessageBuilder.fromService(configuration.getServiceName())
-                    .protocol(SharedSocketRouter.PROTOCOL)
+                    .protocol(SharedChannelServerStacks.PROTOCOL)
                     .contentType(result.getContentType())
                     .payload(result.getPayload())
-                    .step("message")
+                    .step(SharedChannelServerStacks.STEP)
                     .toService(serviceName)
                     .build();
 
             transportChannel.send(out);
         }, () -> {
+          //TODO, implement this as a specific step.
           //a client side channel shutdown is ignored by shared-channel.
         });
 

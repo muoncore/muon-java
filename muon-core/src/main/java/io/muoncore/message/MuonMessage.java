@@ -1,13 +1,17 @@
 package io.muoncore.message;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.Getter;
 
+@Getter
 public class MuonMessage {
 
     private String id;
     private long created;
     @SerializedName("target_service")
     private String targetServiceName;
+    @SerializedName("target_service_instance")
+    private String targetInstance;
     @SerializedName("origin_service")
     private String sourceServiceName;
     private String protocol;
@@ -19,9 +23,10 @@ public class MuonMessage {
     @SerializedName("channel_op")
     private ChannelOperation channelOperation = ChannelOperation.normal;
 
-    public MuonMessage(String id, long created, String targetServiceName, String sourceServiceName, String protocol, String step, Status status, byte[] payload, String contentType, ChannelOperation channelOperation) {
+    public MuonMessage(String id, long created, String targetServiceName, String targetInstance, String sourceServiceName, String protocol, String step, Status status, byte[] payload, String contentType, ChannelOperation channelOperation) {
         this.id = id;
         this.created = created;
+        this.targetInstance = targetInstance;
         this.targetServiceName = targetServiceName;
         this.sourceServiceName = sourceServiceName;
         this.protocol = protocol;

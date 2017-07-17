@@ -7,11 +7,12 @@ import io.muoncore.codec.Codecs;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.protocol.ServerStacks;
-import io.muoncore.transport.sharedsocket.client.SharedSocketRouter;
 
 public class SharedChannelServerStacks implements ServerStacks {
 
-    private ServerStacks wrappedStacks;
+  public static final String STEP = "message";
+  public static final String PROTOCOL = "shared-channel";
+  private ServerStacks wrappedStacks;
     private Codecs codecs;
 
     public SharedChannelServerStacks(ServerStacks wrappedStacks, Codecs codecs) {
@@ -24,7 +25,7 @@ public class SharedChannelServerStacks implements ServerStacks {
 
         ChannelConnection<MuonInboundMessage, MuonOutboundMessage> channelConnection;
 
-        if (protocol.equals(SharedSocketRouter.PROTOCOL)) {
+        if (protocol.equals(PROTOCOL)) {
             channelConnection = new SharedSocketServerChannel(wrappedStacks, codecs);
         } else {
             channelConnection = wrappedStacks.openServerChannel(protocol);

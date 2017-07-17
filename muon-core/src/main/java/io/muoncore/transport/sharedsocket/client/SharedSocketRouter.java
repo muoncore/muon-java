@@ -14,9 +14,7 @@ import java.util.Map;
 @Slf4j
 public class SharedSocketRouter {
 
-    public static final String PROTOCOL = "shared-channel";
-
-    private final Map<String, SharedSocketRoute> routesToServices = new HashMap<>();
+  private final Map<String, SharedSocketRoute> routesToServices = new HashMap<>();
     private SharedSocketRouteFactory sharedSocketRouteFactory;
 
     public SharedSocketRouter(SharedSocketRouteFactory sharedSocketRouteFactory) {

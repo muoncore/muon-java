@@ -19,7 +19,6 @@ import io.muoncore.transport.client.MultiTransportClient;
 import io.muoncore.transport.client.SimpleTransportMessageDispatcher;
 import io.muoncore.transport.client.TransportClient;
 import io.muoncore.transport.client.TransportMessageDispatcher;
-import io.muoncore.transport.sharedsocket.client.SharedSocketRouter;
 import io.muoncore.transport.sharedsocket.server.SharedChannelServerStacks;
 import lombok.extern.slf4j.Slf4j;
 import reactor.Environment;
@@ -85,7 +84,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
 
   private Set<String> generateCapabilities() {
     Set<String> capabilities = new HashSet<>();
-    capabilities.add(SharedSocketRouter.PROTOCOL);
+    capabilities.add(SharedChannelServerStacks.PROTOCOL);
     return capabilities;
   }
 

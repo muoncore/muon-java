@@ -26,7 +26,16 @@ public interface MuonTransport {
 
     boolean canConnectToService(String name);
 
+    default boolean supportsInstances() { return false; }
+
     ChannelConnection<MuonOutboundMessage, MuonInboundMessage> openClientChannel(
             String serviceName,
             String protocol) throws NoSuchServiceException, MuonTransportFailureException;
+
+  default ChannelConnection<MuonOutboundMessage, MuonInboundMessage> openClientChannelToInstance(
+    String serviceName,
+    String instance,
+    String protocol) throws NoSuchServiceException, MuonTransportFailureException  {
+    throw new MuonTransportFailureException("This transport does not support connecting to instances");
+  }
 }
