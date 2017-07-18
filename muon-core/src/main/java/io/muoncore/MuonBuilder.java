@@ -6,6 +6,7 @@ import io.muoncore.config.AutoConfiguration;
 import io.muoncore.discovery.DiscoveryFactory;
 import io.muoncore.discovery.MultiDiscovery;
 import io.muoncore.exception.MuonException;
+import io.muoncore.exception.MuonTransportFailureException;
 import io.muoncore.transport.MuonTransport;
 import io.muoncore.transport.MuonTransportFactory;
 import org.slf4j.Logger;
@@ -54,7 +55,8 @@ public class MuonBuilder {
                 factoryInstance.setAutoConfiguration(config);
                 transports.add(factoryInstance.build(config.getProperties()));
             } catch (ClassNotFoundException ex) {
-                LOG.info("Configured transport " + factory + " not present in the classpath, ignoring");
+                LOG.error("Configured transport " + factory + " not present in the classpath, ignoring");
+                throw new MuonTransportFailureException("Configured transport " + factory + " not present in the classpath");
             }
         }
 
@@ -72,7 +74,8 @@ public class MuonBuilder {
                 factoryInstance.setAutoConfiguration(config);
                 discoveries.add(factoryInstance.build(config.getProperties()));
             } catch (ClassNotFoundException ex) {
-                LOG.info("Configured discovery " + factory + " not present in the classpath, ignoring");
+              LOG.error("Configured discovery " + factory + " not present in the classpath, ignoring");
+              throw new MuonTransportFailureException("Configured transport " + factory + " not present in the classpath");
             }
         }
 
