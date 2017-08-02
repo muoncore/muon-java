@@ -1,8 +1,7 @@
 # Change Log
 
-## [Unreleased](https://github.com/muoncore/muon-java/tree/HEAD)
-
-[Full Changelog](https://github.com/muoncore/muon-java/compare/v7.3.2...HEAD)
+## [v7.3.3](https://github.com/muoncore/muon-java/tree/v7.3.3) (2017-08-02)
+[Full Changelog](https://github.com/muoncore/muon-java/compare/v7.3.2...v7.3.3)
 
 **Closed issues:**
 
