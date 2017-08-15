@@ -9,6 +9,7 @@ import io.muoncore.memory.transport.InMemClientChannelConnection
 import io.muoncore.memory.transport.InMemTransport
 import io.muoncore.memory.transport.OpenChannelEvent
 import io.muoncore.message.MuonInboundMessage
+import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.protocol.ServerStacks
 import io.muoncore.transport.TransportEvents
 import io.muoncore.transport.TransportFailureSpec
@@ -67,6 +68,8 @@ class InMemTransportSpec extends Specification {
     ret.receive {
       fail = it
     }
+
+    ret.send(MuonMessageBuilder.fromService("me").build())
 
     then:
     new PollingConditions().eventually {
