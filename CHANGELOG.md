@@ -1,5 +1,12 @@
 # Change Log
 
+## [v7.3.4](https://github.com/muoncore/muon-java/tree/v7.3.4) (2017-08-15)
+[Full Changelog](https://github.com/muoncore/muon-java/compare/v7.3.3...v7.3.4)
+
+**Closed issues:**
+
+- InMem transport.triggerFailure should also cause opening channels to fail [\#63](https://github.com/muoncore/muon-java/issues/63)
+
 ## [v7.3.3](https://github.com/muoncore/muon-java/tree/v7.3.3) (2017-08-02)
 [Full Changelog](https://github.com/muoncore/muon-java/compare/v7.3.2...v7.3.3)
 
