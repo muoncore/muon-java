@@ -3,6 +3,7 @@ package io.muoncore.transport.client;
 import io.muoncore.Discovery;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.channel.Dispatcher;
 import io.muoncore.exception.NoSuchServiceException;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonMessage;
@@ -10,7 +11,6 @@ import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.transport.sharedsocket.client.SharedSocketRouter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.Dispatcher;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -2,8 +2,8 @@ package io.muoncore.channel.impl;
 
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.channel.Dispatcher;
 import io.muoncore.exception.MuonException;
-import reactor.core.Dispatcher;
 
 import java.util.Date;
 

@@ -2,6 +2,7 @@ package io.muoncore.channel.impl;
 
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.channel.Dispatcher;
 import io.muoncore.channel.support.Scheduler;
 import io.muoncore.exception.MuonException;
 import io.muoncore.message.MuonInboundMessage;
@@ -10,7 +11,6 @@ import io.muoncore.message.MuonMessageBuilder;
 import io.muoncore.message.MuonOutboundMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.Dispatcher;
 
 import java.util.concurrent.TimeUnit;
 

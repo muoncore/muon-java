@@ -9,15 +9,15 @@ import io.muoncore.message.MuonMessage;
 import io.muoncore.transport.client.RingBufferLocalDispatcher;
 import io.muoncore.transport.client.TransportMessageDispatcher;
 import reactor.Environment;
-import reactor.core.Dispatcher;
+
 import reactor.core.config.DispatcherType;
 
 import java.util.function.Function;
 
 public class Channels {
 
-    static Dispatcher WORK_DISPATCHER = Environment.newDispatcher(32768, 200, DispatcherType.THREAD_POOL_EXECUTOR);
-    public static Dispatcher EVENT_DISPATCHER = new RingBufferLocalDispatcher("channel", 32768);
+    static Dispatcher WORK_DISPATCHER = new Reactor2Dispatcher(Environment.newDispatcher(32768, 200, DispatcherType.THREAD_POOL_EXECUTOR));
+    public static Dispatcher EVENT_DISPATCHER = new Reactor2Dispatcher(new RingBufferLocalDispatcher("channel", 32768));
 
     public static void shutdown() {
 //        EVENT_DISPATCHER.shutdown();

@@ -1,10 +1,11 @@
 package io.muoncore.transport.client;
 
+import io.muoncore.channel.Dispatcher;
+import io.muoncore.channel.Reactor2Dispatcher;
 import io.muoncore.message.MuonMessage;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
 import reactor.Environment;
-import reactor.core.Dispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ public class SimpleTransportMessageDispatcher implements TransportMessageDispatc
 
     private List<QueuePredicate> queues = new ArrayList<>();
     private ExecutorService exec = Executors.newFixedThreadPool(20);
-    private Dispatcher dispatcher = Environment.newDispatcher();
+    private Dispatcher dispatcher = new Reactor2Dispatcher(Environment.newDispatcher());
 
     private static final MuonMessage POISON = new MuonMessage(null, 0, null, null, null, null, null, null,null,null, null);
 
