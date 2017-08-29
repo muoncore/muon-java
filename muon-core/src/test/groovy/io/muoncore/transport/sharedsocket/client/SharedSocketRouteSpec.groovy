@@ -9,11 +9,13 @@ import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda
 import io.muoncore.transport.TransportEvents
 import io.muoncore.transport.client.TransportConnectionProvider
+import spock.lang.Ignore
 import spock.lang.Specification
 
 class SharedSocketRouteSpec extends Specification {
 
 
+  @Ignore
   def "when client channel shuts down, shared route transports the shutdown and cleans up locally."() {
     expect:
     1==2

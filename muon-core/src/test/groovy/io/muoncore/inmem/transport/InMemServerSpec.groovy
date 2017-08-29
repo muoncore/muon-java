@@ -1,10 +1,10 @@
 package io.muoncore.inmem.transport
 
-import com.google.common.eventbus.EventBus
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.memory.transport.InMemClientChannelConnection
 import io.muoncore.memory.transport.InMemServer
 import io.muoncore.memory.transport.OpenChannelEvent
+import io.muoncore.memory.transport.bus.EventBus
 import io.muoncore.protocol.ServerStacks
 import spock.lang.Specification
 

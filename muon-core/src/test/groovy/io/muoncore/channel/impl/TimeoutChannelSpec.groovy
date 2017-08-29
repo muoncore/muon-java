@@ -1,5 +1,6 @@
 package io.muoncore.channel.impl
 
+import io.muoncore.channel.Reactor2Dispatcher
 import io.muoncore.channel.support.Scheduler
 import io.muoncore.message.MuonMessage
 import io.muoncore.message.MuonMessageBuilder
@@ -14,7 +15,7 @@ class TimeoutChannelSpec extends Specification {
         Environment.initializeIfEmpty()
         def sched = new Scheduler()
         def dispatcher = new RingBufferLocalDispatcher("channel", 32768);
-        def channel = new TimeoutChannel(dispatcher, sched, 5000)
+        def channel = new TimeoutChannel(new Reactor2Dispatcher(dispatcher), sched, 5000)
         MuonMessage timeoutmsg
 
         channel.left().receive {

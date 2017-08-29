@@ -1,6 +1,5 @@
 package io.muoncore.codec.avro
 
-import com.google.common.eventbus.EventBus
 import io.muoncore.MultiTransportMuon
 import io.muoncore.Muon
 import io.muoncore.codec.DelegatingCodecs

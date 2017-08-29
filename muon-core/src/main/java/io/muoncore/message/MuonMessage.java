@@ -3,6 +3,9 @@ package io.muoncore.message;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 public class MuonMessage {
 
@@ -22,6 +25,12 @@ public class MuonMessage {
     private String contentType;
     @SerializedName("channel_op")
     private ChannelOperation channelOperation = ChannelOperation.normal;
+
+    private transient List<String> channels = new ArrayList<>();
+
+    public void touch(String name) {
+      channels.add(name);
+    }
 
     public MuonMessage(String id, long created, String targetServiceName, String targetInstance, String sourceServiceName, String protocol, String step, Status status, byte[] payload, String contentType, ChannelOperation channelOperation) {
         this.id = id;

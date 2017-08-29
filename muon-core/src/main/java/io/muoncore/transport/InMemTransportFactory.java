@@ -1,8 +1,8 @@
 package io.muoncore.transport;
 
-import com.google.common.eventbus.EventBus;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.memory.transport.InMemTransport;
+import io.muoncore.memory.transport.bus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

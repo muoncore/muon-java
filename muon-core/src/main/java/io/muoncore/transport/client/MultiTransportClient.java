@@ -49,7 +49,7 @@ public class MultiTransportClient implements TransportClient, TransportControl {
 
         Channels.connect(
                 tapChannel.right(),
-                new MultiTransportClientChannelConnection(dispatcher, sharedSocketRouter, discovery, transportConnectionProvider));
+                new MultiTransportClientChannelConnection(dispatcher, sharedSocketRouter, discovery, transportConnectionProvider, configuration));
 
         return tapChannel.left();
     }

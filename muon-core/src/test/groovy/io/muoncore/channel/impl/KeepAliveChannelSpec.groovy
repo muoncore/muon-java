@@ -1,5 +1,6 @@
 package io.muoncore.channel.impl
 
+import io.muoncore.channel.Reactor2Dispatcher
 import io.muoncore.channel.support.Scheduler
 import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.transport.TransportEvents
@@ -15,7 +16,7 @@ class KeepAliveChannelSpec extends Specification {
         Environment.initializeIfEmpty()
         def sched = new Scheduler()
         def dispatcher = new RingBufferLocalDispatcher("channel", 32768);
-        def channel = new KeepAliveChannel(dispatcher, "fakeproto", sched)
+        def channel = new KeepAliveChannel(new Reactor2Dispatcher(dispatcher), "fakeproto", sched)
         def timeoutmsg = []
 
         channel.left().receive {
@@ -41,7 +42,7 @@ class KeepAliveChannelSpec extends Specification {
         Environment.initializeIfEmpty()
         def sched = new Scheduler()
         def dispatcher = new RingBufferLocalDispatcher("channel", 32768);
-        def channel = new KeepAliveChannel(dispatcher, "fakeproto", sched)
+        def channel = new KeepAliveChannel(new Reactor2Dispatcher(dispatcher), "fakeproto", sched)
         def timeoutmsg = []
 
         channel.left().receive {
@@ -65,7 +66,7 @@ class KeepAliveChannelSpec extends Specification {
         Environment.initializeIfEmpty()
         def sched = new Scheduler()
         def dispatcher = new RingBufferLocalDispatcher("channel", 32768);
-        def channel = new KeepAliveChannel(dispatcher, "fakeproto", sched)
+        def channel = new KeepAliveChannel(new Reactor2Dispatcher(dispatcher), "fakeproto", sched)
         def timeoutmsg = []
 
         channel.left().receive {
@@ -96,7 +97,7 @@ class KeepAliveChannelSpec extends Specification {
         Environment.initializeIfEmpty()
         def sched = new Scheduler()
         def dispatcher = new RingBufferLocalDispatcher("channel", 32768);
-        def channel = new KeepAliveChannel(dispatcher, "fakeproto", sched)
+        def channel = new KeepAliveChannel(new Reactor2Dispatcher(dispatcher), "fakeproto", sched)
         def timeoutmsg = []
 
         channel.left().receive {
