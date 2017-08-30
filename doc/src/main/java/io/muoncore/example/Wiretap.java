@@ -1,13 +1,9 @@
 package io.muoncore.example;
 
 import io.muoncore.Muon;
-import io.muoncore.message.MuonMessage;
-import reactor.rx.broadcast.Broadcaster;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class Wiretap {
@@ -15,7 +11,7 @@ public class Wiretap {
     public void exec(Muon muon) throws ExecutionException, InterruptedException, URISyntaxException, UnsupportedEncodingException {
 
         // tag::setupRPC[]
-        Broadcaster<String> publisher = Broadcaster.create();
+//        Broadcaster<String> publisher = Broadcaster.create();
 
 //        muon.handleRequest(all(), request -> {
 //            request.ok(42);

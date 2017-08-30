@@ -5,13 +5,12 @@ plugins {
 
 description = 'Core Muon for Java'
 dependencies {
-  // Reactive Streams
-  compile "org.reactivestreams:reactive-streams:$reactiveStreamsVersion"
+  shadow "org.reactivestreams:reactive-streams:$reactiveStreamsVersion"
 
-  compile 'com.google.code.gson:gson:2.3.1'
-  compile 'org.apache.avro:avro:1.8.1'
+  shadow 'com.google.code.gson:gson:2.3.1'
+  shadow 'org.apache.avro:avro:1.8.1'
   compile "io.projectreactor:reactor-stream:$reactorVersion"
-  compile 'org.slf4j:slf4j-api:1.7.21'
+  shadow 'org.slf4j:slf4j-api:1.7.21'
   testCompile 'org.slf4j:slf4j-simple:1.7.12'
 }
 
@@ -21,11 +20,50 @@ shadowJar {
       !(it.moduleGroup in ["io.projectreactor"])
     }))
   }
-  relocate'reactor', 'io.muoncore.liblib.reactor'
+  relocate 'reactor', 'io.muoncore.liblib.reactor'
+  archiveName = "${baseName}-${version}.${extension}"
 }
 
-publications {
-  shadow(MavenPublication) { publication ->
-    project.shadow.component(publication)
+publishing {
+  publications {
+    shadow(MavenPublication) { publication ->
+      project.shadow.component(publication)
+      pom.withXml {
+        asNode().dependencies.'*'.each{
+          it.scope[0].value="compile"
+        }
+      }
+    }
   }
 }
+
+install {
+  repositories.mavenInstaller {
+    pom.withXml {
+//        asNode().appendNode('description', 'A demonstration of Maven POM customization')
+      asNode().dependencies.'*'.each{
+        it.scope[0].value="compile"
+      }
+    }
+  }
+}
+
+
+task copyPomLocal(type: Copy) {
+  from 'build/publications/shadow'
+  into 'build/poms'
+}
+
+task copyPom(type: Copy) {
+  from 'build/publications/shadow'
+  into 'build/publications/mavenJava'
+}
+
+tasks.jar.enabled = false
+project.tasks.artifactoryPublish.dependsOn project.tasks.shadowJar
+project.tasks.artifactoryPublish.dependsOn project.tasks.shadowJar
+project.tasks.artifactoryPublish.dependsOn "publishShadowPublicationToMavenLocal"
+project.tasks.artifactoryPublish.dependsOn copyPom
+project.tasks.install.dependsOn copyPomLocal
+copyPomLocal.dependsOn "generatePomFileForShadowPublication"
+copyPom.dependsOn "generatePomFileForMavenJavaPublication"
