@@ -26,7 +26,6 @@ import java.lang.annotation.Target;
  * annotation is applied to methods with zero parameters, or more than one parameter, the object
  * containing the method will not be able to register for event delivery from the {@link EventBus}.
  *
- * <p>Unless also annotated with @{@link AllowConcurrentEvents}, event subscriber methods will be
  * invoked serially by each event bus that they are registered with.
  *
  * @author Cliff Biffle

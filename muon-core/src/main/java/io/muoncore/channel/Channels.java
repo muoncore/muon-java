@@ -16,30 +16,27 @@ import java.util.function.Function;
 
 public class Channels {
 
-    static Dispatcher WORK_DISPATCHER = new Reactor2Dispatcher(Environment.newDispatcher(32768, 200, DispatcherType.THREAD_POOL_EXECUTOR));
-    public static Dispatcher EVENT_DISPATCHER = new Reactor2Dispatcher(new RingBufferLocalDispatcher("channel", 32768));
-
     public static void shutdown() {
 //        EVENT_DISPATCHER.shutdown();
 //        WORK_DISPATCHER.shutdown();
     }
 
     public static ZipChannel zipChannel(String name) {
-        return new ZipChannel(EVENT_DISPATCHER, name);
+        return new ZipChannel(Dispatchers.dispatcher(), name);
     }
 
     /**
      * Create a channel that will issue a timeout to the left if no messages come from the right within the period.
      */
     public static TimeoutChannel timeout(Scheduler scheduler, long timeout) {
-        return new TimeoutChannel(EVENT_DISPATCHER, scheduler, timeout);
+        return new TimeoutChannel(Dispatchers.dispatcher(), scheduler, timeout);
     }
 
     /**
      * Create a channel that permits wiretap on the events moving across it.
      */
     public static <X extends MuonMessage,Y extends MuonMessage> Channel<X, Y> wiretapChannel(TransportMessageDispatcher wiretapDispatch) {
-        return new WiretapChannel<>(EVENT_DISPATCHER, wiretapDispatch);
+        return new WiretapChannel<>(Dispatchers.dispatcher(), wiretapDispatch);
     }
 
     /**
@@ -51,7 +48,7 @@ public class Channels {
      * @return
      */
     public static <X,Y> Channel<X, Y> channel(String leftname, String rightname) {
-        return new StandardAsyncChannel<>(leftname, rightname, EVENT_DISPATCHER);
+        return new StandardAsyncChannel<>(leftname, rightname, Dispatchers.dispatcher());
     }
 
     /**
@@ -60,7 +57,7 @@ public class Channels {
      * and multiple events will be being dispatched concurrently.
      */
     public static <X,Y> Channel<X, Y> workerChannel(String leftname, String rightname) {
-        return new StandardAsyncChannel<>(leftname, rightname, WORK_DISPATCHER);
+        return new StandardAsyncChannel<>(leftname, rightname, Dispatchers.poolDispatcher());
     }
     public static <X,Y> void connect(ChannelConnection<X, Y> right, ChannelConnection<Y, X> left) {
         assert right != null;

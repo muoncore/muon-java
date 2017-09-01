@@ -11,7 +11,10 @@ dependencies {
   shadow 'org.apache.avro:avro:1.8.1'
   compile "io.projectreactor:reactor-stream:$reactorVersion"
   shadow 'org.slf4j:slf4j-api:1.7.21'
+
   testCompile 'org.slf4j:slf4j-simple:1.7.12'
+  testCompile 'com.google.code.gson:gson:2.3.1'
+  testCompile 'org.apache.avro:avro:1.8.1'
 }
 
 shadowJar {
@@ -24,11 +27,37 @@ shadowJar {
   archiveName = "${baseName}-${version}.${extension}"
 }
 
+task sourceJar(type: Jar) {
+  from sourceSets.main.allJava
+}
+task packageJavadoc(type: Jar) {
+  from javadoc
+  classifier = 'javadoc'
+}
+
+
 publishing {
   publications {
+    mavenJava(MavenPublication) {
+      artifact sourceJar {
+        classifier "sources"
+      }
+      artifact packageJavadoc
+    }
+
     shadow(MavenPublication) { publication ->
       project.shadow.component(publication)
       pom.withXml {
+        asNode().appendNode('name', "Muon Core")
+        asNode().appendNode('description', 'Muon is a toolkit for building highly portable, polyglot, reactive microservices. Muon Core is the central foundation library for Muon on the JVM.')
+        asNode().appendNode('url', 'http://muoncore.io')
+        def license = asNode().appendNode("licenses").appendNode("license")
+        license.appendNode("name", "The GNU Lesser General Public License, Version 3.0")
+        license.appendNode("url", "http://www.gnu.org/licenses/lgpl-3.0.txt")
+        license.appendNode("distribution", "repo")
+
+        asNode().appendNode("scm").appendNode("url", "https://github.com/muoncore/muon-java")
+        asNode().packaging[0].value = 'jar'
         asNode().dependencies.'*'.each{
           it.scope[0].value="compile"
         }
@@ -40,14 +69,12 @@ publishing {
 install {
   repositories.mavenInstaller {
     pom.withXml {
-//        asNode().appendNode('description', 'A demonstration of Maven POM customization')
       asNode().dependencies.'*'.each{
         it.scope[0].value="compile"
       }
     }
   }
 }
-
 
 task copyPomLocal(type: Copy) {
   from 'build/publications/shadow'

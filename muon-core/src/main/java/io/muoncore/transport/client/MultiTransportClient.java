@@ -22,7 +22,7 @@ public class MultiTransportClient implements TransportClient, TransportControl {
 
     private List<MuonTransport> transports;
     private TransportMessageDispatcher taps;
-    private Dispatcher dispatcher = new Reactor2Dispatcher(new RingBufferLocalDispatcher("transportDispatch", 8192));
+    private Dispatcher dispatcher = Dispatchers.dispatcher();
     private AutoConfiguration configuration;
     private SharedSocketRouter sharedSocketRouter;
     private Discovery discovery;

@@ -9,11 +9,9 @@ import java.util.function.Consumer;
 
 @AllArgsConstructor
 @Slf4j
-public class Reactor2Dispatcher implements Dispatcher {
+class Reactor2Dispatcher implements Dispatcher {
 
   private reactor.core.Dispatcher internal;
-
-  private final Executor exec = Executors.newCachedThreadPool();
 
   @Override
   public <E> void dispatch(E data, Consumer<E> eventConsumer, Consumer<Throwable> errorConsumer) {

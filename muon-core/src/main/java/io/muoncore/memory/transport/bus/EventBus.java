@@ -53,7 +53,6 @@ import java.util.logging.Logger;
  * <p>When {@code post} is called, all registered subscribers for an event are run in sequence, so
  * subscribers should be reasonably quick. If an event may trigger an extended process (such as a
  * database load), spawn a thread or queue it for later. (For a convenient way to do this, use an
- * {@link AsyncEventBus}.)
  *
  * <h2>Subscriber Methods</h2>
  *
@@ -65,7 +64,6 @@ import java.util.logging.Logger;
  *
  * <p>The EventBus guarantees that it will not call a subscriber method from multiple threads
  * simultaneously, unless the method explicitly allows it by bearing the
- * {@link AllowConcurrentEvents} annotation. If this annotation is not present, subscriber methods
  * need not worry about being reentrant, unless also called from outside the EventBus.
  *
  * <h2>Dead Events</h2>

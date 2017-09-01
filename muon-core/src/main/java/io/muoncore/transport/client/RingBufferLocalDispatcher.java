@@ -73,7 +73,6 @@ public final class RingBufferLocalDispatcher implements Dispatcher, WaitingMood 
 
 	/**
 	 * Creates a new {@code RingBufferDispatcher} with the given {@code name}
-	 * and {@param bufferSize}, configured with a producer type of
 	 * {@link ProducerType#MULTI MULTI} and a {@link BlockingWaitStrategy
 	 * blocking wait strategy}.
 	 *
@@ -110,8 +109,6 @@ public final class RingBufferLocalDispatcher implements Dispatcher, WaitingMood 
 	 * Creates a new {@literal RingBufferDispatcher} with the given {@code name}
 	 * . It will use a {@link RingBuffer} with {@code bufferSize} slots,
 	 * configured with the given {@code producerType},
-	 * {@param uncaughtExceptionHandler} and {@code waitStrategy}. A null
-	 * {@param uncaughtExceptionHandler} will make this dispatcher logging such
 	 * exceptions.
 	 *
 	 * @param name
