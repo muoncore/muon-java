@@ -92,5 +92,7 @@ project.tasks.artifactoryPublish.dependsOn project.tasks.shadowJar
 project.tasks.artifactoryPublish.dependsOn "publishShadowPublicationToMavenLocal"
 project.tasks.artifactoryPublish.dependsOn copyPom
 project.tasks.install.dependsOn copyPomLocal
-copyPomLocal.dependsOn "generatePomFileForShadowPublication"
-copyPom.dependsOn "generatePomFileForMavenJavaPublication"
+project.tasks.copyPomLocal.dependsOn "generatePomFileForShadowPublication"
+project.tasks.copyPom.dependsOn "generatePomFileForShadowPublication"
+project.tasks.copyPom.dependsOn "generatePomFileForMavenJavaPublication"
+
