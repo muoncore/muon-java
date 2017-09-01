@@ -53,7 +53,7 @@ class StandardAsyncChannelSpec extends Specification {
 
         Environment.initializeIfEmpty();
 
-        def asyncChannel = new StandardAsyncChannel("leftbit", "rightbit", Environment.sharedDispatcher())
+        def asyncChannel = new StandardAsyncChannel("leftbit", "rightbit", new Reactor2Dispatcher(Environment.sharedDispatcher()))
         asyncChannel.left().receive {
             dataleft = it
         }

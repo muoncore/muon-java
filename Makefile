@@ -1,7 +1,7 @@
 
 
 install:
-	./gradlew install
+	./gradlew clean publishToMavenLocal
 
 publish: clean
 ifndef VERSION

@@ -1,9 +1,9 @@
 package io.muoncore.inmem.transport
 
-import com.google.common.eventbus.EventBus
 import io.muoncore.channel.ChannelConnection
 import io.muoncore.memory.transport.DefaultInMemClientChannelConnection
 import io.muoncore.memory.transport.OpenChannelEvent
+import io.muoncore.memory.transport.bus.EventBus
 import io.muoncore.message.MuonInboundMessage
 import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.protocol.ChannelFunctionExecShimBecauseGroovyCantCallLambda

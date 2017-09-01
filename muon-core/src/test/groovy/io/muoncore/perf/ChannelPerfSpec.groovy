@@ -1,6 +1,5 @@
 package io.muoncore.perf
 
-import com.google.common.eventbus.EventBus
 import io.muoncore.InstanceDescriptor
 import io.muoncore.MultiTransportMuon
 import io.muoncore.channel.ChannelConnection

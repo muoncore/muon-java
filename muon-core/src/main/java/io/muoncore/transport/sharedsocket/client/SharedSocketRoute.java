@@ -59,7 +59,7 @@ public class SharedSocketRoute {
 
     private void shutdownRoute(MuonInboundMessage msg) {
       if (running) {
-        log.info("Shutting down shared-route due to channel failure");
+        log.info("Shutting down shared-route due to channel failure {}", msg);
         routes.values().forEach(sharedSocketChannelConnection -> sharedSocketChannelConnection.sendInbound(msg));
         onShutdown.run();
         transportChannel.shutdown();

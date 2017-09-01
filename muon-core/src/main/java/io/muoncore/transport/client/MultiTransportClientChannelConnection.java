@@ -3,6 +3,8 @@ package io.muoncore.transport.client;
 import io.muoncore.Discovery;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.channel.Dispatcher;
+import io.muoncore.config.AutoConfiguration;
 import io.muoncore.exception.NoSuchServiceException;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonMessage;
@@ -10,7 +12,6 @@ import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.transport.sharedsocket.client.SharedSocketRouter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.Dispatcher;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,21 +20,23 @@ import java.util.Optional;
 class MultiTransportClientChannelConnection implements ChannelConnection<MuonOutboundMessage, MuonInboundMessage> {
 
   private ChannelFunction<MuonInboundMessage> inbound;
-  private Dispatcher dispatcher;
+  private final Dispatcher dispatcher;
 
-  private SharedSocketRouter router = null;
-  private Discovery discovery;
-  private TransportConnectionProvider transportConnectionProvider;
+  private final AutoConfiguration config;
+  private final SharedSocketRouter router;
+  private final Discovery discovery;
+  private final TransportConnectionProvider transportConnectionProvider;
 
   private Map<String, ChannelConnection<MuonOutboundMessage, MuonInboundMessage>> channelConnectionMap = new HashMap<>();
   private Logger LOG = LoggerFactory.getLogger(MultiTransportClientChannelConnection.class.getCanonicalName());
 
   public MultiTransportClientChannelConnection(Dispatcher dispatcher, SharedSocketRouter router, Discovery discovery,
-                                               TransportConnectionProvider transportConnectionProvider) {
+                                               TransportConnectionProvider transportConnectionProvider, AutoConfiguration config) {
     this.dispatcher = dispatcher;
     this.router = router;
     this.transportConnectionProvider = transportConnectionProvider;
     this.discovery = discovery;
+    this.config = config;
   }
 
   @Override
@@ -89,6 +92,9 @@ class MultiTransportClientChannelConnection implements ChannelConnection<MuonOut
   }
 
   private boolean useSharedChannels(MuonOutboundMessage message) {
+    if (config.getBooleanConfig("sharedchannel.disable")) {
+      return false;
+    }
     Optional<ServiceDescriptor> service = discovery.getServiceNamed(message.getTargetServiceName());
 //        if (service.isPresent()) {
 //            return service.get().getCapabilities().contains(SharedSocketRouter.PROTOCOL);

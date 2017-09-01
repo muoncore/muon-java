@@ -2,10 +2,10 @@ package io.muoncore.channel.impl;
 
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.channel.Dispatcher;
 import io.muoncore.exception.MuonException;
 import io.muoncore.message.MuonMessage;
 import io.muoncore.transport.client.TransportMessageDispatcher;
-import reactor.core.Dispatcher;
 
 public class WiretapChannel<GoingLeft extends MuonMessage, GoingRight extends MuonMessage> implements Channel<GoingLeft, GoingRight> {
 

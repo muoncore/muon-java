@@ -1,9 +1,7 @@
 package io.muoncore.transport.client;
 
 import io.muoncore.Discovery;
-import io.muoncore.channel.Channel;
-import io.muoncore.channel.ChannelConnection;
-import io.muoncore.channel.Channels;
+import io.muoncore.channel.*;
 import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.message.MuonInboundMessage;
@@ -13,7 +11,6 @@ import io.muoncore.transport.*;
 import io.muoncore.transport.sharedsocket.client.SharedSocketRoute;
 import io.muoncore.transport.sharedsocket.client.SharedSocketRouter;
 import org.reactivestreams.Publisher;
-import reactor.core.Dispatcher;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -25,7 +22,7 @@ public class MultiTransportClient implements TransportClient, TransportControl {
 
     private List<MuonTransport> transports;
     private TransportMessageDispatcher taps;
-    private Dispatcher dispatcher = new RingBufferLocalDispatcher("transportDispatch", 8192);
+    private Dispatcher dispatcher = Dispatchers.dispatcher();
     private AutoConfiguration configuration;
     private SharedSocketRouter sharedSocketRouter;
     private Discovery discovery;
@@ -52,7 +49,7 @@ public class MultiTransportClient implements TransportClient, TransportControl {
 
         Channels.connect(
                 tapChannel.right(),
-                new MultiTransportClientChannelConnection(dispatcher, sharedSocketRouter, discovery, transportConnectionProvider));
+                new MultiTransportClientChannelConnection(dispatcher, sharedSocketRouter, discovery, transportConnectionProvider, configuration));
 
         return tapChannel.left();
     }

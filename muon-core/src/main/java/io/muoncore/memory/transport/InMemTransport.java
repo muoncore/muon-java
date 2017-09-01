@@ -1,6 +1,5 @@
 package io.muoncore.memory.transport;
 
-import com.google.common.eventbus.EventBus;
 import io.muoncore.Discovery;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.channel.ChannelConnection;
@@ -8,6 +7,7 @@ import io.muoncore.channel.support.Scheduler;
 import io.muoncore.codec.Codecs;
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.exception.MuonTransportFailureException;
+import io.muoncore.memory.transport.bus.EventBus;
 import io.muoncore.message.MuonMessage;
 import io.muoncore.message.MuonMessageBuilder;
 import io.muoncore.protocol.ServerStacks;

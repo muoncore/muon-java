@@ -1,8 +1,8 @@
 package io.muoncore.memory.transport;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.memory.transport.bus.EventBus;
+import io.muoncore.memory.transport.bus.Subscribe;
 import io.muoncore.protocol.ServerStacks;
 import io.muoncore.message.MuonInboundMessage;
 import io.muoncore.message.MuonOutboundMessage;

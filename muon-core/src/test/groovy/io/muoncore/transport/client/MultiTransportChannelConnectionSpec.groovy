@@ -2,7 +2,9 @@ package io.muoncore.transport.client
 
 import io.muoncore.Discovery
 import io.muoncore.channel.ChannelConnection
+import io.muoncore.channel.Reactor2Dispatcher
 import io.muoncore.codec.json.GsonCodec
+import io.muoncore.config.AutoConfiguration
 import io.muoncore.exception.NoSuchServiceException
 import io.muoncore.message.MuonInboundMessage
 import io.muoncore.message.MuonMessage
@@ -24,7 +26,7 @@ class MultiTransportChannelConnectionSpec extends Specification {
         def discovery = Mock(Discovery)
         def connectionProvider = Mock(TransportConnectionProvider)
 
-        def connection = new MultiTransportClientChannelConnection(Environment.sharedDispatcher(), router, discovery, connectionProvider)
+        def connection = new MultiTransportClientChannelConnection(new Reactor2Dispatcher(Environment.sharedDispatcher()), router, discovery, connectionProvider, new AutoConfiguration())
 
         when:
         connection.send(outbound("mymessage", "myService1", "requestresponse"))
@@ -68,8 +70,8 @@ class MultiTransportChannelConnectionSpec extends Specification {
             findService(_) >> Optional.empty()
         }
 
-        def connection = new MultiTransportClientChannelConnection(Environment.sharedDispatcher(),
-                router, discovery, connectionProvider)
+        def connection = new MultiTransportClientChannelConnection(new Reactor2Dispatcher(Environment.sharedDispatcher()),
+                router, discovery, connectionProvider, new AutoConfiguration())
         connection.receive(receive)
 
         when:
@@ -113,7 +115,7 @@ class MultiTransportChannelConnectionSpec extends Specification {
         }
         def connectionProvider = Mock(TransportConnectionProvider)
 
-        def connection = new MultiTransportClientChannelConnection(Environment.sharedDispatcher(), router, discovery, connectionProvider)
+        def connection = new MultiTransportClientChannelConnection(new Reactor2Dispatcher(Environment.sharedDispatcher()), router, discovery, connectionProvider, new AutoConfiguration())
         connection.receive(receive)
 
         when:

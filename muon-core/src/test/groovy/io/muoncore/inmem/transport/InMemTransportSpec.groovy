@@ -1,6 +1,5 @@
 package io.muoncore.inmem.transport
 
-import com.google.common.eventbus.EventBus
 import io.muoncore.Discovery
 import io.muoncore.channel.support.Scheduler
 import io.muoncore.codec.Codecs
@@ -8,6 +7,7 @@ import io.muoncore.config.AutoConfiguration
 import io.muoncore.memory.transport.InMemClientChannelConnection
 import io.muoncore.memory.transport.InMemTransport
 import io.muoncore.memory.transport.OpenChannelEvent
+import io.muoncore.memory.transport.bus.EventBus
 import io.muoncore.message.MuonInboundMessage
 import io.muoncore.message.MuonMessageBuilder
 import io.muoncore.protocol.ServerStacks

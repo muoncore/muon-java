@@ -2,14 +2,12 @@ package io.muoncore.channel.impl;
 
 import io.muoncore.channel.Channel;
 import io.muoncore.channel.ChannelConnection;
+import io.muoncore.channel.Dispatcher;
 import io.muoncore.exception.MuonException;
-import reactor.core.Dispatcher;
 
 import java.util.Date;
 
 public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<GoingLeft, GoingRight> {
-
-    private Dispatcher dispatcher;
 
     private ChannelConnection<GoingLeft, GoingRight> left;
     private ChannelConnection<GoingRight, GoingLeft> right;
@@ -20,8 +18,6 @@ public class StandardAsyncChannel<GoingLeft, GoingRight> implements Channel<Goin
     public static boolean echoOut = false;
 
     public StandardAsyncChannel(String leftname, String rightname, Dispatcher dispatcher) {
-
-        this.dispatcher = dispatcher;
 
         left = new ChannelConnection<GoingLeft, GoingRight>() {
             @Override
