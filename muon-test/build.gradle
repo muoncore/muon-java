@@ -1,6 +1,0 @@
-
-description = 'Functions to help with testing Muon Components'
-dependencies {
-  project(":muon-core")
-  testCompile 'org.slf4j:slf4j-simple:1.7.12'
-}
