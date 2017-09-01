@@ -1,5 +1,16 @@
 # Change Log
 
+## [v7.4.0](https://github.com/muoncore/muon-java/tree/v7.4.0) (2017-09-01)
+[Full Changelog](https://github.com/muoncore/muon-java/compare/v7.3.4...v7.4.0)
+
+**Closed issues:**
+
+- Update to generate full pom for maven central [\#65](https://github.com/muoncore/muon-java/issues/65)
+
+**Merged pull requests:**
+
+- Clean dependencies [\#66](https://github.com/muoncore/muon-java/pull/66) ([daviddawson](https://github.com/daviddawson))
+
 ## [v7.3.4](https://github.com/muoncore/muon-java/tree/v7.3.4) (2017-08-15)
 [Full Changelog](https://github.com/muoncore/muon-java/compare/v7.3.3...v7.3.4)
 
