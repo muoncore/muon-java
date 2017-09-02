@@ -1,6 +1,14 @@
 # Change Log
 
-## [v7.4.0](https://github.com/muoncore/muon-java/tree/v7.4.0) (2017-09-01)
+## [Unreleased](https://github.com/muoncore/muon-java/tree/HEAD)
+
+[Full Changelog](https://github.com/muoncore/muon-java/compare/v7.4.0...HEAD)
+
+**Closed issues:**
+
+- Shade/ jarjar dependencies to avoid clashing [\#41](https://github.com/muoncore/muon-java/issues/41)
+
+## [v7.4.0](https://github.com/muoncore/muon-java/tree/v7.4.0) (2017-09-02)
 [Full Changelog](https://github.com/muoncore/muon-java/compare/v7.3.4...v7.4.0)
 
 **Closed issues:**
