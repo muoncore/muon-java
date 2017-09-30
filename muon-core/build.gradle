@@ -56,6 +56,13 @@ publishing {
         license.appendNode("url", "http://www.gnu.org/licenses/lgpl-3.0.txt")
         license.appendNode("distribution", "repo")
 
+        def developers = asNode().appendNode("developers")
+        def dev = developers.appendNode("developer")
+        dev.appendNode("name", "Muon Developers")
+        dev.appendNode("email", "info@muoncore.io")
+        dev.appendNode("organization", "Muon Project")
+        dev.appendNode("organizationUrl", "http://muoncore.io")
+
         asNode().appendNode("scm").appendNode("url", "https://github.com/muoncore/muon-java")
         asNode().packaging[0].value = 'jar'
         asNode().dependencies.'*'.each{
