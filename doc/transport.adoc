@@ -17,13 +17,13 @@ The most common way of initialising transports is to use `MuonConfigBuilder` and
 For example, this service configures the AMQP transport and instructs it to connect to a particular broker.
 
 ```java
-include::{includedir}/src/main/java/io/muoncore/example/MuonClientExample.java[tags=config]
+include::src/main/java/io/muoncore/example/MuonClientExample.java[tags=config]
 ```
 
 You can manually construct the Muon instance to programmatically configure the transport, although you also have to programmatically configure the Discovery and Codecs as well.
 
 ```java
-include::{includedir}/src/main/java/io/muoncore/example/ManualMuonBuild.java[tags=transport]
+include::src/main/java/io/muoncore/example/ManualMuonBuild.java[tags=transport]
 ```
 
 

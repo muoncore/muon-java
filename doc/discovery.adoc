@@ -15,13 +15,13 @@ The most common way of initialising discoveries is to use `MuonConfigBuilder` an
 For example, this service configures the AMQP transport and instructs it to connect to a particular broker.
 
 ```java
-include::{includedir}/src/main/java/io/muoncore/example/MuonClientExample.java[tags=config]
+include::src/main/java/io/muoncore/example/MuonClientExample.java[tags=config]
 ```
 
 You can manually construct the Muon instance to programmatically configure the discovery, although you also have to programmatically configure the Transports and Codecs as well.
 
 ```java
-include::{includedir}/src/main/java/io/muoncore/example/ManualMuonBuild.java[tags=discovery]
+include::src/main/java/io/muoncore/example/ManualMuonBuild.java[tags=discovery]
 ```
 <1> programatically initialise a Muon instance
 <2> Use `MultiDiscovery` to combine discovery information. In this case, from InMemDiscovery only.

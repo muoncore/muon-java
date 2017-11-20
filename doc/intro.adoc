@@ -13,7 +13,7 @@ First, install the Muon CLI, then clone this repository.
 This project has an example service already in there that looks similar to
 
 ```java
-include::{includedir}/src/main/java/io/muoncore/example/MuonServerExample.java[tags=main]
+include::src/main/java/io/muoncore/example/MuonServerExample.java[tags=main]
 ```
 <1> Create a muon configuration using a fluent interface builder.
 <1> Configure the AMQP transport to connect to the correct broker (see transport, below)
