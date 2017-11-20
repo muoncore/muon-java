@@ -13,28 +13,14 @@ First, install the Muon CLI, then clone this repository.
 This project has an example service already in there that looks similar to
 
 ```java
-public class MuonServerExample {
-
-
-    public static void main(String[] args) throws Exception {
-        AutoConfiguration config = MuonConfigBuilder
-                      .withServiceIdentifier("example-service").build(); // <1>
-
-        Muon muon = MuonBuilder.withConfig(config).build();              // <2>
-
-        muon.handleRequest(all(), request -> {                           // <3>
-            System.out.println("A request has been made ");
-            Map data = new HashMap();
-            data.put("Hello", "world " + System.currentTimeMillis());
-            request.ok(data);                                            // <4>
-        });
-        System.out.println("Use Ctrl-C to exit");
-    }
-}
+include::{includedir}/src/main/java/io/muoncore/example/MuonServerExample.java[tags=main]
 ```
 <1> Create a muon configuration using a fluent interface builder.
-<1> Construct a Muon instance from the config. It will appear in the network soon after this.
-<1> Setup an RPC Protocol Handler, for all request paths.
+<1> Configure the AMQP transport to connect to the correct broker (see transport, below)
+<1> Configure the AMQP discovery to connect to the correct broker (see discovery, below)
+<1> Create a Muon instance on the AMQP transport/ discovery
+<1> Add an RPC Server to this Muon instance                       (see protocols, below)
+<1> Add an RPC endpoint to the server
 <1> When invoked, respond to the RPC request with some manufactured data.
 
 You can run this from a prebuilt Gradle task
@@ -46,8 +32,10 @@ You can run this from a prebuilt Gradle task
 You can then use the Muon CLI to interact with the new service, using the name `example-service` set above as it's identifier
 
 ```bash
-> muon rpc rpc://example-service/
+> muon rpc example-service /
 ```
+
+This accesses the `rpc` protocol and interacts with the `/` endpoint
 
 You will see the results from the example service that should look like
 

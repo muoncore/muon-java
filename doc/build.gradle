@@ -7,5 +7,9 @@ dependencies {
 
   compile "org.codehaus.groovy:groovy-all:2.4.1"
   compile 'org.apache.ivy:ivy:2.4.0'
+  compile "io.muoncore.protocol:stack-rpc:0.0.5"
+  compile "io.muoncore.protocol:stack-reactive-streams:0.0.4"
+
+  runtime "io.muoncore.transport:muon-amqp:0.0.15"
 }
 

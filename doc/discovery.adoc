@@ -1,0 +1,31 @@
+
+
+== Discovery
+
+Muon services connect with others to do their work, ordinarily, across a network.  To do this, services need to be able to find each other. Muon takes the position that hardcoding a network address, port or name is a terrible idea. Specifically, Muon supports transport across a network both directly, point to point, and via intermediaries, such as a broker or message router (eg, the muonjs websocket gateway).
+
+This means that all service names must be logical, and so must be dynamically resolvable by services. Muon also takes the general position that fully consistent views of the surrounding system are expensive to produce and maintain, and are often wrong anyway.
+
+There is a common subsystem in all Muon implementations handling discovery. Similar to Transports, Muon Discoveries define a portable data schema that is used to describe services enough to be able to select the appropriate transport to use to connect to it.
+
+=== Initialising Discoveries
+
+The most common way of initialising discoveries is to use `MuonConfigBuilder` and pass in the transport factories to use. These will use the properties that are set in the config to construct the appropriate factories and register them with the Muon instance.
+
+For example, this service configures the AMQP transport and instructs it to connect to a particular broker.
+
+```java
+include::{includedir}/src/main/java/io/muoncore/example/MuonClientExample.java[tags=config]
+```
+
+You can manually construct the Muon instance to programmatically configure the discovery, although you also have to programmatically configure the Transports and Codecs as well.
+
+```java
+include::{includedir}/src/main/java/io/muoncore/example/ManualMuonBuild.java[tags=discovery]
+```
+<1> programatically initialise a Muon instance
+<2> Use `MultiDiscovery` to combine discovery information. In this case, from InMemDiscovery only.
+
+==== Multiple Discoveries
+
+Muon Java supports multiple discoveries at the same time. All of them are active and provide information on how to locate a service. If multiple discoveries are active at once, their information is merged to give a comprehensive view.

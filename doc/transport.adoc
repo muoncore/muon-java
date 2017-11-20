@@ -1,0 +1,63 @@
+
+
+== Transports
+
+Muon services connect with others to do their work, ordinarily, across a network.  The core concept in Muon systems is the _channel_, a bi-directional message pipe. If you dig into protocols, you will see many of these bichannels being constructed and attached together. One of these bichannels will be obtained from a `MuonTransport`, which represents a network communication.
+
+As with protocols, transport come in two parts.  The `MuonTransport` interface represents the client side of the transport, and is responsible for connecting to some remote service on demand and transferring messages back/ forth.
+
+The server side of the transport is wholly internal to the transport, and will, in some way, accept connections from another Muon instance and then request an internal bichannel from the `ServerStacks` interface.  This interface facades over the server side of the API types. When creating a Muon server protocol (eg, `ReactiveStreamServer`), you are providing a source of bichannels for the `ServerStacks` implementation to give to transports.
+
+So long as you can implement the interface `ChannelConnection` with `MuonMessage` flowing through it, you can build a transport for Muon.
+
+=== Initialising Transports
+
+The most common way of initialising transports is to use `MuonConfigBuilder` and pass in the transport factories to use. These will use the properties that are set in the config to construct the appropriate factories and register them with the Muon instance.
+
+For example, this service configures the AMQP transport and instructs it to connect to a particular broker.
+
+```java
+include::{includedir}/src/main/java/io/muoncore/example/MuonClientExample.java[tags=config]
+```
+
+You can manually construct the Muon instance to programmatically configure the transport, although you also have to programmatically configure the Discovery and Codecs as well.
+
+```java
+include::{includedir}/src/main/java/io/muoncore/example/ManualMuonBuild.java[tags=transport]
+```
+
+
+=== Multiple Transports
+
+Muon Java supports multiple transports at the same time, and will select the best transport to use based on the order of the transport connection urls in the discovery packet (use `muon d --raw` to see this info from the CLI)
+
+
+=== MuonMessages
+
+In commmon with other network models, Muon operates in levels. Each level conceptually speaks to its peer in the other service and implements this by interacting with the level below it.
+
+In Muon, each protocol speaks to its other side implementation by interacting with a set of channels, ultimately rooted in a transport channel. The interface between "protocol channels" and the Transport channel passes a message with a well defined schema, represented in Muon Java as `MuonMessage`.  The transports job is to send and receive these messages across a network. How it does this doesn't matter as far as the rest of Muon is concerned.
+
+The minimal MuonMessage schema looks like this
+
+[options="header"]
+|===
+| Name | Type | Description
+| id   | String       | The message ID Used for correlation
+| created  | long     | When the message was created
+| target_service  | String     | The logical service name this message is heading for
+| target_service_instance  | String     | The instance of the target service this is heading to, if applicable.
+| origin_service  | String     | The logical service that created this message.
+| protocol  | String     | The protocol this message was created by
+| step  | String     | Used by protocols, most commonly to indicate a message type or protocol state machine transition
+| status  | String     | Used by some protocols to indicate error states, deprecated
+| content_type  | String     | The content type of the payload, eg "application/json"
+| channel_op  | String     | Indicate if the message should be considered a terminator, ie dispatch then shut down the channel
+| payload  | byte[]     | The payload of the message, encoded as a byte array.
+|===
+
+Messages flowing between services are fully symmetrical, all flow using this common schema. Transports are permitted to trim this information for performance once a channel has been established, so long as it is inferred and reconstructed on the receiving side.
+
+To give better usability when constructing channels, Muon Java uses the extended generic types `MuonInboundMessage` and `MuonOutboundMessage`. Protocols will construct `MuonOutboundMessage` instances as needed and consume `MuonOutboundMessage` instances.
+
+If you wish to construct a new transport, you will be transporting these messages.

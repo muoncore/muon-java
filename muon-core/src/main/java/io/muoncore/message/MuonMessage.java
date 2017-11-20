@@ -26,12 +26,6 @@ public class MuonMessage {
     @SerializedName("channel_op")
     private ChannelOperation channelOperation = ChannelOperation.normal;
 
-    private transient List<String> channels = new ArrayList<>();
-
-    public void touch(String name) {
-      channels.add(name);
-    }
-
     public MuonMessage(String id, long created, String targetServiceName, String targetInstance, String sourceServiceName, String protocol, String step, Status status, byte[] payload, String contentType, ChannelOperation channelOperation) {
         this.id = id;
         this.created = created;

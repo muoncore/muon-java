@@ -35,6 +35,6 @@ Contribute to Muon Java and this documentation at http://github.com/muoncore/muo
 
 include::{includedir}/intro.adoc[leveloffset=+1]
 include::{includedir}/core.adoc[leveloffset=+1]
-include::{includedir}/eventsystem.adoc[leveloffset=+1]
-//include::{includedir}/spring.adoc[leveloffset=+1]
-include::{includedir}/extension.adoc[leveloffset=+1]
+include::{includedir}/transport.adoc[leveloffset=+1]
+include::{includedir}/discovery.adoc[leveloffset=+1]
+include::{includedir}/advanced.adoc[leveloffset=+1]
