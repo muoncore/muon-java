@@ -1,12 +1,14 @@
 package io.muoncore;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@ToString
 public class ServiceDescriptor {
 
     @Getter

@@ -11,6 +11,7 @@ dependencies {
   shadow 'org.apache.avro:avro:1.8.1'
   compile "io.projectreactor:reactor-stream:$reactorVersion"
   shadow 'org.slf4j:slf4j-api:1.7.21'
+  compile 'org.eclipse.jetty.websocket:websocket-client:9.4.9.v20180320'
 
   testCompile 'org.slf4j:slf4j-simple:1.7.12'
   testCompile 'com.google.code.gson:gson:2.3.1'

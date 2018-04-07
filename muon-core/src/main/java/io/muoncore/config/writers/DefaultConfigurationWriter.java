@@ -2,6 +2,8 @@ package io.muoncore.config.writers;
 
 import io.muoncore.config.AutoConfiguration;
 import io.muoncore.config.AutoConfigurationWriter;
+import io.muoncore.discovery.muoncore.MuonCoreDiscoveryFactory;
+import io.muoncore.transport.saas.MuonCoreTransportFactory;
 
 /**
  * Set the default configuration set.
@@ -14,11 +16,11 @@ public class DefaultConfigurationWriter implements AutoConfigurationWriter {
     public void writeConfiguration(AutoConfiguration config) {
         //default discovery
         config.getProperties().put("muon.discovery.factories",
-                "io.muoncore.discovery.amqp.AmqpDiscoveryFactory");
+          MuonCoreDiscoveryFactory.class.getCanonicalName());
 
         //default transport
         config.getProperties().put("muon.transport.factories",
-                "io.muoncore.transport.amqp.AmqpMuonTransportFactory");
+          MuonCoreTransportFactory.class.getCanonicalName());
 
 
         //default transport connection info
