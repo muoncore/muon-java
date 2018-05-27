@@ -96,8 +96,8 @@ public class SharedSocketServerChannel implements ChannelConnection<MuonInboundM
                 MuonOutboundMessage outMsg = MuonMessageBuilder.fromService(arg.getSourceServiceName())
                         .contentType(result.getContentType())
                         .payload(result.getPayload())
-                        .protocol(SharedChannelServerStacks.PROTOCOL)
-                        .step(SharedChannelServerStacks.STEP)
+                        .protocol(SharedChannelProtocolStack.PROTOCOL)
+                        .step(SharedChannelProtocolStack.STEP)
                         .toService(arg.getTargetServiceName()).build();
                 outboundFunc.apply(outMsg);
             });

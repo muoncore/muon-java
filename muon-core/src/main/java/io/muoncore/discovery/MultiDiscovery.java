@@ -3,6 +3,7 @@ package io.muoncore.discovery;
 import io.muoncore.Discovery;
 import io.muoncore.InstanceDescriptor;
 import io.muoncore.ServiceDescriptor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class MultiDiscovery implements Discovery {
 
     private List<Discovery> discoveries;
@@ -48,12 +50,14 @@ public class MultiDiscovery implements Discovery {
 
     @Override
     public void onReady(DiscoveryOnReady onReady) {
-        discoveries.forEach( discovery -> discovery.onReady(onReadyLatch::countDown));
+        discoveries.forEach( discovery -> discovery.onReady(() -> {
+          onReadyLatch.countDown();
+        }));
 
         new Thread(() ->{
             try {
                 onReadyLatch.await(5, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             try {

@@ -24,7 +24,8 @@ public class MuonCoreDiscovery implements Discovery {
 
   private final List<String> services = new ArrayList<>();
   private final Codecs codecs = new JsonOnlyCodecs();
-  private CountDownLatch latch = new CountDownLatch(1);
+  private final CountDownLatch latch = new CountDownLatch(1);
+  private boolean connected = false;
 
   private final Map<String, ServiceDescriptor> knownServices = new HashMap<>();
 
@@ -47,6 +48,10 @@ public class MuonCoreDiscovery implements Discovery {
 
     if (!services.contains(name)) {
       return Optional.empty();
+    }
+
+    if (knownServices.containsKey(name)) {
+      return Optional.of(knownServices.get(name));
     }
 
     try {
@@ -122,10 +127,12 @@ public class MuonCoreDiscovery implements Discovery {
 
   @Override
   public void onReady(DiscoveryOnReady onReady) {
-    try {
-      latch.await();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    if (!connected) {
+      try {
+        latch.await(5, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
     }
     onReady.call();
   }
@@ -141,12 +148,12 @@ public class MuonCoreDiscovery implements Discovery {
       List<String> svc = codecs.decode(message.getData(), "application/json", MuonCodecTypes.listOf(String.class));
       services.clear();
       services.addAll(svc);
+      connected = true;
       latch.countDown();
     } else if (message.getStep().equals("refreshservice")) {
       ServiceDescriptor desc = codecs.decode(message.getData(), "application/json", ServiceDescriptor.class);
       knownServices.put(desc.getIdentifier(), desc);
     } else if (message.getStep().equals("refreshservicetags")) {
-      log.info("MES {}", message.getCorrelationId());
       requests.get(message.getCorrelationId()).accept(message);
     } else {
       log.warn("Discovery: Unknown protocol step " + message.getStep());

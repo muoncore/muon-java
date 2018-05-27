@@ -14,13 +14,6 @@ import spock.lang.Specification
 
 class SharedSocketRouteSpec extends Specification {
 
-
-  @Ignore
-  def "when client channel shuts down, shared route transports the shutdown and cleans up locally."() {
-    expect:
-    1==2
-  }
-
   def "when a transport channel fails, SharedSocketRoute notifies of failure"() {
     def channel = Mock(ChannelConnection)
     def function

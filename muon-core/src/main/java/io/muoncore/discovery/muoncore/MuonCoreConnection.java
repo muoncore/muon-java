@@ -3,7 +3,7 @@ package io.muoncore.discovery.muoncore;
 
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.json.JsonOnlyCodecs;
-import io.muoncore.codec.types.MuonCodecTypes;
+import io.muoncore.config.AutoConfiguration;
 import io.muoncore.transport.saas.MuonCoreTransport;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -14,23 +14,14 @@ import org.eclipse.jetty.websocket.client.WebSocketClient;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @WebSocket(maxTextMessageSize = 64 * 1024)
 public class MuonCoreConnection {
 
-  private static MuonCoreConnection INSTANCE;
-
-  public static synchronized MuonCoreConnection connection() {
-    if (INSTANCE == null)  {
-      INSTANCE = new MuonCoreConnection();
-    }
-    return INSTANCE;
-  }
-
+  public final String ID = UUID.randomUUID().toString();
   private boolean isShutdown = false;
 
   @Setter
@@ -58,6 +49,8 @@ public class MuonCoreConnection {
   }
 
   public void start() {
+    if (client != null) return;
+
     client = new WebSocketClient();
     try {
       client.start();
@@ -65,7 +58,6 @@ public class MuonCoreConnection {
       URI echoUri = new URI("ws://localhost:8080");
       ClientUpgradeRequest request = new ClientUpgradeRequest();
       session = client.connect(this, echoUri).get();
-      System.out.printf("Connected to : %s%n",echoUri);
     } catch (Throwable t) {
       log.error("Error connecting to remote", t);
       reconnect();
@@ -78,7 +70,7 @@ public class MuonCoreConnection {
     if (isShutdown) return;
 
     try {
-      Thread.sleep(5000);
+      Thread.sleep(500);
       start();
     } catch (InterruptedException e) {
       e.printStackTrace();
@@ -88,7 +80,6 @@ public class MuonCoreConnection {
   @OnWebSocketClose
   public void onClose(int statusCode, String reason)
   {
-    log.info("Connection closed: %d - %s%n",statusCode,reason);
     reconnect();
   }
 
@@ -101,17 +92,13 @@ public class MuonCoreConnection {
   @OnWebSocketConnect
   public void onConnect(Session session)
   {
-    System.out.printf("Got connect: %s%n",session);
     this.session = session;
   }
 
   @OnWebSocketMessage
   public void onMessage(String msg) {
-    System.out.printf("Got msg: %s%n",msg);
 
     MuonCoreMessage message = codecs.decode(msg.getBytes(), "application/json", MuonCoreMessage.class);
-
-    System.out.printf("MSG TYPE: %s%n", message.getType());
 
     if (message.getType().equals("discovery")) {
       if (discovery != null) {
@@ -122,5 +109,14 @@ public class MuonCoreConnection {
         transport.handle(message);
       }
     }
+  }
+
+  public static MuonCoreConnection extractFromAutoConfig(AutoConfiguration config) {
+    MuonCoreConnection connection = (MuonCoreConnection) config.getProperties().get("muoncore.connection");
+    if (connection == null) {
+      connection = new MuonCoreConnection();
+      config.getProperties().put("muoncore.connection", connection);
+    }
+    return connection;
   }
 }

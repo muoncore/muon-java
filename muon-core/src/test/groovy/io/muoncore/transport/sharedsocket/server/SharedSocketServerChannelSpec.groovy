@@ -55,7 +55,7 @@ class SharedSocketServerChannelSpec extends Specification {
   MuonInboundMessage sharedMessage(SharedChannelOutboundMessage msg) {
     MuonMessageBuilder.fromService("awesome")
       .toService("faked")
-      .step(SharedChannelServerStacks.STEP)
+      .step(SharedChannelProtocolStack.STEP)
       .payload(codecs.encode(msg, ["application/json"] as String[]).payload)
       .contentType("application/json")
       .buildInbound()

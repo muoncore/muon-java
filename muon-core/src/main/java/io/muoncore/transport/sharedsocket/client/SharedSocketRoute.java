@@ -10,7 +10,7 @@ import io.muoncore.message.MuonMessageBuilder;
 import io.muoncore.message.MuonOutboundMessage;
 import io.muoncore.transport.client.TransportConnectionProvider;
 import io.muoncore.transport.sharedsocket.client.messages.SharedChannelInboundMessage;
-import io.muoncore.transport.sharedsocket.server.SharedChannelServerStacks;
+import io.muoncore.transport.sharedsocket.server.SharedChannelProtocolStack;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class SharedSocketRoute {
         this.configuration = configuration;
         this.onShutdown = onShutdown;
 
-        transportChannel = transportConnectionProvider.connectChannel(serviceName, SharedChannelServerStacks.PROTOCOL, inboundMessage -> {
+        transportChannel = transportConnectionProvider.connectChannel(serviceName, SharedChannelProtocolStack.PROTOCOL, inboundMessage -> {
             if (inboundMessage == null || inboundMessage.getChannelOperation() == MuonMessage.ChannelOperation.closed) {
               shutdownRoute(inboundMessage);
             } else {
@@ -77,10 +77,10 @@ public class SharedSocketRoute {
             Codecs.EncodingResult result = codecs.encode(outboundMessage, new String[] {"application/json"});
 
             MuonOutboundMessage out = MuonMessageBuilder.fromService(configuration.getServiceName())
-                    .protocol(SharedChannelServerStacks.PROTOCOL)
+                    .protocol(SharedChannelProtocolStack.PROTOCOL)
                     .contentType(result.getContentType())
                     .payload(result.getPayload())
-                    .step(SharedChannelServerStacks.STEP)
+                    .step(SharedChannelProtocolStack.STEP)
                     .toService(serviceName)
                     .build();
 

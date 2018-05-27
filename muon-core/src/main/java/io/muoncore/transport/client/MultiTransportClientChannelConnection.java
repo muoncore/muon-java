@@ -95,11 +95,11 @@ class MultiTransportClientChannelConnection implements ChannelConnection<MuonOut
     if (config.getBooleanConfig("sharedchannel.disable")) {
       return false;
     }
-    Optional<ServiceDescriptor> service = discovery.getServiceNamed(message.getTargetServiceName());
+//    Optional<ServiceDescriptor> service = discovery.getServiceNamed(message.getTargetServiceName());
 //        if (service.isPresent()) {
 //            return service.get().getCapabilities().contains(SharedSocketRouter.PROTOCOL);
 //        }
-    return true;
+    return false;
   }
 
   @Override

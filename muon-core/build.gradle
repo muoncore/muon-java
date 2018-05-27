@@ -3,6 +3,10 @@ plugins {
   id 'com.github.johnrengelman.shadow' version '2.0.1'
 }
 
+repositories {
+  mavenLocal()
+}
+
 description = 'Core Muon for Java'
 dependencies {
   shadow "org.reactivestreams:reactive-streams:$reactiveStreamsVersion"
@@ -16,6 +20,9 @@ dependencies {
   testCompile 'org.slf4j:slf4j-simple:1.7.12'
   testCompile 'com.google.code.gson:gson:2.3.1'
   testCompile 'org.apache.avro:avro:1.8.1'
+
+  testCompile "io.muoncore.protocol:stack-reactive-streams:0.0.7"
+  testCompile "io.muoncore.protocol:stack-event:0.0.10-SNAPSHOT"
 }
 
 shadowJar {

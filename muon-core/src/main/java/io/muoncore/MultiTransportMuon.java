@@ -19,7 +19,7 @@ import io.muoncore.transport.client.MultiTransportClient;
 import io.muoncore.transport.client.SimpleTransportMessageDispatcher;
 import io.muoncore.transport.client.TransportClient;
 import io.muoncore.transport.client.TransportMessageDispatcher;
-import io.muoncore.transport.sharedsocket.server.SharedChannelServerStacks;
+import io.muoncore.transport.sharedsocket.server.SharedChannelProtocolStack;
 import lombok.extern.slf4j.Slf4j;
 import reactor.Environment;
 
@@ -62,7 +62,8 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
     DynamicRegistrationServerStacks stacks = new DynamicRegistrationServerStacks(
       new DefaultServerProtocol(codecs, configuration, discovery),
       wiretap);
-    this.protocols = new SharedChannelServerStacks(stacks, codecs);
+    stacks.registerServerProtocol(new SharedChannelProtocolStack(stacks, codecs));
+    this.protocols = stacks;
     this.registrar = stacks;
 
     initServerStacks(stacks);
@@ -84,7 +85,7 @@ public class MultiTransportMuon implements Muon, ServerRegistrarSource {
 
   private Set<String> generateCapabilities() {
     Set<String> capabilities = new HashSet<>();
-    capabilities.add(SharedChannelServerStacks.PROTOCOL);
+    capabilities.add(SharedChannelProtocolStack.PROTOCOL);
     return capabilities;
   }
 
