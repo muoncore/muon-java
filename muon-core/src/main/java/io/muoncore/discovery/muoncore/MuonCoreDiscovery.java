@@ -31,6 +31,8 @@ public class MuonCoreDiscovery implements Discovery {
 
   private final Map<String, Consumer<MuonCoreMessage>> requests = new HashMap<>();
 
+  private InstanceDescriptor descriptor;
+
   MuonCoreDiscovery(MuonCoreConnection connection) {
     this.connection = connection;
     connection.setDiscovery(this);
@@ -109,11 +111,20 @@ public class MuonCoreDiscovery implements Discovery {
 
     }
 
+    if (descriptor.isEmpty()) {
+      return Optional.empty();
+    }
+
     return Optional.of(descriptor.iterator().next());
   }
 
   @Override
   public void advertiseLocalService(InstanceDescriptor descriptor) {
+    this.descriptor = descriptor;
+    advertiseCurrentService();
+  }
+
+  public void advertiseCurrentService() {
     try {
       byte[] dats = codecs.encode(descriptor, codecs.getAvailableCodecs()).getPayload();
 

@@ -16,6 +16,9 @@ import org.reactivestreams.Subscription
 
 def config = MuonConfigBuilder
   .withServiceIdentifier("awesome")
+.addWriter({
+  it.properties.put("muoncore.url", "wss://ws.cloud.daviddawson.me")
+})
   .build()
 
 Muon muon = MuonBuilder.withConfig(config).build()
