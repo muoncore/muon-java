@@ -95,6 +95,7 @@ public class MuonCoreDiscovery implements Discovery {
     });
 
     try {
+      log.info("REFRESH WITH TAGS");
       connection.send(new MuonCoreMessage(
         "discovery", "refreshservicetags", id, codecs.encode(tags, codecs.getAvailableCodecs()).getPayload()
       ));

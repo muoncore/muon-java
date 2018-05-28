@@ -100,6 +100,8 @@ public class MuonCoreConnection {
 
     MuonCoreMessage message = codecs.decode(msg.getBytes(), "application/json", MuonCoreMessage.class);
 
+    log.info("MESSAGE " + message);
+
     if (message.getType().equals("discovery")) {
       if (discovery != null) {
         discovery.handle(message);

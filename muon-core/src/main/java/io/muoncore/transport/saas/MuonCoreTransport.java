@@ -80,6 +80,8 @@ public class MuonCoreTransport implements MuonTransport {
 
   public void handle(MuonCoreMessage message) {
 
+    log.info(new String(message.getData()));
+
     MuonInboundMessage decode = codecs.decode(message.getData(), "application/json", MuonInboundMessage.class);
 
     if (message.getStep().equals("dat")) {

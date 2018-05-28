@@ -28,62 +28,62 @@ muon.discovery.onReady {
   println "AWESOME"
   println "SERVICES ARE $muon.discovery.serviceNames}"
 
-  def introspect = muon.introspect("test1").get()
+  def introspect = muon.introspect("photonlite").get()
   println "INTROSPECTION"
   println introspect
 
-//  println ev.event(
-//    ClientEvent.ofType("SomethingHappened")
-//      .stream("awesome")
-//      .payload(["happy": "clappy"])
-//      .build(), auth)
-//
-//
-//  ev.replay("awesome", auth, EventReplayMode.REPLAY_ONLY, new Subscriber() {
-//
-//    @Override
-//    void onSubscribe(Subscription s) {
-//      s.request(100)
-//    }
-//
-//    @Override
-//    void onNext(Object o) {
-//      println "GOT DATA ${o}"
-//    }
-//
-//    @Override
-//    void onError(Throwable t) {
-//      t.printStackTrace()
-//    }
-//
-//    @Override
-//    void onComplete() {
-//      println "STREAM FINISHED"
-//    }
-//  })
-//
-//  ev.replay("awesome", auth, EventReplayMode.REPLAY_ONLY, new Subscriber() {
-//
-//    @Override
-//    void onSubscribe(Subscription s) {
-//      s.request(100)
-//    }
-//
-//    @Override
-//    void onNext(Object o) {
-//      println "2222222GOT DATA ${o}"
-//    }
-//
-//    @Override
-//    void onError(Throwable t) {
-//      t.printStackTrace()
-//    }
-//
-//    @Override
-//    void onComplete() {
-//      println "222222STREAM FINISHED"
-//    }
-//  })
+  println ev.event(
+    ClientEvent.ofType("SomethingHappened")
+      .stream("awesome")
+      .payload(["happy": "clappy"])
+      .build(), auth)
+
+
+  ev.replay("awesome", auth, EventReplayMode.REPLAY_ONLY, new Subscriber() {
+
+    @Override
+    void onSubscribe(Subscription s) {
+      s.request(100)
+    }
+
+    @Override
+    void onNext(Object o) {
+      println "GOT DATA ${o}"
+    }
+
+    @Override
+    void onError(Throwable t) {
+      t.printStackTrace()
+    }
+
+    @Override
+    void onComplete() {
+      println "STREAM FINISHED"
+    }
+  })
+
+  ev.replay("awesome", auth, EventReplayMode.REPLAY_ONLY, new Subscriber() {
+
+    @Override
+    void onSubscribe(Subscription s) {
+      s.request(100)
+    }
+
+    @Override
+    void onNext(Object o) {
+      println "2222222GOT DATA ${o}"
+    }
+
+    @Override
+    void onError(Throwable t) {
+      t.printStackTrace()
+    }
+
+    @Override
+    void onComplete() {
+      println "222222STREAM FINISHED"
+    }
+  })
 
   sleep(10000)
   muon.shutdown()

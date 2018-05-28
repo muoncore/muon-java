@@ -99,7 +99,7 @@ class MultiTransportClientChannelConnection implements ChannelConnection<MuonOut
 //        if (service.isPresent()) {
 //            return service.get().getCapabilities().contains(SharedSocketRouter.PROTOCOL);
 //        }
-    return false;
+    return true;
   }
 
   @Override

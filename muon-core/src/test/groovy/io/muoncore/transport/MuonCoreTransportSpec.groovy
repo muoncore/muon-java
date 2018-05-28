@@ -76,4 +76,30 @@ class MuonCoreTransportSpec extends Specification {
     muon.shutdown()
     muon2.shutdown()
   }
+
+  def "can discover other services with tags across the connection"() {
+
+    Muon muon = MuonBuilder.withConfig(MuonConfigBuilder
+      .withServiceIdentifier("testservice1")
+      .withTags("wibble", "wobble")
+      .build()).build()
+
+    Muon muon2 = MuonBuilder.withConfig(MuonConfigBuilder
+      .withServiceIdentifier("testservice2")
+      .build()).build()
+
+    when:
+
+    muon2.discovery.blockUntilReady()
+
+    def service = muon2.discovery.getServiceWithTags("wibble", "wobble").get()
+
+    then:
+    service != null
+    service.identifier == "testservice1"
+
+    cleanup:
+    muon.shutdown()
+    muon2.shutdown()
+  }
 }
