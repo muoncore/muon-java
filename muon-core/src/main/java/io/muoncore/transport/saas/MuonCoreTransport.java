@@ -82,6 +82,10 @@ public class MuonCoreTransport implements MuonTransport {
 
     MuonInboundMessage decode = codecs.decode(message.getData(), "application/json", MuonInboundMessage.class);
 
+    if (message.getType().equals("ping")) {
+      return;
+    }
+
     if (message.getStep().equals("dat")) {
       Consumer<MuonInboundMessage> consumer = inboundHandlers.get(message.getCorrelationId());
 

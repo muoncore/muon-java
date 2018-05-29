@@ -125,6 +125,9 @@ public class MuonCoreDiscovery implements Discovery {
   }
 
   public void advertiseCurrentService() {
+    if (this.descriptor == null) {
+      return;
+    }
     try {
       byte[] dats = codecs.encode(descriptor, codecs.getAvailableCodecs()).getPayload();
 
