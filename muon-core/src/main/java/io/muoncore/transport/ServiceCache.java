@@ -36,6 +36,13 @@ public class ServiceCache {
       service.getIdentifier(), entry);
   }
 
+  public Optional<ServiceDescriptor> getService(String name) {
+    if (serviceCache.containsKey(name)) {
+      return Optional.of(serviceCache.get(name).data);
+    }
+    return Optional.empty();
+  }
+
   private synchronized void expire() {
     Map<String, Entry> newCache = new HashMap<>(serviceCache);
     Map<String, Entry> entries = new HashMap<>();

@@ -2,15 +2,13 @@ package io.muoncore.discovery.muoncore;
 
 import io.muoncore.Discovery;
 import io.muoncore.InstanceDescriptor;
-import io.muoncore.Muon;
 import io.muoncore.ServiceDescriptor;
 import io.muoncore.codec.Codecs;
 import io.muoncore.codec.json.JsonOnlyCodecs;
 import io.muoncore.codec.types.MuonCodecTypes;
-import lombok.AllArgsConstructor;
+import io.muoncore.transport.ServiceCache;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.xml.ws.Service;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -21,13 +19,11 @@ import java.util.function.Consumer;
 public class MuonCoreDiscovery implements Discovery {
 
   private MuonCoreConnection connection;
-
+  private ServiceCache cache = new ServiceCache(true);
   private final List<String> services = new ArrayList<>();
   private final Codecs codecs = new JsonOnlyCodecs();
   private final CountDownLatch latch = new CountDownLatch(1);
   private boolean connected = false;
-
-  private final Map<String, ServiceDescriptor> knownServices = new HashMap<>();
 
   private final Map<String, Consumer<MuonCoreMessage>> requests = new HashMap<>();
 
@@ -52,8 +48,8 @@ public class MuonCoreDiscovery implements Discovery {
       return Optional.empty();
     }
 
-    if (knownServices.containsKey(name)) {
-      return Optional.of(knownServices.get(name));
+    if (cache.getService(name).isPresent()) {
+      return cache.getService(name);
     }
 
     try {
@@ -65,9 +61,9 @@ public class MuonCoreDiscovery implements Discovery {
     }
 
     for (int i=0; i < 10; i++) {
-      ServiceDescriptor descriptor = knownServices.get(name);
+      Optional<ServiceDescriptor> descriptor = cache.getService(name);
       if (descriptor != null) {
-        return Optional.of(descriptor);
+        return descriptor;
       }
       try {
         Thread.sleep(100);
@@ -81,6 +77,13 @@ public class MuonCoreDiscovery implements Discovery {
   @Override
   public Optional<ServiceDescriptor> getServiceWithTags(String... tags) {
 
+    Optional<ServiceDescriptor> localDescriptor = cache.getServices().stream().filter(
+      serviceDescriptor -> serviceDescriptor.getTags().containsAll(Arrays.asList(tags))).findFirst();
+
+    if (localDescriptor.isPresent()) {
+      return localDescriptor;
+    }
+
     String id = UUID.randomUUID().toString();
     CountDownLatch latch = new CountDownLatch(1);
 
@@ -88,8 +91,9 @@ public class MuonCoreDiscovery implements Discovery {
 
     requests.put(id, message -> {
       try {
-        ServiceDescriptor desc = codecs.decode(message.getData(), "application/json", ServiceDescriptor.class);
-        descriptor.add(desc);
+        InstanceDescriptor desc = codecs.decode(message.getData(), "application/json", InstanceDescriptor.class);
+        cache.addService(desc);
+        descriptor.add(cache.getService(desc.getIdentifier()).get());
       } finally {
         latch.countDown();
         requests.remove(id);
@@ -166,8 +170,8 @@ public class MuonCoreDiscovery implements Discovery {
       connected = true;
       latch.countDown();
     } else if (message.getStep().equals("refreshservice")) {
-      ServiceDescriptor desc = codecs.decode(message.getData(), "application/json", ServiceDescriptor.class);
-      knownServices.put(desc.getIdentifier(), desc);
+      InstanceDescriptor desc = codecs.decode(message.getData(), "application/json", InstanceDescriptor.class);
+      cache.addService(desc);
     } else if (message.getStep().equals("refreshservicetags")) {
       requests.get(message.getCorrelationId()).accept(message);
     } else {

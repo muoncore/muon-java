@@ -42,7 +42,9 @@ public class MuonCoreConnection {
   public void send(MuonCoreMessage message) throws IOException {
     byte[] payload = codecs.encode(message, codecs.getAvailableCodecs()).getPayload();
     String val = new String(payload);
-    session.getRemote().sendString(val);
+    synchronized(this) { // sad face
+      session.getRemote().sendString(val);
+    }
   }
 
   public void shutdown() {
